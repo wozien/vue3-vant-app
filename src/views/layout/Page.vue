@@ -1,13 +1,15 @@
 <template>
-  <div class="ins-page"></div>
+  <div :class="['ins-page', name && `ins-${name}-page`]">
+    <slot></slot>
+  </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType } from 'vue'
+import { defineComponent } from 'vue'
 
 export default defineComponent({
   props: {
-    className: Array as PropType<string[]>
+    name: String
   }
 })
 </script>

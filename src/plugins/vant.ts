@@ -4,7 +4,10 @@ import {
   Field,
   Checkbox,
   Popup,
-  Picker
+  Picker,
+  Icon,
+  Tabbar,
+  TabbarItem
 } from 'vant'
 
 export default function(app: App){
@@ -13,4 +16,7 @@ export default function(app: App){
   app.use(Checkbox)
   app.use(Popup)
   app.use(Picker)
+  app.use(Icon)
+  app.use(Tabbar)
+  app.use(TabbarItem)
 }

@@ -1,12 +1,37 @@
 <template>
-  <Page />
+  <Page>
+    <router-view class="view-container"></router-view>
+    <van-tabbar v-model="active">
+      <van-tabbar-item name="dashboard" icon="home-o" to="/dashboard">首页</van-tabbar-item>
+      <van-tabbar-item name="market" icon="apps-o" to="/market">应用</van-tabbar-item>
+      <van-tabbar-item name="user" icon="user-o" to="/user">我的</van-tabbar-item>
+    </van-tabbar>
+  </Page>
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue'
+import { defineComponent, ref, watchEffect } from 'vue'
+import { useRoute } from 'vue-router'
+
 export default defineComponent({
-  name: ''
+  setup() {
+    // route里面的属性是reactive的
+    const route = useRoute()
+    const active = ref('')
+    
+    watchEffect(() => {
+      active.value = route.path.substr(1)
+    })
+
+    return {
+      active
+    }
+  }
 })
 </script>
 
-<style lang="less" scoped></style>
+<style lang="less" scoped>
+.view-container {
+  height: calc(100vh - 50px);
+}
+</style>
