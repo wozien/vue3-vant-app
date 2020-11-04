@@ -10,7 +10,7 @@ const User = defineAsyncComponent(() => import('@views/user/User.vue'))
 const routes: RouteRecordRaw[] = [
   {
     path: '/',
-    redirect: '/login'
+    redirect: '/dashboard'
   },
   {
     path: '/login',

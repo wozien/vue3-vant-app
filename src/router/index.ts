@@ -8,7 +8,8 @@ const router = createRouter({
 
 // beforeEach hook
 router.beforeEach((to) => {
-  const token = localStorage.getItem ('INSUITE_TOKEN')
+  const token = localStorage.getItem('INSUITE_TOKEN')
+  // TODO token不存在时 通过open_id校验状态
   if(to.path !== '/login' && !token) {
     return { name: 'login' }
   }

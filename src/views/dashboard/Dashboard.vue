@@ -3,9 +3,20 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue'
+import { defineComponent, computed } from 'vue'
+import { useStore } from '@/store'
+
 export default defineComponent({
-  name: ''
+
+  setup() {
+    const store = useStore()
+
+    store.dispatch('setUserInfo')
+
+    return {
+      user: computed(() => store.state.user)
+    }
+  }
 })
 </script>
 

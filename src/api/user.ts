@@ -14,3 +14,9 @@ export const userLogin = async (account: string, password: string, wxOpenId = '1
 
   return res.data
 }
+
+// 用户信息
+export const fetchUserInfo = async (): Promise<HttpRes> => {
+  const res = await http.get('/system/user_info')
+  return res.data
+}
