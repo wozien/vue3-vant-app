@@ -8,7 +8,7 @@ const router = createRouter({
 
 // beforeEach hook
 router.beforeEach((to) => {
-  const token = localStorage.getItem('INSUITE_TOKEN')
+  const token = localStorage.getItem ('INSUITE_TOKEN')
   if(to.path !== '/login' && !token) {
     return { name: 'login' }
   }

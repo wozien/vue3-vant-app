@@ -1,13 +1,15 @@
 <template>
   <Page name="login">
     <h2 class="title">欢迎使用 inSuite</h2>
-    <div class="row">
-      <Icon name="account"/>
-      <input class="input" type="tel" v-model="account" placeholder="手机号" />
-    </div>
-    <div class="row">
-      <Icon name="password"/>
-      <input class="input" type="password" v-model="password" placeholder="密码" />
+    <div class="info">
+      <div class="row">
+        <Icon name="account"/>
+        <input class="input" type="tel" v-model="account.phone" placeholder="手机号" />
+      </div>
+      <div class="row">
+        <Icon name="password"/>
+        <input class="input" type="password" v-model="account.password" placeholder="密码" />
+      </div>
     </div>
     <van-button type="primary" round block @click="login" :loading="loading">登录</van-button>
     <div class="footer">
@@ -18,9 +20,38 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from 'vue'
+import { defineComponent, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { Toast } from 'vant'
+import { userLogin } from '@/api/user'
+
+function useLogin() {
+  const loading = ref(false)
+  const account = reactive({
+    phone: '',
+    password: ''
+  })
+  const router = useRouter()
+
+  const login = async () => {
+    const { phone, password } = account 
+    if(!phone || !password) {
+      Toast('手机号或者密码不能为空'); return
+    } else if(!/^\d{11}$/.test(phone)) {
+      Toast('手机号格式不正确'); return
+    }
+
+    loading.value = true
+    const res = await userLogin(phone, password)
+    loading.value = false
+    if(res.ret === 0) {
+      const { access_token } = res.data
+      localStorage.setItem('INSUITE_TOKEN', access_token)
+      router.push('/dashboard')
+    }
+  }
+  return { loading, account, login }
+}
 
 export default defineComponent({
   setup() {
@@ -32,22 +63,6 @@ export default defineComponent({
   }
 })
 
-function useLogin() {
-  const loading = ref(false)
-  const account = ref('')
-  const password = ref('')
-  const router = useRouter()
-
-  const login = () => {
-    loading.value = true
-    console.log(account.value, password.value)
-    setTimeout(() => { 
-      loading.value = false 
-      router.push('/dashboard')
-    }, 2000)
-  }
-  return { loading, account, password, login }
-}
 </script>
 
 <style lang="less" scoped>
@@ -72,6 +87,9 @@ function useLogin() {
       border: none;
       color: @text-color;
       font-size: 14px;
+    }
+    &:last-child {
+      margin-bottom: 40px;
     }
   }
   .footer {
