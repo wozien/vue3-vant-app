@@ -47,7 +47,7 @@ function useLogin() {
     if(res.ret === 0) {
       const { access_token } = res.data
       localStorage.setItem('INSUITE_TOKEN', access_token)
-      router.push('/dashboard')
+      router.push('/companyList')
     }
   }
   return { loading, account, login }
@@ -87,6 +87,7 @@ export default defineComponent({
       border: none;
       color: @text-color;
       font-size: 14px;
+      width: 220px;
     }
     &:last-child {
       margin-bottom: 40px;

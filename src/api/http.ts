@@ -48,6 +48,7 @@ instance.interceptors.response.use(
         case 401:
           errMsg = '客户端错误';
           break;
+
         case 403:
           errMsg = '拒绝访问';
           break;
@@ -92,6 +93,7 @@ instance.interceptors.response.use(
       type: 'danger',
       message: errMsg
     })
+    console.log(err)
     return Promise.reject(errMsg)
   }
 )
@@ -100,8 +102,9 @@ instance.interceptors.response.use(
 export interface HttpRes {
   ret: number;
   msg: string;
+  time: number;
   data?: any;
-  error?: any;
+  error?: Object;
 }
 
 export default instance

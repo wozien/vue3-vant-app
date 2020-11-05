@@ -11,6 +11,7 @@
 
 <script lang="ts">
 import { defineComponent, ref, watchEffect } from 'vue'
+import { useStore } from '@/store'
 import { useRoute } from 'vue-router'
 
 export default defineComponent({
@@ -18,6 +19,10 @@ export default defineComponent({
     // route里面的属性是reactive的
     const route = useRoute()
     const active = ref('')
+    const store = useStore()
+
+    // 加载用户信息
+    store.dispatch('setUserInfo')
     
     watchEffect(() => {
       active.value = route.path.substr(1)

@@ -17,5 +17,6 @@ export default defineComponent({
 <style lang="less">
 .ins-page {
   height: 100%;
+  position: relative;
 }
 </style>

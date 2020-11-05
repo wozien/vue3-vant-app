@@ -5,6 +5,9 @@ import store, { key } from './store'
 import plugins from './plugins'
 import '@assets/style/reset.less'
 import '@assets/style/iconfont.less'
+// import vConsole from 'vconsole'
+
+// new vConsole()
 
 const app = createApp(App)
 app.use(router)

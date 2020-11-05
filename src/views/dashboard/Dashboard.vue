@@ -3,19 +3,11 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, computed } from 'vue'
-import { useStore } from '@/store'
+import { defineComponent } from 'vue'
 
 export default defineComponent({
 
   setup() {
-    const store = useStore()
-
-    store.dispatch('setUserInfo')
-
-    return {
-      user: computed(() => store.state.user)
-    }
   }
 })
 </script>

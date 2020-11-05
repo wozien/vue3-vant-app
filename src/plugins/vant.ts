@@ -7,7 +7,11 @@ import {
   Picker,
   Icon,
   Tabbar,
-  TabbarItem
+  TabbarItem,
+  Image as VanImage,
+  CellGroup,
+  Cell,
+  Dialog
 } from 'vant'
 
 export default function(app: App){
@@ -19,4 +23,8 @@ export default function(app: App){
   app.use(Icon)
   app.use(Tabbar)
   app.use(TabbarItem)
+  app.use(VanImage)
+  app.use(Cell)
+  app.use(CellGroup)
+  app.use(Dialog)
 }

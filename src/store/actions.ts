@@ -1,5 +1,5 @@
 import { ActionTree } from 'vuex'
-import { State } from './index'
+import { State } from './state'
 import { fetchUserInfo } from '@/api/user'
 
 const actions: ActionTree<State, State> = {

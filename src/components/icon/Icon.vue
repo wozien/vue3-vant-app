@@ -1,9 +1,10 @@
 <template>
   <van-icon 
     class-prefix="ins-icon" 
-    size="20"
+    :size="size"
     :name="name"
     color="#646566"
+    style="margin-right: 10px"
   />
 </template>
 
@@ -15,6 +16,10 @@ export default defineComponent({
     name: {
       type: String,
       required: true
+    },
+    size: {
+      type: String,
+      default: '20'
     }
   }
 })

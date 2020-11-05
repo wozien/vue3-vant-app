@@ -6,6 +6,7 @@ const Layout = defineAsyncComponent(() => import('@views/layout/Layout.vue'))
 const Dashboard = defineAsyncComponent(() => import('@views/dashboard/Dashboard.vue'))
 const Market = defineAsyncComponent(() => import('@views/market/Market.vue'))
 const User = defineAsyncComponent(() => import('@views/user/User.vue'))
+const CompanyList = defineAsyncComponent(() => import('@views/user/CompanyList.vue'))
 
 const routes: RouteRecordRaw[] = [
   {
@@ -35,6 +36,10 @@ const routes: RouteRecordRaw[] = [
         component: User
       }
     ]
+  },
+  {
+    path: '/companyList',
+    component: CompanyList
   }
 ]
 
