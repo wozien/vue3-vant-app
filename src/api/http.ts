@@ -93,7 +93,6 @@ instance.interceptors.response.use(
       type: 'danger',
       message: errMsg
     })
-    console.log(err)
     return Promise.reject(errMsg)
   }
 )
