@@ -44,7 +44,7 @@ export default defineComponent({
     onMounted(async () => {
       const res = await fetchCompanyList()
       if(res.ret === 0 && res.data?.length) {
-        companyList.value = res.data.map(item => {
+        companyList.value = res.data.map((item: any) => {
           const { db_name, oauth2_login_url, company_name } = item
           return {
             name: company_name,
