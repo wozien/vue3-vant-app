@@ -1,19 +1,19 @@
 import { MutationTree } from 'vuex'
-import { State } from './state'
+import { State, User } from './state'
 
 const mutations: MutationTree<State> = {
   'SET_USER' (state, data) {
-    const user = {
+    const { company } = data
+    const user: User = {
       avatar: data.user_avatar,
-      nickname: data.user_info?.name,
-      phone: data.user_info?.phone_number,
+      nickname: data.name,
+      phone: data.phone_number,
+      company: {
+        dbName: company?.db_name,
+        name: company?.company_name
+      }
     }
-
-    Object.assign(state.user, user)
-  },
-
-  'SET_USER_COMPANY' (state, name: string) {
-    state.user.companyName = name
+    state.user = user
   }
 }
 

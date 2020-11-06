@@ -4,7 +4,7 @@
     :size="size"
     :name="name"
     color="#646566"
-    style="margin-right: 10px"
+    style="margin-right: 8px"
   />
 </template>
 

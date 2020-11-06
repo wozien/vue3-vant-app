@@ -53,7 +53,7 @@ export default defineComponent({
           }
         })
         if(companyList.value.length) {
-          active.value = localStorage.getItem('CUR_COMPANY') || companyList.value[0]?.dbName
+          active.value = store.state.user.company.dbName || companyList.value[0]?.dbName
         }
       }
     })
@@ -62,14 +62,12 @@ export default defineComponent({
       Toast.loading({
         duration: 0,
         forbidClick: true,
-        message: '加载企业数据...'
+        message: '载入企业数据'
       })
-      localStorage.setItem('CUR_COMPANY', active.value)
       const activeCompany = companyList.value.find(item => item.dbName === active.value)
       if(activeCompany) {
         const res = await switchCompany(activeCompany.dbName, activeCompany.oauthUrl)
         if(res.ret === 0) {
-          store.commit('SET_USER_COMPANY', activeCompany.name)
           router.push('/dashboard')
         }
         Toast.clear()

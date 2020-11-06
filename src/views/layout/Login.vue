@@ -82,7 +82,6 @@ export default defineComponent({
     display: flex;
     align-items: center;
     .input {
-      padding-left: 10px;
       outline: none;
       border: none;
       color: @text-color;

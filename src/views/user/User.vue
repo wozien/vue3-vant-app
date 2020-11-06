@@ -9,8 +9,8 @@
       <Icon  name="set" size="24"/>
     </div>
     <van-cell-group>
-      <van-cell :title="user.companyName" icon-prefix="ins-icon" icon="company" to="/companyList" is-link />
-      <van-cell title="帮助中心" icon-prefix="ins-icon" icon="help" url="https://wiki.insuite.cn/zh/home" is-link/>
+      <van-cell :title="user.company.name" icon-prefix="ins-icon" icon="company" to="/companyList" is-link />
+      <van-cell title="帮助中心" icon-prefix="ins-icon" icon="help" url="https://wiki.insuite.cn/zh/home" />
       <van-cell title="联系我们" icon-prefix="ins-icon" icon="contact" @click="onClickContract"/>
     </van-cell-group>
     <div class="footer">
