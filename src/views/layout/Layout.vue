@@ -1,6 +1,6 @@
 <template>
   <Page>
-    <router-view class="view-container"></router-view>
+    <router-view class="view-container" v-title="$route.meta.title"></router-view>
     <van-tabbar v-model="active">
       <van-tabbar-item name="dashboard" icon="home-o" to="/dashboard">首页</van-tabbar-item>
       <van-tabbar-item name="market" icon="apps-o" to="/market">应用</van-tabbar-item>

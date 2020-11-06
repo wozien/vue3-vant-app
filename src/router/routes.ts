@@ -16,7 +16,8 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/login',
     name: 'login',
-    component: Login
+    component: Login,
+    meta: { title: '用户登录' }
   },
   {
     path: '/layout',
@@ -25,21 +26,25 @@ const routes: RouteRecordRaw[] = [
     children: [
       {
         path: '/dashboard',
-        component: Dashboard
+        component: Dashboard,
+        meta: { title: '首页' }
       },
       {
         path: '/market',
-        component: Market
+        component: Market,
+        meta: { title: '应用' }
       },
       {
         path: '/user',
-        component: User
+        component: User,
+        meta: { title: '我的信息' }
       }
     ]
   },
   {
     path: '/companyList',
-    component: CompanyList
+    component: CompanyList,
+    meta: { title: '我的企业' }
   }
 ]
 
