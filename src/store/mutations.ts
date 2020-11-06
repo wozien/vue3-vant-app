@@ -14,6 +14,13 @@ const mutations: MutationTree<State> = {
       }
     }
     state.user = user
+  },
+
+  'SET_ORGS' (state, data: {id: number; name: string;}[]) {
+    state.orgs = data
+    if(data.length) {
+      state.curOrg = data[0]
+    }
   }
 }
 

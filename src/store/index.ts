@@ -19,4 +19,6 @@ export function useStore() {
   return baseUseStore(key)
 }
 
+export type VuexStore = typeof store
+
 export default store

@@ -23,6 +23,7 @@ export default defineComponent({
 
     // 加载用户信息
     store.dispatch('setUserInfo')
+    store.dispatch('setOrgs')
     
     watchEffect(() => {
       active.value = route.path.substr(1)

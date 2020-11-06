@@ -1,11 +1,16 @@
 import { ActionTree } from 'vuex'
 import { State } from './state'
-import { fetchUserInfo } from '@/api/user'
+import { fetchUserInfo, fetchUserOrgs } from '@/api/user'
 
 const actions: ActionTree<State, State> = {
   async setUserInfo({ commit }) {
     const res = await fetchUserInfo()
     commit('SET_USER', res.data)
+  },
+  
+  async setOrgs({ commit }) {
+    const res = await fetchUserOrgs()
+    commit('SET_ORGS', res.data)
   }
 }
 

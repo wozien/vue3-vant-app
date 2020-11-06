@@ -10,28 +10,49 @@
     </div>
     <van-cell-group>
       <van-cell :title="user.company.name" icon-prefix="ins-icon" icon="company" to="/companyList" is-link />
+      <van-cell :title="curOrg" icon-prefix="ins-icon" icon="org" is-link @click="showPicker=true"/>
       <van-cell title="帮助中心" icon-prefix="ins-icon" icon="help" url="https://wiki.insuite.cn/zh/home" />
       <van-cell title="联系我们" icon-prefix="ins-icon" icon="contact" @click="onClickContract"/>
     </van-cell-group>
     <div class="footer">
       <van-button round block @click="onLogout">退出登录</van-button>
     </div>
+
+    <van-popup v-model:show="showPicker" position="bottom" round>
+      <van-picker :columns="orgs" @confirm="onSelectOrg" @cancel="showPicker=false"/>
+    </van-popup>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, computed } from 'vue'
+import { defineComponent, computed, ref } from 'vue'
 import { useRouter, Router } from 'vue-router'
-import { useStore } from '@/store'
+import { useStore, VuexStore } from '@/store'
 import { Dialog } from 'vant'
 import { userLogout } from '@/api/user'
+import { LocalStorageKeys } from '@/assets/js/constant'
+
+function useOrgs(store: VuexStore) {
+  const orgs = computed(() => store.state.orgs.map(org => org.name))
+  const curOrg = computed(() => store.state.curOrg?.name)
+  const setCurOrg = (orgName: string) => {
+    const org = store.state.orgs.find(org => org.name === orgName)
+    store.state.curOrg = org
+  }
+
+  return {
+    orgs,
+    curOrg,
+    setCurOrg
+  }
+}
 
 function useLogout(router: Router) {
   const beforeClose = async (action: string) => {
     if(action === 'confirm') {
       const res = await userLogout()
       if(res.ret === 0) {
-        localStorage.removeItem('INSUITE_TOKEN')
+        localStorage.removeItem(LocalStorageKeys.token)
         router.push('/login')
       }
     }
@@ -52,6 +73,16 @@ export default defineComponent({
   setup() {
     const store = useStore()
     const router = useRouter()
+    const { onLogout } = useLogout(router)
+    const { orgs, curOrg, setCurOrg } = useOrgs(store)
+    const showPicker  = ref(false)
+    const onSelectOrg = (value: string) => {
+      if(value !== curOrg.value) {
+        setCurOrg(value)
+      }
+      showPicker.value = false
+    }
+
     const onClickContract = () => {
       Dialog.alert({
         title: '联系信息',
@@ -59,12 +90,15 @@ export default defineComponent({
         message: '客服电话: 400-018-7701\n办公邮箱: insuiteservice@inspur.com\n办公地址: 山东省济南市历城区东八区企业公馆A7-1'
       })
     }
-    const { onLogout } = useLogout(router)
-
+ 
     return {
       user: computed(() => store.state.user),
+      orgs,
+      curOrg,
+      showPicker,
       onClickContract,
-      onLogout
+      onLogout,
+      onSelectOrg
     }
   }
 })

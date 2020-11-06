@@ -1,13 +1,14 @@
 import axios, { AxiosRequestConfig, AxiosResponse, AxiosError} from 'axios'
 import { Notify } from 'vant'
 import router from '@/router'
+import { LocalStorageKeys } from '@/assets/js/constant'
 
 const BASE_URL = process.env.NODE_ENV === 'production' ? '' : 'http://mobile.insuite.cn:8080'
-const TOKEN_KEY = 'INSUITE_TOKEN'
+const TOKEN_KEY = LocalStorageKeys.token
 
 const instance = axios.create({
   baseURL: BASE_URL,
-  timeout: 10000
+  timeout: 30000
 })
 
 // request pre-handler

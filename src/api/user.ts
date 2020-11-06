@@ -3,6 +3,7 @@
  */
 
 import http, { HttpRes } from './http'
+import { callKw } from './odoo'
 
 // 用户登录
 export const userLogin = async (account: string, password: string, wxOpenId = '1'): Promise<HttpRes> => {
@@ -39,5 +40,11 @@ export const switchCompany = async (dbName: string, oauthUrl: string): Promise<H
     dbName,
     oauth2LoginUrl: oauthUrl
   })
+  return res.data
+}
+
+// 获取用户组织
+export const fetchUserOrgs = async (): Promise<HttpRes> => {
+  const res = await callKw('res.users', 'get_org_ids')
   return res.data
 }

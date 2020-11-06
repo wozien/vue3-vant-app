@@ -4,7 +4,7 @@ interface Company {
   name: string;
 }
 
-interface Org {
+export interface Org {
   id: number;
   name: string;
 }
@@ -20,6 +20,7 @@ export interface User {
 export interface State {
   user: User;
   orgs: Org[];
+  curOrg?: Org;
 }
 
 const state: State = {
