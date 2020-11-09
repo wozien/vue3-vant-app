@@ -11,7 +11,8 @@ import {
   Image as VanImage,
   CellGroup,
   Cell,
-  Dialog
+  Dialog,
+  Uploader
 } from 'vant'
 
 export default function(app: App){
@@ -27,4 +28,5 @@ export default function(app: App){
   app.use(Cell)
   app.use(CellGroup)
   app.use(Dialog)
+  app.use(Uploader)
 }

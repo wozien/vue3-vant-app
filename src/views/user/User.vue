@@ -1,6 +1,6 @@
 <template>
   <div class="user-center">
-    <div class="header">
+    <div class="header" @click="showUserSetting=true">
       <van-image :src="user.avatar" width="50" height="50" fit="cover" round />
       <div class="info">
         <p class="name">{{ user.nickname }}</p>
@@ -21,6 +21,9 @@
     <van-popup v-model:show="showPicker" position="bottom" round>
       <van-picker :columns="orgs" @confirm="onSelectOrg" @cancel="showPicker=false"/>
     </van-popup>
+
+    <!-- 个人信息编辑页 -->
+    <UserSetting v-model:show="showUserSetting" />
   </div>
 </template>
 
@@ -31,6 +34,7 @@ import { useStore, VuexStore } from '@/store'
 import { Dialog } from 'vant'
 import { userLogout } from '@/api/user'
 import { LocalStorageKeys } from '@/assets/js/constant'
+import UserSetting from './UserSetting.vue'
 
 function useOrgs(store: VuexStore) {
   const orgs = computed(() => store.state.orgs.map(org => org.name))
@@ -70,12 +74,15 @@ function useLogout(router: Router) {
 }
 
 export default defineComponent({
+  components: { UserSetting },
   setup() {
     const store = useStore()
     const router = useRouter()
+
     const { onLogout } = useLogout(router)
-    const { orgs, curOrg, setCurOrg } = useOrgs(store)
+
     const showPicker  = ref(false)
+    const { orgs, curOrg, setCurOrg } = useOrgs(store)
     const onSelectOrg = (value: string) => {
       if(value !== curOrg.value) {
         setCurOrg(value)
@@ -96,9 +103,10 @@ export default defineComponent({
       orgs,
       curOrg,
       showPicker,
+      showUserSetting: ref(false),
       onClickContract,
       onLogout,
-      onSelectOrg
+      onSelectOrg,
     }
   }
 })

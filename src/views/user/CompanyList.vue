@@ -92,6 +92,8 @@ export default defineComponent({
   }
   .list {
     padding: 0px 20px;
+    height: calc(100vh - 116px);
+    overflow: auto;
     .list-item {
       display: flex;
       align-items: center;
@@ -133,7 +135,7 @@ export default defineComponent({
     position: absolute;
     width: 100%;
     bottom: 0;
-    padding: 20px;
+    padding: 10px 20px;
   }
 }
 </style>

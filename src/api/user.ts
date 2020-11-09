@@ -48,3 +48,15 @@ export const fetchUserOrgs = async (): Promise<HttpRes> => {
   const res = await callKw('res.users', 'get_org_ids')
   return res.data
 }
+
+// 用户上传头像 
+export const uploadUserAvatar = async (avatar: File, phone: string): Promise<HttpRes> => {
+  const formData = new FormData()
+  formData.append('avatar', avatar)
+  formData.append('login', phone)
+  const res = await http.post('/upload_avatar', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' }
+  })
+  console.log(res)
+  return res.data
+}

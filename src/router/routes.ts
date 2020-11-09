@@ -37,7 +37,7 @@ const routes: RouteRecordRaw[] = [
       {
         path: '/user',
         component: User,
-        meta: { title: '我的信息' }
+        meta: { title: '我的' }
       }
     ]
   },
@@ -45,6 +45,14 @@ const routes: RouteRecordRaw[] = [
     path: '/companyList',
     component: CompanyList,
     meta: { title: '我的企业' }
+  },
+  {
+    path: '/view',
+    component: Layout
+  },
+  {
+    path: '/workflow',
+    component: Layout
   }
 ]
 
