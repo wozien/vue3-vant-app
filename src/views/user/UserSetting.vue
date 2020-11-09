@@ -66,7 +66,8 @@ export default defineComponent({
       try {
         const res = await uploader.onUpload(store.state.user.phone)
         if(res.ret === 0) {
-          store.state.user.avatar = res.data.avatar
+          store.state.user.avatar += `&t=${new Date().getTime()}`
+          uploader.reset()
           cb()
         } else {
           cb(true)
