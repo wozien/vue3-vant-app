@@ -11,7 +11,7 @@
     </van-cell-group>
   </Modal>
 </template>
-
+ 
 <script lang="ts">
 import { defineComponent, computed, ref } from 'vue'
 import { useStore } from '@/store'
@@ -66,6 +66,7 @@ export default defineComponent({
       try {
         const res = await uploader.onUpload(store.state.user.phone)
         if(res.ret === 0) {
+          // 重新获取下图像
           store.state.user.avatar += `&t=${new Date().getTime()}`
           uploader.reset()
           cb()
