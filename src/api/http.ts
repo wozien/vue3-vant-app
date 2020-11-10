@@ -3,7 +3,7 @@ import { Notify } from 'vant'
 import router from '@/router'
 import { LocalStorageKeys } from '@/assets/js/constant'
 
-const BASE_URL = process.env.NODE_ENV === 'production' ? '' : 'http://mobile.insuite.cn:8080'
+const BASE_URL = process.env.NODE_ENV === 'production' ? '' : 'http://182.92.100.160:18080'
 const TOKEN_KEY = LocalStorageKeys.token
 
 const instance = axios.create({

@@ -1,5 +1,5 @@
 <template>
-  <teleport to="#app">
+  <teleport to="body">
     <div class="ins-modal" v-if="show">
       <div class="main">
         <slot></slot>
