@@ -37,7 +37,7 @@ export default defineComponent({
   flex-wrap: wrap;
   .app {
     width: 80px;
-    margin-bottom: 10px;
+    margin-bottom: 20px;
     .column-flex;
     img {
       width: 45px;
@@ -47,6 +47,7 @@ export default defineComponent({
     .name {
       font-size: 13px;
       color: @text-color-light-1;
+      text-align: center;
     }
   }
 }

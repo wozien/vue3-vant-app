@@ -140,6 +140,7 @@ export default defineComponent({
     .title {
       display: flex;
       align-items: center;
+      margin-bottom: 10px;
       .label {
         flex: 1;
         font-weight: 500;
