@@ -17,6 +17,7 @@ import { defineComponent, computed, ref } from 'vue'
 import { useStore } from '@/store'
 import { Toast } from 'vant'
 import { uploadUserAvatar } from '@/api/user'
+import { setUrlQuery } from '@/assets/js/utils/url'
 
 function useUploader() {
   const avatar = ref('')
@@ -67,13 +68,15 @@ export default defineComponent({
         const res = await uploader.onUpload(store.state.user.phone)
         if(res.ret === 0) {
           // 重新获取下图像
-          store.state.user.avatar += `&t=${new Date().getTime()}`
+          store.state.user.avatar = setUrlQuery(store.state.user.avatar, {
+            t: new Date().getTime()
+          })
           uploader.reset()
           cb()
         } else {
           cb(true)
         }
-      }catch(e) {
+      } catch(e) {
         cb(true)
       }
     }
