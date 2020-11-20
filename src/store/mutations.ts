@@ -1,5 +1,7 @@
 import { MutationTree } from 'vuex'
 import { State, User } from './state'
+import Model from '@/assets/js/class/Model'
+import View, { ViewType } from '@/assets/js/class/View'
 
 const mutations: MutationTree<State> = {
   'SET_USER' (state, data) {
@@ -21,6 +23,18 @@ const mutations: MutationTree<State> = {
     if(data.length) {
       state.curOrg = data[0]
     }
+  },
+
+  'SET_MODEL' (state, data: any) {
+    state.model = new Model(data)
+  },
+
+  'SET_VIEWS' (state, data) {
+    const views = {} as {[key in ViewType]: View}
+    for(let key in data) {
+      views[key as ViewType] = new View(data[key])
+    }
+    state.views = views
   }
 }
 

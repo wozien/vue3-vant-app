@@ -11,44 +11,9 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from 'vue'
+import { defineComponent, ref, onBeforeMount } from 'vue'
 import AppList from '@/components/app-list/AppList.vue'
-
-const markets = [
-  {
-    key: 'fin',
-    name: '财务',
-    apps: [
-      { id: 1, icon: '/img/app-icon.png', name: '报销' },
-      { id: 2, icon: '/img/app-icon.png', name: '报销' },
-      { id: 3, icon: '/img/app-icon.png', name: '报销' },
-      { id: 4, icon: '/img/app-icon.png', name: '报销' },
-      { id: 5, icon: '/img/app-icon.png', name: '报销' },
-    ]
-  },
-  {
-    key: 'scm',
-    name: '生产制造',
-    apps: [
-      { id: 1, icon: '/img/app-icon.png', name: '报销' },
-      { id: 2, icon: '/img/app-icon.png', name: '报销' },
-      { id: 3, icon: '/img/app-icon.png', name: '报销' },
-      { id: 4, icon: '/img/app-icon.png', name: '报销' }
-    ]
-  },
-  {
-    key: 'sss',
-    name: '供应链',
-    apps: [
-      { id: 1, icon: '/img/app-icon.png', name: '报销' },
-      { id: 2, icon: '/img/app-icon.png', name: '报销' },
-      { id: 3, icon: '/img/app-icon.png', name: '报销' },
-      { id: 4, icon: '/img/app-icon.png', name: '报销' },
-      { id: 5, icon: '/img/app-icon.png', name: '报销' },
-      { id: 6, icon: '/img/app-icon.png', name: '报销' },
-    ]
-  }
-]
+import { fetchAppData } from '@/api/app'
 
 export default defineComponent({
   components: {
@@ -57,6 +22,14 @@ export default defineComponent({
 
   setup() {
     const searchValue = ref('')
+    const markets = ref([])
+
+    onBeforeMount(async () => {
+      const res = await fetchAppData()
+      if(res.ret === 0) {
+        markets.value = res.data.filter((item:any) => item.apps.length)
+      }
+    })
 
     return {
       searchValue,

@@ -7,6 +7,7 @@ const Dashboard = defineAsyncComponent(() => import('@views/dashboard/Dashboard.
 const Market = defineAsyncComponent(() => import('@views/market/Market.vue'))
 const User = defineAsyncComponent(() => import('@views/user/User.vue'))
 const CompanyList = defineAsyncComponent(() => import('@views/user/CompanyList.vue'))
+const ListView = defineAsyncComponent(() => import('@views/list/List.vue'))
 
 const routes: RouteRecordRaw[] = [
   {
@@ -47,8 +48,9 @@ const routes: RouteRecordRaw[] = [
     meta: { title: '我的企业' }
   },
   {
-    path: '/view',
-    component: Layout
+    path: '/list',
+    name: 'list-view',
+    component: ListView
   },
   {
     path: '/workflow',

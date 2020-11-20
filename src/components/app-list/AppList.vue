@@ -1,6 +1,6 @@
 <template>
   <div class="app-list">
-    <div v-for="item in list" :key="item.id" class="app">
+    <div v-for="item in list" :key="item.id" class="app" @click="onClickApp(item)">
       <img :src="item.icon">
       <span class="name van-multi-ellipsis--l2">{{ item.name }}</span>
     </div>
@@ -9,11 +9,15 @@
 
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
+import { useStore } from '@/store'
+import { useRouter } from 'vue-router'
+import { Toast } from 'vant'
 
 interface App {
   id: number;
   name: string;
   icon: string;
+  actionId: number;
 }
 
 export default defineComponent({
@@ -22,8 +26,32 @@ export default defineComponent({
   },
 
   setup(props) {
+    const store = useStore()
+    const router = useRouter()
+    const onClickApp = async ({ id, actionId }: App) => {
+      const toast = Toast.loading({
+        message: '加载视图...'
+      })
+
+      try {
+        await Promise.all([
+          store.dispatch('setModel', { actionId, appId: id }),
+          store.dispatch('setViews', { actionId, appId: id })
+        ]) 
+        router.push({
+          name: 'list-view',
+          query: {
+            model: store.state.model?.key
+          }
+        })
+      // eslint-disable-next-line no-empty
+      }catch(e) {}
+      toast.clear()
+    }
+
     return {
-      list: props.appData
+      list: props.appData,
+      onClickApp
     }
   }
 })

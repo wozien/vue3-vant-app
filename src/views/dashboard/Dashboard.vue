@@ -3,8 +3,8 @@
     <div class="card header">
       <van-image :src="user.avatar" width="60" height="60" fit="cover" round />
       <div class="info">
-        <p class="name">晚上好, {{ user.nickname }}</p>
-        <p class="time">10月22号, 周四</p>
+        <p class="name">{{ greet.greeting }}, {{ user.nickname }}</p>
+        <p class="time">{{ greet.week }}</p>
       </div>
       <div class="icon">
         <img src="@assets/img/flow-send.png">
@@ -29,23 +29,18 @@
         <span class="more" @click="$router.push('/market')">全部应用</span>
         <van-icon name="arrow" color="#c8c9cc"/>
       </div>
-      <AppList :app-data="appData" />
+      <AppList :app-data="appData" v-if="appData.length"/>
+      <p v-else class="no-data">暂无数据</p>
     </div>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, reactive, toRefs, computed, onMounted } from 'vue'
+import { defineComponent, ref, reactive, toRefs, computed, onMounted, onActivated } from 'vue'
 import { useStore } from '@/store'
 import { fetchFlowNum } from '@/api/workflow'
+import { fetchUsuallyApp } from '@/api/app'
 import AppList from '@/components/app-list/AppList.vue'
-
-const appData = [
-  { id: 1, icon: '/img/app-icon.png', name: '报销' },
-  { id: 2, icon: '/img/app-icon.png', name: '报销' },
-  { id: 3, icon: '/img/app-icon.png', name: '报销' },
-  { id: 4, icon: '/img/app-icon.png', name: '报销' }
-]
 
 export default defineComponent({
   components: {
@@ -53,11 +48,13 @@ export default defineComponent({
   },
 
   setup() {
+    const store = useStore()
     const state = reactive({
       willConsult: 0,
       willApproval: 0
     })
-    const store = useStore()
+    const greet = useGreet()
+    const { appData } = useUsually()
 
     onMounted(async () => {
       const res = await fetchFlowNum()
@@ -70,10 +67,55 @@ export default defineComponent({
     return {
       ...toRefs(state),
       user: computed(() => store.state.user),
+      greet,
       appData
     }
   }
 })
+
+function useGreet() {
+  const date = new Date()
+  const hours = date.getHours()
+
+  let greeting;
+  if(hours >= 5 && hours < 11) greeting = '早上好'
+  else if(hours >= 11 && hours < 13) greeting = '中午好'
+  else if(hours >= 13 && hours < 19) greeting = '下午好'
+  else greeting = '晚上好'
+
+  let week;
+  switch(date.getDay()) {
+    case 0: week = '周日'; break;
+    case 1: week = '周一'; break; 
+    case 2: week = '周二'; break;
+    case 3: week = '周三'; break;
+    case 4: week = '周四'; break;
+    case 5: week = '周五'; break;
+    case 6: week = '周六'; break;
+  }
+
+  return {
+    greeting,
+    week: `${date.getMonth()+1}月${date.getDate()}日, ${week}`
+  }
+}
+
+function useUsually() {
+  const appData = ref([])
+  const fetch = async () => {
+    const res = await fetchUsuallyApp()
+    if(res.ret === 0) {
+      appData.value = res.data
+    }
+  }
+  onMounted(() => fetch())
+  onActivated(() => fetch())
+
+  return {
+    appData
+  }
+}
+
 </script>
 
 <style lang="less" scoped>
@@ -152,6 +194,12 @@ export default defineComponent({
         font-size: 13px;
         color: @text-color-light-2;
       }
+    }
+    .no-data {
+      text-align: center;
+      color: @text-color-light-2;
+      font-size: 12px;
+      padding: 10px 0px;
     }
   }
 }
