@@ -1161,10 +1161,10 @@
   resolved "https://registry.npm.taobao.org/@vant/icons/download/@vant/icons-1.4.0.tgz#a91f7894f2f34356f78a5d6f8b9d4f1a46add0c5"
   integrity sha1-qR94lPLzQ1b3il1vi51PGkat0MU=
 
-"@vant/use@^0.0.9":
-  version "0.0.9"
-  resolved "https://registry.npm.taobao.org/@vant/use/download/@vant/use-0.0.9.tgz#938b41e8dd682f063450f45699111ab30dd279c1"
-  integrity sha1-k4tB6N1oLwY0UPRWmREasw3SecE=
+"@vant/use@^0.1.0":
+  version "0.1.0"
+  resolved "https://registry.npm.taobao.org/@vant/use/download/@vant/use-0.1.0.tgz#7d2020aa7e5ab92d57dea46cb24dd9013c7eacee"
+  integrity sha1-fSAgqn5auS1X3qRssk3ZATx+rO4=
 
 "@vue/babel-helper-vue-jsx-merge-props@^1.2.1":
   version "1.2.1"
@@ -8588,14 +8588,14 @@ validate-npm-package-license@^3.0.1:
     spdx-correct "^3.0.0"
     spdx-expression-parse "^3.0.0"
 
-vant@^3.0.0-beta.7:
-  version "3.0.0-beta.7"
-  resolved "https://registry.npm.taobao.org/vant/download/vant-3.0.0-beta.7.tgz#413064034e36574323e84baa6ee68ba2b37b70aa"
-  integrity sha1-QTBkA042V0Mj6EuqbuaLorN7cKo=
+vant@^3.0.0-beta.8:
+  version "3.0.0-beta.8"
+  resolved "https://registry.npm.taobao.org/vant/download/vant-3.0.0-beta.8.tgz?cache=0&sync_timestamp=1605445998498&other_urls=https%3A%2F%2Fregistry.npm.taobao.org%2Fvant%2Fdownload%2Fvant-3.0.0-beta.8.tgz#cea9c4d1ca05b96eb991efc4da6aab417e4a105f"
+  integrity sha1-zqnE0coFuW65ke/E2mqrQX5KEF8=
   dependencies:
     "@babel/runtime" "7.x"
     "@vant/icons" "1.4.0"
-    "@vant/use" "^0.0.9"
+    "@vant/use" "^0.1.0"
     vue-lazyload "1.2.3"
 
 vary@~1.1.2:

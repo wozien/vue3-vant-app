@@ -1,8 +1,12 @@
 <template>
   <Page name="list-view">
-    <van-search v-model="searchValue" shape="round" placeholder="请输入编号搜索" background="#f7f8fa">
-      <!-- <template></template> -->
+    <van-search v-model="searchValue" shape="round" placeholder="请输入编号搜索" show-action>
+      <template #action>
+        <Icon name="filter"/>  
+      </template>
     </van-search>
+
+    <div class="list-container"></div>
   </Page>
 </template>
 
@@ -22,8 +26,8 @@ export default defineComponent({
 
 <style lang="less" scoped>
 .ins-list-view-page {
-  /deep/ .van-search__content {
-    background: #fff;
+  .list-container {
+    height: calc(100vh - 56px);
   }
 }
 </style>
