@@ -34,10 +34,7 @@ export default defineComponent({
       })
 
       try {
-        await Promise.all([
-          store.dispatch('setModel', { actionId, appId: id }),
-          store.dispatch('setViews', { actionId, appId: id })
-        ]) 
+        await store.dispatch('loadApp', {actionId, appId:id})
         router.push({
           name: 'list-view',
           query: {

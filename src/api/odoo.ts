@@ -33,3 +33,14 @@ export const callKw: OdooCallKwFunc = (model, method, ...args) => {
 
   return http.post(url, { ...params })
 }
+
+/**
+ * 获取odoo action 
+ * @param actionId 
+ */
+export const loadAction = (actionId: number) => {
+  const params = {
+    action_id: actionId
+  }
+  return http.post('/meta/web/action/load', { ...params })
+}

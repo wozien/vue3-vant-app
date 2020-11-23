@@ -2,6 +2,7 @@ import { MutationTree } from 'vuex'
 import { State, User } from './state'
 import Model from '@/assets/js/class/Model'
 import View, { ViewType } from '@/assets/js/class/View'
+import Action from '@/assets/js/class/Action'
 
 const mutations: MutationTree<State> = {
   'SET_USER' (state, data) {
@@ -35,6 +36,10 @@ const mutations: MutationTree<State> = {
       views[key as ViewType] = new View(data[key])
     }
     state.views = views
+  },
+
+  'SET_ACTION' (state, data) {
+    state.action = new Action(data)
   }
 }
 

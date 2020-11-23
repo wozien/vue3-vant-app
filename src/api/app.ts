@@ -3,6 +3,7 @@
  */
 
 import http, { HttpRes } from './http'
+import { loadAction } from './odoo'
 
 // 获取应用市场数据
 export const fetchAppData = async (): Promise<HttpRes> => {
@@ -36,5 +37,11 @@ export const fetchAppView = async (appId: number, actionId: number): Promise<Htt
       actionId
     }
   })
+  return res.data
+}
+
+// 获取应用对应的action
+export const fetchAction = async (actionId: number) : Promise<HttpRes> => {
+  const res = await loadAction(actionId)
   return res.data
 }

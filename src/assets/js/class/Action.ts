@@ -4,7 +4,7 @@ import Domain from './Domain'
 
 type ActionView = [number, ViewType]
 
-interface ActionRaw {
+export interface ActionRaw {
   id: number
   name: string
   domain: string
@@ -25,6 +25,9 @@ class Action {
     this.name = raw.name
     this.views = raw.views
     this.domain = new Domain(raw.domain)
+    if(raw.context) {
+      this.context = JSON.parse(raw.context)
+    }
   }
 }
 
