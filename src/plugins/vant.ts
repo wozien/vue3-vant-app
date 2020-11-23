@@ -13,7 +13,9 @@ import {
   Cell,
   Dialog,
   Uploader,
-  Search
+  Search,
+  List,
+  PullRefresh
 } from 'vant'
 
 export default function(app: App){
@@ -31,4 +33,6 @@ export default function(app: App){
   app.use(Dialog)
   app.use(Uploader)
   app.use(Search)
+  app.use(List)
+  app.use(PullRefresh)
 }
