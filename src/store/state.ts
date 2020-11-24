@@ -25,7 +25,7 @@ export interface State {
   orgs: Org[];
   curOrg?: Org;
   action?: Action;
-  model?: Model;
+  models?: Model[];
   views?: { [key in ViewType]: View }
 }
 

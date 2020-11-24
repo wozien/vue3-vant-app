@@ -9,8 +9,9 @@
 
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
-import { useStore } from '@/store'
-import { useRouter } from 'vue-router'
+// import { useStore } from '@/store'
+// import { useRouter } from 'vue-router'
+import useContext from '@/assets/js/hooks/useContext'
 import { Toast } from 'vant'
 
 interface App {
@@ -26,23 +27,29 @@ export default defineComponent({
   },
 
   setup(props) {
-    const store = useStore()
-    const router = useRouter()
+    // const store = useStore()
+    // const router = useRouter()
     const onClickApp = async ({ id, actionId }: App) => {
       const toast = Toast.loading({
         message: '加载视图...'
       })
 
       try {
-        await store.dispatch('loadApp', {actionId, appId:id})
-        router.push({
-          name: 'list-view',
-          query: {
-            model: store.state.model?.key
-          }
-        })
+        const { curApp } = useContext(id, actionId)
+        if(curApp && !curApp.isLoaded) {
+          await curApp.load()
+        }
+        console.log(curApp)
+        // router.push({
+        //   name: 'list-view',
+        //   query: {
+        //     model: store.state.model?.key
+        //   }
+        // })
       // eslint-disable-next-line no-empty
-      }catch(e) {}
+      }catch(e) {
+        console.warn(e.message)
+      }
       toast.clear()
     }
 
