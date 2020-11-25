@@ -5,7 +5,7 @@
 
 <script lang="ts">
 import { defineComponent, computed, onBeforeMount, ref } from 'vue'
-import { App, getApp } from '@/assets/js/class'
+import { App, getAppAsync } from '@/assets/js/class'
 import { useRoute } from 'vue-router'
 import ListView from '../list/List.vue'
 
@@ -22,7 +22,7 @@ export default defineComponent({
     const viewType = computed(() => route.query.viewType)
 
     onBeforeMount(async () => {
-      curApp.value = await getApp(appId, actionId)
+      curApp.value = await getAppAsync(appId as string, actionId as string)
     })
 
     return {

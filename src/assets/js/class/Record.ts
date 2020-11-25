@@ -14,11 +14,6 @@ export interface RecordRaw {
   [key: string]: any
 }
 
-export interface RecordState {
-  key: string
-  string: string
-}
-
 export interface RecordRole {
   id: number
   name: string
@@ -32,11 +27,12 @@ export interface Creator extends RecordRole {
 class Record {
   id: number
   creator: Creator
+  raw: {[key: string]: any}
 
   constructor(raw: RecordRaw) {
     this.id = raw.id
     this.creator = this.normalizeCreator(raw)
-    // this.proxyData(raw.odoo_data)
+    this.raw = raw.odoo_data
   }
 
   /**

@@ -19,7 +19,8 @@
 
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
-import { RecordRaw, Field } from '@/assets/js/class'
+import { Record, Field } from '@/assets/js/class'
+import { formatDate } from '@/assets/js/utils/date'
 
 interface ListCardField {
   name: string
@@ -38,8 +39,9 @@ interface ListCard {
 
 export default defineComponent({
   props: {
-    recordRaw: {
-      type: Object as PropType<RecordRaw>,
+    appName: String,
+    record: {
+      type: Object as PropType<Record>,
       required: true
     },
     viewFields: {
@@ -49,7 +51,7 @@ export default defineComponent({
   },
 
   setup(props) {
-    const cardData = useCard(props.recordRaw)
+    const cardData = useCard(props.record, props.viewFields, props.appName)
 
     return {
       ...cardData
@@ -58,19 +60,39 @@ export default defineComponent({
 })
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-function useCard(raw: RecordRaw): ListCard {
-  return {
-    name: '报销',
+function useCard(record: Record, viewFields: Field[], appName?:string) {
+  const res: ListCard = {
+    name: appName || '',
     state: '审核中',
-    fields: [
-      { name: 'number', string: '单据编号', value: 'BXD202011200001'},
-      { name: 'acount', string: '单据金额', value: 900.05},
-      { name: 'reason', string: '单据事由', value: '济南总部出差'}
-    ],
-    creator: '张三',
-    createImg: '/img/mm1.jpeg',
-    createDate: '9月25日 11:12'
+    creator: record.creator.name,
+    createImg: record.creator.avatar || '/img/mm1.jpeg',
+    createDate: formatDate('M月d日 hh:mm', record.creator.time),
+    fields: []
   }
+  
+  viewFields.forEach(field => {
+    const fieldItem: ListCardField = {
+      name: field.name,
+      string: field.string,
+      value: ''
+    }
+    const fieldValue = record.raw[field.name]
+    if(field.type === 'selection' && field.selection?.length) {
+      for(let [key, value] of field.selection) {
+        if(key === fieldValue) {
+          fieldItem.value = value; break
+        }
+      }
+    } else if(field.type === 'many2one') {
+      const [, value] = fieldValue
+      fieldItem.value = value
+    } else {
+      fieldItem.value = fieldValue
+    }
+    res.fields.push(fieldItem)
+  })
+
+  return res
 }
 
 </script>

@@ -13,7 +13,12 @@
         finished-text="没有更多了"
         @load="onLoad"
       >
-        <ListCard v-for="item in list" :key="item.id" :record-raw="item" :view-fields="ctx.viewFields"></ListCard>
+        <ListCard v-for="item in list"
+          :key="item.id" 
+          :app-name="ctx.appName" 
+          :record="item" 
+          :view-fields="ctx.viewFields"
+        />
       </van-list>
     </div>
   </Page>
@@ -23,7 +28,7 @@
 import { defineComponent, reactive, toRefs, PropType, computed, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import ListCard from './ListCard.vue'
-import { App, RecordRaw } from '@/assets/js/class'
+import { App, Record } from '@/assets/js/class'
 import { fetchListData } from '@/api/app'
 
 export default defineComponent({
@@ -44,7 +49,7 @@ export default defineComponent({
       searchValue: '',
       loading: false,
       finished: false,
-      list: [] as RecordRaw[]
+      list: [] as Record[]
     })
 
     const ctx = computed(() => {
@@ -69,21 +74,23 @@ export default defineComponent({
     const onLoad = async () => {
       if(props.curApp.isLoaded && searchFields.length) {
         const { model } = route.query
-        await fetchListData(model as string, lastId, searchFields)
+        const res = await fetchListData(model as string, lastId, searchFields)
+        state.loading = false
+        if(res.ret === 0) {
+          if(res.data.length) {
+            res.data.forEach((raw: any, index: number) => {
+              const record = new Record(raw)
+              state.list.push(record)
+              if(index === res.data.length - 1) lastId = record.id
+            });
+          } else {
+            state.finished = true
+          }
+        } else {
+          // TODO state.error = true
+        }
+        
       }
-      // setTimeout(() => {
-      //   for (let i = 0; i < 10; i++) {
-      //     state.list.push({
-      //       id: i
-      //     });
-      //   }
-
-      //   state.loading = false
-
-      //   if(state.list.length >= 40) {
-      //     state.finished = true
-      //   }
-      // }, 1000);
     }
 
     return {
@@ -106,6 +113,7 @@ function getContext(curApp: App) {
   }
 
   return {
+    appName: curApp.name,
     curModel,
     curView,
     viewFields: fields

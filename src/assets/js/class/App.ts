@@ -6,7 +6,7 @@ import { Action, Model, View, ViewType } from './index'
 import { fetchAction, fetchAppModel, fetchAppView } from '@/api/app'
 
 // TODO 限制缓存个数
-const appCaches: {[key: number]: App} = {}
+const appCaches: {[key: string]: App} = {}
 
 class App {
   private _is_load: boolean = false
@@ -82,9 +82,17 @@ class App {
   }
 }
 
-export const getApp = async (appId: number, actionId: number) => {
+/**
+ * 获取app
+ * @param appId 
+ * @param actionId 
+ */
+export const getAppAsync = async (appId: number | string, actionId: number | string) => {
   let app: App
 
+  if(typeof appId === 'string') appId = +appId
+  if(typeof actionId === 'string') actionId = +actionId
+  
   // 优先取缓存
   if(appCaches[appId]) {
     app = appCaches[appId]
@@ -98,5 +106,14 @@ export const getApp = async (appId: number, actionId: number) => {
   }
   return app
 }
+
+/**
+ *  获取app
+ * @param appId 
+ */
+export const getApp = (appId: string) => {
+  return appCaches[appId]
+} 
+
 
 export default App
