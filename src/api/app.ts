@@ -1,9 +1,10 @@
 /**
- * 应用相关
+ * 应用类
  */
 
 import http, { HttpRes } from './http'
-import { loadAction } from './odoo'
+import { loadAction, searchRead } from './odoo'
+import { DomainArr } from '@/assets/js/class'
 
 // 获取应用市场数据
 export const fetchAppData = async (): Promise<HttpRes> => {
@@ -45,3 +46,30 @@ export const fetchAction = async (actionId: number) : Promise<HttpRes> => {
   const res = await loadAction(actionId)
   return res.data
 }
+
+// 应用次数统计
+export const addAppCount = async (appId: number, actionId: number): Promise<HttpRes> => {
+  const res = await http.post('/meta/mobile/open_app_count', {
+    id: appId,
+    actionId
+  })
+  return res.data
+}
+
+export const fetchListData: (
+  model: string,
+  lastId: number,
+  fields: string[],
+  limit?: number
+) => Promise<HttpRes> = async (model, lastId, searchFields, limit = 6) => {
+  // 构造odoo的查询domain
+  const domain: DomainArr = lastId ? [['id', '<', lastId]] : []
+  const res = await searchRead({
+    model,
+    domain,
+    limit,
+    fields: searchFields
+  })
+
+  return res.data
+} 

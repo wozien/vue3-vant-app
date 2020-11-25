@@ -13,6 +13,13 @@ export interface StudioField {
   [key: string]: any
 }
 
+export interface OdooField {
+  name: string
+  string: string
+  selection: [string, string][]
+  [key: string]: any
+}
+
 class Field {
   key: string 
   name: string 
@@ -20,6 +27,7 @@ class Field {
   string: string
   options: any
   relation?: string
+  selection?: [string, string][]
   fields: Field[]
 
   constructor(fieldObj: StudioField) {

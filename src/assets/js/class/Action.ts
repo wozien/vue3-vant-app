@@ -9,6 +9,7 @@ export interface ActionRaw {
   name: string
   domain: string
   context: string
+  res_model: string
   views: ActionView[]
   [key: string]: any
 }
@@ -17,6 +18,7 @@ class Action {
   id: number
   name: string
   domain: Domain
+  modelKey: string
   context?: any
   views: ActionView[]
 
@@ -24,6 +26,7 @@ class Action {
     this.id = raw.id
     this.name = raw.name
     this.views = raw.views
+    this.modelKey = raw.res_model
     this.domain = new Domain(raw.domain)
     if(raw.context) {
       this.context = JSON.parse(raw.context)

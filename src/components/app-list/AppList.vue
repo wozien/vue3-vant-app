@@ -9,48 +9,46 @@
 
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
-// import { useStore } from '@/store'
-// import { useRouter } from 'vue-router'
-import useContext from '@/assets/js/hooks/useContext'
-import { Toast } from 'vant'
+import { useRouter } from 'vue-router'
+import { Toast, Notify } from 'vant'
+import { addAppCount } from '@/api/app'
 
-interface App {
+interface AppRaw {
   id: number;
   name: string;
   icon: string;
-  actionId: number;
+  action_id: number;
+  model_key: string;
 }
 
 export default defineComponent({
   props: {
-    appData: Array as PropType<App[]>
+    appData: Array as PropType<AppRaw[]>
   },
 
   setup(props) {
-    // const store = useStore()
-    // const router = useRouter()
-    const onClickApp = async ({ id, actionId }: App) => {
+    const router = useRouter()
+  
+    const onClickApp = async ({ id, action_id: actionId, model_key: modelKey }: AppRaw) => {
       const toast = Toast.loading({
         message: '加载视图...'
       })
 
-      try {
-        const { curApp } = useContext(id, actionId)
-        if(curApp && !curApp.isLoaded) {
-          await curApp.load()
+      await addAppCount(id, actionId)
+      router.push({
+        name: 'view',
+        query: {
+          model: modelKey,
+          appId: id,
+          actionId,
+          viewType: 'list'
         }
-        console.log(curApp)
-        // router.push({
-        //   name: 'list-view',
-        //   query: {
-        //     model: store.state.model?.key
-        //   }
-        // })
-      // eslint-disable-next-line no-empty
-      }catch(e) {
-        console.warn(e.message)
-      }
-      toast.clear()
+      }).catch(e => {
+        Notify({
+          type: 'danger',
+          message: e.message
+        })
+      }).finally(() => toast.clear())
     }
 
     return {

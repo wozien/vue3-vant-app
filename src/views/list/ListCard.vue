@@ -19,7 +19,7 @@
 
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
-import { RecordRaw } from '@/assets/js/class/Record'
+import { RecordRaw, Field } from '@/assets/js/class'
 
 interface ListCardField {
   name: string
@@ -41,6 +41,10 @@ export default defineComponent({
     recordRaw: {
       type: Object as PropType<RecordRaw>,
       required: true
+    },
+    viewFields: {
+      type: Array as PropType<Field[]>,
+      default: () => []
     }
   },
 

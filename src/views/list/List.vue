@@ -13,23 +13,33 @@
         finished-text="没有更多了"
         @load="onLoad"
       >
-        <ListCard v-for="item in list" :key="item.id" :record-raw="item"></ListCard>
+        <ListCard v-for="item in list" :key="item.id" :record-raw="item" :view-fields="ctx.viewFields"></ListCard>
       </van-list>
     </div>
   </Page>
 </template>
 
 <script lang="ts">
-import { defineComponent, reactive, toRefs } from 'vue'
+import { defineComponent, reactive, toRefs, PropType, computed, watch } from 'vue'
+import { useRoute } from 'vue-router'
 import ListCard from './ListCard.vue'
-import { RecordRaw } from '@/assets/js/class/Record'
+import { App, RecordRaw } from '@/assets/js/class'
+import { fetchListData } from '@/api/app'
 
 export default defineComponent({
   components: {
     ListCard
   },
 
-  setup() {
+  props: {
+    curApp: {
+      type: Object as PropType<App>,
+      required: true
+    }
+  },
+
+  setup(props) {
+    const route = useRoute()
     const state = reactive({
       searchValue: '',
       loading: false,
@@ -37,28 +47,70 @@ export default defineComponent({
       list: [] as RecordRaw[]
     })
 
-    const onLoad = () => {
-      setTimeout(() => {
-        for (let i = 0; i < 10; i++) {
-          state.list.push({
-            id: i
-          });
-        }
+    const ctx = computed(() => {
+      if(props.curApp.isLoaded) { 
+        return getContext(props.curApp)
+      }
+    })
 
-        state.loading = false
+    let searchFields: string[] = []
+    let lastId = 0
+    watch(() => ctx.value, (val) => {
+      if(val?.curModel) {
+        val.viewFields.forEach(field => {
+          if(field && typeof field.name === 'string') {
+            searchFields.push(field.name)
+          }
+        })
+        onLoad()
+      }
+    })
 
-        if(state.list.length >= 40) {
-          state.finished = true
-        }
-      }, 1000);
+    const onLoad = async () => {
+      if(props.curApp.isLoaded && searchFields.length) {
+        const { model } = route.query
+        await fetchListData(model as string, lastId, searchFields)
+      }
+      // setTimeout(() => {
+      //   for (let i = 0; i < 10; i++) {
+      //     state.list.push({
+      //       id: i
+      //     });
+      //   }
+
+      //   state.loading = false
+
+      //   if(state.list.length >= 40) {
+      //     state.finished = true
+      //   }
+      // }, 1000);
     }
 
     return {
       ...toRefs(state),
+      ctx,
       onLoad
     }
   }
 })
+
+function getContext(curApp: App) {
+  const curView = curApp.getView('list')
+  const curModel = curApp.getModel()
+  const fields = []
+  if(curView && curModel) {
+    for(let item of curView.items) {
+      const field = curModel.getField(item.fieldKey)
+      fields && fields.push(field)
+    }
+  }
+
+  return {
+    curModel,
+    curView,
+    viewFields: fields
+  }
+}
 
 </script>
 

@@ -5,18 +5,20 @@
 import { Action, Model, View, ViewType } from './index' 
 import { fetchAction, fetchAppModel, fetchAppView } from '@/api/app'
 
+// TODO 限制缓存个数
+const appCaches: {[key: number]: App} = {}
+
 class App {
   private _is_load: boolean = false
   id: number
-  name: string
   actionId: number
+  name?: string
   action?: Action
   models?: { [key: string]: Model }
   views?: { [key in ViewType]: View }
 
   constructor(appId: number, actionId: number) {
     this.id = appId
-    this.name = ''
     this.actionId = actionId
   }
 
@@ -30,6 +32,7 @@ class App {
       this.loadModels(),
       this.loadViews()
     ])
+    // TODO 暂不处理加载异常
     this._is_load = true
   }
 
@@ -65,6 +68,35 @@ class App {
     }
     return true
   }
+
+  getModel(modelKey?: string) {
+    if(this.models) {
+      modelKey = modelKey || this.action?.modelKey || Object.keys(this.models)[0]
+      return this.models[modelKey]
+    }
+    return null
+  }
+
+  getView(viewType: ViewType) {
+    return this.views ? this.views[viewType] : null
+  }
+}
+
+export const getApp = async (appId: number, actionId: number) => {
+  let app: App
+
+  // 优先取缓存
+  if(appCaches[appId]) {
+    app = appCaches[appId]
+  } else {
+    app = new App(appId, actionId)
+    appCaches[appId] = app
+  } 
+
+  if(app && !app.isLoaded) {
+    await app.load()
+  }
+  return app
 }
 
 export default App

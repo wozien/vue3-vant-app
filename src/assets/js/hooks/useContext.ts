@@ -1,19 +1,23 @@
-import App from '@/assets/js/class/App'
+import { ref, watchEffect } from 'vue'
+import { RouteLocation } from 'vue-router'
+import { App, ViewType, Model, View } from '@/assets/js/class'
 
-const appCaches: {[key: number]: App} = {}
+export default function(app: App, route: RouteLocation) {
 
-export default function(appId: number, actionId?: number) {
-  let app: App | null = null
+  const curModel = ref<Model | null>(null)
+  const curView = ref<View | null>(null)
 
-  // 优先取缓存
-  if(appCaches[appId]) {
-    app = appCaches[appId]
-  } else if(actionId) {
-    app = new App(appId, actionId)
-    appCaches[appId] = app
-  } 
+  watchEffect(() => {
+    console.log(app)
+    
+    if(app.isLoaded) {
+      curModel.value = app.getModel(route.query.model as string)
+      curView.value = app.getView(route.query.viewType as ViewType)
+    }
+  })
 
   return {
-    curApp: app
+    curModel,
+    curView
   }
-} 
+}

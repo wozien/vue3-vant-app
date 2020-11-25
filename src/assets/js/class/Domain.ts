@@ -2,7 +2,7 @@
 type DomainOpertor = '='|'!='|'>'|'<'|'>='|'<='
 type DomainContionOpt = '&'|'|'
 type DomainCondition = [string, DomainOpertor, number | string]
-type DomainArr = Array<DomainContionOpt|DomainCondition>[]
+export type DomainArr = Array<DomainContionOpt|DomainCondition>
 
 class Domain {
   value: DomainArr

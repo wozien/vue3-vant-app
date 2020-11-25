@@ -1,6 +1,3 @@
-import Model from '@/assets/js/class/Model'
-import View, { ViewType } from '@/assets/js/class/View'
-import Action from '@/assets/js/class/Action'
 
 interface Company {
   dbName: string;
@@ -24,9 +21,6 @@ export interface State {
   user: User;
   orgs: Org[];
   curOrg?: Org;
-  action?: Action;
-  models?: Model[];
-  views?: { [key in ViewType]: View }
 }
 
 const state: State = {

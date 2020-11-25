@@ -4,6 +4,13 @@
 
 export interface RecordRaw {
   id: number
+  create_user: {
+    id: number
+    name: string
+    avatar: string
+  }
+  create_date: string
+  odoo_data: {[key: string]: any}
   [key: string]: any
 }
 
@@ -18,33 +25,18 @@ export interface RecordRole {
 }
 
 export interface Creator extends RecordRole {
-  avatar: string;
+  avatar: string
   time: Date
 }
 
 class Record {
   id: number
-  state: RecordState
   creator: Creator
-  raw: RecordRaw
 
   constructor(raw: RecordRaw) {
     this.id = raw.id
-    this.raw = raw
-    this.state = this.normalizeState(raw)
     this.creator = this.normalizeCreator(raw)
-  }
-
-  /**
-   * 单据状态处理
-   * @param raw 
-   */
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  normalizeState(raw: RecordRaw): RecordState {
-    return {
-      key: 'Saved',
-      string: '保存'
-    }
+    // this.proxyData(raw.odoo_data)
   }
 
   /**
@@ -53,11 +45,12 @@ class Record {
    */
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   normalizeCreator(raw: RecordRaw): Creator {
+    const { id, name, avatar } = raw.create_user
     return {
-      id: 1,
-      name: '张三',
-      avatar: '',
-      time: new Date()
+      id,
+      name,
+      avatar,
+      time: new Date(raw.create_date)
     }
   }
 }

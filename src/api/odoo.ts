@@ -4,6 +4,7 @@
 
 import http from './http'
 import { AxiosResponse } from 'axios'
+import { DomainArr } from '@/assets/js/class'
 
 interface OdooRpcParams {
   args: any[];
@@ -16,8 +17,18 @@ export interface OdooCallKwFunc {
   (model: string, method: string, ...args: any[]): Promise<AxiosResponse>;
 }
 
+export interface OdooSearchRead {
+  (options: {
+    model: string,
+    domain?: DomainArr,
+    fields: string[],
+    limit?: number,
+    sort?: string
+  }): Promise<AxiosResponse>;
+}
+
 /**
- * odoo call_kw 请求
+ * odoo /web/dataset/call_kw 请求
  * @param model 
  * @param method 
  * @param args 
@@ -32,6 +43,20 @@ export const callKw: OdooCallKwFunc = (model, method, ...args) => {
   }
 
   return http.post(url, { ...params })
+}
+
+/**
+ * odoo  /web/dataset/search_read
+ * @param options 
+ */
+export const searchRead: OdooSearchRead = (options) => {
+  const params = Object.assign({
+    limit: 10,
+    sort: 'id desc',
+    domain: []
+  }, options)
+  
+  return http.post('/meta/mobile/search_read', { ...params })
 }
 
 /**
