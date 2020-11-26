@@ -42,6 +42,10 @@ class Item {
       this.subView = itemObj.subView.map(v => new View(v))
     }
   }
+
+  get isContainer() {
+    return ['notebook', 'group', 'page'].includes(this.widget)
+  }
 }
 
 export default Item

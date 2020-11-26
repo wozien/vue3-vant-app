@@ -1,5 +1,5 @@
 <template>
-  <div class="card list-card">
+  <div class="card list-card" @click="onClickCard">
     <header class="van-hairline--bottom">
       <span class="name">{{ name }}</span>
       <span class="state">{{ state }}</span>
@@ -19,6 +19,7 @@
 
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { Record, Field } from '@/assets/js/class'
 import { formatDate } from '@/assets/js/utils/date'
 
@@ -51,10 +52,24 @@ export default defineComponent({
   },
 
   setup(props) {
+    const route = useRoute()
+    const router = useRouter()
     const cardData = useCard(props.record, props.viewFields, props.appName)
 
+    const onClickCard = () => {
+      router.push({
+        name: 'view',
+        query: Object.assign({}, route.query, {
+          viewType: 'form',
+          id: props.record.id,
+          readonly: 1
+        })
+      })
+    }
+
     return {
-      ...cardData
+      ...cardData,
+      onClickCard
     }
   }
 })

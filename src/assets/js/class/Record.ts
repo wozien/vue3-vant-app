@@ -51,7 +51,7 @@ class Record {
       id,
       name,
       avatar,
-      time: new Date(raw.create_date + ' GMT')   // 后台返回是UCT时间
+      time: new Date(raw.create_date + ' UTC')   // 后台返回是UCT时间
     }
   }
 

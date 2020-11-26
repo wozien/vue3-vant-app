@@ -3,7 +3,7 @@
  */
 
 import http, { HttpRes } from './http'
-import { loadAction, searchRead } from './odoo'
+import { loadAction, searchRead, callKw } from './odoo'
 import { DomainArr } from '@/assets/js/class'
 
 // 获取应用市场数据
@@ -53,6 +53,13 @@ export const addAppCount = async (appId: number): Promise<HttpRes> => {
   return res.data
 }
 
+/**
+ * 获取列表数据
+ * @param model 
+ * @param lastId 
+ * @param searchFields 
+ * @param limit 
+ */
 export const fetchListData: (
   model: string,
   lastId: number,
@@ -70,3 +77,18 @@ export const fetchListData: (
 
   return res.data
 } 
+
+/**
+ * 获取表单数据
+ * @param model 
+ * @param recordId 
+ * @param searchFields 
+ */
+export const fetchRecord: (
+  model: string,
+  id: number,
+  fields: string[]
+) => Promise<HttpRes> = async (model, recordId, searchFields = []) => {
+  const res = await callKw(model, 'read', recordId, searchFields)
+  return res.data
+}

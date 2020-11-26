@@ -1,89 +1,93 @@
 <template>
-  <div class="std-group">
-    <h2 class="std-group-title">表头信息</h2>
-    <div class="std-group-content">
-      <!-- char -->
-      <van-field v-model="formData.char1" label="文本1" placeholder="请输入文本1" clearable></van-field>
-      <van-field v-model="formData.char2" label="文本2" placeholder="请输入文本2" clearable></van-field>
-      <!-- boolean -->
-      <van-field label="复选框">
-        <template #input>
-          <van-checkbox v-model="formData.checkbox" shape="square"></van-checkbox>
-        </template>
-      </van-field>
-      <!-- selection -->
-      <van-field 
-        v-model="formData.selected"
-        label="选择器"
-        placeholder="请点击选择"
-        @click="showPicker=true"
-        arrow-direction="down"
-        readonly
-        clickable
-        is-link 
-      />
+  <Page name="form-view">
+    <div class="header" v-show="$route.query.readonly == 1"></div>
+    <div class="form-canvas">
+      <FormCanvas />
     </div>
-  </div>
-
-  <van-popup v-model:show="showPicker" position="bottom" round>
-    <van-picker :columns="selectData" @confirm="onSelect" @cancel="showPicker=false"/>
-  </van-popup>
+    <div class="button-wrapper"></div>
+  </Page>
 </template>
 
 <script lang="ts">
-import { defineComponent, reactive, ref, Ref } from 'vue'
-
-interface FormData {
-  char1: string;
-  char2: string;
-  checkbox: boolean;
-  text?: string;
-  selected: string;
-}
+import { defineComponent, ref, computed, PropType } from 'vue'
+import { App, Record, Item, Field } from '@/assets/js/class'
+// import { useRoute } from 'vue-router'
+import FormCanvas from './FormCanvas'
 
 export default defineComponent({
-  setup() {
-    const formData = reactive<FormData>({
-      char1: '',
-      char2: '',
-      checkbox: false,
-      selected: ''
+  components: {
+    FormCanvas
+  },
+
+  props: {
+    viewFields: {
+      type: Array as PropType<Field[]>
+    }
+  },
+
+  setup(props) {
+    // const route = useRoute()
+    const record = ref<Record | null>(null)
+    const searchFields = computed(() => {
+      let res: string[] = []
+      if(props.viewFields?.length) {
+        for(let field of props.viewFields) {
+          if(field && field.name) res.push(field.name)
+        }
+      }
+      return res
     })
-    const showPicker = ref(false)
-    const { selectData, onSelect } = useSelect(formData, showPicker)
 
     return {
-      formData,
-      showPicker,
-      selectData,
-      onSelect
+      record,
+      searchFields
     }
   }
 })
 
-function useSelect(formData: FormData,  showPicker: Ref<boolean>) {
-  const selectData = ['ss1', 'ss2', 'ss3', 'ss4']
-  const onSelect = (value: string) => {
-    formData.selected = value
-    showPicker.value = false
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function getContext(curApp: App) {
+  const curView = curApp.getView('form')
+  const curModel = curApp.getModel()
+  const fields: Field[] = []
+  const getViewFields = (items: Item[] = [], res: Field[] = []) => {
+    for(let item of items) {
+      if(item.isContainer) {
+        item.items.length && getViewFields(item.items, res)
+      } else {
+        const field = (curModel as any).getField(item.fieldKey)
+        if(field !== undefined) {
+          res.push(field)
+        }
+      }
+    }
+  }
+
+  if(curView && curModel) {
+    getViewFields(curView.items, fields)
   }
 
   return {
-    selectData,
-    onSelect
+    curView,
+    curModel,
+    viewFields: fields
   }
 }
-
 </script>
 
 <style lang="less" scoped>
-.std-group {
-  &-title {
-    padding: 16px;
-    color: rgba(69, 90, 100, 0.6);
-    font-weight: normal;
-    font-size: 14px;
-    line-height: 16px;
+.ins-form-view-page {
+  .header {
+    height: 60px;
+    background: #fff
+  }
+  .form-canvas {
+    height: calc(100vh - 110px);
+  }
+  .button-wrapper {
+    height: 50px;
+    background: #fff;
   }
 }
 </style>

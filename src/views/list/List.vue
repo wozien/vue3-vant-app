@@ -16,9 +16,9 @@
         >
           <ListCard v-for="item in list"
             :key="item.id" 
-            :app-name="ctx.appName" 
+            :app-name="appName" 
             :record="item" 
-            :view-fields="ctx.viewFields"
+            :view-fields="viewFields"
           />
         </van-list>
       </van-pull-refresh>
@@ -27,10 +27,10 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, reactive, toRefs, PropType, computed, watch } from 'vue'
+import { defineComponent, PropType, reactive, toRefs, computed, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import ListCard from './ListCard.vue'
-import { App, Record } from '@/assets/js/class'
+import { Record, Field } from '@/assets/js/class'
 import { fetchListData } from '@/api/app'
 
 export default defineComponent({
@@ -39,9 +39,9 @@ export default defineComponent({
   },
 
   props: {
-    curApp: {
-      type: Object as PropType<App>,
-      required: true
+    appName: String,
+    viewFields: {
+      type: Array as PropType<Field[]>,
     }
   },
 
@@ -54,30 +54,20 @@ export default defineComponent({
       refreshing: false,
       list: [] as Record[]
     })
-
-    const ctx = computed(() => {
-      if(props.curApp.isLoaded) { 
-        return getContext(props.curApp)
+    const searchFields = computed(() => {
+      let res: string[] = []
+      if(props.viewFields?.length) {
+        for(let field of props.viewFields) {
+          if(field && field.name) res.push(field.name)
+        }
       }
+      return res
     })
 
-    let searchFields: string[] = []
-    let lastId = 0
-    watch(() => ctx.value, (val) => {
-      if(val?.curModel) {
-        val.viewFields.forEach(field => {
-          if(field && typeof field.name === 'string') {
-            searchFields.push(field.name)
-          }
-        })
-        onLoad()
-      }
-    })
-
+    let lastId = 0;
     const onLoad = async () => {
-      if(props.curApp.isLoaded && searchFields.length) {
-        const { model } = route.query
-        const res = await fetchListData(model as string, lastId, searchFields)
+      if(searchFields.value.length) {      
+        const res = await fetchListData(route.query.model as string, lastId, searchFields.value)
         state.loading = false
         state.refreshing = false
         if(res.ret === 0) {
@@ -86,13 +76,13 @@ export default defineComponent({
               const record = new Record(raw)
               state.list.push(record)
               if(index === res.data.length - 1) lastId = record.id
-            });
+            })
           } else {
             state.finished = true
           }
-        } else {
-          // TODO state.error = true
-        }
+        } 
+      } else {
+        state.loading = false
       }
     }
 
@@ -104,34 +94,18 @@ export default defineComponent({
       onLoad()
     }
 
+    watch(searchFields, () => {
+      onLoad()
+    })
+
     return {
       ...toRefs(state),
-      ctx,
+      searchFields,
       onLoad,
       onRefresh
     }
   }
 })
-
-function getContext(curApp: App) {
-  const curView = curApp.getView('list')
-  const curModel = curApp.getModel()
-  const fields = []
-  if(curView && curModel) {
-    for(let item of curView.items) {
-      const field = curModel.getField(item.fieldKey)
-      fields && fields.push(field)
-    }
-  }
-
-  return {
-    appName: curApp.name,
-    curModel,
-    curView,
-    viewFields: fields
-  }
-}
-
 </script>
 
 <style lang="less" scoped>
