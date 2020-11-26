@@ -11,7 +11,7 @@
 
 <script lang="ts">
 import { defineComponent, ref, onBeforeMount, computed } from 'vue'
-import { App, getAppAsync, ViewType } from '@/assets/js/class'
+import { App, getAppAsync, ViewType, Field, Item } from '@/assets/js/class'
 import { useRoute } from 'vue-router'
 import ListView from '../list/List.vue'
 import FormView from '../form/Form.vue'
@@ -52,12 +52,22 @@ export default defineComponent({
 function getContext(curApp: App, modelKey: string, viewType: ViewType) {
   const curView = curApp.getView(viewType)
   const curModel = curApp.getModel(modelKey)
-  const fields = []
-  if(curView && curModel) {
-    for(let item of curView.items) {
-      const field = curModel.getField(item.fieldKey)
-      field && fields.push(field)
+  const fields: Field[] = []
+  const getViewFields = (items: Item[] = [], res: Field[] = []) => {
+    for(let item of items) {
+      if(item.isContainer) {
+        item.items.length && getViewFields(item.items, res)
+      } else {
+        const field = (curModel as any).getField(item.fieldKey)
+        if(field !== undefined) {
+          res.push(field)
+        }
+      }
     }
+  }
+  
+  if(curView && curModel) {
+    getViewFields(curView.items, fields)
   }
 
   return {

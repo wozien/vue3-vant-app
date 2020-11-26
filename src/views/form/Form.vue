@@ -9,10 +9,11 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, computed, PropType } from 'vue'
-import { App, Record, Item, Field } from '@/assets/js/class'
-// import { useRoute } from 'vue-router'
+import { defineComponent, ref, computed, PropType, watch } from 'vue'
+import { Record, Field } from '@/assets/js/class'
+import { useRoute } from 'vue-router'
 import FormCanvas from './FormCanvas'
+import { fetchRecord } from '@/api/app'
 
 export default defineComponent({
   components: {
@@ -26,7 +27,7 @@ export default defineComponent({
   },
 
   setup(props) {
-    // const route = useRoute()
+    const route = useRoute()
     const record = ref<Record | null>(null)
     const searchFields = computed(() => {
       let res: string[] = []
@@ -38,6 +39,16 @@ export default defineComponent({
       return res
     })
 
+    watch(searchFields, async (val) => {
+      if(val.length) {
+        const { model, id } = route.query
+        if(model && id) {
+          const res = await fetchRecord(model as string, (+id) as number, val)
+          record.value = new Record(res.data)
+        }
+      }
+    })
+
     return {
       record,
       searchFields
@@ -45,35 +56,6 @@ export default defineComponent({
   }
 })
 
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-function getContext(curApp: App) {
-  const curView = curApp.getView('form')
-  const curModel = curApp.getModel()
-  const fields: Field[] = []
-  const getViewFields = (items: Item[] = [], res: Field[] = []) => {
-    for(let item of items) {
-      if(item.isContainer) {
-        item.items.length && getViewFields(item.items, res)
-      } else {
-        const field = (curModel as any).getField(item.fieldKey)
-        if(field !== undefined) {
-          res.push(field)
-        }
-      }
-    }
-  }
-
-  if(curView && curModel) {
-    getViewFields(curView.items, fields)
-  }
-
-  return {
-    curView,
-    curModel,
-    viewFields: fields
-  }
-}
 </script>
 
 <style lang="less" scoped>
