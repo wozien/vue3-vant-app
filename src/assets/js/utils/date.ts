@@ -18,7 +18,8 @@
         
     for(var k in o)  {
         if(new RegExp('('+ k +')').test(fmt)) {
-            fmt = fmt.replace(RegExp.$1, RegExp.$1.length == 1 ? (o as any)[k] : ('00'+ (o as any)[k]).substr((''+ (o as any)[k]).length));  
+            fmt = fmt.replace(RegExp.$1, RegExp.$1.length == 1 ? 
+              (o as any)[k] : ('00'+ (o as any)[k]).substr((''+ (o as any)[k]).length));  
         }
     }
     return fmt;   

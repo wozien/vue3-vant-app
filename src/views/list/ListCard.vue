@@ -63,7 +63,7 @@ export default defineComponent({
 function useCard(record: Record, viewFields: Field[], appName?:string) {
   const res: ListCard = {
     name: appName || '',
-    state: '审核中',
+    state: record.state,
     creator: record.creator.name,
     createImg: record.creator.avatar || '/img/mm1.jpeg',
     createDate: formatDate('M月d日 hh:mm', record.creator.time),

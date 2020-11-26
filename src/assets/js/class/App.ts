@@ -7,19 +7,23 @@ import { fetchAction, fetchAppModel, fetchAppView } from '@/api/app'
 
 // TODO 限制缓存个数
 const appCaches: {[key: string]: App} = {}
+let activeAppId: number = 0
 
 class App {
   private _is_load: boolean = false
   id: number
   actionId: number
-  name?: string
+  modelKey: string
+  name: string
   action?: Action
   models?: { [key: string]: Model }
   views?: { [key in ViewType]: View }
 
-  constructor(appId: number, actionId: number) {
+  constructor(appId: number, actionId: number, modelKey: string) {
     this.id = appId
+    this.name = ''
     this.actionId = actionId
+    this.modelKey = modelKey
   }
 
   get isLoaded() {
@@ -47,7 +51,7 @@ class App {
 
   async loadModels() {
     this.models = {}
-    const res = await fetchAppModel(this.id, this.actionId)
+    const res = await fetchAppModel(this.modelKey)
     if(res.ret === 0) {
       const models = res.data
       for(let modelKey in models) {
@@ -59,7 +63,7 @@ class App {
 
   async loadViews() {
     this.views = {} as { [key in ViewType]: View }
-    const res = await fetchAppView(this.id, this.actionId)
+    const res = await fetchAppView(this.actionId)
     if(res.ret === 0) {
       const views = res.data
       for(let type in views) {
@@ -87,7 +91,11 @@ class App {
  * @param appId 
  * @param actionId 
  */
-export const getAppAsync = async (appId: number | string, actionId: number | string) => {
+export const getAppAsync : (
+  id: number | string,
+  actionId: number | string,
+  modelKey: string
+) => Promise<App> = async (appId, actionId, modelKey) => {
   let app: App
 
   if(typeof appId === 'string') appId = +appId
@@ -97,13 +105,14 @@ export const getAppAsync = async (appId: number | string, actionId: number | str
   if(appCaches[appId]) {
     app = appCaches[appId]
   } else {
-    app = new App(appId, actionId)
+    app = new App(appId, actionId, modelKey)
     appCaches[appId] = app
   } 
 
   if(app && !app.isLoaded) {
     await app.load()
   }
+  activeAppId = appId
   return app
 }
 
@@ -111,7 +120,8 @@ export const getAppAsync = async (appId: number | string, actionId: number | str
  *  获取app
  * @param appId 
  */
-export const getApp = (appId: string) => {
+export const getApp = (appId?: string | number) => {
+  appId = appId || activeAppId
   return appCaches[appId]
 } 
 

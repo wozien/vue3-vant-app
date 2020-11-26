@@ -34,7 +34,7 @@ export default defineComponent({
         message: '加载视图...'
       })
 
-      await addAppCount(id, actionId)
+      await addAppCount(id)
       router.push({
         name: 'view',
         query: {

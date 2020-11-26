@@ -19,11 +19,10 @@ export const fetchUsuallyApp = async (): Promise<HttpRes> => {
 }
 
 // 获取应用的模型
-export const fetchAppModel = async (appId: number, actionId: number): Promise<HttpRes> => {
+export const fetchAppModel = async (modelKey: string): Promise<HttpRes> => {
   const res = await http.get('/meta/mobile/app_model', {
     params: {
-      appId,
-      actionId
+      model_key: modelKey
     }
   })
 
@@ -31,11 +30,10 @@ export const fetchAppModel = async (appId: number, actionId: number): Promise<Ht
 }
 
 // 获取应用的视图
-export const fetchAppView = async (appId: number, actionId: number): Promise<HttpRes> => {
+export const fetchAppView = async (actionId: number): Promise<HttpRes> => {
   const res = await http.get('/meta/mobile/app_view', {
     params: {
-      appId,
-      actionId
+      action_id: actionId
     }
   })
   return res.data
@@ -48,10 +46,9 @@ export const fetchAction = async (actionId: number) : Promise<HttpRes> => {
 }
 
 // 应用次数统计
-export const addAppCount = async (appId: number, actionId: number): Promise<HttpRes> => {
+export const addAppCount = async (appId: number): Promise<HttpRes> => {
   const res = await http.post('/meta/mobile/open_app_count', {
-    id: appId,
-    actionId
+    id: appId
   })
   return res.data
 }

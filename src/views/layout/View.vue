@@ -16,13 +16,13 @@ export default defineComponent({
   
   setup() {
     const route = useRoute()
-    const { appId, actionId } = route.query
-    let curApp = ref(new App(0, 0))
+    const { appId, actionId, model } = route.query
+    let curApp = ref(new App(0, 0, ''))
 
     const viewType = computed(() => route.query.viewType)
 
     onBeforeMount(async () => {
-      curApp.value = await getAppAsync(appId as string, actionId as string)
+      curApp.value = await getAppAsync(appId as string, actionId as string, model as string)
     })
 
     return {
