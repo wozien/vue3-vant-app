@@ -7,19 +7,21 @@
     </van-search>
 
     <div class="list-container">
-      <van-list
-        v-model:loading="loading"
-        :finished="finished"
-        finished-text="没有更多了"
-        @load="onLoad"
-      >
-        <ListCard v-for="item in list"
-          :key="item.id" 
-          :app-name="ctx.appName" 
-          :record="item" 
-          :view-fields="ctx.viewFields"
-        />
-      </van-list>
+      <van-pull-refresh v-model="refreshing" @refresh="onRefresh">
+        <van-list
+          v-model:loading="loading"
+          :finished="finished"
+          finished-text="没有更多了"
+          @load="onLoad"
+        >
+          <ListCard v-for="item in list"
+            :key="item.id" 
+            :app-name="ctx.appName" 
+            :record="item" 
+            :view-fields="ctx.viewFields"
+          />
+        </van-list>
+      </van-pull-refresh>
     </div>
   </Page>
 </template>
@@ -49,6 +51,7 @@ export default defineComponent({
       searchValue: '',
       loading: false,
       finished: false,
+      refreshing: false,
       list: [] as Record[]
     })
 
@@ -76,6 +79,7 @@ export default defineComponent({
         const { model } = route.query
         const res = await fetchListData(model as string, lastId, searchFields)
         state.loading = false
+        state.refreshing = false
         if(res.ret === 0) {
           if(res.data.length) {
             res.data.forEach((raw: any, index: number) => {
@@ -89,14 +93,22 @@ export default defineComponent({
         } else {
           // TODO state.error = true
         }
-        
       }
+    }
+
+    const onRefresh = () => {
+      state.finished = false
+      state.list = []
+      state.loading = true
+      lastId = 0
+      onLoad()
     }
 
     return {
       ...toRefs(state),
       ctx,
-      onLoad
+      onLoad,
+      onRefresh
     }
   }
 })
