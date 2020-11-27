@@ -15,7 +15,9 @@ import {
   Uploader,
   Search,
   List,
-  PullRefresh
+  PullRefresh,
+  Tab,
+  Tabs
 } from 'vant'
 
 export default function(app: App){
@@ -35,4 +37,6 @@ export default function(app: App){
   app.use(Search)
   app.use(List)
   app.use(PullRefresh)
+  app.use(Tabs)
+  app.use(Tab)
 }

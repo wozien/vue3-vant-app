@@ -31,7 +31,9 @@ module.exports = {
               tsImportPluginFactory({
                 libraryName: 'vant',
                 libraryDirectory: 'es',
-                style: true
+                // style: true
+                // 指定样式路径
+                style: (name) => `${name}/style/less`
               })
             ]
           }),
@@ -41,6 +43,20 @@ module.exports = {
         });
         return options
       })
+  },
+
+  css: {
+    loaderOptions: {
+      less: {
+        // vant 样式覆盖
+        lessOptions: {
+          modifyVars: {
+            'tabs-default-color': '#1989fa',
+            'dialog-confirm-button-text-color': '#1989fa'
+          }
+        },
+      },
+    },
   },
 
   // 样式自动导入

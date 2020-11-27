@@ -3,7 +3,7 @@
  */
 
 import http, { HttpRes } from './http'
-import { loadAction, searchRead, callKw } from './odoo'
+import { loadAction, searchRead, mobileCallKw } from './odoo'
 import { DomainArr } from '@/assets/js/class'
 
 // 获取应用市场数据
@@ -89,6 +89,6 @@ export const fetchRecord: (
   id: number,
   fields: string[]
 ) => Promise<HttpRes> = async (model, recordId, searchFields = []) => {
-  const res = await callKw(model, 'read', recordId, searchFields)
+  const res = await mobileCallKw(model, 'read', recordId, searchFields)
   return res.data
 }

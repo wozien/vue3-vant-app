@@ -6,6 +6,8 @@
   />
   <FormView v-else
     :view-fields="ctx && ctx.viewFields"
+    :cur-view="ctx && ctx.curView"
+    :cur-model="ctx && ctx.curModel"
   />
 </template>
 

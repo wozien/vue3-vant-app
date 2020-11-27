@@ -46,6 +46,25 @@ export const callKw: OdooCallKwFunc = (model, method, ...args) => {
 }
 
 /**
+ * /meta/mobile/callkw
+ * @param model 
+ * @param method 
+ * @param args 
+ */
+export const mobileCallKw: OdooCallKwFunc = (model, method, ...args) => {
+  const url = `/meta/mobile/call_kw/${model}/${method}`
+  const params: OdooRpcParams = {
+    model,
+    method,
+    args,
+    kwargs: {}
+  }
+
+  return http.post(url, { ...params })
+}
+
+
+/**
  * odoo  /web/dataset/search_read
  * @param options 
  */
