@@ -1,5 +1,5 @@
 import { defineComponent, PropType }  from 'vue'
-import { Item } from '@/assets/js/class'
+import { Item, Record, Field } from '@/assets/js/class'
 import FormGroup from './FormGroup.vue'
 import FormField from './FormField.vue'
 import FormNotebook from './FormNotebook'
@@ -12,7 +12,12 @@ const FormCanvas = defineComponent({
   },
 
   props: {
-    items: Array as PropType<Item[]>
+    items: Array as PropType<Item[]>,
+    record: Object as PropType<Record>,
+    viewFields: {
+      type: Array as PropType<Field[]>,
+      default: () => []
+    }
   },
 
   setup(props) {
@@ -33,8 +38,9 @@ const FormCanvas = defineComponent({
               </FormNotebook>
             )
         default:
+          const field = props.viewFields.find(f => f.key === item.fieldKey) as Field
           return (
-            <FormField renderItem={item}/>
+            <FormField item={item} field={field} record={props.record}/>
           )
       }
     }

@@ -1,27 +1,46 @@
 <template>
+  <!-- selection -->
+  <!-- many2one -->
+  <!-- one2many -->
+  <!-- normal -->
   <van-field class="form-item-field" 
     :label="string" 
     :placeholder="placeholder" 
     input-align="right"
+    v-model="rawValue"
   />
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType, computed } from 'vue'
-import { Item } from '@/assets/js/class'
+import { defineComponent, PropType, ref, computed, watchEffect } from 'vue'
+import { Item, Field, Record } from '@/assets/js/class'
 
 export default defineComponent({
   props: {
-    renderItem: Object as PropType<Item>
+    item: Object as PropType<Item>,
+    field: Object as PropType<Field>,
+    record: Object as PropType<Record>
   },
 
   setup(props) {
-    const string = computed(() => props.renderItem && props.renderItem.string)
-    const placeholder = computed(() => props.renderItem && props.renderItem.placeholder || `请输入${string.value}`)
+    const rawValue = ref('')
+    const string = computed(() => props.item && props.item.string)
+    const placeholder = computed(() => props.item && props.item.placeholder || `请输入${string.value}`)
+
+    watchEffect(() => {
+      if(props.record && props.field) {
+        let recordRaw = props.record.raw;
+        if(Array.isArray(recordRaw)) {
+          recordRaw = recordRaw[0]
+        }
+        rawValue.value = recordRaw[props.field.name]
+      }
+    })
 
     return {
       string,
-      placeholder
+      placeholder,
+      rawValue
     }
   }
 })

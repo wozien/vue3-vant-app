@@ -15,7 +15,7 @@
       </div>
     </div>
     <div class="form-canvas">
-      <FormCanvas :items="curView && curView.items"/>
+      <FormCanvas :items="curView && curView.items" :record="record" :view-fields="viewFields"/>
     </div>
     <div class="button-wrapper van-hairline--top">
       <van-button size="small" round>编辑</van-button>
@@ -47,7 +47,7 @@ export default defineComponent({
 
   setup(props) {
     const route = useRoute()
-    const record = ref<Record | null>(null)
+    const record = ref<Record>()
     const creator = reactive({
       name: '',
       avatar: '',
