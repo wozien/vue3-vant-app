@@ -8593,9 +8593,9 @@ validate-npm-package-license@^3.0.1:
     spdx-correct "^3.0.0"
     spdx-expression-parse "^3.0.0"
 
-vant@^3.0.0-beta.7:
+vant@^3.0.0-beta.10:
   version "3.0.0-beta.10"
-  resolved "https://registry.npm.taobao.org/vant/download/vant-3.0.0-beta.10.tgz#710ae0cd67985c54bdbdb3247a0035ccd3c0f741"
+  resolved "https://registry.npm.taobao.org/vant/download/vant-3.0.0-beta.10.tgz?cache=0&sync_timestamp=1606394712248&other_urls=https%3A%2F%2Fregistry.npm.taobao.org%2Fvant%2Fdownload%2Fvant-3.0.0-beta.10.tgz#710ae0cd67985c54bdbdb3247a0035ccd3c0f741"
   integrity sha1-cQrgzWeYXFS9vbMkegA1zNPA90E=
   dependencies:
     "@babel/runtime" "7.x"
@@ -8711,6 +8711,11 @@ vuex@^4.0.0-rc.1:
   version "4.0.0-rc.1"
   resolved "https://registry.npm.taobao.org/vuex/download/vuex-4.0.0-rc.1.tgz?cache=0&sync_timestamp=1604065486770&other_urls=https%3A%2F%2Fregistry.npm.taobao.org%2Fvuex%2Fdownload%2Fvuex-4.0.0-rc.1.tgz#160cd5957972a61c7c01ab585995b78e092a298d"
   integrity sha1-FgzVlXlyphx8AatYWZW3jgkqKY0=
+
+vxe-table@^4.0.0-beta.1:
+  version "4.0.0-beta.1"
+  resolved "https://registry.npm.taobao.org/vxe-table/download/vxe-table-4.0.0-beta.1.tgz#76e0154d5714f4dd13091880f0afc28ae80875b0"
+  integrity sha1-duAVTVcU9N0TCRiA8K/CiugIdbA=
 
 watchpack-chokidar2@^2.0.0:
   version "2.0.0"
@@ -8968,6 +8973,11 @@ ws@^6.0.0, ws@^6.2.1:
   integrity sha1-RC/fCkftZPWbal2P8TD0dI7VJPs=
   dependencies:
     async-limiter "~1.0.0"
+
+xe-utils@^3.0.3:
+  version "3.0.3"
+  resolved "https://registry.npm.taobao.org/xe-utils/download/xe-utils-3.0.3.tgz?cache=0&sync_timestamp=1606621737601&other_urls=https%3A%2F%2Fregistry.npm.taobao.org%2Fxe-utils%2Fdownload%2Fxe-utils-3.0.3.tgz#0748c298b32d9577161e5c0d8e315a5485cb3818"
+  integrity sha1-B0jCmLMtlXcWHlwNjjFaVIXLOBg=
 
 xtend@^4.0.0, xtend@~4.0.1:
   version "4.0.2"

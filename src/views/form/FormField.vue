@@ -3,6 +3,7 @@
   <!-- many2one -->
   <Many2One v-if="type === 'many2one'" v-bind="{field, item, rawValue, readonly}"/>
   <!-- one2many -->
+  <One2Many v-else-if="type === 'one2many'" v-bind="{field, item, rawValue, readonly}"/>
   <!-- date -->
   <!-- boolean -->
   <!-- normal -->
@@ -22,13 +23,14 @@
 import { defineComponent, PropType, ref, watchEffect } from 'vue'
 import { Item, Field, Record } from '@/assets/js/class'
 import useFieldCommon from '@/assets/js/hooks/useFieldCommon'
-import { Many2One } from '@/components/odoo-field'
+import { Many2One, One2Many } from '@/components/odoo-field'
 
 type Many2OneValue = [number, string]
 
 export default defineComponent({
   components: {
-    Many2One
+    Many2One,
+    One2Many
   },
 
   props: {
@@ -39,7 +41,7 @@ export default defineComponent({
   },
 
   setup(props) {
-    const rawValue = ref<string | Many2OneValue>('')
+    const rawValue = ref<string | Many2OneValue>()
     const { string, placeholder, type } = useFieldCommon(props)
 
     watchEffect(() => {

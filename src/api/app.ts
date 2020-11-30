@@ -86,7 +86,7 @@ export const fetchListData: (
  */
 export const fetchRecord: (
   model: string,
-  id: number,
+  id: number | number[],
   fields: string[]
 ) => Promise<HttpRes> = async (model, recordId, searchFields = []) => {
   const res = await mobileCallKw(model, 'read', recordId, searchFields)

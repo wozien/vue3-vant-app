@@ -61,10 +61,10 @@ export default defineComponent({
       cb(true)
       return
     }
-    const item = state.list.find((item: any) => item.id === state.active)
+    const item = state.list.find(item => item.id == state.active)
     if(item) {
       realValue.value = item.name
-      state.active = ''
+      state.active = 0
       cb()
     }
   }
@@ -85,15 +85,15 @@ function useModal(props: any) {
   const state = reactive({
     showModal: false,
     searchValue: '',
-    active: '',
-    list: []
+    active: 0,
+    list: [] as {id:number, name: string}[]
   })
 
   const onOpenModal = async () => {
     if(props.readonly) return;
     const res = await fetchMany2OneData(props.field?.relation)
     if(res.ret === 0) {
-      state.list = res.data.map(item => {
+      state.list = res.data.map((item: any) => {
         return {
           id: item[0],
           name: item[1]
