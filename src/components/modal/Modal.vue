@@ -1,13 +1,15 @@
 <template>
   <teleport to="body">
     <div class="ins-modal" v-if="show">
-      <div class="main">
+      <div class="main" :style="{'height': height + 'px'}">
         <slot></slot>
       </div>
-      <div class="footer">
+      <div class="footer" v-if="!hideFooter">
         <slot name="footer">
           <van-button round block @click="onCancel">返回</van-button>
-          <van-button type="primary" round block @click="onConfirm" :loading="loading">保存</van-button>
+          <van-button type="primary" round block @click="onConfirm" :loading="loading">
+            {{ confirmText || '保存' }}
+          </van-button>
         </slot>
       </div>
     </div>
@@ -15,18 +17,24 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from 'vue'
+import { computed, defineComponent, ref } from 'vue'
 
 export default defineComponent({
   props: {
     show: {
       type: Boolean,
       default: false
-    }
+    },
+    hideFooter: Boolean,
+    confirmText: String
   },
   emits: ['cancel', 'confirm', 'update:show'],
   setup(props, { emit }) {
     const loading = ref(false)
+    const height = computed(() => {
+      const res = document.body.clientHeight
+      return !props.hideFooter ? res - 64: res
+    })
 
     const onCancel = () => {
       emit('update:show', false)
@@ -45,6 +53,7 @@ export default defineComponent({
 
     return {
       loading,
+      height,
       onCancel,
       onConfirm
     }
@@ -62,7 +71,7 @@ export default defineComponent({
   z-index: 99;
   background: #f7f8fa;
   .main {
-    height: calc(100vh - 64px);
+    // height: calc(100vh - 64px);
     overflow: auto;
   }
   .footer {

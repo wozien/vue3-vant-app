@@ -3,7 +3,7 @@
  */
 
 import http, { HttpRes } from './http'
-import { loadAction, searchRead, mobileCallKw } from './odoo'
+import { loadAction, searchRead, mobileCallKw, callKw } from './odoo'
 import { DomainArr } from '@/assets/js/class'
 
 // 获取应用市场数据
@@ -90,5 +90,14 @@ export const fetchRecord: (
   fields: string[]
 ) => Promise<HttpRes> = async (model, recordId, searchFields = []) => {
   const res = await mobileCallKw(model, 'read', recordId, searchFields)
+  return res.data
+}
+
+/**
+ * m2o字段数据获取
+ * @param model 
+ */
+export const fetchMany2OneData = async (model: string): Promise<HttpRes> => {
+  const res = await callKw(model, 'ps_name_search')
   return res.data
 }

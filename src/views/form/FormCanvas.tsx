@@ -1,4 +1,5 @@
 import { defineComponent, PropType }  from 'vue'
+import { useRoute } from 'vue-router'
 import { Item, Record, Field } from '@/assets/js/class'
 import FormGroup from './FormGroup.vue'
 import FormField from './FormField.vue'
@@ -21,6 +22,8 @@ const FormCanvas = defineComponent({
   },
 
   setup(props) {
+    const route = useRoute()
+
     const renderItem = (item: Item) => {
       const items = item.items
       switch(item.widget) {
@@ -39,8 +42,9 @@ const FormCanvas = defineComponent({
             )
         default:
           const field = props.viewFields.find(f => f.key === item.fieldKey) as Field
+          const readonly = route.query.readonly as string === '1' ? true : false
           return (
-            <FormField item={item} field={field} record={props.record}/>
+            <FormField item={item} field={field} record={props.record} readonly={readonly}/>
           )
       }
     }

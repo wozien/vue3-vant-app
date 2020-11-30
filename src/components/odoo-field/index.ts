@@ -1,0 +1,1 @@
+export { default as Many2One } from './Many2One.vue'
