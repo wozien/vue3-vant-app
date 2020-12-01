@@ -77,7 +77,7 @@ async function getData(props: any, columns: Column[]) {
     const searchFields = columns.map(col => col.field)
     const res = await fetchRecord(field.relation, Array.from(props.rawValue), searchFields)
     if(res.ret === 0) {
-      const rawData = res.data?.odoo_data;
+      const rawData = res.data;
       if(rawData.length) {
         return rawData.map((row: any) => {
           for(let key in row) {
