@@ -4,8 +4,8 @@
       :label="string" 
       :placeholder="placeholder" 
       v-model="realValue"
-      clickable
-      is-link
+      :clickable="!readonly"
+      :is-link="!readonly"
       readonly
       center
       @click="onOpenModal"

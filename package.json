@@ -8,9 +8,11 @@
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
+    "@types/lodash": "^4.14.165",
     "axios": "^0.21.0",
     "core-js": "^3.6.5",
-    "vant": "^3.0.0-beta.10",
+    "lodash": "^4.17.20",
+    "vant": "^3.0.0-rc.1",
     "vconsole": "^3.3.4",
     "vue": "^3.0.2",
     "vue-router": "^4.0.0-rc.1",
@@ -41,6 +43,5 @@
     "> 1%",
     "last 2 versions",
     "not dead"
-  ],
-  "types": "src/global.d.ts"
+  ]
 }

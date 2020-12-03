@@ -6,18 +6,18 @@
         <p class="name">{{ greet.greeting }}, {{ user.nickname }}</p>
         <p class="time">{{ greet.week }}</p>
       </div>
-      <div class="icon">
+      <div class="icon" @click="onGotoFlow('returned')">
         <img src="@assets/img/flow-send.png">
         <span>我发起的</span> 
       </div>
     </div>
     <div class="flow">
-      <div class="card approval">
+      <div class="card approval" @click="onGotoFlow('willApproval')">
         <img src="@assets/img/will-approval.png">
         <span class="text">待我审批</span>
         <span class="num">{{ willApproval }}</span>
       </div>
-      <div class="card consult">
+      <div class="card consult" @click="onGotoFlow('willConsult')">
         <img src="@assets/img/will-consult.png">
         <span class="text">待我查阅</span>
         <span class="num">{{ willConsult }}</span>
@@ -38,6 +38,7 @@
 <script lang="ts">
 import { defineComponent, ref, reactive, toRefs, computed, onMounted, onActivated } from 'vue'
 import { useStore } from '@/store'
+import { useRouter } from 'vue-router'
 import { fetchFlowNum } from '@/api/workflow'
 import { fetchUsuallyApp } from '@/api/app'
 import AppList from '@/components/app-list/AppList.vue'
@@ -49,12 +50,22 @@ export default defineComponent({
 
   setup() {
     const store = useStore()
+    const router = useRouter()
     const state = reactive({
       willConsult: 0,
       willApproval: 0
     })
     const greet = useGreet()
     const { appData } = useUsually()
+    
+    const onGotoFlow = (type: string) => {
+      router.push({
+        path: '/workflow',
+        query: {
+          type: type
+        }
+      })
+    }
 
     onMounted(async () => {
       const res = await fetchFlowNum()
@@ -68,7 +79,8 @@ export default defineComponent({
       ...toRefs(state),
       user: computed(() => store.state.user),
       greet,
-      appData
+      appData,
+      onGotoFlow
     }
   }
 })

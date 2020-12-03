@@ -8,6 +8,7 @@ const Market = defineAsyncComponent(() => import('@views/market/Market.vue'))
 const User = defineAsyncComponent(() => import('@views/user/User.vue'))
 const CompanyList = defineAsyncComponent(() => import('@views/user/CompanyList.vue'))
 const View = defineAsyncComponent(() => import('@views/layout/View.vue'))
+const Workflow = defineAsyncComponent(() => import('@views/flow/Workflow.vue'))
 
 const routes: RouteRecordRaw[] = [
   {
@@ -54,7 +55,7 @@ const routes: RouteRecordRaw[] = [
   },
   {
     path: '/workflow',
-    component: Layout
+    component: Workflow
   }
 ]
 
