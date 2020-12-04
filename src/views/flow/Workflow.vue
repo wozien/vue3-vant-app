@@ -7,14 +7,31 @@
         :name="item.type"/>
     </van-tabs>
 
-    <div class="list-container"></div>
+    <div class="list-container">
+      <van-pull-refresh v-model="refreshing" @refresh="onRefresh">
+        <van-list
+          v-model:loading="loading"
+          :finished="finished"
+          finished-text="没有更多了"
+          @load="onLoad"
+        >
+          <ListCard v-for="item in list"
+            :key="item.id"
+            :record="item"
+          />
+        </van-list>
+      </van-pull-refresh>
+    </div>
   </Page>
 </template>
 
 <script lang="ts">
-import { defineComponent, reactive, watch, toRefs } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
 import _ from 'lodash'
+import { defineComponent, ref, computed, reactive, toRefs, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import { fetchFlowList } from '@/api/workflow'
+import { formatDate } from '@/assets/js/utils/date'
+import ListCard from '../list/ListCard.vue'
 
 const FLOW_TYPES = {
   task: [
@@ -32,25 +49,37 @@ const FLOW_TYPES = {
 type GROUP_TYPE = keyof typeof FLOW_TYPES
 
 export default defineComponent({
+  components: {
+    ListCard
+  },
+
   setup() {
     const route = useRoute()
     const router = useRouter()
-    const state = reactive({
-      active: route.query.type,
-      group: calcGroup(route.query.type as string)
+    const type = route.query.type as string
+    const group = ref(calcGroup(type))
+    const { searchType, listState, onLoad, onRefresh } = useList(type)
+    const active = computed({
+      get() {
+        return route.query.type as string
+      },
+      set(val: string) {
+        router.push({
+        path: '/workflow',
+          query: {
+            type: val
+          }
+        })
+        searchType.value = val
+      }
     })
 
-    watch(() => state.active, (val) => {
-      router.push({
-        path: '/workflow',
-        query: {
-          type: val
-        }
-      })
-    })
-    
     return {
-      ...toRefs(state)
+      group,
+      active,
+      ...toRefs(listState),
+      onLoad,
+      onRefresh
     }
   }
 })
@@ -67,6 +96,90 @@ function calcGroup(type: string) {
     }
   }
   return group;
+}
+
+function useList(type: string) {
+  const searchType = ref(type)
+  const state = reactive({
+    offset: 0,
+    list: [],
+    loading: false,
+    finished: false,
+    refreshing: false
+  })
+
+  const onLoad = async () => {
+    // todo user = '9' debug
+    const res = await fetchFlowList(searchType.value, '9', state.offset)
+    state.loading = false
+    state.refreshing = false
+    if(res.ret === 0) {
+      let rows = res.data?.auditList?.rows || []
+      if(rows.length) {
+        state.list = state.list.concat(toListCardData(rows))
+        state.offset = state.list.length
+      } 
+
+      if(!rows.length || rows.length < 10) {
+        state.finished = true
+      }
+    }
+  }
+
+  const onRefresh = () => {
+    state.finished = false
+    state.list = []
+    state.loading = true
+    state.offset = 0
+    onLoad()
+  }
+
+  // 转换成卡片数据包
+  const toListCardData = (rows: any) => {
+    return rows.map((row: any) => {
+      const date = new Date(row.submit_date || row.accept_date || row.return_date + ' UTC')
+      const state = row.current_auditor ? `${row.current_auditor} 审核中` : ''
+      const res = {
+        id: row.bill_id,
+        name: row.model,
+        model: row.model_id,
+        state: state,
+        stateType: '',
+        creator: row.submit_user,
+        createDate: formatDate('M月d日 hh:mm', date),
+        createImg: '/img/mm1.jpeg',
+        fields: [
+          { name: 'bill_number', string: '单据编号', value: row.bill_number }
+        ],
+        process_id: row.process_id,
+        task_id: row.task_id,
+        type: searchType.value
+      }
+
+      if(res.type === 'returned') {
+        // 退回显示退回原因
+        res.fields.push({ name: 'return_opinion', string: '退回原因', value: row.return_opinion })
+        res.creator = res.createImg = ''
+        res.state = `被 ${row.return_user} 退回`
+        res.stateType = 'error'
+      } else {
+        res.fields.push({ name: 'bill_date', string: '单据日期', value: row.bill_date })
+      }
+
+      return res
+    })
+  }
+
+  watch(searchType, () => {
+    onRefresh()
+  })
+
+  return {
+    searchType,
+    listState: state,
+    onLoad,
+    onRefresh
+  }
 }
 
 </script>

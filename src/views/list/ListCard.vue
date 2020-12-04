@@ -2,7 +2,7 @@
   <div class="card list-card" @click="onClickCard">
     <header class="van-hairline--bottom">
       <span class="name">{{ name }}</span>
-      <span class="state">{{ state }}</span>
+      <span :class="['state', stateType && `state-${stateType}`]">{{ state }}</span>
     </header>
     <ul class="content">
       <li class="field" v-for="f in fields" :key="f.name">
@@ -11,8 +11,8 @@
       </li>
     </ul>
     <footer>
-      <van-image :src="createImg" width="25" height="25" round></van-image>
-      <span class="create">{{ `${creator} ${createDate} 发起` }}</span>
+      <van-image v-if="createImg" :src="createImg" width="25" height="25" round></van-image>
+      <span v-if="creator" class="create">{{ `${creator} ${createDate} 发起` }}</span>
     </footer>
   </div>
 </template>
@@ -30,19 +30,22 @@ interface ListCardField {
 }
 
 interface ListCard {
+  id: number
   name: string
   state: string
+  stateType?: string
   fields: ListCardField[]
   creator: string
   createDate: string
-  createImg: string
+  createImg: string,
+  [key: string]: any
 }
 
 export default defineComponent({
   props: {
     appName: String,
     record: {
-      type: Object as PropType<Record>,
+      type: Object as PropType<Record | ListCard>,
       required: true
     },
     viewFields: {
@@ -75,8 +78,10 @@ export default defineComponent({
 })
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-function useCard(record: Record, viewFields: Field[], appName?:string) {
+function useCard(record: Record | ListCard, viewFields: Field[], appName?:string) {
+  if(!(record instanceof Record)) return record
   const res: ListCard = {
+    id: record.id,
     name: appName || '',
     state: record.state,
     creator: record.creator.name,
@@ -127,6 +132,9 @@ function useCard(record: Record, viewFields: Field[], appName?:string) {
     }
     .state {
       color: @info-color;
+      &-error {
+        color: @error-color;
+      }
     }
   }
   .content {
