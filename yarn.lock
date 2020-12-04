@@ -1561,6 +1561,21 @@
   resolved "https://registry.npm.taobao.org/@vue/web-component-wrapper/download/@vue/web-component-wrapper-1.2.0.tgz#bb0e46f1585a7e289b4ee6067dcc5a6ae62f1dd1"
   integrity sha1-uw5G8VhafiibTuYGfcxaauYvHdE=
 
+"@vueuse/core@^4.0.0-rc.5":
+  version "4.0.0-rc.5"
+  resolved "https://registry.npm.taobao.org/@vueuse/core/download/@vueuse/core-4.0.0-rc.5.tgz#578049b40c46a16a947f8ebf5e269ea1d609f156"
+  integrity sha1-V4BJtAxGoWqUf46/XiaeodYJ8VY=
+  dependencies:
+    "@vueuse/shared" "4.0.0-rc.5"
+    vue-demi latest
+
+"@vueuse/shared@4.0.0-rc.5":
+  version "4.0.0-rc.5"
+  resolved "https://registry.npm.taobao.org/@vueuse/shared/download/@vueuse/shared-4.0.0-rc.5.tgz#f87bc01209191b2a4a2e3440af5d487acf28c425"
+  integrity sha1-+HvAEgkZGypKLjRAr11Ies8oxCU=
+  dependencies:
+    vue-demi latest
+
 "@webassemblyjs/ast@1.9.0":
   version "1.9.0"
   resolved "https://registry.npm.taobao.org/@webassemblyjs/ast/download/@webassemblyjs/ast-1.9.0.tgz#bd850604b4042459a5a41cd7d338cbed695ed964"
@@ -8655,6 +8670,11 @@ vue-cli-plugin-style-resources-loader@~0.1.4:
   version "0.1.4"
   resolved "https://registry.npm.taobao.org/vue-cli-plugin-style-resources-loader/download/vue-cli-plugin-style-resources-loader-0.1.4.tgz#6087a86132ea8125aa89e5f8e0a978fbc8cf6f59"
   integrity sha1-YIeoYTLqgSWqieX44Kl4+8jPb1k=
+
+vue-demi@latest:
+  version "0.4.5"
+  resolved "https://registry.npm.taobao.org/vue-demi/download/vue-demi-0.4.5.tgz#ea422a4468cb6321a746826a368a770607f87791"
+  integrity sha1-6kIqRGjLYyGnRoJqNop3Bgf4d5E=
 
 vue-eslint-parser@^7.0.0, vue-eslint-parser@^7.1.1:
   version "7.1.1"

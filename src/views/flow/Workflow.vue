@@ -29,6 +29,7 @@
 import _ from 'lodash'
 import { defineComponent, ref, computed, reactive, toRefs, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { useTitle } from '@vueuse/core'
 import { fetchFlowList } from '@/api/workflow'
 import { formatDate } from '@/assets/js/utils/date'
 import ListCard from '../list/ListCard.vue'
@@ -73,6 +74,10 @@ export default defineComponent({
         searchType.value = val
       }
     })
+    const title = computed(() => {
+      return group.value?.name === 'task' ? '我的任务' : '我的发起'
+    })
+    useTitle(title)
 
     return {
       group,

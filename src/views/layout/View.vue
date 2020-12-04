@@ -15,6 +15,7 @@
 import { defineComponent, ref, onBeforeMount, computed } from 'vue'
 import { App, getAppAsync, ViewType, Field, Item } from '@/assets/js/class'
 import { useRoute } from 'vue-router'
+import { useTitle } from '@vueuse/core'
 import ListView from '../list/List.vue'
 import FormView from '../form/Form.vue'
 
@@ -37,6 +38,10 @@ export default defineComponent({
         )
       }
     })
+    const title = computed(() => {
+      return curApp.value.name
+    })
+    useTitle(title)
 
     onBeforeMount(async () => {
       const res = await getAppAsync(appId as string, actionId as string, model as string)

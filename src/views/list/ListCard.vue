@@ -84,6 +84,7 @@ function useCard(record: Record | ListCard, viewFields: Field[], appName?:string
     id: record.id,
     name: appName || '',
     state: record.state,
+    stateType: '',
     creator: record.creator.name,
     createImg: record.creator.avatar || '/img/mm1.jpeg',
     createDate: formatDate('M月d日 hh:mm', record.creator.time),
