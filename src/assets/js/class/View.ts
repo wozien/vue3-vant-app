@@ -7,7 +7,8 @@ export interface StudioView {
   model: string
   name: string
   type: ViewType
-  mobileItems: StudioItem[]
+  mobileItems: StudioItem[],
+  buttons: any[],
   options?: any
 }
 
@@ -16,6 +17,7 @@ class View {
   name: string
   type: ViewType
   items: Item[]
+  buttons: any[]
   options?: any
 
   constructor(viewObj: StudioView) {
@@ -24,6 +26,7 @@ class View {
     this.type = viewObj.type
     this.options = viewObj.options || {}
     this.items = viewObj.mobileItems.map(i => new Item(i))
+    this.buttons = viewObj.buttons
   }
 }
 

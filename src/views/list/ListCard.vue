@@ -18,6 +18,7 @@
 </template>
 
 <script lang="ts">
+import _ from 'lodash'
 import { defineComponent, PropType } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { Record, Field } from '@/assets/js/class'
@@ -60,14 +61,30 @@ export default defineComponent({
     const cardData = useCard(props.record, props.viewFields, props.appName)
 
     const onClickCard = () => {
-      router.push({
-        name: 'view',
-        query: Object.assign({}, route.query, {
-          viewType: 'form',
-          id: props.record.id,
-          readonly: 1
+      if(cardData.taskId) {
+        // 工作流
+        sessionStorage.setItem('FLOW_PARAMS', JSON.stringify(
+          _.pick(cardData, ['processId', 'taskId', 'type', 'billNumber'])
+        ))
+        router.push({
+          name: 'view',
+          query: {
+            viewType: 'form',
+            id: cardData.id,
+            readonly: 1,
+            model: cardData.model
+          }
         })
-      })
+      } else {
+        router.push({
+          name: 'view',
+          query: Object.assign({}, route.query, {
+            viewType: 'form',
+            id: cardData.id,
+            readonly: 1
+          })
+        })
+      }
     }
 
     return {

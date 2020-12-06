@@ -156,9 +156,11 @@ function useList(type: string) {
         fields: [
           { name: 'bill_number', string: '单据编号', value: row.bill_number }
         ],
-        process_id: row.process_id,
-        task_id: row.task_id,
-        type: searchType.value
+        // 穿透的参数
+        processId: row.process_id,
+        taskId: row.task_id,
+        type: searchType.value,
+        billNumber: row.bill_number
       }
 
       if(res.type === 'returned') {

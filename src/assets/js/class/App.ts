@@ -4,26 +4,27 @@
 
 import { Action, Model, View, ViewType } from './index' 
 import { fetchAction, fetchAppModel, fetchAppView } from '@/api/app'
+import { fetchFlowView } from '@/api/workflow'
 
 // TODO 限制缓存个数
 const appCaches: {[key: string]: App} = {}
-let activeAppId: number = 0
+let activeAppKey: string
 
 class App {
   private _is_load: boolean = false
-  id: number
-  actionId: number
+  key: string
   modelKey: string
   name: string
+  actionId?: number
   action?: Action
   models?: { [key: string]: Model }
   views?: { [key in ViewType]: View }
 
-  constructor(appId: number, actionId: number, modelKey: string) {
-    this.id = appId
+  constructor(appKey: string, modelKey: string, actionId?: number) {
+    this.key = appKey
     this.name = ''
-    this.actionId = actionId
     this.modelKey = modelKey
+    actionId && (this.actionId = actionId)
   }
 
   get isLoaded() {
@@ -41,10 +42,12 @@ class App {
   }
 
   async loadAction() {
-    const res = await fetchAction(this.actionId)
-    if(res.ret === 0) {
-      this.action = new Action(res.data)
-      this.name = this.action.name
+    if(this.actionId) {
+      const res = await fetchAction(this.actionId)
+      if(res.ret === 0) {
+        this.action = new Action(res.data)
+        this.name = this.action.name
+      }
     }
     return true
   }
@@ -63,7 +66,14 @@ class App {
 
   async loadViews() {
     this.views = {} as { [key in ViewType]: View }
-    const res = await fetchAppView(this.actionId)
+    let res
+    if(this.actionId) {
+      res = await fetchAppView(this.actionId)
+    } else {
+      const flowParams = JSON.parse(sessionStorage.getItem('FLOW_PARAMS') || '{}')
+      res = await fetchFlowView(this.modelKey, flowParams)
+    }
+
     if(res.ret === 0) {
       const views = res.data
       for(let type in views) {
@@ -92,27 +102,27 @@ class App {
  * @param actionId 
  */
 export const getAppAsync : (
-  id: number | string,
-  actionId: number | string,
-  modelKey: string
-) => Promise<App> = async (appId, actionId, modelKey) => {
+  modelKey: string,
+  menuId?: string,
+  actionId?: number | string
+) => Promise<App> = async (modelKey, menuId, actionId) => {
   let app: App
 
-  if(typeof appId === 'string') appId = +appId
-  if(typeof actionId === 'string') actionId = +actionId
+  if(actionId && typeof actionId === 'string') actionId = +actionId
+  let appKey = `app_${modelKey}_${ menuId || new Date().getTime() }`
   
   // 优先取缓存
-  if(appCaches[appId]) {
-    app = appCaches[appId]
+  if(appCaches[appKey]) {
+    app = appCaches[appKey]
   } else {
-    app = new App(appId, actionId, modelKey)
-    appCaches[appId] = app
+    app = new App(appKey, modelKey, actionId as number)
+    appCaches[appKey] = app
   } 
 
   if(app && !app.isLoaded) {
     await app.load()
   }
-  activeAppId = appId
+  activeAppKey = appKey
   return app
 }
 
@@ -120,9 +130,9 @@ export const getAppAsync : (
  *  获取app
  * @param appId 
  */
-export const getApp = (appId?: string | number) => {
-  appId = appId || activeAppId
-  return appCaches[appId]
+export const getApp = (appKey?: string) => {
+  appKey = appKey || activeAppKey
+  return appCaches[appKey]
 } 
 
 

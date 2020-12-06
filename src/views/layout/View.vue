@@ -27,8 +27,8 @@ export default defineComponent({
   
   setup() {
     const route = useRoute()
-    const { appId, actionId, model } = route.query
-    let curApp = ref<App>(new App(0, 0, ''))
+    const { menuId, actionId, model } = route.query
+    let curApp = ref<App>(new App('', '', 0))
     let ctx = computed(() => {
       if(curApp.value && curApp.value.isLoaded) {
         return getContext(
@@ -39,12 +39,12 @@ export default defineComponent({
       }
     })
     const title = computed(() => {
-      return curApp.value.name
+      return curApp.value.name || '应用'
     })
     useTitle(title)
 
     onBeforeMount(async () => {
-      const res = await getAppAsync(appId as string, actionId as string, model as string)
+      const res = await getAppAsync(model as string, menuId as string, actionId as string)
       curApp.value = res
     })
 

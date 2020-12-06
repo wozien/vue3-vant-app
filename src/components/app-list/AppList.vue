@@ -39,7 +39,7 @@ export default defineComponent({
         name: 'view',
         query: {
           model: modelKey,
-          appId: id,
+          menuId: id,
           actionId,
           viewType: 'list'
         }
