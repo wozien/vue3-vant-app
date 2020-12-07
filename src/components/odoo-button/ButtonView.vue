@@ -25,7 +25,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType, computed, ref, watchEffect } from 'vue'
+import { defineComponent, PropType, computed, ref, watchEffect, h } from 'vue'
 import { useRoute } from 'vue-router'
 import { Toast } from 'vant'
 import { ViewButton } from '@/assets/js/class'
@@ -122,8 +122,21 @@ function handleServiceAction(action: any, button: ViewButton) {
 }
 
 function handleWorkflowAction(action: any, button: ViewButton) {
+  switch(button.funcName) {
+    case 'workflow_handle':
+      handleFlowAgree(action, button); break
+  }
+}
+
+function handleFlowAgree(action: any, button: ViewButton) {
   console.log(action, button)
-  createModal()
+
+  createModal({
+    render: () => h('span', 11),
+    onOK: (cb: Function) => {
+      cb()
+    }
+  })
 }
 
 </script>
