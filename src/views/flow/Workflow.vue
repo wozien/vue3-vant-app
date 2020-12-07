@@ -160,7 +160,8 @@ function useList(type: string) {
         processId: row.process_id,
         taskId: row.task_id,
         type: searchType.value,
-        billNumber: row.bill_number
+        billNumber: row.bill_number,
+        isFlow: true
       }
 
       if(res.type === 'returned') {

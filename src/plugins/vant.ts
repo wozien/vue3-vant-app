@@ -17,7 +17,8 @@ import {
   List,
   PullRefresh,
   Tab,
-  Tabs
+  Tabs,
+  Popover
 } from 'vant'
 
 export default function(app: App){
@@ -39,4 +40,5 @@ export default function(app: App){
   app.use(PullRefresh)
   app.use(Tabs)
   app.use(Tab)
+  app.use(Popover)
 }

@@ -17,10 +17,7 @@
     <div class="form-canvas" :style="{'height': height + 'px'}">
       <FormCanvas :items="curView && curView.items" :record="record" :view-fields="viewFields"/>
     </div>
-    <div class="button-wrapper van-hairline--top">
-      <van-button v-if="isReadonly" size="small" round @click="onEditForm">编辑</van-button>
-      <van-button v-else type="primary" size="small" round>提交</van-button>
-    </div>
+    <ButtonView :buttons="curView && curView.buttons"/>
   </Page>
 </template>
 
@@ -29,12 +26,14 @@ import { defineComponent, reactive, ref, computed, PropType, watch, onMounted } 
 import { Record, Field, View, Model } from '@/assets/js/class'
 import { useRoute, useRouter } from 'vue-router'
 import FormCanvas from './FormCanvas'
+import ButtonView from '@/components/odoo-button/ButtonView.vue'
 import { fetchRecord } from '@/api/app'
 import { formatDate } from '@/assets/js/utils/date'
 
 export default defineComponent({
   components: {
-    FormCanvas
+    FormCanvas,
+    ButtonView
   },
 
   props: {
@@ -149,18 +148,6 @@ export default defineComponent({
   .form-canvas {
     // height: calc(100vh - 120px);
     overflow: auto;
-  }
-  .button-wrapper {
-    height: 50px;
-    background: #fff;
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-    padding: 0px 10px;
-    /deep/ .van-button--small {
-      padding: 0px 16px;
-      margin-left: 6px;
-    }
   }
 }
 </style>

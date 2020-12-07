@@ -61,7 +61,7 @@ export default defineComponent({
     const cardData = useCard(props.record, props.viewFields, props.appName)
 
     const onClickCard = () => {
-      if(cardData.taskId) {
+      if(cardData.isFlow) {
         // 工作流
         sessionStorage.setItem('FLOW_PARAMS', JSON.stringify(
           _.pick(cardData, ['processId', 'taskId', 'type', 'billNumber'])

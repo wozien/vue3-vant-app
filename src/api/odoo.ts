@@ -2,7 +2,7 @@
  * odoo 请求接口封装
  */
 
-import http from './http'
+import http, { HttpRes } from './http'
 import { AxiosResponse } from 'axios'
 import { DomainArr } from '@/assets/js/class'
 
@@ -63,6 +63,23 @@ export const mobileCallKw: OdooCallKwFunc = (model, method, ...args) => {
   return http.post(url, { ...params })
 }
 
+/**
+ * odoo call_button
+ * @param model 
+ * @param method 
+ * @param args 
+ * @param kwargs 
+ */
+export const callButton: (
+  model: string,
+  method: string,
+  args: any[],
+  kwargs?: any
+) => Promise<HttpRes> = async (model, method, args = [], kwargs = {}) => {
+  const url = '/meta/web/dataset/call_button'
+  const res = await http.post(url, { model, method, args, kwargs })
+  return res.data
+}
 
 /**
  * odoo  /web/dataset/search_read
