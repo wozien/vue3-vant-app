@@ -1,7 +1,7 @@
 // 工作流请求相关
 
 import http, { HttpRes } from './http'
-import { callKw } from './odoo'
+import { callKw, callButton } from './odoo'
 
 // 获取首页流程数量
 export const fetchFlowNum = async (): Promise<HttpRes> => {
@@ -50,6 +50,13 @@ export const fetchFlowView: (
 export const flowAgreen = async (opinion: string, context: any): Promise<HttpRes> => {
   const approve_type = context.approve_type || '1'
   const args = [{ approve_type, opinion }]
-  const res = await callKw('workflow.approve.wizard', 'create', args, { context })
+  let res = await callKw('workflow.approve.wizard', 'create', args, { context })
+  if(res.data) {
+    console.log(res.data)
+    res = res.data
+    if((res as any).ret === 0) {
+      return await callButton('workflow.approve.wizard', 'button_confirm', [[res.data]], { context })
+    }
+  }
   return res.data
 }
