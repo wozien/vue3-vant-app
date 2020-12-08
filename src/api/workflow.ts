@@ -1,6 +1,7 @@
 // 工作流请求相关
 
 import http, { HttpRes } from './http'
+import { callKw } from './odoo'
 
 // 获取首页流程数量
 export const fetchFlowNum = async (): Promise<HttpRes> => {
@@ -42,5 +43,13 @@ export const fetchFlowView: (
       process_id: processId
     }
   })
+  return res.data
+}
+
+// 审批同意
+export const flowAgreen = async (opinion: string, context: any): Promise<HttpRes> => {
+  const approve_type = context.approve_type || '1'
+  const args = [{ approve_type, opinion }]
+  const res = await callKw('workflow.approve.wizard', 'create', args, { context })
   return res.data
 }

@@ -14,7 +14,7 @@ interface OdooRpcParams {
 } 
 
 export interface OdooCallKwFunc {
-  (model: string, method: string, ...args: any[]): Promise<AxiosResponse>;
+  (model: string, method: string, args?: any[], kwargs?: any): Promise<AxiosResponse>;
 }
 
 export interface OdooSearchRead {
@@ -33,13 +33,13 @@ export interface OdooSearchRead {
  * @param method 
  * @param args 
  */
-export const callKw: OdooCallKwFunc = (model, method, ...args) => {
+export const callKw: OdooCallKwFunc = (model, method, args = [], kwargs = {}) => {
   const url = `/meta/web/dataset/call_kw/${model}/${method}`
   const params: OdooRpcParams = {
     model,
     method,
     args,
-    kwargs: {}
+    kwargs
   }
 
   return http.post(url, { ...params })
@@ -51,13 +51,13 @@ export const callKw: OdooCallKwFunc = (model, method, ...args) => {
  * @param method 
  * @param args 
  */
-export const mobileCallKw: OdooCallKwFunc = (model, method, ...args) => {
+export const mobileCallKw: OdooCallKwFunc = (model, method, args = [], kwargs = {}) => {
   const url = `/meta/mobile/call_kw/${model}/${method}`
   const params: OdooRpcParams = {
     model,
     method,
     args,
-    kwargs: {}
+    kwargs
   }
 
   return http.post(url, { ...params })

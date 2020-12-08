@@ -64,7 +64,9 @@ export default defineComponent({
       if(cardData.isFlow) {
         // 工作流
         sessionStorage.setItem('FLOW_PARAMS', JSON.stringify(
-          _.pick(cardData, ['processId', 'taskId', 'type', 'billNumber'])
+          Object.assign({ 
+            billId: cardData.id 
+          }, _.pick(cardData, ['processId', 'taskId', 'type', 'billNumber']))
         ))
         router.push({
           name: 'view',

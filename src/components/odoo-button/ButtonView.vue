@@ -25,12 +25,13 @@
 </template>
 
 <script lang="tsx">
-import { defineComponent, PropType, computed, ref, watchEffect } from 'vue'
+import { defineComponent, PropType, computed, ref, watchEffect, reactive } from 'vue'
 import { useRoute } from 'vue-router'
 import { Toast } from 'vant'
 import { ViewButton } from '@/assets/js/class'
 import { callButton } from '@/api/odoo'
 import { createModal } from '@/components/modal'
+import { flowAgreen } from '@/api/workflow'
 import Button from './Button.vue'
 
 export default defineComponent({
@@ -123,6 +124,9 @@ function handleServiceAction(action: any, button: ViewButton) {
   }
 }
 
+/**
+ * 处理审批按钮
+ */
 function handleWorkflowAction(action: any, button: ViewButton) {
   switch(button.funcName) {
     case 'workflow_handle':
@@ -131,17 +135,44 @@ function handleWorkflowAction(action: any, button: ViewButton) {
 }
 
 /**
+ * 获取当前审批单据信息
+ */
+function getFlowParams() {
+  const params = JSON.parse(sessionStorage.getItem('FLOW_PARAMS') || '{}')
+  return {
+    bill_id: params.billId,
+    bill_number: params.billNumber,
+    task_id: params.taskId,
+    process_id: params.processId,
+    type: params.type
+  }
+}
+
+/**
  * 审批同意
  */
 function handleFlowAgree(action: any, button: ViewButton) {
   console.log(action, button)
-
-  createModal({
-    render: () => <span>111</span>,
-    confirm: (cb: Function) => {
-      cb()
-    }
+  const state = reactive({
+    opinion: ''
   })
+  const render = () => (
+    <van-field v-model={state.opinion} rows="4" label="审批意见" type="textarea" maxlength="50"
+    placeholder="请输入审批意见" show-word-limit autosize/>
+  )
+  const confirm = async (cb: Function) => {
+    if(!state.opinion) {
+      Toast('审批意见不能为空'); cb(true); return
+    }
+    const res = await flowAgreen(state.opinion, Object.assign(action.context || {}, getFlowParams()))
+    if(res.ret === 0) {
+      Toast('审批成功'); cb()
+    } else {
+      cb(true)
+    }
+  }
+
+  createModal({ render, confirm })
 }
 
 </script>

@@ -90,10 +90,11 @@ export const fetchRecord: (
   fields: string[]
 ) => Promise<HttpRes> = async (model, recordId, searchFields = []) => {
   let res;
+  let args = [recordId, searchFields]
   if(Array.isArray(recordId)) {
-    res = await callKw(model, 'read', recordId, searchFields)
+    res = await callKw(model, 'read', args)
   } else {
-    res = await mobileCallKw(model, 'read', recordId, searchFields)
+    res = await mobileCallKw(model, 'read', args)
   }
   return res.data
 }

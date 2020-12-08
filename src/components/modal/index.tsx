@@ -1,6 +1,6 @@
 import { createApp, ComponentPublicInstance, getCurrentInstance, reactive, nextTick } from 'vue'
 import Modal from './Modal.vue'
-import { Button } from 'vant'
+import Vant from '@/plugins/vant'
 
 let instance: ComponentPublicInstance
 
@@ -49,7 +49,7 @@ const createInstance = () => {
   const root = document.createElement('div')
   document.body.appendChild(root)
 
-  app.use(Button)
+  app.use(Vant)
   return app.mount(root)
 }
 
