@@ -33,6 +33,7 @@ import { callButton } from '@/api/odoo'
 import { createModal } from '@/components/modal'
 import { flowAgreen, flowReturn } from '@/api/workflow'
 import Button from './Button.vue'
+import FlowSign from '@/views/flow/FlowSign.vue'
 
 export default defineComponent({
   components: {
@@ -73,7 +74,7 @@ export default defineComponent({
         if(button && model && id) {
           const args = [[+id]]
           const toast = Toast.loading('加载中...')
-          const res = await callButton(model as string, button.funcName, args)
+          const res = await callButton(model as string, button.funcName, args, Object.assign({}, {context: getFlowParams()}))
           toast.clear()
           if(res.ret === 0) {
             const action = res.data
@@ -122,6 +123,11 @@ function handleServiceAction(action: any, button: ViewButton) {
     if(button.isFlow) {
       handleWorkflowAction(action, button)
     }
+  } else if(action.type === 'ir.actions.cus_function') {
+    switch(action.funcName) {
+      case '_handleSign': 
+        handleFlowSign(action); break
+    }
   }
 }
 
@@ -160,7 +166,7 @@ function handleFlowAgree(action: any) {
     if(!state.opinion) {
       Toast('审批意见不能为空'); cb(true); return
     }
-    const res = await flowAgreen(state.opinion, Object.assign(action.context || {}, getFlowParams()))
+    const res = await flowAgreen(state.opinion, Object.assign(getFlowParams(), action.context || {}))
     if(res.ret === 0) {
       Toast('审批成功'); cb()
     } 
@@ -214,10 +220,28 @@ function handleFlowReturn(action: any) {
     if(!state.nodeKey) {
       Toast('退回节点不能为空'); cb(true); return
     }
-    const res = await flowReturn(state.nodeKey, state.opinion, Object.assign(context, getFlowParams()))
+    const res = await flowReturn(state.nodeKey, state.opinion, Object.assign(getFlowParams(), context))
     if(res.ret === 0) {
       Toast('退回成功'); cb()
     } 
+  }
+
+  createModal({ render, confirm })
+}
+
+/**
+ * 流程加签
+ */
+function handleFlowSign(action: any) {
+  console.log(action)
+  const signRef = ref(null)
+  const render = () => <FlowSign ref={signRef}/>
+  const confirm = (cb: Function) => {
+    console.log(signRef.value)
+    if(signRef.value) {
+      (signRef.value as any).print()
+    }
+    cb(true)
   }
 
   createModal({ render, confirm })
