@@ -130,7 +130,7 @@ function handleServiceAction(action: any, button: ViewButton) {
 function handleWorkflowAction(action: any, button: ViewButton) {
   switch(button.funcName) {
     case 'workflow_handle':
-      handleFlowAgree(action, button); break
+      handleFlowAgree(action); break
   }
 }
 
@@ -151,8 +151,7 @@ function getFlowParams() {
 /**
  * 审批同意
  */
-function handleFlowAgree(action: any, button: ViewButton) {
-  console.log(action, button)
+function handleFlowAgree(action: any) {
   const state = reactive({
     opinion: ''
   })

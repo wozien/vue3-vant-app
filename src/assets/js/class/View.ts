@@ -42,6 +42,7 @@ class View {
   }
 
   _initButtons(options: any): ViewButton[] {
+    if(!options.singleButton) return []
     const { custom: buttons } = options.singleButton
     return buttons.map((item: any) => {
       return {
