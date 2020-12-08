@@ -24,8 +24,8 @@
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent, PropType, computed, ref, watchEffect, h } from 'vue'
+<script lang="tsx">
+import { defineComponent, PropType, computed, ref, watchEffect } from 'vue'
 import { useRoute } from 'vue-router'
 import { Toast } from 'vant'
 import { ViewButton } from '@/assets/js/class'
@@ -71,7 +71,9 @@ export default defineComponent({
         const { model, id } = route.query
         if(button && model && id) {
           const args = [[+id]]
+          const toast = Toast.loading('加载中...')
           const res = await callButton(model as string, button.funcName, args)
+          toast.clear()
           if(res.ret === 0) {
             const action = res.data
             handleServiceAction(action, button)
@@ -128,12 +130,15 @@ function handleWorkflowAction(action: any, button: ViewButton) {
   }
 }
 
+/**
+ * 审批同意
+ */
 function handleFlowAgree(action: any, button: ViewButton) {
   console.log(action, button)
 
   createModal({
-    render: () => h('span', 11),
-    onOK: (cb: Function) => {
+    render: () => <span>111</span>,
+    confirm: (cb: Function) => {
       cb()
     }
   })

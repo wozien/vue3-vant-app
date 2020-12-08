@@ -1,22 +1,5 @@
-<template>
- 
-    <div class="ins-modal" v-if="show">
-      <div class="main" :style="{'height': height + 'px'}">
-        <slot></slot>
-      </div>
-      <div class="footer" v-if="!hideFooter">
-        <slot name="footer">
-          <van-button round block @click="onCancel" size="small">返回</van-button>
-          <van-button type="primary" round block @click="onConfirm" :loading="loading" size="small">
-            {{ confirmText || '保存' }}
-          </van-button>
-        </slot>
-      </div>
-    </div>
 
-</template>
-
-<script lang="ts">
+<script lang="tsx">
 import { computed, defineComponent, ref } from 'vue'
 
 export default defineComponent({
@@ -26,12 +9,14 @@ export default defineComponent({
       default: false
     },
     hideFooter: Boolean,
-    confirmText: String
+    confirmText: String,
+    render: Function,
+    confirm: Function
   },
 
-  emits: ['click', 'confirm', 'cancel', 'update:show'],
+  emits: ['confirm', 'cancel', 'update:show'],
 
-  setup(props, { emit }) {
+  setup(props, { emit, slots }) {
     const loading = ref(false)
     const height = computed(() => {
       const res = document.body.clientHeight
@@ -45,25 +30,58 @@ export default defineComponent({
 
     const onConfirm = () => {
       loading.value = true
-      emit('confirm', (keepModal?: Boolean) => {
+      const cb = (keepModal?: Boolean) => {
         loading.value = false
         if(!keepModal) {
           emit('update:show', false)
         }
-      })
+      }
+      emit('confirm', cb)
+      if(props.confirm) {
+        props.confirm(cb)
+      }
     }
 
-    return {
-      loading,
-      height,
-      onCancel,
-      onConfirm
+    const renderContent = () => {
+      if(slots && slots.default) {
+        return slots.default()
+      } else if(props.render) {
+        return props.render()
+      }
+    }
+
+    const renderFooter = () => {
+      const defaultButtons = () =>(
+        <div class="footer">
+          <van-button  onClick={onCancel} size="small" round block>返回</van-button>
+          <van-button type="primary" round block onClick={onConfirm} loading={loading.value} size="small">
+            { props.confirmText || '保存' }
+          </van-button>
+        </div>
+      )
+
+      if(!props.hideFooter) {
+        return slots.footer ? (
+          <div>{ slots.footer() }</div>
+        ) : defaultButtons()
+      }
+    }
+
+    return () => {
+      return (
+        <div class="ins-modal" v-show={props.show}>
+          <div class="main" style={{'height': height.value + 'px'}}>
+            { renderContent() }
+          </div>
+          { renderFooter() }
+        </div>
+      )
     }
   }
 })
 </script>
 
-<style lang="less" scoped>
+<style lang="less">
 .ins-modal {
   width: 100%;
   height: 100%;
