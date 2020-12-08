@@ -18,7 +18,6 @@
 </template>
 
 <script lang="ts">
-import _ from 'lodash'
 import { defineComponent, PropType } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { Record, Field } from '@/assets/js/class'
@@ -63,11 +62,7 @@ export default defineComponent({
     const onClickCard = () => {
       if(cardData.isFlow) {
         // 工作流
-        sessionStorage.setItem('FLOW_PARAMS', JSON.stringify(
-          Object.assign({ 
-            billId: cardData.id 
-          }, _.pick(cardData, ['processId', 'taskId', 'type', 'billNumber']))
-        ))
+        sessionStorage.setItem('FLOW_PARAMS', JSON.stringify(cardData.context))
         router.push({
           name: 'view',
           query: {

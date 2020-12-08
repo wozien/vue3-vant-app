@@ -1,7 +1,7 @@
 /**
  * 应用类
  */
-
+import _ from 'lodash'
 import { Action, Model, View, ViewType } from './index' 
 import { fetchAction, fetchAppModel, fetchAppView } from '@/api/app'
 import { fetchFlowView } from '@/api/workflow'
@@ -71,7 +71,7 @@ class App {
       res = await fetchAppView(this.actionId)
     } else {
       const flowParams = JSON.parse(sessionStorage.getItem('FLOW_PARAMS') || '{}')
-      res = await fetchFlowView(this.modelKey, flowParams)
+      res = await fetchFlowView(this.modelKey, _.pick(flowParams, ['type', 'bill_number', 'task_id', 'process_id']))
     }
 
     if(res.ret === 0) {

@@ -31,7 +31,7 @@ import { Toast } from 'vant'
 import { ViewButton } from '@/assets/js/class'
 import { callButton } from '@/api/odoo'
 import { createModal } from '@/components/modal'
-import { flowAgreen } from '@/api/workflow'
+import { flowAgreen, flowReturn } from '@/api/workflow'
 import Button from './Button.vue'
 
 export default defineComponent({
@@ -118,6 +118,7 @@ function handleServiceAction(action: any, button: ViewButton) {
     const message = action.notify_toast.message
     Toast(message)
   } else if(action.type === 'ir.actions.act_window' && action.target === 'new') {
+    // 返回向导视图
     if(button.isFlow) {
       handleWorkflowAction(action, button)
     }
@@ -131,6 +132,8 @@ function handleWorkflowAction(action: any, button: ViewButton) {
   switch(button.funcName) {
     case 'workflow_handle':
       handleFlowAgree(action); break
+    case 'workflow_back_getInfo':
+      handleFlowReturn(action); break
   }
 }
 
@@ -139,13 +142,7 @@ function handleWorkflowAction(action: any, button: ViewButton) {
  */
 function getFlowParams() {
   const params = JSON.parse(sessionStorage.getItem('FLOW_PARAMS') || '{}')
-  return {
-    bill_id: params.billId,
-    bill_number: params.billNumber,
-    task_id: params.taskId,
-    process_id: params.processId,
-    type: params.type
-  }
+  return params
 }
 
 /**
@@ -166,9 +163,61 @@ function handleFlowAgree(action: any) {
     const res = await flowAgreen(state.opinion, Object.assign(action.context || {}, getFlowParams()))
     if(res.ret === 0) {
       Toast('审批成功'); cb()
-    } else {
-      cb(true)
+    } 
+  }
+
+  createModal({ render, confirm })
+}
+
+/**
+ * 审批打回
+ */
+function handleFlowReturn(action: any) {
+  const context = action.context
+  const nodes = (context?.res?.res || []).map((item: any) => {
+    const pairs = Object.entries(item)
+    if(pairs.length) {
+      return {
+        key: pairs[0][0],
+        value: pairs[0][1]
+      }
     }
+  })
+  const columns = nodes.map((node: any) => node.value)
+  const state = reactive({
+    node: '',
+    nodeKey: '',
+    opinion: '',
+    showPicker: false
+  })
+  const onSelectNode = (val: string) => {
+    const node = nodes.find((item: any) => item.value === val)
+    if(node) {
+      state.node = node.value
+      state.nodeKey = node.key
+      state.showPicker = false
+    }
+  }
+
+  const render = () => (
+    <div>
+      <van-field v-model={state.node} label="退回节点" readonly is-link placeholder="请选择节点" onClick={()=>state.showPicker=true}/>
+      <van-field v-model={state.opinion} rows="4" label="打回意见" type="textarea" maxlength="50"
+      placeholder="请输入打回意见" show-word-limit autosize/>
+      <van-popup v-model={[state.showPicker, 'show']} position="bottom" round>
+        <van-picker columns={columns} onConfirm={onSelectNode} onCancel={() => state.showPicker=false} />
+      </van-popup>
+    </div>
+  )
+
+  const confirm = async (cb: Function) => {
+    if(!state.nodeKey) {
+      Toast('退回节点不能为空'); cb(true); return
+    }
+    const res = await flowReturn(state.nodeKey, state.opinion, Object.assign(context, getFlowParams()))
+    if(res.ret === 0) {
+      Toast('退回成功'); cb()
+    } 
   }
 
   createModal({ render, confirm })

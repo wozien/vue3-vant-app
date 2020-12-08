@@ -157,10 +157,11 @@ function useList(type: string) {
           { name: 'bill_number', string: '单据编号', value: row.bill_number }
         ],
         // 穿透的参数
-        processId: row.process_id,
-        taskId: row.task_id,
+        // processId: row.process_id,
+        // taskId: row.task_id,
         type: searchType.value,
-        billNumber: row.bill_number,
+        // billNumber: row.bill_number,
+        context: Object.assign({}, row, { type: searchType.value }),
         isFlow: true
       }
 

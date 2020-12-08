@@ -28,19 +28,19 @@ export const fetchFlowView: (
   modelKey: string,
   flowParams: {
     type: string,
-    billNumber: string,
-    taskId: string,
-    processId: string
+    bill_number: string,
+    task_id: string,
+    process_id: string
   }
 ) => Promise<HttpRes> = async (modelKey, flowParams) => {
-  const { type, billNumber, taskId, processId } = flowParams
+  const { type, bill_number, task_id, process_id } = flowParams
   const res = await http.get('/flowable/mobile/workflow_app_view', {
     params: {
       model_key: modelKey, 
       type,
-      bill_number: billNumber,
-      task_id: taskId,
-      process_id: processId
+      bill_number,
+      task_id,
+      process_id
     }
   })
   return res.data
@@ -52,10 +52,26 @@ export const flowAgreen = async (opinion: string, context: any): Promise<HttpRes
   const args = [{ approve_type, opinion }]
   let res = await callKw('workflow.approve.wizard', 'create', args, { context })
   if(res.data) {
-    console.log(res.data)
     res = res.data
     if((res as any).ret === 0) {
       return await callButton('workflow.approve.wizard', 'button_confirm', [[res.data]], { context })
+    }
+  }
+  return res.data
+}
+
+// 审批打回
+export const flowReturn = async (backNode: string, opinion: string, context: any): Promise<HttpRes> => {
+  const args = [{
+    opinion,
+    back_node: backNode,
+    process_id: context.process_id
+  }]
+  let res = await callKw('workflow.back.wizard', 'create', args, { context })
+  if(res.data) {
+    res = res.data
+    if((res as any).ret === 0) {
+      return await callButton('workflow.approve.wizard', 'button_back_confirm', [[res.data]], { context })
     }
   }
   return res.data
