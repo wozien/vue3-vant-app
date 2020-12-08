@@ -18,7 +18,11 @@ import {
   PullRefresh,
   Tab,
   Tabs,
-  Popover
+  Popover,
+  RadioGroup,
+  Radio,
+  IndexBar,
+  IndexAnchor
 } from 'vant'
 
 export default function(app: App){
@@ -41,4 +45,8 @@ export default function(app: App){
   app.use(Tabs)
   app.use(Tab)
   app.use(Popover)
+  app.use(RadioGroup)
+  app.use(Radio)
+  app.use(IndexBar)
+  app.use(IndexAnchor)
 }

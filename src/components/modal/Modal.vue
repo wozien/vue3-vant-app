@@ -93,6 +93,7 @@ export default defineComponent({
   .main {
     // height: calc(100vh - 64px);
     overflow: auto;
+    position: relative;
   }
   .footer {
     position: absolute;
