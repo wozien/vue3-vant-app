@@ -1,23 +1,25 @@
 <template>
-<teleport to="body">
-
-  <div class="user-selector" v-show="show">
-    <van-tabs v-model:active="active">
-      <van-tab title="成员" name="member">11</van-tab>
-      <van-tab title="角色" name="role">22</van-tab>
-    </van-tabs>
-  </div>
-</teleport>
+  <Modal v-model:show="showModal">
+    <div class="user-selector" v-show="show">
+      <van-tabs v-model:active="active">
+        <van-tab title="成员" name="member">
+          <div class="selected"></div>
+          <div class="list-container"></div>
+        </van-tab>
+        <van-tab title="角色" name="role">22</van-tab>
+      </van-tabs>
+    </div>
+  </Modal>
 </template>
 
 <script lang="ts">
-import { defineComponent, reactive, toRefs } from 'vue'
-// import Modal from '@/components/modal/Modal.vue'
+import { defineComponent, reactive, computed, toRefs } from 'vue'
+import Modal from '@/components/modal/Modal.vue'
 
 export default defineComponent({
-  // components: {
-  //   Modal
-  // },
+  components: {
+    Modal
+  },
 
   props: {
     show: Boolean
@@ -25,22 +27,22 @@ export default defineComponent({
 
   emits: ['update:show'],
 
-  setup() {
+  setup(props, { emit }) {
     const state = reactive({
       active: 'member'
     })
 
-    // const showModal = computed({
-    //   get() {
-    //     return props.show
-    //   },
-    //   set(val) {
-    //     emit('update:show', val)
-    //   }
-    // })
+    const showModal = computed({
+      get() {
+        return props.show
+      },
+      set(val) {
+        emit('update:show', val)
+      }
+    })
     
     return {
-      // showModal,
+      showModal,
       ...toRefs(state)
     }
   }
@@ -49,13 +51,7 @@ export default defineComponent({
 
 <style lang="less" scoped>
 .user-selector{
-   width: 100%;
   height: 100%;
-  position: fixed;
-  top: 0;
-  left: 0;
-  z-index: 99;
-  background: #f7f8fa;
   /deep/ .van-tabs .van-tabs__line {
     transform: translateX(94px) translateX(-50%);
   }

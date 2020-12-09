@@ -20,5 +20,5 @@ export function useStore() {
 }
 
 export type VuexStore = typeof store
-
+export * from './state'
 export default store

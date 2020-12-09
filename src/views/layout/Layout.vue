@@ -26,7 +26,7 @@ export default defineComponent({
     const store = useStore()
 
     // 加载用户信息
-    store.dispatch('setUserInfo')
+    // store.dispatch('setUserInfo')
     store.dispatch('setOrgs')
     
     watchEffect(() => {

@@ -29,6 +29,7 @@
 import _ from 'lodash'
 import { defineComponent, ref, computed, reactive, toRefs, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { useStore } from '@/store'
 import { useTitle } from '@vueuse/core'
 import { fetchFlowList } from '@/api/workflow'
 import { formatDate } from '@/assets/js/utils/date'
@@ -57,9 +58,11 @@ export default defineComponent({
   setup() {
     const route = useRoute()
     const router = useRouter()
+    const store = useStore()
     const type = route.query.type as string
     const group = ref(calcGroup(type))
-    const { searchType, listState, onLoad, onRefresh } = useList(type)
+    const user = store.state.user
+    const { searchType, listState, onLoad, onRefresh } = useList(type, user.phone)
     const active = computed({
       get() {
         return route.query.type as string
@@ -103,7 +106,7 @@ function calcGroup(type: string) {
   return group;
 }
 
-function useList(type: string) {
+function useList(type: string, phone: string) {
   const searchType = ref(type)
   const state = reactive({
     offset: 0,
@@ -114,8 +117,7 @@ function useList(type: string) {
   })
 
   const onLoad = async () => {
-    // todo user = '9' debug
-    const res = await fetchFlowList(searchType.value, '9', state.offset)
+    const res = await fetchFlowList(searchType.value, phone, state.offset)
     state.loading = false
     state.refreshing = false
     if(res.ret === 0) {

@@ -71,7 +71,7 @@ export const flowReturn = async (backNode: string, opinion: string, context: any
   if(res.data) {
     res = res.data
     if((res as any).ret === 0) {
-      return await callButton('workflow.approve.wizard', 'button_back_confirm', [[res.data]], { context })
+      return await callButton('workflow.back.wizard', 'button_back_confirm', [[res.data]], { context })
     }
   }
   return res.data
