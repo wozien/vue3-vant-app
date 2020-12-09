@@ -31,7 +31,7 @@ import { Toast } from 'vant'
 import { ViewButton } from '@/assets/js/class'
 import { callButton } from '@/api/odoo'
 import { createModal } from '@/components/modal'
-import { flowAgreen, flowReturn } from '@/api/workflow'
+import { flowAgreen, flowReturn, flowSign } from '@/api/workflow'
 import Button from './Button.vue'
 import FlowSign from '@/views/flow/FlowSign.vue'
 
@@ -236,16 +236,31 @@ function handleFlowSign(action: any) {
   console.log(action)
   const signRef = ref(null)
   const render = () => <FlowSign ref={signRef}/>
-  const confirm = (cb: Function) => {
-    console.log(signRef.value)
+
+  const confirm = async (cb: Function) => {
     if(signRef.value) {
-      (signRef.value as any).print()
+      const data = (signRef.value as any).getData()
+      let errorMsg = '';
+      if(!data || !data.type) {
+        errorMsg = '请选择加签方式'
+      } else if(!data.receiver) {
+        errorMsg = '请选择接收人'
+      }
+
+      if(errorMsg) {
+        Toast(errorMsg); cb(true); return
+      }
+      const res = await flowSign(data.type, data.selected, Object.assign(action.context || {}, getFlowParams()))
+      if(res.ret === 0) {
+        Toast('加签成功'); cb()
+      }
     }
-    cb(true)
   }
 
   createModal({ render, confirm })
 }
+
+
 
 </script>
 

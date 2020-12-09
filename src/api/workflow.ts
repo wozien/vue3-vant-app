@@ -76,3 +76,29 @@ export const flowReturn = async (backNode: string, opinion: string, context: any
   }
   return res.data
 }
+
+// 审批加签
+export const flowSign = async (type: string, selected: any, context: any): Promise<HttpRes> => {
+  const params = {
+    signBill: [context],
+    signConsult: {
+      memberList: selected?.members || [],
+      roleList: [],
+      stationList: []
+    },
+    signType: type
+  }
+
+  const res = await http.post('/flowable/sign', { ...params })
+  return res.data
+}
+
+
+// 获取公司用户数据，用户user-picker
+export const fetchCompanyUsers = async (context: any): Promise<HttpRes> => {
+  const res = await http.post('/flowable/getUser', {
+    context: {},
+    instance: context
+  })
+  return res.data
+}

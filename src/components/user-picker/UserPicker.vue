@@ -1,37 +1,32 @@
 <template>
-  <Modal v-model:show="showModal">
-    <div class="user-selector" v-show="show">
-      <van-tabs v-model:active="active">
-        <van-tab title="成员" name="member">
-          <div class="selected"></div>
-          <div class="list-container"></div>
-        </van-tab>
-        <van-tab title="角色" name="role">22</van-tab>
-      </van-tabs>
-    </div>
+  <Modal v-model:show="showModal" @confirm="onConfirm">
+    <UserSelect v-model:selected="selected"/>
   </Modal>
 </template>
 
 <script lang="ts">
-import { defineComponent, reactive, computed, toRefs } from 'vue'
+import { defineComponent, computed, reactive, toRefs } from 'vue'
 import Modal from '@/components/modal/Modal.vue'
+import UserSelect from './UserSelect.vue'
 
 export default defineComponent({
   components: {
-    Modal
+    Modal,
+    UserSelect
   },
 
   props: {
     show: Boolean
   },
 
-  emits: ['update:show'],
+  emits: ['update:show', 'select'],
 
   setup(props, { emit }) {
     const state = reactive({
-      active: 'member'
+      selected: { 
+        members: []
+      }
     })
-
     const showModal = computed({
       get() {
         return props.show
@@ -40,20 +35,20 @@ export default defineComponent({
         emit('update:show', val)
       }
     })
+
+    const onConfirm = (cb: Function) => {
+      emit('select', state.selected)
+      cb()
+    }
     
     return {
       showModal,
-      ...toRefs(state)
+      ...toRefs(state),
+      onConfirm
     }
   }
 })
 </script>
 
 <style lang="less" scoped>
-.user-selector{
-  height: 100%;
-  /deep/ .van-tabs .van-tabs__line {
-    transform: translateX(94px) translateX(-50%);
-  }
-}
 </style>

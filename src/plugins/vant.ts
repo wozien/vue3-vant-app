@@ -22,7 +22,8 @@ import {
   RadioGroup,
   Radio,
   IndexBar,
-  IndexAnchor
+  IndexAnchor,
+  Tag
 } from 'vant'
 
 export default function(app: App){
@@ -49,4 +50,5 @@ export default function(app: App){
   app.use(Radio)
   app.use(IndexBar)
   app.use(IndexAnchor)
+  app.use(Tag)
 }

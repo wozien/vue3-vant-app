@@ -5,7 +5,7 @@
       label="接收人" 
       placeholder="请选择接收人" 
       readonly is-link
-      @click="showSelector=true"
+      @click="showPicker=true"
     />
     <van-field name="radio" label="加签方式">
       <template #input>
@@ -23,11 +23,11 @@
     </div>
   </div>
 
-  <UserPicker v-model:show="showSelector"/>
+  <UserPicker v-model:show="showPicker" @select="onUserSelected"/>
 </template>
 
 <script lang="ts">
-import { defineComponent, reactive, toRefs } from 'vue'
+import { defineComponent, reactive, toRefs, toRaw } from 'vue'
 import UserPicker from '@/components/user-picker/UserPicker.vue'
 
 export default defineComponent({
@@ -39,14 +39,39 @@ export default defineComponent({
     const state = reactive({
       type: '1',
       receiver: '',
-      showSelector: false
+      showPicker: false,
+      selected: {
+        members: []
+      }
     })
 
+    const onUserSelected = (data: any) => {
+      state.selected = data
+      state.receiver = calcReceiver(data)
+    }
+
+    const getData= () => {
+      return {
+        type: state.type === '1' ? 'before' : 'after',
+        receiver: state.receiver,
+        selected: toRaw(state.selected)
+      }
+    }
+
     return {
-      ...toRefs(state)
+      ...toRefs(state),
+      onUserSelected,
+      getData
     }
   }
 })
+
+function calcReceiver(data: any) {
+  const members = data.members || []
+  const res = [] as string[]
+  members.forEach((mb: any) => res.push(mb.name))
+  return res.join(',')
+}
 </script>
 
 <style lang="less" scoped>
