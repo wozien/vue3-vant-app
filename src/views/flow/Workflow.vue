@@ -32,7 +32,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { useStore } from '@/store'
 import { useTitle } from '@vueuse/core'
 import { fetchFlowList } from '@/api/workflow'
-import { formatDate } from '@/assets/js/utils/date'
+import { formatDate, str2Date } from '@/assets/js/utils/date'
 import ListCard from '../list/ListCard.vue'
 
 const FLOW_TYPES = {
@@ -144,7 +144,7 @@ function useList(type: string, phone: string) {
   // 转换成卡片数据包
   const toListCardData = (rows: any) => {
     return rows.map((row: any) => {
-      const date = new Date(row.submit_date || row.accept_date || row.return_date + ' UTC')
+      const date = str2Date(row.submit_date || row.accept_date || row.return_date)
       const state = row.current_auditor ? `${row.current_auditor} 审核中` : ''
       const res = {
         id: row.bill_id,
@@ -156,13 +156,9 @@ function useList(type: string, phone: string) {
         createDate: formatDate('M月d日 hh:mm', date),
         createImg: '/img/mm1.jpeg',
         fields: [
-          { name: 'bill_number', string: '单据编号', value: row.bill_number }
+          { name: 'bill_number', string: '单据编号', value: row.bill_number}
         ],
-        // 穿透的参数
-        // processId: row.process_id,
-        // taskId: row.task_id,
         type: searchType.value,
-        // billNumber: row.bill_number,
         context: Object.assign({}, row, { type: searchType.value }),
         isFlow: true
       }

@@ -24,3 +24,13 @@
     }
     return fmt;   
  }
+
+/**
+* 日期字符串转为Date对象 ios微信兼容 需要把 - 转为 /
+* @param str 
+* @param zone 
+*/
+export const str2Date = (str: string, zone = 'UTC'): Date => {
+  str = str.replace(/-/g, '/')
+  return new Date(`${str} ${zone}`)
+}

@@ -289,7 +289,7 @@ function handleFlowConsult(action: any) {
 
 </script>
 
-<style lang="less">
+<style lang="less" scoped>
 .ins-button-wrapper {
   height: 50px;
   background: #fff;
@@ -299,6 +299,7 @@ function handleFlowConsult(action: any) {
   .more {
     flex: 0 0 50px;
   }
+ 
   .button-capsules {
     flex: 1;
     display: flex;

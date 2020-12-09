@@ -3,6 +3,7 @@
  */
 
 import { getApp } from './App'
+import { str2Date } from '@/assets/js/utils/date'
 
 export interface RecordRaw {
   id: number
@@ -51,7 +52,7 @@ class Record {
       id,
       name,
       avatar,
-      time: new Date(raw.create_date + ' UTC')   // 后台返回是UCT时间
+      time: str2Date(raw.create_date)   // 后台返回是UCT时间
     }
   }
 

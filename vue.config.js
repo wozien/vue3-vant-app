@@ -52,7 +52,8 @@ module.exports = {
         lessOptions: {
           modifyVars: {
             'tabs-default-color': '#1989fa',
-            'dialog-confirm-button-text-color': '#1989fa'
+            'dialog-confirm-button-text-color': '#1989fa',
+            'popover-action-line-height': 44
           }
         },
       },
