@@ -25,15 +25,16 @@
 </template>
 
 <script lang="tsx">
-import { defineComponent, PropType, computed, ref, watchEffect, reactive } from 'vue'
+import { defineComponent, PropType, computed, ref, watchEffect, reactive, toRaw } from 'vue'
 import { useRoute } from 'vue-router'
 import { Toast } from 'vant'
 import { ViewButton } from '@/assets/js/class'
 import { callButton } from '@/api/odoo'
 import { createModal } from '@/components/modal'
-import { flowAgreen, flowReturn, flowSign } from '@/api/workflow'
+import { flowAgreen, flowReturn, flowSign, flowCirculate } from '@/api/workflow'
 import Button from './Button.vue'
 import FlowSign from '@/views/flow/FlowSign.vue'
+import UserSelect from '@/components/user-picker/UserSelect.vue'
 
 export default defineComponent({
   components: {
@@ -127,6 +128,8 @@ function handleServiceAction(action: any, button: ViewButton) {
     switch(action.funcName) {
       case '_handleSign': 
         handleFlowSign(action); break
+      case '_handleConsult':
+        handleFlowConsult(action); break
     }
   }
 }
@@ -233,7 +236,6 @@ function handleFlowReturn(action: any) {
  * 流程加签
  */
 function handleFlowSign(action: any) {
-  console.log(action)
   const signRef = ref(null)
   const render = () => <FlowSign ref={signRef}/>
 
@@ -254,6 +256,31 @@ function handleFlowSign(action: any) {
       if(res.ret === 0) {
         Toast('加签成功'); cb()
       }
+    }
+  }
+
+  createModal({ render, confirm })
+}
+
+/**
+ * 流程传阅
+ */
+function handleFlowConsult(action: any) {
+  const state = reactive({
+    selected: { members: [] }
+  })
+  const render = () => {
+    return <UserSelect v-model={[state.selected, 'selected']}/>
+  }
+
+  const confirm = async (cb: Function) => {
+    const selected = toRaw(state.selected)
+    if(!selected.members || !selected.members.length) {
+      Toast('请选择传阅人'); cb(true); return
+    }
+    const res = await flowCirculate(selected, Object.assign(action.context || {}, getFlowParams()))
+    if(res.ret === 0) {
+      Toast('传阅成功'); cb()
     }
   }
 

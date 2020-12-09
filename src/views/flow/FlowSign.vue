@@ -51,11 +51,14 @@ export default defineComponent({
     }
 
     const getData= () => {
-      return {
+      const data = {
         type: state.type === '1' ? 'before' : 'after',
         receiver: state.receiver,
         selected: toRaw(state.selected)
       }
+      state.type = '1'
+      state.receiver = ''
+      return data
     }
 
     return {

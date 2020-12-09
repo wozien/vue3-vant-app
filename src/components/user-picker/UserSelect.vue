@@ -78,7 +78,9 @@ export default defineComponent({
     })
 
     watch(() => state.memberSelect, (val) => {
-      emit('update:selected', val)
+      emit('update:selected', {
+        members: val
+      })
     })
                     
     return {

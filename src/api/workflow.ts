@@ -93,6 +93,22 @@ export const flowSign = async (type: string, selected: any, context: any): Promi
   return res.data
 }
 
+// 流程传阅
+export const flowCirculate = async (selected: any, context: any): Promise<HttpRes> => {
+  const params = {
+    context: {},
+    instance: [context],
+    user: {
+      memberList: selected?.members || [],
+      roleList: [],
+      stationList: []
+    }
+  }
+
+  const res = await http.post('/flowable/circulate', { ...params })
+  return res.data
+}
+
 
 // 获取公司用户数据，用户user-picker
 export const fetchCompanyUsers = async (context: any): Promise<HttpRes> => {
