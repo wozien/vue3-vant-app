@@ -287,8 +287,6 @@ function handleFlowConsult(action: any) {
   createModal({ render, confirm })
 }
 
-
-
 </script>
 
 <style lang="less">

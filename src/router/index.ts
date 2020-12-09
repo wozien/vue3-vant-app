@@ -14,7 +14,8 @@ router.beforeEach(async (to) => {
   // TODO token不存在时 通过open_id校验状态
   if(to.path !== '/login' && !token) {
     return { name: 'login' }
-  } else if(!store.state.user.phone){
+  } 
+  if(token && !store.state.user.nickname) {
     await store.dispatch('setUserInfo')
   }
   return true
