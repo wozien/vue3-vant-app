@@ -58,7 +58,11 @@ class App {
     if(res.ret === 0) {
       const models = res.data
       for(let modelKey in models) {
-        this.models[modelKey] = new Model(models[modelKey])
+        const model = new Model(models[modelKey])
+        this.models[modelKey] = model
+        if(!this.actionId && model.key === this.modelKey) {
+          this.name = model.name
+        }
       }
     }
     return true
@@ -71,6 +75,7 @@ class App {
       res = await fetchAppView(this.actionId)
     } else {
       const flowParams = JSON.parse(sessionStorage.getItem('FLOW_PARAMS') || '{}')
+      console.log(_.pick(flowParams, ['type', 'bill_number', 'task_id', 'process_id']))
       res = await fetchFlowView(this.modelKey, _.pick(flowParams, ['type', 'bill_number', 'task_id', 'process_id']))
     }
 

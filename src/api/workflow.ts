@@ -34,8 +34,8 @@ export const fetchFlowView: (
   }
 ) => Promise<HttpRes> = async (modelKey, flowParams) => {
   const { type, bill_number, task_id, process_id } = flowParams
-  const res = await http.get('/flowable/mobile/workflow_app_view', {
-    params: {
+  const res = await http.post('/flowable/mobile/workflow_app_view', {
+    ...{
       model_key: modelKey, 
       type,
       bill_number,

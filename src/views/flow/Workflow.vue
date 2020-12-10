@@ -30,9 +30,9 @@ import _ from 'lodash'
 import { defineComponent, computed, reactive, toRefs, watch, Ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useStore, User } from '@/store'
-import { useTitle } from '@vueuse/core'
 import { fetchFlowList } from '@/api/workflow'
 import { formatDate, str2Date } from '@/assets/js/utils/date'
+import { setDocumentTitle } from '@/assets/js/hooks/useTitle'
 import ListCard from '../list/ListCard.vue'
 
 const FLOW_TYPES = {
@@ -105,7 +105,7 @@ function useGroup(type: string) {
       }
     }
   }
-  useTitle(group?.name === 'task' ? '我的任务' : '我的发起')
+  setDocumentTitle(group?.name === 'task' ? '我的任务' : '我的发起')
   return group
 }
 

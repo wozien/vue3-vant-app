@@ -15,7 +15,7 @@
 import { defineComponent, ref, onBeforeMount, computed } from 'vue'
 import { App, getAppAsync, ViewType, Field, Item } from '@/assets/js/class'
 import { useRoute } from 'vue-router'
-import { useTitle } from '@vueuse/core'
+import useTitle from '@/assets/js/hooks/useTitle'
 import ListView from '../list/List.vue'
 import FormView from '../form/Form.vue'
 
