@@ -53,7 +53,7 @@ export default defineComponent({
     const renderFooter = () => {
       const defaultButtons = () =>(
         <div class="footer">
-          <van-button  onClick={onCancel} round block>返回</van-button>
+          <van-button onClick={onCancel} round block>返回</van-button>
           <van-button type="primary" round block onClick={onConfirm} loading={loading.value}>
             { props.confirmText || '确定' }
           </van-button>

@@ -27,9 +27,9 @@
 
 <script lang="ts">
 import _ from 'lodash'
-import { defineComponent, ref, computed, reactive, toRefs, watch } from 'vue'
+import { defineComponent, computed, reactive, toRefs, watch, Ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { useStore } from '@/store'
+import { useStore, User } from '@/store'
 import { useTitle } from '@vueuse/core'
 import { fetchFlowList } from '@/api/workflow'
 import { formatDate, str2Date } from '@/assets/js/utils/date'
@@ -56,34 +56,33 @@ export default defineComponent({
   },
 
   setup() {
-    const route = useRoute()
     const router = useRouter()
+    const route = useRoute()
     const store = useStore()
-    const type = route.query.type as string
-    const group = ref(calcGroup(type))
-    const user = store.state.user
-    const { searchType, listState, onLoad, onRefresh } = useList(type, user.phone)
+
+    const user = computed(() => store.state.user)
+    const searchType = computed(() => route.query.type as string)
     const active = computed({
       get() {
         return route.query.type as string
       },
       set(val: string) {
-        router.push({
-        path: '/workflow',
-          query: {
-            type: val
-          }
-        })
-        searchType.value = val
+        if(val && searchType.value && val !== searchType.value) {
+          router.replace({
+            name: 'flow',
+            query: {
+              type: val
+            }
+          })
+        }
       }
     })
-    const title = computed(() => {
-      return group.value?.name === 'task' ? '我的任务' : '我的发起'
-    })
-    useTitle(title)
+    const group = useGroup(searchType.value)
+    const { listState, onLoad, onRefresh } = useList(searchType, user)
 
     return {
       group,
+      searchType,
       active,
       ...toRefs(listState),
       onLoad,
@@ -92,7 +91,10 @@ export default defineComponent({
   }
 })
 
-function calcGroup(type: string) {
+/**
+ * 计算对应的流程组信息
+ */
+function useGroup(type: string) {
   let group;
   for(let key in FLOW_TYPES) {
     const types = FLOW_TYPES[key as GROUP_TYPE]
@@ -103,11 +105,14 @@ function calcGroup(type: string) {
       }
     }
   }
-  return group;
+  useTitle(group?.name === 'task' ? '我的任务' : '我的发起')
+  return group
 }
 
-function useList(type: string, phone: string) {
-  const searchType = ref(type)
+/**
+ * 列表数据加载hook
+ */
+function useList(searchType: Ref<string>, user: Ref<User>) {
   const state = reactive({
     offset: 0,
     list: [],
@@ -117,20 +122,22 @@ function useList(type: string, phone: string) {
   })
 
   const onLoad = async () => {
-    const res = await fetchFlowList(searchType.value, phone, state.offset)
-    state.loading = false
-    state.refreshing = false
-    if(res.ret === 0) {
-      let rows = res.data?.auditList?.rows || []
-      if(rows.length) {
-        state.list = state.list.concat(toListCardData(rows))
-        state.offset = state.list.length
-      } 
+    if(user.value.phone && searchType.value) {
+      const res = await fetchFlowList(searchType.value, user.value.phone, state.offset)
+      if(res.ret === 0) {
+        let rows = res.data?.auditList?.rows || []
+        if(rows.length) {
+          state.list = state.list.concat(toListCardData(rows))
+          state.offset = state.list.length
+        } 
 
-      if(!rows.length || rows.length < 10) {
-        state.finished = true
+        if(!rows.length || rows.length < 10) {
+          state.finished = true
+        }
       }
     }
+    state.loading = false
+    state.refreshing = false
   }
 
   const onRefresh = () => {
@@ -177,9 +184,10 @@ function useList(type: string, phone: string) {
     })
   }
 
-  watch(searchType, () => {
-    onRefresh()
+  watch(searchType, val => {
+    val && onRefresh()
   })
+  watch(user, onRefresh)
 
   return {
     searchType,

@@ -29,17 +29,27 @@ const routes: RouteRecordRaw[] = [
       {
         path: '/dashboard',
         component: Dashboard,
-        meta: { title: '首页' }
+        meta: { title: '首页', tab: true }
       },
       {
         path: '/market',
         component: Market,
-        meta: { title: '应用' }
+        meta: { title: '应用', tab: true }
       },
       {
         path: '/user',
         component: User,
-        meta: { title: '我的' }
+        meta: { title: '我的', tab: true }
+      },
+      {
+        path: '/view',
+        name: 'view',
+        component: View
+      },
+      {
+        path: '/workflow',
+        name: 'flow',
+        component: Workflow
       }
     ]
   },
@@ -47,15 +57,6 @@ const routes: RouteRecordRaw[] = [
     path: '/companyList',
     component: CompanyList,
     meta: { title: '我的企业' }
-  },
-  {
-    path: '/view',
-    name: 'view',
-    component: View
-  },
-  {
-    path: '/workflow',
-    component: Workflow
   }
 ]
 
