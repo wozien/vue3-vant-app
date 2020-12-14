@@ -71,8 +71,10 @@ export default defineComponent({
 
 function calcReceiver(data: any) {
   const members = data.members || []
+  const roles = data.roles || []
   const res = [] as string[]
   members.forEach((mb: any) => res.push(mb.name))
+  roles.forEach((rl: any) => res.push(rl.name))
   return res.join(',')
 }
 </script>

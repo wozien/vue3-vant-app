@@ -41,7 +41,8 @@ const createInstance = () => {
       }
 
       return {
-        open
+        open,
+        toggle
       }
     }
   })
@@ -50,7 +51,13 @@ const createInstance = () => {
   document.body.appendChild(root)
 
   app.use(Vant)
-  return app.mount(root)
+  const instance = app.mount(root)
+
+  window.onpopstate = () => {
+    (instance as any).toggle(false)
+  }
+
+  return instance
 }
 
 export const createModal = (options: ModalOptions) => {

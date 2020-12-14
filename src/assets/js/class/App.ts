@@ -75,7 +75,6 @@ class App {
       res = await fetchAppView(this.actionId)
     } else {
       const flowParams = JSON.parse(sessionStorage.getItem('FLOW_PARAMS') || '{}')
-      console.log(_.pick(flowParams, ['type', 'bill_number', 'task_id', 'process_id']))
       res = await fetchFlowView(this.modelKey, _.pick(flowParams, ['type', 'bill_number', 'task_id', 'process_id']))
     }
 

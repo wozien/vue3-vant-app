@@ -83,7 +83,7 @@ export const flowSign = async (type: string, selected: any, context: any): Promi
     signBill: [context],
     signConsult: {
       memberList: selected?.members || [],
-      roleList: [],
+      roleList: selected?.roles || [],
       stationList: []
     },
     signType: type
@@ -100,7 +100,7 @@ export const flowCirculate = async (selected: any, context: any): Promise<HttpRe
     instance: [context],
     user: {
       memberList: selected?.members || [],
-      roleList: [],
+      roleList: selected?.roles || [],
       stationList: []
     }
   }

@@ -24,7 +24,8 @@ export default defineComponent({
   setup(props, { emit }) {
     const state = reactive({
       selected: { 
-        members: []
+        members: [],
+        roles: []
       }
     })
     const showModal = computed({

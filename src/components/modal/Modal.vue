@@ -18,6 +18,7 @@ export default defineComponent({
 
   setup(props, { emit, slots }) {
     const loading = ref(false)
+
     const height = computed(() => {
       const res = document.body.clientHeight
       return !props.hideFooter ? res - 64: res

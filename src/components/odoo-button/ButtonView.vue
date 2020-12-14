@@ -267,7 +267,7 @@ function handleFlowSign(action: any) {
  */
 function handleFlowConsult(action: any) {
   const state = reactive({
-    selected: { members: [] }
+    selected: { members: [], roles: [] }
   })
   const render = () => {
     return <UserSelect v-model={[state.selected, 'selected']}/>
