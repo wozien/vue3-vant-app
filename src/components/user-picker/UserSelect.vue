@@ -2,7 +2,7 @@
   <div class="user-selector">
     <van-tabs>
       <van-tab title="成员" name="member">
-        <div class="selected" v-if="memberSelect.length">
+        <div class="selected" v-if="Object.keys(members).length">
           <van-tag
             v-for="item in memberSelect" 
             :key="item.id"
@@ -25,7 +25,7 @@
       </van-tab>
 
       <van-tab title="角色" name="role">
-        <div class="selected" v-if="roleSelect.length">
+        <div class="selected" v-if="Object.keys(roles).length">
           <van-tag
             v-for="item in roleSelect" 
             :key="item.id"
