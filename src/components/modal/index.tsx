@@ -7,6 +7,7 @@ let instance: ComponentPublicInstance
 interface ModalOptions {
   render: Function
   confirm: (cb: Function) => void
+  hideFooter?: boolean
 }
 
 const createInstance = () => {

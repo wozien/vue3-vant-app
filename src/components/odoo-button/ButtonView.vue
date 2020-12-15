@@ -34,6 +34,7 @@ import { createModal } from '@/components/modal'
 import { flowAgreen, flowReturn, flowSign, flowCirculate } from '@/api/workflow'
 import Button from './Button.vue'
 import FlowSign from '@/views/flow/FlowSign.vue'
+import FlowProcess from '@/views/flow/FlowProcess.vue'
 import UserSelect from '@/components/user-picker/UserSelect.vue'
 
 export default defineComponent({
@@ -130,6 +131,8 @@ function handleServiceAction(action: any, button: ViewButton) {
         handleFlowSign(action); break
       case '_handleConsult':
         handleFlowConsult(action); break
+      case '_handleViewProcess':
+        handleFlowViewProcess(action); break
     }
   }
 }
@@ -285,6 +288,19 @@ function handleFlowConsult(action: any) {
   }
 
   createModal({ render, confirm })
+}
+
+/**
+ * 查看全流程
+ */
+function handleFlowViewProcess(action: any) {
+  const params = action.args[0] || {}
+  const render = () => {
+    return <FlowProcess options={params}/>
+  }
+  const confirm = () => {}
+
+  createModal({ render, confirm, hideFooter: true })
 }
 
 </script>

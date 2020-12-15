@@ -164,12 +164,6 @@ function formatList(list: ListItem[]) {
       margin-right: 6px;
     }
   }
-  .no-data {
-    font-size: 13px;
-    padding: 10px;
-    text-align: center;
-    color: @text-color-light-1;
-  }
   .list-container {
     height: calc(100vh - 168px);
     overflow: auto;
