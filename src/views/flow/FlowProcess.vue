@@ -83,6 +83,8 @@ async function initBpmn(container, options) {
     await viewer.importXML(options.xml)
     viewer.get('canvas').zoom('fit-viewport', 'center')
     setColor(options)
+    disabledEvent(options)
+    bindEvent(container, options)
   } catch(err) {
     const { warnings, message } = err
     console.warn('something went wrong:', warnings, message)
@@ -135,6 +137,48 @@ function changeColor(nodeObj, color) {
   nodeObj.start && modeling.setColor(nodeObj.start, { stroke: color })
   nodeObj.end && modeling.setColor(nodeObj.end, { stroke: color })
   nodeObj.shape.length && modeling.setColor(nodeObj.shape, { stroke: color })
+}
+
+function disabledEvent() {
+  const eventBus = viewer.get('eventBus')
+  const disableEvents = [ 
+                          'element.click',
+                          'element.dblclick', 
+                          'shape.move.end', 
+                          'shape.move', 
+                          'shape.move.start',
+                          'shape.move.hover',
+                          'shape.move.move',
+                          'contextPad.create',
+                          'contextPad.getProviders',
+                          'connect.move',
+                          'bendpoint.move.move',
+                          'bendpoint.move.start',
+                          'bendpoint.move.out',
+                          'bendpoint.move.hover',
+                          'bendpoint.move.end',
+                          'bendpoint.move.cleanup',
+                          'bendpoint.move.cancel',
+                          'connectionSegment.move.move',
+                          'connectionSegment.move.start',
+                          'connectionSegment.move.out',
+                          'connectionSegment.move.hove',
+                          'connectionSegment.move.end',
+                          'connectionSegment.move.cleanup',
+                          'connectionSegment.move.cancel'
+                        ];                   
+  eventBus.off(disableEvents, null)
+}
+
+function bindEvent(container, options) {
+  if(options.nodes) {
+    options.nodes.forEach(node => {
+      const elem = container.querySelector(`[data-element-id=${node.nodeId}]`)
+      elem && elem.addEventListener('touchend', () => {
+        console.log(node.nodeId)
+      })
+    })
+  }
 }
 
 </script>
