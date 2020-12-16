@@ -23,7 +23,7 @@ import {
   Radio,
   IndexBar,
   IndexAnchor,
-  Tag
+  Tag,
 } from 'vant'
 
 export default function(app: App){

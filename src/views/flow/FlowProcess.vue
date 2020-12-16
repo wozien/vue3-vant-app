@@ -179,17 +179,19 @@ function showNodeInfo(nodeInfos) {
     `
   }
   const message = nodeInfos.map(getMessage).join('\n')
-  Dialog({
-    message,
-    messageAlign: 'left'
-  })
+  setTimeout(() => {
+    Dialog({
+      message,
+      messageAlign: 'left'
+    })
+  }, 200);
 }
 
 function bindEvent(container, options) {
   if(options.nodes) {
     options.nodes.forEach(node => {
       const elem = container.querySelector(`[data-element-id=${node.nodeId}]`)
-      elem && elem.addEventListener('touchend', () => {
+      elem && elem.addEventListener('touchstart', () => {
         showNodeInfo(node.nodeinfo)
       })
     })
