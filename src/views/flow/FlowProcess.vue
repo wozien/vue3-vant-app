@@ -32,6 +32,7 @@
 import { ref, watchEffect } from 'vue'
 import BpmnJS from 'bpmn-js/lib/Modeler'
 import { formatDate } from '@/assets/js/utils/date'
+import { Dialog } from 'vant'
 
 export default {
   props: {
@@ -142,32 +143,46 @@ function changeColor(nodeObj, color) {
 function disabledEvent() {
   const eventBus = viewer.get('eventBus')
   const disableEvents = [ 
-                          'element.click',
-                          'element.dblclick', 
-                          'shape.move.end', 
-                          'shape.move', 
-                          'shape.move.start',
-                          'shape.move.hover',
-                          'shape.move.move',
-                          'contextPad.create',
-                          'contextPad.getProviders',
-                          'connect.move',
-                          'bendpoint.move.move',
-                          'bendpoint.move.start',
-                          'bendpoint.move.out',
-                          'bendpoint.move.hover',
-                          'bendpoint.move.end',
-                          'bendpoint.move.cleanup',
-                          'bendpoint.move.cancel',
-                          'connectionSegment.move.move',
-                          'connectionSegment.move.start',
-                          'connectionSegment.move.out',
-                          'connectionSegment.move.hove',
-                          'connectionSegment.move.end',
-                          'connectionSegment.move.cleanup',
-                          'connectionSegment.move.cancel'
-                        ];                   
+    'element.click',
+    'element.dblclick', 
+    'shape.move.end', 
+    'shape.move', 
+    'shape.move.start',
+    'shape.move.hover',
+    'shape.move.move',
+    'contextPad.create',
+    'contextPad.getProviders',
+    'connect.move',
+    'bendpoint.move.move',
+    'bendpoint.move.start',
+    'bendpoint.move.out',
+    'bendpoint.move.hover',
+    'bendpoint.move.end',
+    'bendpoint.move.cleanup',
+    'bendpoint.move.cancel',
+    'connectionSegment.move.move',
+    'connectionSegment.move.start',
+    'connectionSegment.move.out',
+    'connectionSegment.move.hove',
+    'connectionSegment.move.end',
+    'connectionSegment.move.cleanup',
+    'connectionSegment.move.cancel'
+  ];                   
   eventBus.off(disableEvents, null)
+}
+
+function showNodeInfo(nodeInfos) {
+  const getMessage = (nodeInfo) => {
+    return `    审核人: ${nodeInfo.person}
+    ${nodeInfo.time ? (`审核时间: ${nodeInfo.time}
+    审核状态: ${nodeInfo.state ? '审核通过': '审核驳回'}`) : ''}
+    `
+  }
+  const message = nodeInfos.map(getMessage).join('\n')
+  Dialog({
+    message,
+    messageAlign: 'left'
+  })
 }
 
 function bindEvent(container, options) {
@@ -175,7 +190,7 @@ function bindEvent(container, options) {
     options.nodes.forEach(node => {
       const elem = container.querySelector(`[data-element-id=${node.nodeId}]`)
       elem && elem.addEventListener('touchend', () => {
-        console.log(node.nodeId)
+        showNodeInfo(node.nodeinfo)
       })
     })
   }
