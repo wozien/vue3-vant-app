@@ -178,7 +178,7 @@ function handleFlowAgree(action: any) {
     } 
   }
 
-  createModal({ render, confirm })
+  createModal({ render, confirm, hideFooter: false })
 }
 
 /**
@@ -232,7 +232,7 @@ function handleFlowReturn(action: any) {
     } 
   }
 
-  createModal({ render, confirm })
+  createModal({ render, confirm, hideFooter: false })
 }
 
 /**
@@ -262,7 +262,7 @@ function handleFlowSign(action: any) {
     }
   }
 
-  createModal({ render, confirm })
+  createModal({ render, confirm, hideFooter: false })
 }
 
 /**
@@ -287,7 +287,7 @@ function handleFlowConsult(action: any) {
     }
   }
 
-  createModal({ render, confirm })
+  createModal({ render, confirm, hideFooter: false })
 }
 
 /**
