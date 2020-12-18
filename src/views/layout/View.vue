@@ -59,7 +59,7 @@ export default defineComponent({
 function getContext(curApp: App, modelKey: string, viewType: ViewType) {
   const curView = curApp.getView(viewType)
   const curModel = curApp.getModel(modelKey)
-  const fields: Field[] = []
+  const viewFields: Field[] = []
   const getViewFields = (items: Item[] = [], res: Field[] = []) => {
     for(let item of items) {
       if(item.isContainer) {
@@ -72,16 +72,20 @@ function getContext(curApp: App, modelKey: string, viewType: ViewType) {
       }
     }
   }
+  const fields = curModel?.fields
+  const fieldsInfo = curApp.fieldsInfo
   
   if(curView && curModel) {
-    getViewFields(curView.items, fields)
+    getViewFields(curView.items, viewFields)
   }
 
   return {
     appName: curApp.name,
     curModel,
     curView,
-    viewFields: fields
+    viewFields: viewFields,
+    fields,
+    fieldsInfo
   }
 }
 </script>

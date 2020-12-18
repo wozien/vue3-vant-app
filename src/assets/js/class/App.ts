@@ -2,13 +2,24 @@
  * 应用类
  */
 import _ from 'lodash'
-import { Action, Model, View, ViewType } from './index' 
+import { Action, Model, View, ViewType, Item, FieldType } from './index' 
 import { fetchAction, fetchAppModel, fetchAppView } from '@/api/app'
 import { fetchFlowView } from '@/api/workflow'
+import { findTree } from '@/assets/js/utils/tools'
 
 // TODO 限制缓存个数
 const appCaches: {[key: string]: App} = {}
 let activeAppKey: string
+
+type FieldsInfo = {
+  [key in ViewType]: {
+    [key: string]: {
+      name: string
+      type: FieldType
+      string: string
+    }
+  }
+}
 
 class App {
   private _is_load: boolean = false
@@ -17,14 +28,16 @@ class App {
   name: string
   actionId?: number
   action?: Action
-  models?: { [key: string]: Model }
-  views?: { [key in ViewType]: View }
+  models: { [key: string]: Model } | null = null
+  views: { [key in ViewType]: View } | null = null
+  fieldsInfo?: FieldsInfo
 
   constructor(appKey: string, modelKey: string, actionId?: number) {
     this.key = appKey
     this.name = ''
     this.modelKey = modelKey
     actionId && (this.actionId = actionId)
+    this.fieldsInfo = {} as FieldsInfo
   }
 
   get isLoaded() {
@@ -39,6 +52,7 @@ class App {
     ])
     // TODO 暂不处理加载异常
     this._is_load = true
+    this.views && this.getViewFields(Object.values(this.views))
   }
 
   async loadAction() {
@@ -97,6 +111,30 @@ class App {
 
   getView(viewType: ViewType) {
     return this.views ? this.views[viewType] : null
+  }
+
+  getViewFields(views: View[], parentObj?: any) {
+    parentObj = parentObj || this.fieldsInfo
+    for(let view of views) {
+      const fieldsInfo = {} as any
+      const model = this.getModel(view.model)
+      findTree(view.items, (item: Item) => {
+        if(item.fieldKey) {
+          const field = model?.fields.find(f => f.key === item.fieldKey)
+          if(field) {
+            const info = {
+              ..._.pick(item, ['string', 'fieldType']),
+              name: field.name
+            }
+            if(item.subView?.length) {
+              this.getViewFields(item.subView, info)
+            }
+            fieldsInfo[info.name] = info
+          }
+        }
+      }, 'items')
+      parentObj[view.type] = fieldsInfo
+    }
   }
 }
 
