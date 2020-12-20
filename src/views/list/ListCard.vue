@@ -18,9 +18,10 @@
 </template>
 
 <script lang="ts">
+import _ from 'lodash'
 import { defineComponent, PropType } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { Record, Field } from '@/assets/js/class'
+import { Record, FieldInfo } from '@/assets/js/class'
 import { formatDate } from '@/assets/js/utils/date'
 
 interface ListCardField {
@@ -48,16 +49,16 @@ export default defineComponent({
       type: Object as PropType<Record | ListCard>,
       required: true
     },
-    viewFields: {
-      type: Array as PropType<Field[]>,
-      default: () => []
-    }
+    fieldInfo: {
+      type: Object as PropType<FieldInfo>,
+      default: () => {}
+    } 
   },
 
   setup(props) {
     const route = useRoute()
     const router = useRouter()
-    const cardData = useCard(props.record, props.viewFields, props.appName)
+    const cardData = useCard(props.record, props.fieldInfo, props.appName)
 
     const onClickCard = () => {
       if(cardData.isFlow) {
@@ -92,7 +93,7 @@ export default defineComponent({
 })
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-function useCard(record: Record | ListCard, viewFields: Field[], appName?:string) {
+function useCard(record: Record | ListCard, fieldInfo: FieldInfo, appName?:string) {
   if(!(record instanceof Record)) return record
   const res: ListCard = {
     id: record.id,
@@ -105,7 +106,7 @@ function useCard(record: Record | ListCard, viewFields: Field[], appName?:string
     fields: []
   }
   
-  viewFields.forEach(field => {
+  _.each(fieldInfo, (field: any) => {
     const fieldItem: ListCardField = {
       name: field.name,
       string: field.string,

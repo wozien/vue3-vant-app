@@ -1,3 +1,4 @@
+import { ViewType } from './View'
 
 export type FieldType = 'char'|'text'|'integer'|'float'|'date'|'datetime'|'boolean'|
   'selection'|'one2many'|'many2one'|'many2many'|'related'
@@ -19,6 +20,19 @@ export interface OdooField {
   selection: [string, string][]
   [key: string]: any
 }
+
+export type FieldInfo = {
+  [key: string]: {
+    name: string
+    type: FieldType
+    string: string
+  }
+}
+
+export type FieldsInfo = {
+  [key in ViewType]: FieldInfo
+}
+
 
 class Field {
   key: string 

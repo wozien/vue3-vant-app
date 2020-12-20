@@ -8,6 +8,10 @@ export interface StudioModel {
   [key: string]: any
 }
 
+export type Fields = {
+  [key: string]: Field
+}
+
 class Model {
   key: string
   name: string
@@ -30,6 +34,14 @@ class Model {
 
   getField(key: string) {
     return this.fields.find(f => f.key === key|| f.name === key)
+  }
+
+  getFields(): Fields {
+    const res = {} as Fields
+    this.fields.forEach((field: Field) => {
+      res[field.name] = field
+    })
+    return res
   }
 }
 

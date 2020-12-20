@@ -18,7 +18,7 @@
             :key="item.id" 
             :app-name="appName" 
             :record="item" 
-            :view-fields="viewFields"
+            :field-info="fieldInfo"
           />
         </van-list>
       </van-pull-refresh>
@@ -30,7 +30,7 @@
 import { defineComponent, PropType, reactive, toRefs, computed, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import ListCard from './ListCard.vue'
-import { Record, Field } from '@/assets/js/class'
+import { Record, FieldInfo } from '@/assets/js/class'
 import { fetchListData } from '@/api/app'
 
 export default defineComponent({
@@ -40,9 +40,7 @@ export default defineComponent({
 
   props: {
     appName: String,
-    viewFields: {
-      type: Array as PropType<Field[]>,
-    }
+    fieldInfo: Object as PropType<FieldInfo>
   },
 
   setup(props) {
@@ -55,13 +53,7 @@ export default defineComponent({
       list: [] as Record[]
     })
     const searchFields = computed(() => {
-      let res: string[] = []
-      if(props.viewFields?.length) {
-        for(let field of props.viewFields) {
-          if(field && field.name) res.push(field.name)
-        }
-      }
-      return res
+      return props.fieldInfo ? Object.keys(props.fieldInfo) : []
     })
 
     let lastId = 0;

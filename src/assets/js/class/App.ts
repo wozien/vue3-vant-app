@@ -2,7 +2,7 @@
  * 应用类
  */
 import _ from 'lodash'
-import { Action, Model, View, ViewType, Item, FieldType } from './index' 
+import { Action, Model, View, ViewType, Item, Field, FieldsInfo } from './index' 
 import { fetchAction, fetchAppModel, fetchAppView } from '@/api/app'
 import { fetchFlowView } from '@/api/workflow'
 import { findTree } from '@/assets/js/utils/tools'
@@ -10,16 +10,6 @@ import { findTree } from '@/assets/js/utils/tools'
 // TODO 限制缓存个数
 const appCaches: {[key: string]: App} = {}
 let activeAppKey: string
-
-type FieldsInfo = {
-  [key in ViewType]: {
-    [key: string]: {
-      name: string
-      type: FieldType
-      string: string
-    }
-  }
-}
 
 class App {
   private _is_load: boolean = false
@@ -113,6 +103,11 @@ class App {
     return this.views ? this.views[viewType] : null
   }
 
+  /**
+   * 整理视图字段数据
+   * @param views 
+   * @param parentObj 
+   */
   getViewFields(views: View[], parentObj?: any) {
     parentObj = parentObj || this.fieldsInfo
     for(let view of views) {
@@ -120,11 +115,12 @@ class App {
       const model = this.getModel(view.model)
       findTree(view.items, (item: Item) => {
         if(item.fieldKey) {
-          const field = model?.fields.find(f => f.key === item.fieldKey)
+          const field = model?.fields.find((f: Field) => f.key === item.fieldKey)
           if(field) {
             const info = {
-              ..._.pick(item, ['string', 'fieldType']),
-              name: field.name
+              type: field.type,
+              name: field.name,
+              string: item.string
             }
             if(item.subView?.length) {
               this.getViewFields(item.subView, info)

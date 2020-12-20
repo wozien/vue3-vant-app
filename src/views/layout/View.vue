@@ -3,6 +3,7 @@
     v-if="viewType === 'list'" 
     :view-fields="ctx && ctx.viewFields" 
     :app-name="ctx && ctx.appName"
+    :field-info="ctx && ctx.fieldInfo"
   />
   <FormView v-else
     :view-fields="ctx && ctx.viewFields"
@@ -72,7 +73,6 @@ function getContext(curApp: App, modelKey: string, viewType: ViewType) {
       }
     }
   }
-  const fields = curModel?.fields
   const fieldsInfo = curApp.fieldsInfo
   
   if(curView && curModel) {
@@ -84,8 +84,8 @@ function getContext(curApp: App, modelKey: string, viewType: ViewType) {
     curModel,
     curView,
     viewFields: viewFields,
-    fields,
-    fieldsInfo
+    fields: curModel && curModel.getFields() || {},
+    fieldInfo: fieldsInfo && fieldsInfo[viewType] || {}
   }
 }
 </script>
