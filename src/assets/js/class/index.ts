@@ -6,6 +6,7 @@ export * from './Item'
 export * from './Domain'
 export * from './App'
 export * from './Record'
+export * from './DataPoint'
 
 export { default as Action } from './Action'
 export { default as Model } from './Model'

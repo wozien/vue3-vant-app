@@ -21,6 +21,10 @@ const mutations: MutationTree<State> = {
     if(data.length) {
       state.curOrg = data[0]
     }
+  },
+
+  'SET_CUR_RECORD' (state, id: string) {
+    state.curRecordId = id
   }
 }
 

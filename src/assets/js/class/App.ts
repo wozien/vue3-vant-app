@@ -20,14 +20,15 @@ class App {
   action?: Action
   models: { [key: string]: Model } | null = null
   views: { [key in ViewType]: View } | null = null
-  fieldsInfo?: FieldsInfo
+  fieldsInfo?: {
+    [key in ViewType]: FieldsInfo
+  }
 
   constructor(appKey: string, modelKey: string, actionId?: number) {
     this.key = appKey
     this.name = ''
     this.modelKey = modelKey
     actionId && (this.actionId = actionId)
-    this.fieldsInfo = {} as FieldsInfo
   }
 
   get isLoaded() {
@@ -42,7 +43,10 @@ class App {
     ])
     // TODO 暂不处理加载异常
     this._is_load = true
-    this.views && this.getViewFields(Object.values(this.views))
+    if(this.views) {
+      this.fieldsInfo = {} as any
+      this.getViewFields(Object.values(this.views))
+    }
   }
 
   async loadAction() {
@@ -122,6 +126,7 @@ class App {
               name: field.name,
               string: item.string
             }
+            field.relation && ((info as any).relation = field.relation)
             if(item.subView?.length) {
               this.getViewFields(item.subView, info)
             }

@@ -25,6 +25,7 @@
 import { defineComponent, reactive, ref, computed, watch, onMounted } from 'vue'
 import { Record } from '@/assets/js/class'
 import { useRoute, useRouter } from 'vue-router'
+import { useStore } from '@/store'
 import FormCanvas from './FormCanvas'
 import ButtonView from '@/components/odoo-button/ButtonView.vue'
 import { fetchRecord } from '@/api/app'
@@ -44,6 +45,7 @@ export default defineComponent({
   setup(props) {
     const route = useRoute()
     const router = useRouter()
+    const store = useStore()
     const record = ref<Record>()
     const creator = reactive({
       name: '',
@@ -51,7 +53,7 @@ export default defineComponent({
       date: ''
     })
     const searchFields = computed(() => {
-      return props.fieldInfo ? Object.keys(props.fieldInfo) : []
+      return props.fieldsInfo ? Object.keys(props.fieldsInfo) : []
     })
     const isReadonly = computed(() => route.query.readonly as string === '1')
     const height = computed(() => {
@@ -90,6 +92,16 @@ export default defineComponent({
 
     onMounted(() => {
       loadRecord()
+    })
+
+    onMounted(() => {
+      const { model, id } = route.query
+      store.dispatch('loadRecord', {
+        modelName: model,
+        res_id: id,
+        viewType: 'form',
+        fieldsInfo: props.fieldsInfo
+      })
     })
 
     return {

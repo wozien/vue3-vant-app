@@ -2,10 +2,10 @@
   <ListView
     v-if="viewType === 'list'" 
     :app-name="ctx && ctx.appName"
-    :field-info="ctx && ctx.fieldInfo"
+    :fields-info="ctx && ctx.fieldsInfo"
   />
   <FormView v-else
-    :field-info="ctx && ctx.fieldInfo"
+    :fields-info="ctx && ctx.fieldsInfo"
     :fields="ctx && ctx.fields"
     :cur-view="ctx && ctx.curView"
   />
@@ -13,7 +13,7 @@
 
 <script lang="ts">
 import { defineComponent, ref, onBeforeMount, computed } from 'vue'
-import { App, getAppAsync, ViewType, Field, Item } from '@/assets/js/class'
+import { App, getAppAsync, ViewType } from '@/assets/js/class'
 import { useRoute } from 'vue-router'
 import useTitle from '@/assets/js/hooks/use-title'
 import ListView from '../list/List.vue'
@@ -59,32 +59,14 @@ export default defineComponent({
 function getContext(curApp: App, modelKey: string, viewType: ViewType) {
   const curView = curApp.getView(viewType)
   const curModel = curApp.getModel(modelKey)
-  const viewFields: Field[] = []
-  const getViewFields = (items: Item[] = [], res: Field[] = []) => {
-    for(let item of items) {
-      if(item.isContainer) {
-        item.items.length && getViewFields(item.items, res)
-      } else {
-        const field = (curModel as any).getField(item.fieldKey)
-        if(field !== undefined) {
-          res.push(field)
-        }
-      }
-    }
-  }
-  const fieldsInfo = curApp.fieldsInfo
-  
-  if(curView && curModel) {
-    getViewFields(curView.items, viewFields)
-  }
+  const fieldsInfo = curApp.fieldsInfo?.[viewType]
 
   return {
     appName: curApp.name,
     curModel,
     curView,
-    viewFields: viewFields,
     fields: curModel && curModel.getFields() || {},
-    fieldInfo: fieldsInfo && fieldsInfo[viewType] || {}
+    fieldsInfo: fieldsInfo || {}
   }
 }
 </script>

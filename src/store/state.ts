@@ -1,4 +1,4 @@
-
+import { DataPoint, DataPointId, localData } from '@/assets/js/class'
 interface Company {
   dbName: string;
   name: string;
@@ -21,6 +21,10 @@ export interface State {
   user: User;
   orgs: Org[];
   curOrg?: Org;
+  localData: {
+    [key: string]: DataPoint
+  },
+  curRecordId: DataPointId
 }
 
 const state: State = {
@@ -33,7 +37,9 @@ const state: State = {
       name: ''
     }
   },
-  orgs: []
+  orgs: [],
+  localData: localData,
+  curRecordId: ''
 }
 
 export default state

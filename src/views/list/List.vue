@@ -18,7 +18,7 @@
             :key="item.id" 
             :app-name="appName" 
             :record="item" 
-            :field-info="fieldInfo"
+            :fields-info="fieldsInfo"
           />
         </van-list>
       </van-pull-refresh>
@@ -54,7 +54,7 @@ export default defineComponent({
       list: [] as Record[]
     })
     const searchFields = computed(() => {
-      return props.fieldInfo ? Object.keys(props.fieldInfo) : []
+      return props.fieldsInfo ? Object.keys(props.fieldsInfo) : []
     })
 
     let lastId = 0;
