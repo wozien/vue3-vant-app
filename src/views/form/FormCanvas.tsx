@@ -1,6 +1,7 @@
+import _ from 'lodash'
 import { defineComponent, PropType }  from 'vue'
 import { useRoute } from 'vue-router'
-import { Item, Record, Field } from '@/assets/js/class'
+import { Item, Record, Fields } from '@/assets/js/class'
 import FormGroup from './FormGroup.vue'
 import FormField from './FormField.vue'
 import FormNotebook from './FormNotebook'
@@ -15,10 +16,7 @@ const FormCanvas = defineComponent({
   props: {
     items: Array as PropType<Item[]>,
     record: Object as PropType<Record>,
-    viewFields: {
-      type: Array as PropType<Field[]>,
-      default: () => []
-    }
+    fields: Object as PropType<Fields>
   },
 
   setup(props) {
@@ -35,13 +33,13 @@ const FormCanvas = defineComponent({
               { items.length ? renderItems(items) : null }
             </FormGroup>)
         case 'notebook':
-            return (
-              <FormNotebook renderItem={item}>
-                { items.length ? renderItems(items) : null }
-              </FormNotebook>
-            )
+          return (
+            <FormNotebook renderItem={item}>
+              { items.length ? renderItems(items) : null }
+            </FormNotebook>
+          )
         default:
-          const field = props.viewFields.find(f => f.key === item.fieldKey) as Field
+          const field = _.find(props.fields, { key: item.fieldKey })
           const readonly = route.query.readonly as string === '1' ? true : false
           return (
             <FormField item={item} field={field} record={props.record} readonly={readonly}/>

@@ -27,10 +27,11 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType, reactive, toRefs, computed, watch } from 'vue'
+import { defineComponent, reactive, toRefs, computed, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import ListCard from './ListCard.vue'
-import { Record, FieldInfo } from '@/assets/js/class'
+import { Record } from '@/assets/js/class'
+import { viewCommonProps } from '@/assets/js/hooks/view-common'
 import { fetchListData } from '@/api/app'
 
 export default defineComponent({
@@ -39,8 +40,8 @@ export default defineComponent({
   },
 
   props: {
-    appName: String,
-    fieldInfo: Object as PropType<FieldInfo>
+    ...viewCommonProps,
+    appName: String
   },
 
   setup(props) {

@@ -1,4 +1,11 @@
-import { computed } from 'vue'
+import { computed, PropType } from 'vue'
+import { Field, Item } from '@/assets/js/class'
+
+export const fieldCommonProps = {
+  item: Object as PropType<Item>,
+  field: Object as PropType<Field>,
+  readonly: Boolean
+}
 
 export default function(props: any) {
   const string = computed(() => props.item && props.item.string)

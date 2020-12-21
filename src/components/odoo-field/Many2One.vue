@@ -26,8 +26,7 @@
 
 <script lang="ts">
 import { defineComponent, PropType, reactive, ref, toRefs, watchEffect } from 'vue'
-import { Item, Field } from '@/assets/js/class'
-import useFieldCommon from '@/assets/js/hooks/useFieldCommon'
+import useFieldCommon, { fieldCommonProps } from '@/assets/js/hooks/field-common'
 import { fetchMany2OneData } from '@/api/app'
 import { Toast } from 'vant'
 
@@ -35,13 +34,11 @@ type Many2OneValue = [number, string]
 
 export default defineComponent({
   props: {
-    item: Object as PropType<Item>,
-    field: Object as PropType<Field>,
+    ...fieldCommonProps,
     rawValue: {
       type: Object as PropType<Many2OneValue>,
       default: () => [0, '']
-    },
-    readonly: Boolean
+    }
   },
 
   setup(props) {

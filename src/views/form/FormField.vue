@@ -21,8 +21,8 @@
 
 <script lang="ts">
 import { defineComponent, PropType, ref, watchEffect } from 'vue'
-import { Item, Field, Record } from '@/assets/js/class'
-import useFieldCommon from '@/assets/js/hooks/useFieldCommon'
+import { Record } from '@/assets/js/class'
+import useFieldCommon, { fieldCommonProps } from '@/assets/js/hooks/field-common'
 import { Many2One, One2Many } from '@/components/odoo-field'
 
 type Many2OneValue = [number, string]
@@ -34,10 +34,8 @@ export default defineComponent({
   },
 
   props: {
-    item: Object as PropType<Item>,
-    field: Object as PropType<Field>,
-    record: Object as PropType<Record>,
-    readonly: Boolean
+    ...fieldCommonProps,
+    record: Object as PropType<Record>
   },
 
   setup(props) {

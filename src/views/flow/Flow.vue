@@ -32,7 +32,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { useStore, User } from '@/store'
 import { fetchFlowList } from '@/api/workflow'
 import { formatDate, str2Date } from '@/assets/js/utils/date'
-import { setDocumentTitle } from '@/assets/js/hooks/useTitle'
+import { setDocumentTitle } from '@/assets/js/hooks/use-title'
 import ListCard from '../list/ListCard.vue'
 
 const FLOW_TYPES = {

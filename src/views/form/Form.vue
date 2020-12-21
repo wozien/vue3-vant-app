@@ -15,20 +15,21 @@
       </div>
     </div>
     <div class="form-canvas" :style="{'height': height + 'px'}">
-      <FormCanvas :items="curView && curView.items" :record="record" :view-fields="viewFields"/>
+      <FormCanvas :items="curView && curView.items" :record="record" :fields="fields"/>
     </div>
     <ButtonView :buttons="curView && curView.buttons"/>
   </Page>
 </template>
 
 <script lang="ts">
-import { defineComponent, reactive, ref, computed, PropType, watch, onMounted } from 'vue'
-import { Record, Field, View, Model } from '@/assets/js/class'
+import { defineComponent, reactive, ref, computed, watch, onMounted } from 'vue'
+import { Record } from '@/assets/js/class'
 import { useRoute, useRouter } from 'vue-router'
 import FormCanvas from './FormCanvas'
 import ButtonView from '@/components/odoo-button/ButtonView.vue'
 import { fetchRecord } from '@/api/app'
 import { formatDate } from '@/assets/js/utils/date'
+import { viewCommonProps } from '@/assets/js/hooks/view-common'
 
 export default defineComponent({
   components: {
@@ -37,11 +38,7 @@ export default defineComponent({
   },
 
   props: {
-    viewFields: {
-      type: Array as PropType<Field[]>
-    },
-    curView: Object as PropType<View>,
-    curModel: Object as PropType<Model>
+    ...viewCommonProps
   },
 
   setup(props) {
@@ -54,13 +51,7 @@ export default defineComponent({
       date: ''
     })
     const searchFields = computed(() => {
-      let res: string[] = []
-      if(props.viewFields?.length) {
-        for(let field of props.viewFields) {
-          if(field && field.name) res.push(field.name)
-        }
-      }
-      return res
+      return props.fieldInfo ? Object.keys(props.fieldInfo) : []
     })
     const isReadonly = computed(() => route.query.readonly as string === '1')
     const height = computed(() => {

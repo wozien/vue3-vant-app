@@ -1,14 +1,13 @@
 <template>
   <ListView
     v-if="viewType === 'list'" 
-    :view-fields="ctx && ctx.viewFields" 
     :app-name="ctx && ctx.appName"
     :field-info="ctx && ctx.fieldInfo"
   />
   <FormView v-else
-    :view-fields="ctx && ctx.viewFields"
+    :field-info="ctx && ctx.fieldInfo"
+    :fields="ctx && ctx.fields"
     :cur-view="ctx && ctx.curView"
-    :cur-model="ctx && ctx.curModel"
   />
 </template>
 
@@ -16,7 +15,7 @@
 import { defineComponent, ref, onBeforeMount, computed } from 'vue'
 import { App, getAppAsync, ViewType, Field, Item } from '@/assets/js/class'
 import { useRoute } from 'vue-router'
-import useTitle from '@/assets/js/hooks/useTitle'
+import useTitle from '@/assets/js/hooks/use-title'
 import ListView from '../list/List.vue'
 import FormView from '../form/Form.vue'
 

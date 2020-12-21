@@ -13,9 +13,9 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, watchEffect, PropType, ref } from 'vue'
+import { defineComponent, watchEffect, ref } from 'vue'
 import { Item, Field, View, Model, getApp } from '@/assets/js/class'
-import useFieldCommon from '@/assets/js/hooks/useFieldCommon'
+import useFieldCommon, { fieldCommonProps } from '@/assets/js/hooks/field-common'
 import { fetchRecord } from '@/api/app'
 
 interface Column {
@@ -25,8 +25,7 @@ interface Column {
 
 export default defineComponent({
   props: {
-    item: Object as PropType<Item>,
-    field: Object as PropType<Field>,
+    ...fieldCommonProps,
     rawValue: Array
   },
 

@@ -31,13 +31,12 @@ export const localData: {
   [key: string]: DataPoint
 } = {}
 
-// region private methods
+// -----  private methods
 
 /**
- * Turns a bag of properties into a valid local resource.  Also, register
-* the resource in the localData object.
- * @param params 
- */
+* 增加新的data point数据
+* @param params 
+*/
 const _makeDataPoint = <T extends LoadParams>(params: T): DataPoint => {
   let { type, res_id } = params
   const data = type === 'record' ? {} : []
@@ -63,11 +62,18 @@ const _makeDataPoint = <T extends LoadParams>(params: T): DataPoint => {
 
   return dataPoint
 }
-// endregion private methods
 
-// region public 
+const _load = async (dataPoint: DataPoint) => {
+  if(dataPoint.type === 'record') {
+
+  }
+}
+
+
+// ------  public 
 
 export const load = async (params: LoadParams): Promise<DataPointId> => {
-  
+  const dataPoint = _makeDataPoint(params)
+
 }
-// endregion
+
