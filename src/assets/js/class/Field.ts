@@ -1,5 +1,5 @@
 export type FieldType = 'char'|'text'|'integer'|'float'|'date'|'datetime'|'boolean'|
-  'selection'|'one2many'|'many2one'|'many2many'|'related'
+  'selection'|'one2many'|'many2one'|'many2many'|'related'|'reference'
 
 export interface StudioField {
   key: string
@@ -49,6 +49,10 @@ class Field {
     this.relation =  fieldObj.relation || ''
     this.options = fieldObj.options
     this.fields = fieldObj.fields.map(f => new Field(f))
+  }
+
+  isComplexField() {
+    return ['selection', 'one2many', 'many2one', 'many2many', 'related', 'reference'].includes(this.type)
   }
 }
 

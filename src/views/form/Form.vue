@@ -11,7 +11,7 @@
           <Icon name="file"/>
           <Icon name="message"/>
         </div>
-        <span class="status">{{ record && record.state }}</span>
+        <span class="status">{{ state_name }}</span>
       </div>
     </div>
     <div class="form-canvas" :style="{'height': height + 'px'}">
@@ -22,7 +22,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, reactive, ref, computed, watch, onMounted } from 'vue'
+import { defineComponent, reactive, ref, computed, watch, toRaw, onMounted, toRefs } from 'vue'
 import { Record } from '@/assets/js/class'
 import { useRoute, useRouter } from 'vue-router'
 import { useStore } from '@/store'
@@ -46,11 +46,16 @@ export default defineComponent({
     const route = useRoute()
     const router = useRouter()
     const store = useStore()
+
     const record = ref<Record>()
-    const creator = reactive({
-      name: '',
-      avatar: '',
-      date: ''
+    const data = reactive({
+      creator: {
+        name: '',
+        avatar: '',
+        date: ''
+      },
+      state: '',
+      state_name: ''
     })
     const searchFields = computed(() => {
       return props.fieldsInfo ? Object.keys(props.fieldsInfo) : []
@@ -60,12 +65,21 @@ export default defineComponent({
       const res = document.body.clientHeight - 50
       return isReadonly.value ? res - 70 : res
     })
+    const curRecord = computed(() => store.getters.curRecord)
 
     const loadRecord = async () => {
       const { model, id } = route.query
       if(searchFields.value.length && model && id) {
         const res = await fetchRecord(model as string, +id, searchFields.value)
         record.value = new Record(res.data)
+
+        // datapoint load
+        store.dispatch('loadRecord', {
+          modelName: model,
+          res_id: +id,
+          viewType: 'form',
+          fieldsInfo: toRaw(props.fieldsInfo)
+        })
       }
     }
 
@@ -82,11 +96,15 @@ export default defineComponent({
       if(val.length) loadRecord()
     })
 
-    watch(record, (val) => {
+    watch(curRecord, (val) => {
       if(val && val.creator) {
-        creator.name = val.creator.name
-        creator.avatar = val.creator.avatar || '/img/mm1.jpeg'
-        creator.date = formatDate('M月d日 hh:mm', val.creator.time)
+        data.creator = {
+          name: val.creator.name,
+          avatar: val.creator.avatar || '/img/mm1.jpeg',
+          date: formatDate('M月d日 hh:mm', val.creator.date)
+        }
+        data.state = val.state
+        data.state_name = val.state_name
       }
     })
 
@@ -94,22 +112,15 @@ export default defineComponent({
       loadRecord()
     })
 
-    onMounted(() => {
-      const { model, id } = route.query
-      store.dispatch('loadRecord', {
-        modelName: model,
-        res_id: id,
-        viewType: 'form',
-        fieldsInfo: props.fieldsInfo
-      })
-    })
-
     return {
       record,
-      creator,
+      ...toRefs(data),
       isReadonly,
       searchFields,
       height,
+      localData: computed(() => store.state.localData),
+      curRecordId: computed(() => store.state.curRecordId),
+      curRecord,
       onEditForm
     }
   }

@@ -11,27 +11,39 @@ import { str2Date } from '@/assets/js/utils/date'
 
 export type DataPointId = string
 type DataPointType = 'record' | 'list'
-export interface DataPoint {
+
+interface DataPointProps {
   _changes: Object | null
   id: DataPointId
   type: DataPointType
   viewType: ViewType
-  data: { 
-    id?: number
-    [key: string]: any
-  }
   model: string
-  res_id?: number | string
+  res_id: number | string | undefined
+  res_ids: (number | string)[]
   fieldsInfo: FieldsInfo
   parentId?: DataPointId
   [key: string]: any
 }
+export interface DataPoint extends DataPointProps {
+  data: { 
+    id?: number
+    [key: string]: any
+  }
+}
 
-interface LoadParams {
+export interface DataPointState extends DataPointProps {
+  data: DataPoint | DataPoint[] | { 
+    id?: number
+    [key: string]: any
+  }
+}
+
+export interface LoadParams {
   viewType: ViewType
   modelName: string
   fieldsInfo: FieldsInfo
   res_id?: number | string
+  res_ids?: (number | string)[]
   type?: DataPointType
   parentId?: DataPointId
   data?: { 
@@ -40,11 +52,11 @@ interface LoadParams {
   }
 }
 
-export const localData: {
+type LocalData = {
   [key: string]: DataPoint
-} = {}
+}
 
-// -----  private methods
+// -----  private methods  ----------
 
 /**
 * 增加新的data point数据
@@ -52,8 +64,10 @@ export const localData: {
 */
 const _makeDataPoint = <T extends LoadParams>(params: T): DataPoint => {
   let res_id, type = params.type || 'record'
-  const data = type === 'record' ? {} : []
+  let res_ids = params.res_ids || []
+  const data = params.data || (type === 'record' ? {} : [])
   if(type === 'record') {
+    res_id = params.res_id || params.data?.id
     if(res_id) {
       (data as any).id = res_id
     } else {
@@ -69,7 +83,8 @@ const _makeDataPoint = <T extends LoadParams>(params: T): DataPoint => {
     fieldsInfo: params.fieldsInfo,
     type,
     data,
-    res_id
+    res_id,
+    res_ids
   }
 
   localData[dataPoint.id] = dataPoint
@@ -141,15 +156,72 @@ const _fetchRecord = async (record: DataPoint) => {
   const res = await fetchRecord(model, res_id as number, fieldNames)
   if(res.ret === 0) {
     const recordData = res.data
-    _.extend(record, { 
-      data: recordData.data,
-      creator:{
-        ...recordData.create_user,
-        date: str2Date(res.data.create_date || '')
-      },
-      ..._.pick(recordData, ['state', 'workflow_state'])
+    if(recordData.odoo_data.length) {
+      _.extend(record, { 
+        data: recordData.odoo_data[0],
+        creator:{
+          ...recordData.create_user,
+          date: str2Date(res.data.create_date || '')
+        },
+        ..._.pick(recordData, ['state', 'state_name'])
+      })
+      _parseServerData(record)
+      await _fetchX2Manys(record)
+    }
+  }
+}
+
+/**
+ * 构造表体的dataPoint
+ * @param record 
+ */
+const _fetchX2Manys = async (record: DataPoint) => {
+  const fieldsInfo = record.fieldsInfo
+  const defs = [] as any[]
+  _.each(fieldsInfo, (field: any, fieldName: string) => {
+    if(field.type === 'one2many' || field.type === 'many2many') {
+      const ids = record.data[fieldName] || []
+      const fieldInfo = record.fieldsInfo[fieldName]
+      const fieldsInfo = fieldInfo.list || {}
+      // TODO 暂不考虑表体是联动视图的情况
+      const list = _makeDataPoint({
+        type: 'list',
+        viewType: 'list',
+        modelName: field.relation,
+        res_ids: ids,
+        fieldsInfo
+      })
+      record.data[fieldName] = list.id
+      defs.push(_fetchX2ManysData(list))
+    }
+  })
+  return Promise.all(defs)
+}
+
+/**
+ * 请求表体数据
+ * @param list 
+ */
+const _fetchX2ManysData = async (list: DataPoint) => {
+  const { model, res_ids } = list
+  const res = await fetchRecord(model, res_ids as number[], _getFieldsName(list))
+  if(res.ret === 0) {
+    const records = res.data
+    _.each(res_ids, (id: any) => {
+      const data = _.find(records, { id })
+      if(data) {
+        const dataPoint = _makeDataPoint({
+          viewType: list.viewType,
+          parentId: list.id,
+          modelName: list.model,
+          res_id: id,
+          fieldsInfo: list.fieldsInfo,
+          data
+        })
+        _parseServerData(dataPoint)
+        list.data.push(dataPoint.id)
+      }
     })
-    _parseServerData(record)
   }
 }
 
@@ -164,11 +236,60 @@ const _load = async (dataPoint: DataPoint) => {
 }
 
 
-// ------  public 
+// ------  public  ------------
 
+export let localData: LocalData = {}
+
+/**
+ * 表单数据加载入口, 只会调用一次
+ * @param params 
+ */
 export const load = async (params: LoadParams): Promise<DataPointId> => {
+  _.each(_.keys(localData), (key: string) => {
+    _.unset(localData, key)
+  })
+  
   const dataPoint = _makeDataPoint(params)
   await _load(dataPoint)
   return dataPoint.id
 }
 
+/**
+ * 获取DataPointState(合并_changes到data中)
+ * @param id 
+ */
+export const get = (id: DataPointId) => {
+  if(!(id in localData)) return null
+
+  const element = localData[id]
+  if(element.type === 'record') {
+    const data = _.extend({}, element.data, element._changes || {})
+    for(let fieldName in data) {
+      const field = element.fieldsInfo[fieldName]
+      if(data[fieldName] == null) {
+        data[fieldName] = false
+      }
+      if(!field) continue
+
+      if(field.type === 'many2one') {
+        data[fieldName] = get(data[fieldName]) || false
+      } else if(field.type === 'reference') {
+        // TODO reference field handle
+      } else if(field.type === 'one2many' || field.type === 'many2many') {
+        data[fieldName] = get(data[fieldName]) || []
+      }
+    }
+
+    return {
+      ...element,
+      data
+    }
+  }
+
+  const list = {
+    ...element,
+    data: _.map(element.data, (id: DataPointId) => get(id))
+  } as any
+
+  return list
+}

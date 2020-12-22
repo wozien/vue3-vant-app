@@ -26,6 +26,7 @@
 
 <script lang="ts">
 import { defineComponent, PropType, reactive, ref, toRefs, watchEffect } from 'vue'
+import { useStore } from '@/store'
 import useFieldCommon, { fieldCommonProps } from '@/assets/js/hooks/field-common'
 import { fetchMany2OneData } from '@/api/app'
 import { Toast } from 'vant'
@@ -42,8 +43,9 @@ export default defineComponent({
   },
 
   setup(props) {
+    const store = useStore()
     const realValue = ref('')
-    const { string, placeholder, type } = useFieldCommon(props)
+    const { string, placeholder, type } = useFieldCommon(props, store)
     const { state, onOpenModal } = useModal(props)
 
     watchEffect(() => {

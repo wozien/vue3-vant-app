@@ -42,7 +42,7 @@ const FormCanvas = defineComponent({
           const field = _.find(props.fields, { key: item.fieldKey })
           const readonly = route.query.readonly as string === '1' ? true : false
           return (
-            <FormField item={item} field={field} record={props.record} readonly={readonly}/>
+            <FormField item={item} field={field} readonly={readonly}/>
           )
       }
     }

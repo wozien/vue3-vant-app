@@ -3,7 +3,7 @@
   <!-- many2one -->
   <Many2One v-if="type === 'many2one'" v-bind="{field, item, rawValue, readonly}"/>
   <!-- one2many -->
-  <One2Many v-else-if="type === 'one2many'" v-bind="{field, item, rawValue, readonly}"/>
+  <One2Many v-else-if="type === 'one2many'" v-bind="{field, item, readonly}" :raw-value="[]"/>
   <!-- date -->
   <!-- boolean -->
   <!-- normal -->
@@ -12,7 +12,7 @@
       :label="string" 
       :placeholder="placeholder" 
       :readonly="readonly"
-      v-model="rawValue"
+      v-model="value"
       clearable
       center
     />
@@ -20,8 +20,8 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType, ref, watchEffect } from 'vue'
-import { Record } from '@/assets/js/class'
+import { defineComponent } from 'vue'
+import { useStore } from '@/store'
 import useFieldCommon, { fieldCommonProps } from '@/assets/js/hooks/field-common'
 import { Many2One, One2Many } from '@/components/odoo-field'
 
@@ -34,37 +34,26 @@ export default defineComponent({
   },
 
   props: {
-    ...fieldCommonProps,
-    record: Object as PropType<Record>
+    ...fieldCommonProps
   },
 
   setup(props) {
-    const rawValue = ref<string | Many2OneValue>()
-    const { string, placeholder, type } = useFieldCommon(props)
-
-    watchEffect(() => {
-      if(props.record && props.field && props.item) {
-        let recordRaw = props.record.raw;
-        if(Array.isArray(recordRaw)) {
-          recordRaw = recordRaw[0]
-        }
-        let val = recordRaw[props.field.name]
-        rawValue.value = val === false && isNormal(type.value) ? '' : val
-      }
-    })
+    const store = useStore()
+    const { string, placeholder, type, value, rawValue } = useFieldCommon(props, store)
 
     return {
       string,
       placeholder,
       type,
+      value,
       rawValue,
     }
   }
 })
 
-function isNormal(type: string) {
-  const types = ['selection', 'many2one', 'one2many', 'date', 'datetime', 'boolean']
-  return !types.includes(type)
-}
+// function isNormal(type: string) {
+//   const types = ['selection', 'many2one', 'one2many', 'date', 'datetime', 'boolean']
+//   return !types.includes(type)
+// }
 
 </script>

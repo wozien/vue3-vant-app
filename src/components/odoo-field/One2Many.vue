@@ -14,6 +14,7 @@
 
 <script lang="ts">
 import { defineComponent, watchEffect, ref } from 'vue'
+import { useStore } from '@/store'
 import { Item, Field, View, Model, getApp } from '@/assets/js/class'
 import useFieldCommon, { fieldCommonProps } from '@/assets/js/hooks/field-common'
 import { fetchRecord } from '@/api/app'
@@ -30,7 +31,8 @@ export default defineComponent({
   },
 
   setup(props) {
-    const { type } = useFieldCommon(props)
+    const store = useStore()
+    const { type } = useFieldCommon(props, store)
     const columns = ref<Column[]>()
     const tableData = ref([])
     
