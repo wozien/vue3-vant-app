@@ -26,7 +26,7 @@
 
 <script lang="tsx">
 import { defineComponent, PropType, computed, ref, watchEffect, reactive, toRaw } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { Toast } from 'vant'
 import { ViewButton } from '@/assets/js/class'
 import { callButton } from '@/api/odoo'
@@ -51,6 +51,8 @@ export default defineComponent({
 
   setup(props) {
     const route = useRoute()
+    const router = useRouter()
+
     const renderButtons = ref<ViewButton[]>([])
     const capsuleButtons = computed(() => {
       return renderButtons.value.slice(0, 4)
@@ -70,6 +72,15 @@ export default defineComponent({
 
       if(button.type === 'event') {
         // TODO 前端写死的按钮
+        switch(button.funcName) {
+          case 'edit':
+            router.replace({
+              name: 'view',
+              query: Object.assign({}, route.query, {
+                readonly: 0
+              })
+            })
+        }
       } else if(button.type === 'object') {
         // call_button
         const { model, id } = route.query
@@ -109,7 +120,7 @@ export default defineComponent({
 function calcButtons(buttons: ViewButton[], readonly: string): ViewButton[]{
   // TODO 按钮domain和权限控制
 
-  const mode = readonly === '1' ? 'readonly' : 'more'
+  const mode = readonly === '1' ? 'readonly' : 'edit'
   return buttons.filter((btn: ViewButton) => btn.mode === mode)
 }
 

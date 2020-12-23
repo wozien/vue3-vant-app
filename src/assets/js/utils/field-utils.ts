@@ -68,6 +68,8 @@ function parseDateTime(value: string) {
   return parseDate(value)
 }
 
+// format datapoint.data -> 前端控件显示
+// parse server data -> datapoint.data
 export default {
   format: {
     char: formatChar,

@@ -20,10 +20,8 @@
 <script lang="ts">
 import { defineComponent } from 'vue'
 import { useStore } from '@/store'
-import useFieldCommon, { fieldCommonProps } from '@/assets/js/hooks/field-common'
+import useFieldCommon, { fieldCommonProps, FieldValue } from '@/assets/js/hooks/field-common'
 import { Many2One, One2Many } from '@/components/odoo-field'
-
-type Many2OneValue = [number, string]
 
 export default defineComponent({
   components: {
@@ -39,12 +37,17 @@ export default defineComponent({
     const store = useStore()
     const { string, placeholder, type, value, rawValue } = useFieldCommon(props, store)
 
+    const setValue = (value: FieldValue) => {
+      console.log(value)
+    }
+
     return {
       string,
       placeholder,
       type,
       value,
       rawValue,
+      setValue
     }
   }
 })

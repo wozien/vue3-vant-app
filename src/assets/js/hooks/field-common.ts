@@ -1,4 +1,4 @@
-import { computed, ref, PropType, watchEffect } from 'vue'
+import { computed, ref, PropType, watchEffect, getCurrentInstance, watch } from 'vue'
 import { VuexStore } from '@/store'
 import { Field, Item } from '@/assets/js/class'
 import { DataPoint } from '@/assets/js/class/DataPoint'
@@ -10,8 +10,8 @@ export const fieldCommonProps = {
   readonly: Boolean
 }
 
-type FieldValue = string | number | boolean | Date
-type RawFieldValue = FieldValue | DataPoint
+export type FieldValue = string | number | boolean | Date
+export type RawFieldValue = FieldValue | DataPoint
 
 export default function(props: any, store: VuexStore) {
   const string = computed(() => props.item && (props.item.string || props.field.string))
@@ -21,6 +21,8 @@ export default function(props: any, store: VuexStore) {
   const value = ref<FieldValue> ('')
   const rawValue = ref<RawFieldValue>('')
   const curRecord = computed(() => store.getters.curRecord)
+
+  const instance = getCurrentInstance()
 
   watchEffect(() => {
     if(props.field && curRecord.value) {
@@ -36,6 +38,13 @@ export default function(props: any, store: VuexStore) {
       if(!props.field.isX2Many()) {
         value.value = (fieldUtils.format as any)[field.type](rawValue.value, field)
       }
+    }
+  })
+
+  // 调用对应组件setValue方法
+  watch(value, (val) => {
+    if(instance && 'setValue' in (instance as any).ctx) {
+      (instance as any).ctx.setValue(val)
     }
   })
 
