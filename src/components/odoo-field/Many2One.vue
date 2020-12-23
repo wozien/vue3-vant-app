@@ -3,7 +3,7 @@
     <van-field
       :label="string" 
       :placeholder="placeholder" 
-      v-model="realValue"
+      v-model="value"
       :clickable="!readonly"
       :is-link="!readonly"
       readonly
@@ -14,7 +14,7 @@
     <Modal v-model:show="showModal" confirm-text="确定" @confirm="onConfirm">
       <div class="list-wrapper">
         <van-search v-model="searchValue" placeholder="输入名称搜索" shape="round"></van-search>
-        <van-cell v-for="item in list" :key="item.id" :title="item.name" @click="active=item.id">
+        <van-cell v-for="item in list" :key="item.id" :title="item.display_name" @click="active=item.id">
           <template #right-icon>
             <van-icon v-if="active === item.id" name="success"></van-icon>
           </template>
@@ -25,7 +25,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType, reactive, ref, toRefs, watchEffect } from 'vue'
+import { defineComponent, reactive, toRefs } from 'vue'
 import { useStore } from '@/store'
 import useFieldCommon, { fieldCommonProps } from '@/assets/js/hooks/field-common'
 import { fetchMany2OneData } from '@/api/app'
@@ -35,44 +35,33 @@ type Many2OneValue = [number, string]
 
 export default defineComponent({
   props: {
-    ...fieldCommonProps,
-    rawValue: {
-      type: Object as PropType<Many2OneValue>,
-      default: () => [0, '']
-    }
+    ...fieldCommonProps
   },
 
   setup(props) {
     const store = useStore()
-    const realValue = ref('')
-    const { string, placeholder, type } = useFieldCommon(props, store)
+    const { string, placeholder, type, value } = useFieldCommon(props, store)
     const { state, onOpenModal } = useModal(props)
 
-    watchEffect(() => {
-      if(props.rawValue.length) {
-        realValue.value = props.rawValue[1]
-      } 
-    })
-
-    const onConfirm = (cb: any) => {
-    if(!state.active) {
-      Toast('请选择数据')
-      cb(true)
-      return
+    const onConfirm = (cb: Function) => {
+      if(!state.active) {
+        Toast('请选择数据')
+        cb(true)
+        return
+      }
+      const item = state.list.find(item => item.id == state.active)
+      if(item) {
+        value.value = item.display_name
+        state.active = 0
+        cb()
+      }
     }
-    const item = state.list.find(item => item.id == state.active)
-    if(item) {
-      realValue.value = item.name
-      state.active = 0
-      cb()
-    }
-  }
 
     return {
       string,
       placeholder,
       type,
-      realValue,
+      value,
       ...toRefs(state),
       onOpenModal,
       onConfirm
@@ -85,7 +74,7 @@ function useModal(props: any) {
     showModal: false,
     searchValue: '',
     active: 0,
-    list: [] as {id:number, name: string}[]
+    list: [] as {id:number, display_name: string}[]
   })
 
   const onOpenModal = async () => {
@@ -95,7 +84,7 @@ function useModal(props: any) {
       state.list = res.data.map((item: any) => {
         return {
           id: item[0],
-          name: item[1]
+          display_name: item[1]
         }
       })
       state.showModal = true

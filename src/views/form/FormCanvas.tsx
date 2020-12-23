@@ -1,7 +1,7 @@
 import _ from 'lodash'
 import { defineComponent, PropType }  from 'vue'
 import { useRoute } from 'vue-router'
-import { Item, Record, Fields } from '@/assets/js/class'
+import { Item, Fields } from '@/assets/js/class'
 import FormGroup from './FormGroup.vue'
 import FormField from './FormField.vue'
 import FormNotebook from './FormNotebook'
@@ -15,7 +15,6 @@ const FormCanvas = defineComponent({
 
   props: {
     items: Array as PropType<Item[]>,
-    record: Object as PropType<Record>,
     fields: Object as PropType<Fields>
   },
 

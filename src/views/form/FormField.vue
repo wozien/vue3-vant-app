@@ -1,11 +1,9 @@
 <template>
   <!-- selection -->
   <!-- many2one -->
-  <Many2One v-if="type === 'many2one'" v-bind="{field, item, rawValue, readonly}"/>
+  <Many2One v-if="type === 'many2one'" v-bind="{field, item, readonly}"/>
   <!-- one2many -->
-  <One2Many v-else-if="type === 'one2many'" v-bind="{field, item, readonly}" :raw-value="[]"/>
-  <!-- date -->
-  <!-- boolean -->
+  <One2Many v-else-if="type === 'one2many'" v-bind="{field, item, readonly}"/>
   <!-- normal -->
   <div v-else class="form-item-field" :data-dbname="field && field.name" :data-type="type">
     <van-field
@@ -50,10 +48,5 @@ export default defineComponent({
     }
   }
 })
-
-// function isNormal(type: string) {
-//   const types = ['selection', 'many2one', 'one2many', 'date', 'datetime', 'boolean']
-//   return !types.includes(type)
-// }
 
 </script>

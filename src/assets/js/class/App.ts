@@ -127,6 +127,7 @@ class App {
               string: item.string
             }
             field.relation && ((info as any).relation = field.relation)
+            field.selection && ((info as any).selection = field.selection)
             if(item.subView?.length) {
               this.getViewFields(item.subView, info)
             }

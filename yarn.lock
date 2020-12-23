@@ -912,9 +912,9 @@
   integrity sha1-K1o6s/kYzKSKjHVMCBaOPwPrphs=
 
 "@popperjs/core@^2.5.4":
-  version "2.5.4"
-  resolved "https://registry.npm.taobao.org/@popperjs/core/download/@popperjs/core-2.5.4.tgz#de25b5da9f727985a3757fd59b5d028aba75841a"
-  integrity sha1-3iW12p9yeYWjdX/Vm10Cirp1hBo=
+  version "2.6.0"
+  resolved "https://registry.npm.taobao.org/@popperjs/core/download/@popperjs/core-2.6.0.tgz#f022195afdfc942e088ee2101285a1d31c7d727f"
+  integrity sha1-8CIZWv38lC4IjuIQEoWh0xx9cn8=
 
 "@soda/friendly-errors-webpack-plugin@^1.7.1":
   version "1.7.1"
@@ -1166,27 +1166,29 @@
     semver "^7.3.2"
     tsutils "^3.17.1"
 
-"@vant/icons@1.4.0":
-  version "1.4.0"
-  resolved "https://registry.npm.taobao.org/@vant/icons/download/@vant/icons-1.4.0.tgz#a91f7894f2f34356f78a5d6f8b9d4f1a46add0c5"
-  integrity sha1-qR94lPLzQ1b3il1vi51PGkat0MU=
+"@vant/icons@^1.5.0":
+  version "1.5.0"
+  resolved "https://registry.npm.taobao.org/@vant/icons/download/@vant/icons-1.5.0.tgz?cache=0&sync_timestamp=1608190068028&other_urls=https%3A%2F%2Fregistry.npm.taobao.org%2F%40vant%2Ficons%2Fdownload%2F%40vant%2Ficons-1.5.0.tgz#ce78a2f055a1a4099129bb6c44d54584f3740e27"
+  integrity sha1-znii8FWhpAmRKbtsRNVFhPN0Dic=
 
-"@vant/lazyload@^1.0.0":
-  version "1.0.0"
-  resolved "https://registry.npm.taobao.org/@vant/lazyload/download/@vant/lazyload-1.0.0.tgz#781317ef81616df045b1061188518fe5013b7d1c"
-  integrity sha1-eBMX74FhbfBFsQYRiFGP5QE7fRw=
+"@vant/lazyload@^1.0.2":
+  version "1.0.2"
+  resolved "https://registry.npm.taobao.org/@vant/lazyload/download/@vant/lazyload-1.0.2.tgz#1ca486bee2b9465ae005a88014bee873a647f763"
+  integrity sha1-HKSGvuK5RlrgBaiAFL7oc6ZH92M=
 
-"@vant/popperjs@^1.0.0":
-  version "1.0.0"
-  resolved "https://registry.npm.taobao.org/@vant/popperjs/download/@vant/popperjs-1.0.0.tgz#2d66ab4b8e275c98fb82f5efd43fdd47964d11f2"
-  integrity sha1-LWarS44nXJj7gvXv1D/dR5ZNEfI=
+"@vant/popperjs@^1.0.2":
+  version "1.0.2"
+  resolved "https://registry.npm.taobao.org/@vant/popperjs/download/@vant/popperjs-1.0.2.tgz#522d71656235125a3ae08e9c701a3bae6fd88d7b"
+  integrity sha1-Ui1xZWI1Elo64I6ccBo7rm/YjXs=
   dependencies:
     "@popperjs/core" "^2.5.4"
 
-"@vant/use@^0.1.0":
-  version "0.1.0"
-  resolved "https://registry.npm.taobao.org/@vant/use/download/@vant/use-0.1.0.tgz#7d2020aa7e5ab92d57dea46cb24dd9013c7eacee"
-  integrity sha1-fSAgqn5auS1X3qRssk3ZATx+rO4=
+"@vant/use@^1.0.0":
+  version "1.0.0"
+  resolved "https://registry.npm.taobao.org/@vant/use/download/@vant/use-1.0.0.tgz#68db22af1130ccf867814fec5ec8c4f7ad94f36d"
+  integrity sha1-aNsirxEwzPhngU/sXsjE962U820=
+  dependencies:
+    "@babel/runtime" "7.x"
 
 "@vue/babel-helper-vue-jsx-merge-props@^1.2.1":
   version "1.2.1"
@@ -7344,7 +7346,7 @@ regenerate@^1.4.0:
 
 regenerator-runtime@^0.13.4:
   version "0.13.7"
-  resolved "https://registry.npm.taobao.org/regenerator-runtime/download/regenerator-runtime-0.13.7.tgz?cache=0&sync_timestamp=1595456311465&other_urls=https%3A%2F%2Fregistry.npm.taobao.org%2Fregenerator-runtime%2Fdownload%2Fregenerator-runtime-0.13.7.tgz#cac2dacc8a1ea675feaabaeb8ae833898ae46f55"
+  resolved "https://registry.npm.taobao.org/regenerator-runtime/download/regenerator-runtime-0.13.7.tgz#cac2dacc8a1ea675feaabaeb8ae833898ae46f55"
   integrity sha1-ysLazIoepnX+qrrriugziYrkb1U=
 
 regenerator-transform@^0.14.2:
@@ -8788,17 +8790,16 @@ validate-npm-package-license@^3.0.1:
     spdx-correct "^3.0.0"
     spdx-expression-parse "^3.0.0"
 
-vant@^3.0.0-rc.1:
-  version "3.0.0-rc.1"
-  resolved "https://registry.npm.taobao.org/vant/download/vant-3.0.0-rc.1.tgz#67499204d473c340905e43531ba41be54cd1f3d3"
-  integrity sha1-Z0mSBNRzw0CQXkNTG6Qb5UzR89M=
+vant@^3.0.0:
+  version "3.0.0"
+  resolved "https://registry.npm.taobao.org/vant/download/vant-3.0.0.tgz#f1268c60ccb8e6be62f0d009480597db855f3f77"
+  integrity sha1-8SaMYMy45r5i8NAJSAWX24VfP3c=
   dependencies:
     "@babel/runtime" "7.x"
-    "@vant/icons" "1.4.0"
-    "@vant/lazyload" "^1.0.0"
-    "@vant/popperjs" "^1.0.0"
-    "@vant/use" "^0.1.0"
-    vue-lazyload "1.2.3"
+    "@vant/icons" "^1.5.0"
+    "@vant/lazyload" "^1.0.2"
+    "@vant/popperjs" "^1.0.2"
+    "@vant/use" "^1.0.0"
 
 vary@~1.1.2:
   version "1.1.2"
@@ -8855,11 +8856,6 @@ vue-hot-reload-api@^2.3.0:
   version "2.3.4"
   resolved "https://registry.npm.taobao.org/vue-hot-reload-api/download/vue-hot-reload-api-2.3.4.tgz?cache=0&sync_timestamp=1589682714858&other_urls=https%3A%2F%2Fregistry.npm.taobao.org%2Fvue-hot-reload-api%2Fdownload%2Fvue-hot-reload-api-2.3.4.tgz#532955cc1eb208a3d990b3a9f9a70574657e08f2"
   integrity sha1-UylVzB6yCKPZkLOp+acFdGV+CPI=
-
-vue-lazyload@1.2.3:
-  version "1.2.3"
-  resolved "https://registry.npm.taobao.org/vue-lazyload/download/vue-lazyload-1.2.3.tgz#901f9ec15c7e6ca78781a2bae4a343686bdedb2c"
-  integrity sha1-kB+ewVx+bKeHgaK65KNDaGve2yw=
 
 "vue-loader-v16@npm:vue-loader@^16.0.0-beta.7":
   version "16.0.0-beta.10"

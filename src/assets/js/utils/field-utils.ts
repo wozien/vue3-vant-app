@@ -1,4 +1,6 @@
 import { str2Date, formatDate as date2Str } from './date'
+import _ from 'lodash'
+import { DataPoint } from '@/assets/js/class'
 
 // -------------- format --------------
 
@@ -19,6 +21,34 @@ function formatDateTime(value: Date | boolean) {
     return ''
   }
   return date2Str('yyyy-MM-dd hh:mm', value)
+}
+
+function formatInteger(value: any) {
+  if(!value || value !== 0) {
+    return ''
+  }
+  return value
+}
+
+function formatFloat(value: any) {
+  if(value === false) {
+    return ''
+  }
+  return value
+}
+
+function formatSelection(value: any, field?: any) {
+  const val = _.find(field.selection, (option: any) => option[0] === value)
+  if(!val) {
+    return ''
+  }
+  value = val[1]
+  return value
+}
+
+function formatMany2one(value: DataPoint | [number, string]) {
+  value = value && (_.isArray(value) ? value[1] : value.data.display_name) || '';
+  return value
 }
 
 
@@ -43,7 +73,11 @@ export default {
     char: formatChar,
     text: formatChar,
     date: formatDate,
-    datetime: formatDateTime
+    datetime: formatDateTime,
+    integer: formatInteger,
+    float: formatFloat,
+    selection: formatSelection,
+    many2one: formatMany2one
   },
   parse: {
     date: parseDate,

@@ -15,20 +15,18 @@
       </div>
     </div>
     <div class="form-canvas" :style="{'height': height + 'px'}">
-      <FormCanvas :items="curView && curView.items" :record="record" :fields="fields"/>
+      <FormCanvas :items="curView && curView.items" :fields="fields"/>
     </div>
     <ButtonView :buttons="curView && curView.buttons"/>
   </Page>
 </template>
 
 <script lang="ts">
-import { defineComponent, reactive, ref, computed, watch, toRaw, onMounted, toRefs } from 'vue'
-import { Record } from '@/assets/js/class'
+import { defineComponent, reactive, computed, watch, toRaw, onMounted, toRefs } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useStore } from '@/store'
 import FormCanvas from './FormCanvas'
 import ButtonView from '@/components/odoo-button/ButtonView.vue'
-import { fetchRecord } from '@/api/app'
 import { formatDate } from '@/assets/js/utils/date'
 import { viewCommonProps } from '@/assets/js/hooks/view-common'
 
@@ -47,7 +45,6 @@ export default defineComponent({
     const router = useRouter()
     const store = useStore()
 
-    const record = ref<Record>()
     const data = reactive({
       creator: {
         name: '',
@@ -70,9 +67,6 @@ export default defineComponent({
     const loadRecord = async () => {
       const { model, id } = route.query
       if(searchFields.value.length && model && id) {
-        const res = await fetchRecord(model as string, +id, searchFields.value)
-        record.value = new Record(res.data)
-
         // datapoint load
         store.dispatch('loadRecord', {
           modelName: model,
@@ -113,10 +107,8 @@ export default defineComponent({
     })
 
     return {
-      record,
       ...toRefs(data),
       isReadonly,
-      searchFields,
       height,
       localData: computed(() => store.state.localData),
       curRecordId: computed(() => store.state.curRecordId),

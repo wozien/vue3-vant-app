@@ -33,8 +33,8 @@ export default function(props: any, store: VuexStore) {
         rawValue.value = data[fieldName]
       }
       
-      if(!props.field.isComplexField()) {
-        value.value = (fieldUtils.format as any)[field.type](rawValue.value)
+      if(!props.field.isX2Many()) {
+        value.value = (fieldUtils.format as any)[field.type](rawValue.value, field)
       }
     }
   })

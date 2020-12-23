@@ -24,6 +24,7 @@ export interface FieldInfo {
   type: FieldType
   string?: string
   relation?: string
+  selection?: [string, string][]
   list?: FieldsInfo
 }
 
@@ -51,8 +52,8 @@ class Field {
     this.fields = fieldObj.fields.map(f => new Field(f))
   }
 
-  isComplexField() {
-    return ['selection', 'one2many', 'many2one', 'many2many', 'related', 'reference'].includes(this.type)
+  isX2Many() {
+    return ['one2many', 'many2many'].includes(this.type)
   }
 }
 

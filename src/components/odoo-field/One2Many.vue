@@ -15,9 +15,8 @@
 <script lang="ts">
 import { defineComponent, watchEffect, ref } from 'vue'
 import { useStore } from '@/store'
-import { Item, Field, View, Model, getApp } from '@/assets/js/class'
 import useFieldCommon, { fieldCommonProps } from '@/assets/js/hooks/field-common'
-import { fetchRecord } from '@/api/app'
+import fieldUtils from '@/assets/js/utils/field-utils'
 
 interface Column {
   field: string
@@ -26,73 +25,64 @@ interface Column {
 
 export default defineComponent({
   props: {
-    ...fieldCommonProps,
-    rawValue: Array
+    ...fieldCommonProps
   },
 
   setup(props) {
     const store = useStore()
-    const { type } = useFieldCommon(props, store)
-    const columns = ref<Column[]>()
-    const tableData = ref([])
+    const { type, rawValue } = useFieldCommon(props, store)
+    const columns = ref<Column[]>([])
+    const tableData = ref<any[]>([])
     
     watchEffect(async () => {
-      columns.value = getColumns(props)
-      tableData.value = await getData(props, columns.value)
+      columns.value = getColumns(rawValue.value)
+      tableData.value = getData(rawValue.value)
     })
 
     return {
       type,
+      rawValue,
       columns,
       tableData
     }
   }
 })
 
-function getColumns(props: any) {
-  const field = props.field as Field
-  const item = props.item as Item
-  let subView = item?.subView
+function getColumns(list: any) {
   let res: Column[] = []
+  const fieldsInfo = list.fieldsInfo
 
-  if(item && field && subView?.length) {
-    const curApp = getApp()
-    const model = curApp.getModel(field.relation) as Model
-    if(subView[0]) {
-      res = (subView[0] as View).items.map((item: Item) => {
-        const f = model.getField(item.fieldKey)
-        return {
-          field: f?.name,
-          title: f?.string
-        } as Column
-      })
+  for(let fieldName in fieldsInfo) {
+    const field = fieldsInfo[fieldName]
+    if(field) {
+      res.push({
+        field: field.name,
+        title: field.string
+      } as Column)
     }
   }
-
   return res
 }
 
-async function getData(props: any, columns: Column[]) {
-  const field = props.field as Field
-  if(field && field.relation && props.rawValue) {
-    const searchFields = columns.map(col => col.field)
-    const res = await fetchRecord(field.relation, Array.from(props.rawValue), searchFields)
-    if(res.ret === 0) {
-      const rawData = res.data;
-      if(rawData.length) {
-        return rawData.map((row: any) => {
-          for(let key in row) {
-            // m2o
-            if(Array.isArray(row[key])) {
-              row[key] = row[key][1]
-            }
-          }
-          return row
-        })
+function getData(list: any) {
+  let res: any[] = []
+  if(list) {
+    const fieldsInfo = list.fieldsInfo
+    res = list.data.map((record: any) => {
+      const row = {} as any
+      for(let fieldName in record.data) {
+        const field = fieldsInfo[fieldName]
+        const value = record.data[fieldName]
+        if(fieldName === 'id') {
+          row[fieldName] = value
+        } else {
+          row[fieldName] = (fieldUtils.format as any)[field.type](value, field)
+        }
       }
-    }
+      return row
+    })
   }
-  return []
+  return res
 }
 </script>
 
