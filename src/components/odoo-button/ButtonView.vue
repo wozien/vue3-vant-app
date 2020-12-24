@@ -27,6 +27,7 @@
 <script lang="tsx">
 import { defineComponent, PropType, computed, ref, watchEffect, reactive, toRaw } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { useStore } from '@/store'
 import { Toast } from 'vant'
 import { ViewButton } from '@/assets/js/class'
 import { callButton } from '@/api/odoo'
@@ -36,6 +37,7 @@ import Button from './Button.vue'
 import FlowSign from '@/views/flow/FlowSign.vue'
 import FlowProcess from '@/views/flow/FlowProcess.vue'
 import UserSelect from '@/components/user-picker/UserSelect.vue'
+import { save } from '@/assets/js/class/DataPoint'
 
 export default defineComponent({
   components: {
@@ -52,6 +54,7 @@ export default defineComponent({
   setup(props) {
     const route = useRoute()
     const router = useRouter()
+    const store = useStore()
 
     const renderButtons = ref<ViewButton[]>([])
     const capsuleButtons = computed(() => {
@@ -71,15 +74,13 @@ export default defineComponent({
       }
 
       if(button.type === 'event') {
-        // TODO 前端写死的按钮
+        // 前端写死的按钮
         switch(button.funcName) {
           case 'edit':
-            router.replace({
-              name: 'view',
-              query: Object.assign({}, route.query, {
-                readonly: 0
-              })
-            })
+            onEdit(); break
+          case 'save': 
+            onSave(); break
+
         }
       } else if(button.type === 'object') {
         // call_button
@@ -98,6 +99,29 @@ export default defineComponent({
     }
 
     const onSelect = (item: any) => onButtonClick(item)
+
+    // 编辑
+    const onEdit = () => {
+      router.replace({
+        name: 'view',
+        query: Object.assign({}, route.query, {
+          readonly: 0
+        })
+      })
+    }
+    // 保存
+    const onSave = async () => {
+      const res = await save(store.state.curRecordId)
+      if(res === true || res.ret === 0) {
+        Toast('保存成功')
+        router.replace({
+          name: 'view',
+          query: Object.assign({}, route.query, {
+            readonly: 1
+          })
+        })
+      }
+    }
 
     watchEffect(() => {
       const res = calcButtons(props.buttons, route.query.readonly as string)

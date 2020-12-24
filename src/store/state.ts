@@ -1,4 +1,5 @@
 import { DataPoint, DataPointId, localData } from '@/assets/js/class'
+import { uuid } from '@/assets/js/utils/tools'
 interface Company {
   dbName: string;
   name: string;
@@ -24,7 +25,8 @@ export interface State {
   localData: {
     [key: string]: DataPoint
   },
-  curRecordId: DataPointId
+  curRecordId: DataPointId,
+  recordToken: string
 }
 
 const state: State = {
@@ -39,7 +41,8 @@ const state: State = {
   },
   orgs: [],
   localData: localData,
-  curRecordId: ''
+  curRecordId: '',
+  recordToken: uuid(12)
 }
 
 export default state

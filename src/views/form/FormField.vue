@@ -13,6 +13,7 @@
       v-model="value"
       clearable
       center
+      @update:model-value="setValue"
     />
   </div>
 </template>
@@ -20,8 +21,10 @@
 <script lang="ts">
 import { defineComponent } from 'vue'
 import { useStore } from '@/store'
-import useFieldCommon, { fieldCommonProps, FieldValue } from '@/assets/js/hooks/field-common'
+import useFieldCommon, { fieldCommonProps } from '@/assets/js/hooks/field-common'
 import { Many2One, One2Many } from '@/components/odoo-field'
+import { notifyChanges } from '@/assets/js/class/DataPoint'
+import fieldUtils from '@/assets/js/utils/field-utils'
 
 export default defineComponent({
   components: {
@@ -35,10 +38,15 @@ export default defineComponent({
 
   setup(props) {
     const store = useStore()
-    const { string, placeholder, type, value, rawValue } = useFieldCommon(props, store)
+    const { string, placeholder, type, value, rawValue, curRecord } = useFieldCommon(props, store)
 
-    const setValue = (value: FieldValue) => {
-      console.log(value)
+    const setValue = (value: string) => {
+      const field = props.field
+      if(field) {
+        value = (fieldUtils.parse as any)[field.type](value)
+        notifyChanges(curRecord.value.id, { [field.name]: value })
+      }
+      store.commit('SET_RECORD_TOKEN')
     }
 
     return {

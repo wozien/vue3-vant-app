@@ -1,5 +1,6 @@
 import { MutationTree } from 'vuex'
 import { State, User } from './state'
+import { uuid } from '@/assets/js/utils/tools'
 
 const mutations: MutationTree<State> = {
   'SET_USER' (state, data) {
@@ -25,6 +26,10 @@ const mutations: MutationTree<State> = {
 
   'SET_CUR_RECORD' (state, id: string) {
     state.curRecordId = id
+  },
+
+  'SET_RECORD_TOKEN' (state) {
+    state.recordToken = uuid(12)
   }
 }
 

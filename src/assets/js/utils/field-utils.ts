@@ -27,6 +27,7 @@ function formatInteger(value: any) {
   if(!value || value !== 0) {
     return ''
   }
+  // TODO 千分位处理
   return value
 }
 
@@ -68,6 +69,21 @@ function parseDateTime(value: string) {
   return parseDate(value)
 }
 
+function parseMany2one(value: any[] | string) {
+  if (_.isArray(value)) {
+      return {
+          id: value[0],
+          display_name: value[1],
+      };
+  }
+  if (_.isNumber(value) || _.isString(value)) {
+      return {
+          id: parseInt(value, 10),
+      };
+  }
+  return value;
+}
+
 // format datapoint.data -> 前端控件显示
 // parse server data -> datapoint.data
 export default {
@@ -82,7 +98,13 @@ export default {
     many2one: formatMany2one
   },
   parse: {
+    char: _.identity,
+    text: _.identity,
     date: parseDate,
-    datetime: parseDateTime
+    datetime: parseDateTime,
+    integer: _.identity, // TODO
+    float: _.identity,    // TODO
+    selection: _.identity,
+    many2one: parseMany2one
   }
 }

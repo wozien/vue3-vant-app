@@ -107,3 +107,16 @@ export const fetchMany2OneData = async (model: string): Promise<HttpRes> => {
   const res = await callKw(model, 'ps_name_search')
   return res.data
 }
+
+/**
+ * 单据保存
+ * @param model 
+ * @param method 
+ * @param id 
+ * @param changes 
+ */
+export const saveRecord = async (model: string, method: string, id: number, changes: any): Promise<HttpRes> => {
+  const args = method === 'write' ? [[id], changes] : [changes]
+  const res = await callKw(model, method, args, {})
+  return res.data
+}

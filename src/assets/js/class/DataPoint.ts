@@ -8,9 +8,14 @@ import { fetchRecord } from '@/api/app'
 import { FieldsInfo } from '@/assets/js/class'
 import fieldUtils from '@/assets/js/utils/field-utils'
 import { str2Date } from '@/assets/js/utils/date'
+import { saveRecord } from '@/api/app'
 
 export type DataPointId = string
-type DataPointType = 'record' | 'list'
+export type DataPointType = 'record' | 'list'
+export type DataPointData = {
+  id?: number
+  [key: string]: any
+}
 
 interface DataPointProps {
   _changes: Object | null
@@ -25,10 +30,7 @@ interface DataPointProps {
   [key: string]: any
 }
 export interface DataPoint extends DataPointProps {
-  data: { 
-    id?: number
-    [key: string]: any
-  }
+  data: DataPointData
 }
 
 export interface DataPointState extends DataPointProps {
@@ -57,6 +59,30 @@ type LocalData = {
 }
 
 // -----  private methods  ----------
+
+/**
+ * 表单值修改处理
+ * @param recordID 
+ * @param changes 
+ */
+const _applyChange = (recordID: DataPointId, changes: DataPointData) => {
+  const record = localData[recordID]
+  record._changes = record._changes || {}
+
+  // apply changes to local data
+  for(let fieldName in changes) {
+    const field = record.fieldsInfo[fieldName]
+    if(field && (field.type === 'one2many' || field.type === 'many2many')) {
+      // TODO
+    } else if(field && (field.type === 'many2one' || field.type === 'reference')) {
+      // TODO
+    } else {
+      (record._changes as any)[fieldName] = changes[fieldName]
+    }
+  }
+
+  // TODO trigger onchange handle
+}
 
 /**
 * 增加新的data point数据
@@ -97,6 +123,42 @@ const _makeDataPoint = <T extends LoadParams>(params: T): DataPoint => {
  */
 const _getFieldsName = (dataPoint: DataPoint) => {
   return Object.keys(dataPoint.fieldsInfo || {})
+}
+
+/**
+ * 获取更新的数据
+ * @param record 
+ * @param options
+ */
+const _generateChanges = (record: DataPoint, options: any) => {
+  options = options || {}
+  // let viewType = options.viewType || record.
+  let changes
+  if('changesOnly' in options && !options.changesOnly) {
+    changes = _.extend({}, record.data, record._changes)
+  } else {
+    changes = _.extend({}, record._changes)
+  }
+
+  // TODO get x2many commands
+
+  for(let fieldName in record.fieldsInfo) {
+    const type = record.fieldsInfo[fieldName].type
+    
+    if(type === 'one2many' || type === 'many2many') {
+      // TODO
+    } else if(type === 'many2one' && fieldName in changes) {
+      // TODO
+    } else if(type === 'reference' && fieldName in changes) {
+      // TODO 
+    } else if(type === 'char' && (changes as any)[fieldName] === '') {
+      (changes as any)[fieldName] = false
+    } else if((changes as any)[fieldName] === null) {
+      (changes as any)[fieldName] = false
+    }
+  }
+
+  return changes
 }
 
 /**
@@ -255,6 +317,24 @@ export const load = async (params: LoadParams): Promise<DataPointId> => {
 }
 
 /**
+ * 判断是否新的记录
+ * @param id 
+ */
+export const isNew = (id: DataPointId) => {
+  const data = localData[id];
+  if (data.type !== 'record') {
+      return false;
+  }
+  const res_id = data.res_id;
+  if (typeof res_id === 'number') {
+      return false;
+  } else if (typeof res_id === 'string' && /^[0-9]+-/.test(res_id)) {
+      return false;
+  }
+  return true;
+}
+
+/**
  * 获取DataPointState(合并_changes到data中)
  * @param id 
  */
@@ -292,4 +372,34 @@ export const get = (id: DataPointId) => {
   } as any
 
   return list
+}
+
+/**
+ * 值更新入口
+ * @param recordID
+ * @param changes 
+ */
+export const notifyChanges = (recordID: DataPointId, changes: DataPointData) => {
+  _applyChange(recordID, changes)
+}
+
+/**
+ * 单据保存
+ * @param recordID 
+ */
+export const save = async (recordID: DataPointId) => {
+  const record = localData[recordID]
+  const method = isNew(recordID) ? 'create' : 'write'
+  if(record._changes) {
+    delete (record._changes as any).id
+  }
+
+  const changes = _generateChanges(record, { changesOnly: method !== 'create' })
+
+  if(method === 'create' || Object.keys(changes).length) {
+    const res = await saveRecord(record.model, method, record.data.id as number, changes)
+    return res
+  }
+
+  return true
 }
