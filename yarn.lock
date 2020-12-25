@@ -8910,9 +8910,9 @@ vuex@^4.0.0-rc.2:
   integrity sha1-NoHITrb1FxsDntqhfMeBBeIHJPM=
 
 vxe-table@^4.0.0-beta.1:
-  version "4.0.0-beta.1"
-  resolved "https://registry.npm.taobao.org/vxe-table/download/vxe-table-4.0.0-beta.1.tgz#76e0154d5714f4dd13091880f0afc28ae80875b0"
-  integrity sha1-duAVTVcU9N0TCRiA8K/CiugIdbA=
+  version "4.0.0-beta.5"
+  resolved "https://registry.npm.taobao.org/vxe-table/download/vxe-table-4.0.0-beta.5.tgz#378ccc7d600b3d980751889a4bfb1bb183219c87"
+  integrity sha1-N4zMfWALPZgHUYiaS/sbsYMhnIc=
 
 watchpack-chokidar2@^2.0.0:
   version "2.0.0"
