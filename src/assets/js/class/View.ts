@@ -1,5 +1,6 @@
 
 import { Item, StudioItem } from './index'
+import { findTree } from '@/assets/js/utils/tools' 
 
 export type ViewType = 'form' | 'list'
 
@@ -39,6 +40,18 @@ class View {
     this.options = viewObj.options || {}
     this.buttons = this._initButtons(viewObj.buttons)
     this.items = viewObj.mobileItems.map(i => new Item(i))
+  }
+
+  getSubViews () {
+    let views: View[] = [];
+
+    findTree(this.items, (item: Item) => {
+      if (item.fieldType === 'one2many' || item.fieldType === 'many2many') {
+        views = views.concat(item.subView as View[]);
+      }
+    }, 'items');
+
+    return views;
   }
 
   _initButtons(options: any): ViewButton[] {

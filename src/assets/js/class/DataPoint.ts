@@ -114,6 +114,9 @@ const _makeDataPoint = <T extends LoadParams>(params: T): DataPoint => {
   }
 
   localData[dataPoint.id] = dataPoint
+  if(dataPoint.type === 'record') {
+    recordMap.set(`${dataPoint.model}_${res_id}`, dataPoint.id)
+  }
   return dataPoint
 }
 
@@ -301,6 +304,7 @@ const _load = async (dataPoint: DataPoint) => {
 // ------  public  ------------
 
 export let localData: LocalData = {}
+export const recordMap = new Map<string, DataPointId>()
 
 /**
  * 表单数据加载入口, 只会调用一次
@@ -372,6 +376,15 @@ export const get = (id: DataPointId) => {
   } as any
 
   return list
+}
+
+/**
+ * 根据模型和记录id获取DataPointId
+ * @param modelKey 
+ * @param res_id 
+ */
+export const getRecordId = (modelKey: string, res_id: string): DataPointId => {
+  return recordMap.get(`${modelKey}_${res_id}`) as DataPointId
 }
 
 /**

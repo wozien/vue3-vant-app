@@ -1,12 +1,18 @@
 <template>
   <div class="form-item-field" :data-dbname="field && field.name" :data-type="type">
-    <vxe-table :data="tableData">
-      <vxe-table-column type="seq" title="#" width="50"></vxe-table-column>
+    <vxe-table
+      :data="tableData" 
+      max-height="500"
+      empty-text="暂无数据"
+       @cell-click="onCellClick"
+    >
+      <vxe-table-column type="seq" title="#" width="50" fixed="left"></vxe-table-column>
       <vxe-table-column 
         v-for="col in columns" 
         :key="col.field"
         :field="col.field"
         :title="col.title"
+        min-width="120"
       />
     </vxe-table>
   </div>
@@ -15,8 +21,11 @@
 <script lang="ts">
 import { defineComponent, watchEffect, ref } from 'vue'
 import { useStore } from '@/store'
+import { useRouter, useRoute } from 'vue-router'
 import useFieldCommon, { fieldCommonProps } from '@/assets/js/hooks/field-common'
 import fieldUtils from '@/assets/js/utils/field-utils'
+import { VxeTableEvents } from 'vxe-table'
+import _ from 'lodash'
 
 interface Column {
   field: string
@@ -30,9 +39,26 @@ export default defineComponent({
 
   setup(props) {
     const store = useStore()
+    const route = useRoute()
+    const router = useRouter()
+
     const { type, rawValue } = useFieldCommon(props, store)
     const columns = ref<Column[]>([])
     const tableData = ref<any[]>([])
+
+    const onCellClick: VxeTableEvents.CellClick = ({ row }) => {
+      if(props.readonly) return
+      const record = _.find((rawValue.value as any).data, { res_id: row.id })
+      if(record) {
+        router.push({
+          name: 'view',
+          query: Object.assign({}, route.query, {
+            model: record.model,
+            id: row.id
+          })
+        })
+      }
+    }
     
     watchEffect(async () => {
       columns.value = getColumns(rawValue.value)
@@ -43,7 +69,8 @@ export default defineComponent({
       type,
       rawValue,
       columns,
-      tableData
+      tableData,
+      onCellClick
     }
   }
 })

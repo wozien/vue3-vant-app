@@ -22,13 +22,14 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, reactive, computed, watch, toRaw, onMounted, toRefs } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { defineComponent, reactive, computed, watch, toRaw, onMounted, toRefs, watchEffect } from 'vue'
+import { useRoute } from 'vue-router'
 import { useStore } from '@/store'
 import FormCanvas from './FormCanvas'
 import ButtonView from '@/components/odoo-button/ButtonView.vue'
 import { formatDate } from '@/assets/js/utils/date'
 import { viewCommonProps } from '@/assets/js/hooks/view-common'
+import { getRecordId } from '@/assets/js/class/DataPoint'
 
 export default defineComponent({
   components: {
@@ -42,7 +43,6 @@ export default defineComponent({
 
   setup(props) {
     const route = useRoute()
-    const router = useRouter()
     const store = useStore()
 
     const data = reactive({
@@ -77,14 +77,14 @@ export default defineComponent({
       }
     }
 
-    const onEditForm = () => {
-      router.push({
-        name: 'view',
-        query: Object.assign({}, route.query, {
-          readonly: 0
-        })
-      })
-    }
+    // 穿透表体切换当前的datapoint数据
+    watchEffect(() => {
+      const { model, id } = route.query
+      if(model && id) {
+        const recordId = getRecordId(model as string, id as string)
+        recordId && store.commit('SET_CUR_RECORD', recordId)
+      }
+    }) 
 
     watch(searchFields, val => {
       if(val.length) loadRecord()
@@ -112,8 +112,7 @@ export default defineComponent({
       height,
       localData: computed(() => store.state.localData),
       curRecordId: computed(() => store.state.curRecordId),
-      curRecord,
-      onEditForm
+      curRecord
     }
   }
 })

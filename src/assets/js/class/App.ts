@@ -103,8 +103,13 @@ class App {
     return null
   }
 
-  getView(viewType: ViewType) {
-    return this.views ? this.views[viewType] : null
+  getView(viewType: ViewType, modelKey: string) {
+    let view =  this.views ? this.views[viewType] : null
+    if(view && view.model !== modelKey) {
+      const subViews = view.getSubViews()
+      view = _.find(subViews, { model: modelKey }) as View
+    }
+    return view
   }
 
   /**

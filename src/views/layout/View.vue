@@ -12,12 +12,20 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, onBeforeMount, computed } from 'vue'
-import { App, getAppAsync, ViewType } from '@/assets/js/class'
+import { defineComponent, ref, onBeforeMount, computed, watchEffect } from 'vue'
+import { App, getAppAsync, Model, View, ViewType, Fields, FieldsInfo } from '@/assets/js/class'
 import { useRoute } from 'vue-router'
 import useTitle from '@/assets/js/hooks/use-title'
 import ListView from '../list/List.vue'
 import FormView from '../form/Form.vue'
+
+interface ViewContext {
+  appName: string
+  curModel: Model
+  curView: View
+  fields: Fields,
+  fieldsInfo: FieldsInfo
+}
 
 export default defineComponent({
   components: {
@@ -27,25 +35,25 @@ export default defineComponent({
   
   setup() {
     const route = useRoute()
-    const { menuId, actionId, model } = route.query
-    let curApp = ref<App>(new App('', '', 0))
-    let ctx = computed(() => {
-      if(curApp.value && curApp.value.isLoaded) {
-        return getContext(
-          curApp.value as App,
-          route.query.model as string, 
-          route.query.viewType as ViewType
-        )
-      }
-    })
+    
+    const curApp = ref<App>(new App('', '', 0))
+    const ctx = ref<ViewContext>()
     const title = computed(() => {
       return curApp.value.name || '应用'
     })
     useTitle(title)
 
     onBeforeMount(async () => {
+      const { menuId, actionId, model } = route.query
       const res = await getAppAsync(model as string, menuId as string, actionId as string)
       curApp.value = res
+    })
+
+    watchEffect(() => {
+      if(curApp.value.isLoaded && route.query.model) {
+        const { model, viewType } = route.query
+        ctx.value = getContext(curApp.value as App, model as string, viewType as ViewType)
+      }
     })
 
     return {
@@ -56,9 +64,9 @@ export default defineComponent({
   }
 })
 
-function getContext(curApp: App, modelKey: string, viewType: ViewType) {
-  const curView = curApp.getView(viewType)
-  const curModel = curApp.getModel(modelKey)
+function getContext(curApp: App, modelKey: string, viewType: ViewType): ViewContext {
+  const curView = curApp.getView(viewType, modelKey) as View
+  const curModel = curApp.getModel(modelKey) as Model
   const fieldsInfo = curApp.fieldsInfo?.[viewType]
 
   return {
