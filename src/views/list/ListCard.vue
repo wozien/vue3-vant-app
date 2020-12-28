@@ -64,6 +64,7 @@ export default defineComponent({
       if(cardData.isFlow) {
         // 工作流
         sessionStorage.setItem('FLOW_PARAMS', JSON.stringify(cardData.context))
+        sessionStorage.setItem('APP_LODA_PARAMS', JSON.stringify({ model: cardData.model }))
         router.push({
           name: 'view',
           query: {
@@ -74,6 +75,9 @@ export default defineComponent({
           }
         })
       } else {
+        const loadParams = JSON.parse(sessionStorage.getItem('APP_LODA_PARAMS') || '{}')
+        loadParams.id = cardData.id
+        sessionStorage.setItem('APP_LODA_PARAMS', JSON.stringify(loadParams))
         router.push({
           name: 'view',
           query: Object.assign({}, route.query, {

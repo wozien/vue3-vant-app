@@ -42,7 +42,7 @@ export default defineComponent({
     const route = useRoute()
     const router = useRouter()
 
-    const { type, rawValue } = useFieldCommon(props, store)
+    const { type, rawValue, curRecord } = useFieldCommon(props, store)
     const columns = ref<Column[]>([])
     const tableData = ref<any[]>([])
 
@@ -50,6 +50,8 @@ export default defineComponent({
       if(props.readonly) return
       const record = _.find((rawValue.value as any).data, { res_id: row.id })
       if(record) {
+        // 把表体操作在session中
+        storeX2ManyCommand('UPDATE')
         router.push({
           name: 'view',
           query: Object.assign({}, route.query, {
@@ -58,6 +60,15 @@ export default defineComponent({
           })
         })
       }
+    }
+
+    const storeX2ManyCommand = (type: string) => {
+      const commandInfo = {
+        type,
+        recordID: curRecord.value.id,
+        fieldName: props.field?.name
+      }
+      sessionStorage.setItem('X2MANY_COMMAND', JSON.stringify(commandInfo))
     }
     
     watchEffect(async () => {

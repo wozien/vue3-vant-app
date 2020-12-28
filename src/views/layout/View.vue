@@ -1,5 +1,5 @@
 <template>
-  <ListView
+  <ListView 
     v-if="viewType === 'list'" 
     :app-name="ctx && ctx.appName"
     :fields-info="ctx && ctx.fieldsInfo"
@@ -23,7 +23,7 @@ interface ViewContext {
   appName: string
   curModel: Model
   curView: View
-  fields: Fields,
+  fields: Fields
   fieldsInfo: FieldsInfo
 }
 
@@ -44,7 +44,8 @@ export default defineComponent({
     useTitle(title)
 
     onBeforeMount(async () => {
-      const { menuId, actionId, model } = route.query
+      const loadParams = JSON.parse(sessionStorage.getItem('APP_LODA_PARAMS') || '{}')
+      const { menuId, actionId, model } = loadParams
       const res = await getAppAsync(model as string, menuId as string, actionId as string)
       curApp.value = res
     })
@@ -70,9 +71,9 @@ function getContext(curApp: App, modelKey: string, viewType: ViewType): ViewCont
   const fieldsInfo = curApp.fieldsInfo?.[viewType]
 
   return {
-    appName: curApp.name,
     curModel,
     curView,
+    appName: curApp.name,
     fields: curModel && curModel.getFields() || {},
     fieldsInfo: fieldsInfo || {}
   }

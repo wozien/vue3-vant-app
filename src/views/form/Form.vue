@@ -65,25 +65,31 @@ export default defineComponent({
     const curRecord = computed(() => store.getters.curRecord)
 
     const loadRecord = async () => {
-      const { model, id } = route.query
+      const loadParams = JSON.parse(sessionStorage.getItem('APP_LODA_PARAMS') || '{}')
+      const { model, id } = loadParams
       if(searchFields.value.length && model && id) {
         // datapoint load
-        store.dispatch('loadRecord', {
+        await store.dispatch('loadRecord', {
           modelName: model,
           res_id: +id,
           viewType: 'form',
           fieldsInfo: toRaw(props.fieldsInfo)
         })
+        setCurRecord()
       }
     }
 
-    // 穿透表体切换当前的datapoint数据
-    watchEffect(() => {
+    const setCurRecord = () => {
       const { model, id } = route.query
       if(model && id) {
         const recordId = getRecordId(model as string, id as string)
         recordId && store.commit('SET_CUR_RECORD', recordId)
       }
+    }
+
+    // 穿透表体切换当前的datapoint数据
+    watchEffect(() => {
+      setCurRecord()
     }) 
 
     watch(searchFields, val => {

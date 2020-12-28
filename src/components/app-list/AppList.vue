@@ -1,7 +1,9 @@
 <template>
   <div class="app-list">
     <div v-for="item in list" :key="item.id" class="app" @click="onClickApp(item)">
-      <img :src="item.icon">
+      <div class="img">
+        <img :src="item.icon">
+      </div>
       <span class="name van-multi-ellipsis--l2">{{ item.name }}</span>
     </div>
   </div>
@@ -35,12 +37,16 @@ export default defineComponent({
       })
 
       await addAppCount(id)
+      const loadParams = {
+        model: modelKey,
+        menuId: id,
+        actionId,
+      }
+      sessionStorage.setItem('APP_LODA_PARAMS', JSON.stringify(loadParams))
       router.push({
         name: 'view',
         query: {
           model: modelKey,
-          menuId: id,
-          actionId,
           viewType: 'list'
         }
       }).catch(e => {
@@ -69,10 +75,15 @@ export default defineComponent({
     width: 80px;
     margin-bottom: 20px;
     .column-flex;
-    img {
+    .img {
       width: 45px;
       height: 45px;
-      margin-bottom: 6px;
+      border-radius: 10px;
+      overflow: hidden;
+      img {
+        width: 100%;
+        height: 100%;
+      }
     }
     .name {
       font-size: 13px;

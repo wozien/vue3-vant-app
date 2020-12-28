@@ -19,13 +19,13 @@ export interface User {
 
 // define your typings for the store state
 export interface State {
-  user: User;
-  orgs: Org[];
-  curOrg?: Org;
+  user: User
+  orgs: Org[]
+  curOrg?: Org
   localData: {
     [key: string]: DataPoint
   },
-  curRecordId: DataPointId,
+  curRecordId: DataPointId
   recordToken: string
 }
 

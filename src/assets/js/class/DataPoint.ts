@@ -1,5 +1,6 @@
 /**
- * 表单记录的相关操作
+ * 表单记录的相关操作 
+ * like odoo basic_model
  */
 
 import _ from 'lodash'
@@ -18,7 +19,7 @@ export type DataPointData = {
 }
 
 interface DataPointProps {
-  _changes: Object | null
+  _changes: Object | any[] | null
   id: DataPointId
   type: DataPointType
   viewType: ViewType
@@ -60,6 +61,44 @@ type LocalData = {
 
 // -----  private methods  ----------
 
+const x2ManyCommands = {
+  // (0, virtualID, {values})
+  CREATE: 0,
+  create: function (virtualID: string | number, values: any) {
+      delete values.id
+      return [x2ManyCommands.CREATE, virtualID || false, values]
+  },
+  // (1, id, {values})
+  UPDATE: 1,
+  update: function (id: string | number, values: any) {
+      delete values.id
+      return [x2ManyCommands.UPDATE, id, values]
+  },
+  // (2, id[, _])
+  DELETE: 2,
+  delete: function (id: string | number) {
+      return [x2ManyCommands.DELETE, id, false]
+  }
+}
+
+/**
+ * 根据changes计算最新的res_ids
+ * @param list 
+ */
+const _applyX2ManyOperations = (list: DataPoint) => {
+  list = _.extend({}, list)
+  list.res_ids = list.res_ids.slice(0)
+  const changes = list._changes || []
+  _.each(changes, (change: any) => {
+    switch (change.operation) {
+      case 'UPDATE':
+        break
+    }
+  })
+
+  return list
+}
+
 /**
  * 表单值修改处理
  * @param recordID 
@@ -73,7 +112,7 @@ const _applyChange = (recordID: DataPointId, changes: DataPointData) => {
   for(let fieldName in changes) {
     const field = record.fieldsInfo[fieldName]
     if(field && (field.type === 'one2many' || field.type === 'many2many')) {
-      // TODO
+      _applyX2ManyChange(record, fieldName, changes[fieldName])
     } else if(field && (field.type === 'many2one' || field.type === 'reference')) {
       // TODO
     } else {
@@ -82,6 +121,27 @@ const _applyChange = (recordID: DataPointId, changes: DataPointData) => {
   }
 
   // TODO trigger onchange handle
+}
+
+/**
+ * 表体值更新处理
+ * @param record 
+ * @param fieldName 
+ * @param command 
+ */
+const _applyX2ManyChange = (record: DataPoint, fieldName: string, command: any) => {
+  const localID = record.data[fieldName]
+  const list = localData[localID]
+  list._changes = list._changes || []
+  switch(command.operation) {
+    
+    case 'UPDATE':
+      !_.find(list._changes as any[], {operation: 'UPDATE', id: command.id}) && 
+      (list._changes as any[]).push({operation: 'UPDATE', id: command.id})
+      if(command.data) {
+        _applyChange(command.id, command.data)
+      }
+  }
 }
 
 /**
@@ -107,6 +167,7 @@ const _makeDataPoint = <T extends LoadParams>(params: T): DataPoint => {
     model: params.modelName,
     viewType: params.viewType,
     fieldsInfo: params.fieldsInfo,
+    parentId: params.parentId,
     type,
     data,
     res_id,
@@ -136,7 +197,7 @@ const _getFieldsName = (dataPoint: DataPoint) => {
 const _generateChanges = (record: DataPoint, options: any) => {
   options = options || {}
   // let viewType = options.viewType || record.
-  let changes
+  let changes: any
   if('changesOnly' in options && !options.changesOnly) {
     changes = _.extend({}, record.data, record._changes)
   } else {
@@ -144,24 +205,105 @@ const _generateChanges = (record: DataPoint, options: any) => {
   }
 
   // TODO get x2many commands
+  const commands = _generateX2ManyCommands(record, {
+      changesOnly: 'changesOnly' in options ? options.changesOnly : true,
+  })
 
   for(let fieldName in record.fieldsInfo) {
     const type = record.fieldsInfo[fieldName].type
     
     if(type === 'one2many' || type === 'many2many') {
-      // TODO
+      if (commands[fieldName] && commands[fieldName].length) { 
+        changes[fieldName] = commands[fieldName];
+      }else {
+        delete changes[fieldName]
+      }
     } else if(type === 'many2one' && fieldName in changes) {
       // TODO
     } else if(type === 'reference' && fieldName in changes) {
       // TODO 
-    } else if(type === 'char' && (changes as any)[fieldName] === '') {
-      (changes as any)[fieldName] = false
-    } else if((changes as any)[fieldName] === null) {
-      (changes as any)[fieldName] = false
+    } else if(type === 'char' && changes[fieldName] === '') {
+      changes[fieldName] = false
+    } else if(changes[fieldName] === null) {
+      changes[fieldName] = false
     }
   }
 
   return changes
+}
+
+/**
+ * 获取表体的操作命令
+ * @param record 
+ * @param options 
+ */
+const _generateX2ManyCommands = (record: DataPoint, options: any) => {
+  options = options || {}
+  const commands = {} as any
+  const data = _.extend({}, record.data, record._changes)
+  for(let fieldName in record.fieldsInfo) {
+    const type = record.fieldsInfo[fieldName].type
+
+    if(type === 'one2many' || type === 'many2many') {
+      if(!data[fieldName]) continue
+      commands[fieldName] = []
+      let list = localData[data[fieldName]]
+      if (options.changesOnly && (!list._changes || !(list._changes as any).length)) {
+        continue;
+      }
+
+      const oldResIDs = list.res_ids.slice(0)
+      const relRecordAdded = [] as any[]
+      const relRecordUpdated = [] as any[]
+      _.each(list._changes, function (change: any) {
+          if (change.operation === 'ADD' && change.id) {
+              relRecordAdded.push(localData[change.id])
+          } else if (change.operation === 'UPDATE' && !isNew(change.id)) {
+              relRecordUpdated.push(localData[change.id])
+          }
+      })
+
+      list = _applyX2ManyOperations(list)
+
+      if(type === 'one2many') {
+        const removedIds = _.difference(oldResIDs, list.res_ids);
+        const addedIds = _.difference(list.res_ids, oldResIDs);
+        const keptIds = _.intersection(oldResIDs, list.res_ids);
+
+        let changes, command, relRecord
+        for (var i = 0; i < list.res_ids.length; i++) {
+          // update command
+          if (keptIds.includes(list.res_ids[i])) {
+            relRecord = _.find(relRecordUpdated, {res_id: list.res_ids[i]})
+            changes = relRecord ? _generateChanges(relRecord, options) : {}
+            if(!_.isEmpty(changes)) {
+              command = x2ManyCommands.update(relRecord.res_id, changes)
+            }
+            commands[fieldName].push(command)
+          } else if(addedIds.includes(list.res_ids[i])) {
+            // add command
+            relRecord = _.find(relRecordAdded, {res_id: list.res_ids[i]})
+            if(!relRecord) {
+              //TODO
+            }
+            changes = _generateChanges(relRecord, _.extend({}, options, {changesOnly: true}))
+            if(isNew(relRecord)) {
+              commands[fieldName].push(x2ManyCommands.create(relRecord.res_id, changes))
+            } else {
+              // TODO
+            }
+          }
+        }
+
+        // delete command 
+        for (i = 0; i < removedIds.length; i++) { 
+          commands[fieldName].push(x2ManyCommands.delete(removedIds[i]))
+        }
+      }
+    }
+  }
+
+  return commands
 }
 
 /**
@@ -254,7 +396,8 @@ const _fetchX2Manys = async (record: DataPoint) => {
         viewType: 'list',
         modelName: field.relation,
         res_ids: ids,
-        fieldsInfo
+        fieldsInfo,
+        parentId: record.id
       })
       record.data[fieldName] = list.id
       defs.push(_fetchX2ManysData(list))
@@ -393,6 +536,25 @@ export const getRecordId = (modelKey: string, res_id: string): DataPointId => {
  * @param changes 
  */
 export const notifyChanges = (recordID: DataPointId, changes: DataPointData) => {
+  const record = localData[recordID]
+  const parentRecord = record.parentId && localData[record.parentId]
+
+  if(parentRecord && parentRecord.type === 'list') {
+    // x2many changes
+    let x2manyCommad = JSON.parse(sessionStorage.getItem('X2MANY_COMMAND') || '{}')
+    if(x2manyCommad) {
+      changes = {
+        [x2manyCommad.fieldName]: {
+          operation: x2manyCommad.type,
+          id: recordID,
+          data: changes
+        }
+      }
+      recordID = x2manyCommad.recordID as DataPointId
+    }
+  }
+  
+  console.log('aaa')
   _applyChange(recordID, changes)
 }
 
