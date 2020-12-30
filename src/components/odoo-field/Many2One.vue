@@ -27,7 +27,7 @@
 <script lang="ts">
 import { defineComponent, reactive, toRefs } from 'vue'
 import { useStore } from '@/store'
-import useFieldCommon, { fieldCommonProps, FieldValue } from '@/assets/js/hooks/field-common'
+import useFieldCommon, { fieldCommonProps } from '@/assets/js/hooks/field-common'
 import { fetchMany2OneData } from '@/api/app'
 import { Toast } from 'vant'
 
@@ -57,10 +57,6 @@ export default defineComponent({
       }
     }
 
-    const setValue = (value: FieldValue) => {
-      console.log(value)
-    }
-
     return {
       string,
       placeholder,
@@ -68,8 +64,7 @@ export default defineComponent({
       value,
       ...toRefs(state),
       onOpenModal,
-      onConfirm,
-      setValue
+      onConfirm
     }
   }
 })

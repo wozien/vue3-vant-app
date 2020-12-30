@@ -554,7 +554,6 @@ export const notifyChanges = (recordID: DataPointId, changes: DataPointData) => 
     }
   }
   
-  console.log('aaa')
   _applyChange(recordID, changes)
 }
 

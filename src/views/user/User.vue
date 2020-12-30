@@ -133,7 +133,7 @@ export default defineComponent({
       }
     }
   }
-  /deep/ .van-cell {
+  &::v-deep(.van-cell) {
     color: @text-color-light-1;
   }
 

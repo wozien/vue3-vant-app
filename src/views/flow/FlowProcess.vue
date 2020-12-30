@@ -87,8 +87,8 @@ async function initBpmn(container, options) {
     disabledEvent(options)
     bindEvent(container, options)
   } catch(err) {
-    const { warnings, message } = err
-    console.warn('something went wrong:', warnings, message)
+    // const { warnings, message } = err
+    // console.warn('something went wrong:', warnings, message)
   }
 }
 

@@ -151,7 +151,7 @@ function formatList(list: ListItem[]) {
 .user-selector{
   height: 100%;
   // todo 为啥tab_line定位不对
-  /deep/ .van-tabs .van-tabs__line {
+  &::v-deep(.van-tabs .van-tabs__line) {
     transform: translateX(94px) translateX(-50%);
   }
   .selected {
@@ -160,7 +160,7 @@ function formatList(list: ListItem[]) {
     border-radius: 4px;
     background: #fff;
     padding: 6px 10px;
-    /deep/ .van-tag {
+    &::v-deep(.van-tag) {
       margin-right: 6px;
     }
   }

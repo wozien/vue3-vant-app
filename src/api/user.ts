@@ -57,6 +57,5 @@ export const uploadUserAvatar = async (avatar: File, phone: string): Promise<Htt
   const res = await http.post('system/upload_avatar', formData, {
     headers: { 'Content-Type': 'multipart/form-data' }
   })
-  console.log(res)
   return res.data
 }

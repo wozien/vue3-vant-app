@@ -102,7 +102,7 @@ export default defineComponent({
     bottom: 0;
     padding: 10px;
     display: flex;
-    /deep/ .van-button {
+    .van-button {
       height: 38px;
       margin: 0px 4px;
       &:first-child {

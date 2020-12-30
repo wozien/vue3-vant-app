@@ -8877,10 +8877,10 @@ vue-loader@^15.9.2:
     vue-hot-reload-api "^2.3.0"
     vue-style-loader "^4.1.0"
 
-vue-router@^4.0.1:
-  version "4.0.1"
-  resolved "https://registry.npm.taobao.org/vue-router/download/vue-router-4.0.1.tgz?cache=0&sync_timestamp=1607347315315&other_urls=https%3A%2F%2Fregistry.npm.taobao.org%2Fvue-router%2Fdownload%2Fvue-router-4.0.1.tgz#309240e50524b1e7d4e82e27f0a0fa25fe3d1d71"
-  integrity sha1-MJJA5QUksefU6C4n8KD6Jf49HXE=
+vue-router@^4.0.2:
+  version "4.0.2"
+  resolved "https://registry.npm.taobao.org/vue-router/download/vue-router-4.0.2.tgz?cache=0&sync_timestamp=1609110108136&other_urls=https%3A%2F%2Fregistry.npm.taobao.org%2Fvue-router%2Fdownload%2Fvue-router-4.0.2.tgz#5702bf8fa14535b80142fde226bf41a84917b1f4"
+  integrity sha1-VwK/j6FFNbgBQv3iJr9BqEkXsfQ=
 
 vue-style-loader@^4.1.0, vue-style-loader@^4.1.2:
   version "4.1.2"
@@ -8909,10 +8909,10 @@ vuex@^4.0.0-rc.2:
   resolved "https://registry.npm.taobao.org/vuex/download/vuex-4.0.0-rc.2.tgz?cache=0&sync_timestamp=1606318199388&other_urls=https%3A%2F%2Fregistry.npm.taobao.org%2Fvuex%2Fdownload%2Fvuex-4.0.0-rc.2.tgz#3681c84eb6f5171b039edaa17cc78105e20724f3"
   integrity sha1-NoHITrb1FxsDntqhfMeBBeIHJPM=
 
-vxe-table@^4.0.0-beta.1:
-  version "4.0.0-beta.5"
-  resolved "https://registry.npm.taobao.org/vxe-table/download/vxe-table-4.0.0-beta.5.tgz#378ccc7d600b3d980751889a4bfb1bb183219c87"
-  integrity sha1-N4zMfWALPZgHUYiaS/sbsYMhnIc=
+vxe-table@^4.0.0-beta.5:
+  version "4.0.0-beta.6"
+  resolved "https://registry.npm.taobao.org/vxe-table/download/vxe-table-4.0.0-beta.6.tgz#830927b4f0092e95332e48d6015f345f02a85ab8"
+  integrity sha1-gwkntPAJLpUzLkjWAV80XwKoWrg=
 
 watchpack-chokidar2@^2.0.0:
   version "2.0.0"

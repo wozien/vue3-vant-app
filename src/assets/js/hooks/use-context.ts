@@ -8,7 +8,6 @@ export default function(app: App, route: RouteLocation) {
   const curView = ref<View | null>(null)
 
   watchEffect(() => {
-    console.log(app)
     
     if(app.isLoaded) {
       curModel.value = app.getModel(route.query.model as string)

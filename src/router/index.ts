@@ -1,11 +1,12 @@
-import { createRouter, createWebHistory } from 'vue-router'
+import { createRouter, createWebHashHistory } from 'vue-router'
 import routes from './routes'
 import { LocalStorageKeys } from '@/assets/js/constant'
 
-const base = process.env.NODE_ENV === 'production' ? '/mobile' : '/'
+// 路由base设置
+const base = process.env.NODE_ENV === 'production' ? '/' : '/'
 
 const router = createRouter({
-  history: createWebHistory(base),
+  history: createWebHashHistory(base),
   routes
 })
 

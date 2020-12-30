@@ -356,7 +356,7 @@ function handleFlowViewProcess(action: any) {
     display: flex;
     flex-direction: row-reverse;
     // justify-content: flex-end;
-    /deep/ .van-button--small {
+    &::v-deep(.van-button--small) {
       padding: 0px 16px;
       margin-left: 6px;
     }
