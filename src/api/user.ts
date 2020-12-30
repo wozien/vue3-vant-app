@@ -59,3 +59,21 @@ export const uploadUserAvatar = async (avatar: File, phone: string): Promise<Htt
   })
   return res.data
 }
+
+// 获取微信用户的openid
+export const getWxOpenId = async (code: string): Promise<HttpRes> => {
+  const res = await http.get('/wechat/oauth2', {
+    params: { code }
+  })
+
+  return res.data
+}
+
+// 根据微信openid获取用户登录token
+export const getToken = async (wxOpenId: string): Promise<HttpRes> => {
+  const res = await http.get('/system/check_login_status', { 
+    params: { wxOpenId }
+  })
+
+  return res.data
+}

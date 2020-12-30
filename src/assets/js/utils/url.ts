@@ -44,6 +44,20 @@ const _getQueryString = (urlOrQueryStringObj: string | Object, keysToBeStripped:
   return qs.stringify(_.omit(query, keysToBeStripped))
 }
 
+// 给 URL 增加 _t 时间参数
+export const getTimedUrl = function (origUrl: string) {
+  const newUrl = origUrl.replace(/([?&])_t=\d+/, '$1_t=' + Date.now())
+  if (newUrl !== origUrl) {
+    return newUrl
+  }
+  return origUrl + (origUrl.includes('?') ? '&' : '?') + '_t=' + Date.now()
+}
+
+/**
+ * 处理path
+ * @param url 
+ * @param queryKeysToBeStripped 
+ */
 export const getCurrentUrlPath = function (url: string, queryKeysToBeStripped: boolean | string[]) {
   let finalUrl = url
   if (queryKeysToBeStripped === true) {
@@ -61,7 +75,14 @@ export const getCurrentUrlPath = function (url: string, queryKeysToBeStripped: b
   return finalUrl
 }
 
-// 获取完整的地址
+/**
+ * 获取完整的地址
+ * @param host 
+ * @param path 
+ * @param params 
+ * @param newDomain 
+ * @param useHttps 
+ */
 export const getFullUrl = function (host: string, path: string, params?: any, newDomain?: string, useHttps = false) {
   const protocol = useHttps ? 'https://' : 'http://'
   if (newDomain) {
@@ -75,5 +96,6 @@ export const getFullUrl = function (host: string, path: string, params?: any, ne
 
 export default {
   getFullUrl,
-  getCurrentUrlPath
+  getCurrentUrlPath,
+  getTimedUrl
 }

@@ -42,7 +42,7 @@ function useLogin() {
     }
 
     loading.value = true
-    const wxOpenId = sessionStorage.getItem('WX_OPEN_ID') || '1'
+    const wxOpenId = sessionStorage.getItem('WX_OPEN_ID') as string
     const res = await userLogin(phone, password, wxOpenId)
     loading.value = false
     if(res.ret === 0) {

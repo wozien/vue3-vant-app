@@ -3,8 +3,10 @@
  */
 
 import urlKit from './url'
+import url from 'url'
 import config from '@/api/config'
 import qs from 'qs'
+import { getWxOpenId } from '@/api/user'
 
 // 授权类型 
 const enum Scope {
@@ -12,11 +14,22 @@ const enum Scope {
   DETAIL = 'snsapi_userinfo' 
 }
 
+/**
+ * 获取重定向的地址
+ * @param host 
+ * @param sourceUrl 
+ */
 const _buildRedirectUrl = (host: string, sourceUrl: string) => {
   sourceUrl = sourceUrl.replace(`http://${host}`, '').replace(`https://${host}`, '')
   return urlKit.getFullUrl(host, urlKit.getCurrentUrlPath(sourceUrl, ['code', 'state']))
 }
 
+/**
+ * 构造微信授权url
+ * @param redirectUri 
+ * @param scope 
+ * @param state 
+ */
 const _getWxOauthUrl = (redirectUri: string, scope: string, state: string) => {
   const url = 'https://open.weixin.qq.com/connect/oauth2/authorize'
   const info = {
@@ -43,10 +56,41 @@ const _redirectToWx = (scopeType = Scope.BASE) => {
 }
 
 /**
+ * 处理从微信重定向过来的地址
+ * @param currentUrl 
+ */
+const _redirectFromWx = async (currentUrl: string) => {
+  // 从微信重定向回来带有code和state
+  const urlObj = url.parse(currentUrl, true)
+  const { code, state } = urlObj.query
+
+  if(!(code && state)) {
+    return false
+  }
+
+  // 通过code 获取 openid 等信息
+  const res = await getWxOpenId(code)
+  if(res.ret || !res.data) {
+    return false
+  }
+
+  localStorage.setItem('WX_OPEN_ID', res.data)
+
+  // 在url中增加_t参数，防止请求不会发出
+  window.location.href = urlKit.getTimedUrl(urlKit.getCurrentUrlPath(currentUrl, ['code', 'state']))
+  return true
+}
+
+/**
  * 静默授权
  */
 export const baseOauth = async () => {
-  // const { href: currentUrl } = location
+  const { href: currentUrl } = location
+
+  const ok = await _redirectFromWx(currentUrl)
+  if(ok) return
+
+  // TODO 开发环境写死openid
 
   _redirectToWx(Scope.BASE)
 }
