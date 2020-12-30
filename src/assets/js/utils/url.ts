@@ -2,6 +2,10 @@
  * url 相关工具方法
  */
 
+import urlKit from 'url'
+import _ from 'lodash'
+import qs from 'qs'
+
 interface QueryParms  {
   [key: string]: any;
 }
@@ -19,4 +23,57 @@ export const setUrlQuery = (url: string, query: QueryParms) => {
   }
 
   return urlObj.toString()
+}
+
+const _buildQueryString = (params: any) => {
+  return params
+    ? Object.keys(params).reduce((acc, key) => {
+      return acc + (acc ? '&' : '') + `${key}=${params[key]}`
+    }, '')
+    : ''
+}
+
+const _getQueryString = (urlOrQueryStringObj: string | Object, keysToBeStripped: string[]) => {
+  let query
+  if (typeof urlOrQueryStringObj === 'object') {
+    query = urlOrQueryStringObj
+  } else {
+    query = urlKit.parse(urlOrQueryStringObj, true).query
+  }
+
+  return qs.stringify(_.omit(query, keysToBeStripped))
+}
+
+export const getCurrentUrlPath = function (url: string, queryKeysToBeStripped: boolean | string[]) {
+  let finalUrl = url
+  if (queryKeysToBeStripped === true) {
+    finalUrl = url.replace(/\?.+$/, '')
+  }
+  if (queryKeysToBeStripped && Array.isArray(queryKeysToBeStripped)) {
+    const queryString = _getQueryString(url, queryKeysToBeStripped)
+    finalUrl = url.replace(/\?.+$/, '') + (queryString ? ('?' + queryString) : '')
+  }
+  // if (queryParamsToBeAdded) {
+  //   const urlObj = urlKit.parse(finalUrl, true)
+  //   finalUrl = urlObj.pathname + '?' +
+  //     _buildQueryString({ ...urlObj.query, ...queryParamsToBeAdded })
+  // }
+  return finalUrl
+}
+
+// 获取完整的地址
+export const getFullUrl = function (host: string, path: string, params?: any, newDomain?: string, useHttps = false) {
+  const protocol = useHttps ? 'https://' : 'http://'
+  if (newDomain) {
+    const hostParts = host.split(':')
+    hostParts[0] = newDomain
+    host = hostParts.join(':')
+  }
+  const query = _buildQueryString(params)
+  return protocol + host + path + (query ? '?' : '') + query
+}
+
+export default {
+  getFullUrl,
+  getCurrentUrlPath
 }

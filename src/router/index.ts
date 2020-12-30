@@ -1,21 +1,29 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
 import routes from './routes'
 import { LocalStorageKeys } from '@/assets/js/constant'
-
-// 路由base设置
-const base = process.env.NODE_ENV === 'production' ? '/' : '/'
+import { baseOauth } from '@/assets/js/utils/oauth'
 
 const router = createRouter({
-  history: createWebHashHistory(base),
+  history: createWebHashHistory(),
   routes
 })
 
 // beforeEach hook
 router.beforeEach(async (to) => {
-  const token = localStorage.getItem(LocalStorageKeys.token)
-  // TODO token不存在时 通过open_id校验状态
+  let token = localStorage.getItem(LocalStorageKeys.token)
+  
   if(to.path !== '/login' && !token) {
-    return { name: 'login' }
+    // 通过微信静默授权获取open_id
+    await baseOauth()
+
+    // 通过open_id 获取 token 信息
+
+    if(!token) {
+      return { name: 'login' }
+    } else {
+      localStorage.setItem(LocalStorageKeys.token, token)
+      return true
+    }
   }
   return true
 })

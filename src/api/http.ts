@@ -2,8 +2,9 @@ import axios, { AxiosRequestConfig, AxiosResponse, AxiosError} from 'axios'
 import { Notify } from 'vant'
 import router from '@/router'
 import { LocalStorageKeys } from '@/assets/js/constant'
+import config from './config'
 
-const BASE_URL = process.env.NODE_ENV === 'production' ? 'http://182.92.100.160:18080' : 'http://182.92.100.160:18080'
+const BASE_URL = config['BASE_URL']
 const TOKEN_KEY = LocalStorageKeys.token
 
 const instance = axios.create({

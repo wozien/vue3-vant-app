@@ -42,7 +42,8 @@ function useLogin() {
     }
 
     loading.value = true
-    const res = await userLogin(phone, password)
+    const wxOpenId = sessionStorage.getItem('WX_OPEN_ID') || '1'
+    const res = await userLogin(phone, password, wxOpenId)
     loading.value = false
     if(res.ret === 0) {
       const { access_token } = res.data

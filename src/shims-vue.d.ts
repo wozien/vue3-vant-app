@@ -3,3 +3,8 @@ declare module '*.vue' {
   const component: DefineComponent<{}, {}, any>
   export default component
 }
+
+declare module 'url' {
+  const classes: any
+  export default classes
+}
