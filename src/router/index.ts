@@ -14,11 +14,13 @@ router.beforeEach(async (to) => {
   let token = localStorage.getItem(LocalStorageKeys.token)
   
   if(to.path !== '/login' && !token) {
+    let openid = localStorage.getItem(LocalStorageKeys.wxOpenId)
     // 通过微信静默授权获取open_id
-    await baseOauth()
-
+    if(!openid) {
+      await baseOauth()
+    }
+    
     // 通过open_id 获取 token 信息
-    const openid = localStorage.getItem('WX_OPEN_ID')
     if(openid) {
       const res = await getToken(openid)
       if(res.ret === 0 && res.data) {

@@ -30,6 +30,7 @@ import ButtonView from '@/components/odoo-button/ButtonView.vue'
 import { formatDate } from '@/assets/js/utils/date'
 import { viewCommonProps } from '@/assets/js/hooks/view-common'
 import { getRecordId } from '@/assets/js/class/DataPoint'
+import { sessionStorageKeys } from '@/assets/js/constant'
 
 export default defineComponent({
   components: {
@@ -65,7 +66,7 @@ export default defineComponent({
     const curRecord = computed(() => store.getters.curRecord)
 
     const loadRecord = async () => {
-      const loadParams = JSON.parse(sessionStorage.getItem('APP_LODA_PARAMS') || '{}')
+      const loadParams = JSON.parse(sessionStorage.getItem(sessionStorageKeys.loadParams) || '{}')
       const { model, id } = loadParams
       if(searchFields.value.length && model && id) {
         // datapoint load

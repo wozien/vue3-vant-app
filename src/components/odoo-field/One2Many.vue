@@ -19,13 +19,14 @@
 </template>
 
 <script lang="ts">
+import _ from 'lodash'
 import { defineComponent, watchEffect, ref } from 'vue'
 import { useStore } from '@/store'
 import { useRouter, useRoute } from 'vue-router'
 import useFieldCommon, { fieldCommonProps } from '@/assets/js/hooks/field-common'
 import fieldUtils from '@/assets/js/utils/field-utils'
 import { VxeTableEvents } from 'vxe-table'
-import _ from 'lodash'
+import { sessionStorageKeys } from '@/assets/js/constant'
 
 interface Column {
   field: string
@@ -68,7 +69,7 @@ export default defineComponent({
         recordID: curRecord.value.id,
         fieldName: props.field?.name
       }
-      sessionStorage.setItem('X2MANY_COMMAND', JSON.stringify(commandInfo))
+      sessionStorage.setItem(sessionStorageKeys.x2manyCommand, JSON.stringify(commandInfo))
     }
     
     watchEffect(async () => {

@@ -53,6 +53,7 @@
 <script lang="ts">
 import { defineComponent, reactive, onMounted, toRefs, PropType, watchEffect, watch } from 'vue'
 import { fetchCompanyUsers } from '@/api/workflow'
+import { sessionStorageKeys } from '@/assets/js/constant'
 
 interface ListItem {
   id: string
@@ -98,7 +99,7 @@ export default defineComponent({
     }
 
     onMounted(async () => {
-      const flowParams = JSON.parse(sessionStorage.getItem('FLOW_PARAMS') || '{}')
+      const flowParams = JSON.parse(sessionStorage.getItem(sessionStorageKeys.flowParams) || '{}')
       const res = await fetchCompanyUsers(flowParams)
       if(res.ret === 0) {
         const data = res.data

@@ -24,6 +24,7 @@ import { defineComponent, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { Toast } from 'vant'
 import { userLogin } from '@/api/user'
+import { LocalStorageKeys } from '@/assets/js/constant'
 
 function useLogin() {
   const loading = ref(false)
@@ -42,12 +43,12 @@ function useLogin() {
     }
 
     loading.value = true
-    const wxOpenId = sessionStorage.getItem('WX_OPEN_ID') as string
+    const wxOpenId = localStorage.getItem(LocalStorageKeys.wxOpenId) as string
     const res = await userLogin(phone, password, wxOpenId)
     loading.value = false
     if(res.ret === 0) {
       const { access_token } = res.data
-      localStorage.setItem('INSUITE_TOKEN', access_token)
+      localStorage.setItem(LocalStorageKeys.token, access_token)
       router.push('/companyList')
     }
   }

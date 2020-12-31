@@ -10,6 +10,7 @@ import { FieldsInfo } from '@/assets/js/class'
 import fieldUtils from '@/assets/js/utils/field-utils'
 import { str2Date } from '@/assets/js/utils/date'
 import { saveRecord } from '@/api/app'
+import { sessionStorageKeys } from '@/assets/js/constant'
 
 export type DataPointId = string
 export type DataPointType = 'record' | 'list'
@@ -541,7 +542,7 @@ export const notifyChanges = (recordID: DataPointId, changes: DataPointData) => 
 
   if(parentRecord && parentRecord.type === 'list') {
     // x2many changes
-    let x2manyCommad = JSON.parse(sessionStorage.getItem('X2MANY_COMMAND') || '{}')
+    let x2manyCommad = JSON.parse(sessionStorage.getItem(sessionStorageKeys.x2manyCommand) || '{}')
     if(x2manyCommad) {
       changes = {
         [x2manyCommad.fieldName]: {

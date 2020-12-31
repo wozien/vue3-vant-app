@@ -38,6 +38,7 @@ import FlowSign from '@/views/flow/FlowSign.vue'
 import FlowProcess from '@/views/flow/FlowProcess.vue'
 import UserSelect from '@/components/user-picker/UserSelect.vue'
 import { save } from '@/assets/js/class/DataPoint'
+import { sessionStorageKeys } from '@/assets/js/constant'
 
 export default defineComponent({
   components: {
@@ -188,7 +189,7 @@ function handleWorkflowAction(action: any, button: ViewButton) {
  * 获取当前审批单据信息
  */
 function getFlowParams() {
-  const params = JSON.parse(sessionStorage.getItem('FLOW_PARAMS') || '{}')
+  const params = JSON.parse(sessionStorage.getItem(sessionStorageKeys.flowParams) || '{}')
   return params
 }
 

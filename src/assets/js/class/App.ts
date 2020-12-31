@@ -6,7 +6,8 @@ import { Action, Model, View, ViewType, Item, Field, FieldsInfo } from './index'
 import { fetchAction, fetchAppModel, fetchAppView } from '@/api/app'
 import { fetchFlowView } from '@/api/workflow'
 import { findTree } from '@/assets/js/utils/tools'
-
+import { sessionStorageKeys } from '@/assets/js/constant'
+ 
 // TODO 限制缓存个数
 const appCaches: {[key: string]: App} = {}
 let activeAppKey: string
@@ -82,7 +83,7 @@ class App {
     if(this.actionId) {
       res = await fetchAppView(this.actionId)
     } else {
-      const flowParams = JSON.parse(sessionStorage.getItem('FLOW_PARAMS') || '{}')
+      const flowParams = JSON.parse(sessionStorage.getItem(sessionStorageKeys.flowParams) || '{}')
       res = await fetchFlowView(this.modelKey, _.pick(flowParams, ['type', 'bill_number', 'task_id', 'process_id']))
     }
 

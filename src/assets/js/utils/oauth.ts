@@ -7,6 +7,7 @@ import url from 'url'
 import config from '@/api/config'
 import qs from 'qs'
 import { getWxOpenId } from '@/api/user'
+import { LocalStorageKeys } from '@/assets/js/constant'
 
 // 授权类型 
 const enum Scope {
@@ -59,6 +60,7 @@ const _redirectToWx = (scopeType = Scope.BASE) => {
  * 处理从微信重定向过来的地址
  * @param currentUrl 
  */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const _redirectFromWx = async (currentUrl: string) => {
   // 从微信重定向回来带有code和state
   const urlObj = url.parse(currentUrl, true)
@@ -70,14 +72,13 @@ const _redirectFromWx = async (currentUrl: string) => {
 
   // 通过code 获取 openid 等信息
   const res = await getWxOpenId(code)
-  if(res.ret || !res.data) {
-    return false
+  if(res.ret === 0 && res.data) {
+    localStorage.setItem(LocalStorageKeys.wxOpenId, res.data.openId)
+  
+    // 在url中增加_t参数，防止请求不会发出
+    window.location.href = urlKit.getCurrentUrlPath(currentUrl, ['code', 'state'])
   }
 
-  localStorage.setItem('WX_OPEN_ID', res.data)
-
-  // 在url中增加_t参数，防止请求不会发出
-  window.location.href = urlKit.getTimedUrl(urlKit.getCurrentUrlPath(currentUrl, ['code', 'state']))
   return true
 }
 

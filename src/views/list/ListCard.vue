@@ -23,6 +23,7 @@ import { defineComponent, PropType } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { Record, FieldsInfo } from '@/assets/js/class'
 import { formatDate } from '@/assets/js/utils/date'
+import { sessionStorageKeys } from '@/assets/js/constant'
 
 interface ListCardField {
   name: string
@@ -63,8 +64,8 @@ export default defineComponent({
     const onClickCard = () => {
       if(cardData.isFlow) {
         // 工作流
-        sessionStorage.setItem('FLOW_PARAMS', JSON.stringify(cardData.context))
-        sessionStorage.setItem('APP_LODA_PARAMS', JSON.stringify({ model: cardData.model }))
+        sessionStorage.setItem(sessionStorageKeys.flowParams, JSON.stringify(cardData.context))
+        sessionStorage.setItem(sessionStorageKeys.loadParams, JSON.stringify({ model: cardData.model }))
         router.push({
           name: 'view',
           query: {
@@ -75,9 +76,9 @@ export default defineComponent({
           }
         })
       } else {
-        const loadParams = JSON.parse(sessionStorage.getItem('APP_LODA_PARAMS') || '{}')
+        const loadParams = JSON.parse(sessionStorage.getItem(sessionStorageKeys.loadParams) || '{}')
         loadParams.id = cardData.id
-        sessionStorage.setItem('APP_LODA_PARAMS', JSON.stringify(loadParams))
+        sessionStorage.setItem(sessionStorageKeys.loadParams, JSON.stringify(loadParams))
         router.push({
           name: 'view',
           query: Object.assign({}, route.query, {

@@ -18,6 +18,7 @@ import { useRoute } from 'vue-router'
 import useTitle from '@/assets/js/hooks/use-title'
 import ListView from '../list/List.vue'
 import FormView from '../form/Form.vue'
+import { sessionStorageKeys } from '@/assets/js/constant'
 
 interface ViewContext {
   appName: string
@@ -44,7 +45,7 @@ export default defineComponent({
     useTitle(title)
 
     onBeforeMount(async () => {
-      const loadParams = JSON.parse(sessionStorage.getItem('APP_LODA_PARAMS') || '{}')
+      const loadParams = JSON.parse(sessionStorage.getItem(sessionStorageKeys.loadParams) || '{}')
       const { menuId, actionId, model } = loadParams
       const res = await getAppAsync(model as string, menuId as string, actionId as string)
       curApp.value = res

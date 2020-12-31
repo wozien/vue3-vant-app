@@ -14,6 +14,7 @@ import { defineComponent, PropType } from 'vue'
 import { useRouter } from 'vue-router'
 import { Toast, Notify } from 'vant'
 import { addAppCount } from '@/api/app'
+import { sessionStorageKeys } from '@/assets/js/constant'
 
 interface AppRaw {
   id: number;
@@ -42,7 +43,7 @@ export default defineComponent({
         menuId: id,
         actionId,
       }
-      sessionStorage.setItem('APP_LODA_PARAMS', JSON.stringify(loadParams))
+      sessionStorage.setItem(sessionStorageKeys.loadParams, JSON.stringify(loadParams))
       router.push({
         name: 'view',
         query: {
