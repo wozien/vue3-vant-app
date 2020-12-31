@@ -59,7 +59,6 @@ const _redirectToWx = (scopeType = Scope.BASE) => {
  * 处理从微信重定向过来的地址
  * @param currentUrl 
  */
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const _redirectFromWx = async (currentUrl: string) => {
   // 从微信重定向回来带有code和state
   const urlObj = url.parse(currentUrl, true)
@@ -74,7 +73,7 @@ const _redirectFromWx = async (currentUrl: string) => {
   if(res.ret === 0 && res.data) {
     localStorage.setItem(LocalStorageKeys.wxOpenId, res.data.openId)
   
-    // 在url中增加_t参数，防止请求不会发出
+    // TODO 在url中增加_t参数，防止请求不会发出
     window.location.href = urlKit.getCurrentUrlPath(currentUrl, ['code', 'state'])
   }
 
@@ -91,6 +90,10 @@ export const baseOauth = async () => {
   if(ok) return
 
   // TODO 开发环境写死openid
+  if(config['IS_PROD'] === false && config['WX_OPEN_ID']) {
+    localStorage.setItem(LocalStorageKeys.wxOpenId, config['WX_OPEN_ID'])
+    return config['WX_OPEN_ID']
+  }
 
   _redirectToWx(Scope.BASE)
 }

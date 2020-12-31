@@ -17,7 +17,8 @@ router.beforeEach(async (to) => {
     let openid = localStorage.getItem(LocalStorageKeys.wxOpenId)
     // 通过微信静默授权获取open_id
     if(!openid) {
-      await baseOauth()
+      const data = await baseOauth()
+      data && (openid = data)
     }
     
     // 通过open_id 获取 token 信息
