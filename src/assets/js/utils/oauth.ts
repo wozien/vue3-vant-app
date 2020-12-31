@@ -52,7 +52,6 @@ const _redirectToWx = (scopeType = Scope.BASE) => {
   const { host, href: currentUrl } = location
   const redirectUrl = _buildRedirectUrl(host, currentUrl)
   const authUrl = _getWxOauthUrl(redirectUrl, scopeType, scopeType)
-  console.log(authUrl)
   window.location.href = authUrl
 }
 
