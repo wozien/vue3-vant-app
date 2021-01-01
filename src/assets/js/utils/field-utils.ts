@@ -24,7 +24,7 @@ function formatDateTime(value: Date | boolean) {
 }
 
 function formatInteger(value: any) {
-  if(!value || value !== 0) {
+  if(value === false) {
     return ''
   }
   // TODO 千分位处理

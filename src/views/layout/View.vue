@@ -46,7 +46,8 @@ export default defineComponent({
 
     onBeforeMount(async () => {
       const loadParams = JSON.parse(sessionStorage.getItem(sessionStorageKeys.loadParams) || '{}')
-      const { menuId, actionId, model } = loadParams
+      let { menuId, actionId, model } = loadParams
+      if(!model) { model = route.query.model as string }
       const res = await getAppAsync(model as string, menuId as string, actionId as string)
       curApp.value = res
     })

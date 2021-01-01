@@ -67,7 +67,11 @@ export default defineComponent({
 
     const loadRecord = async () => {
       const loadParams = JSON.parse(sessionStorage.getItem(sessionStorageKeys.loadParams) || '{}')
-      const { model, id } = loadParams
+      let { model, id } = loadParams
+      if(!model) {
+        model = route.query.model as string
+        id = route.query.id as string
+      }
       if(searchFields.value.length && model && id) {
         // datapoint load
         await store.dispatch('loadRecord', {

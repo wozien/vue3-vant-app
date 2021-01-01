@@ -15,6 +15,10 @@
         min-width="120"
       />
     </vxe-table>
+
+    <div class="add-row" v-if="!readonly">
+      <van-button size="small" icon="plus" block round>添加明细行</van-button>
+    </div> 
   </div>
 </template>
 
@@ -125,4 +129,8 @@ function getData(list: any) {
 }
 </script>
 
-<style lang="less" scoped></style>
+<style lang="less" scoped>
+.add-row {
+  padding: 10px 6px;
+}
+</style>
