@@ -108,6 +108,7 @@ const _applyX2ManyOperations = (list: DataPoint) => {
 const _applyChange = (recordID: DataPointId, changes: DataPointData) => {
   const record = localData[recordID]
   record._changes = record._changes || {}
+  record._isDirty = true
 
   // apply changes to local data
   for(let fieldName in changes) {
@@ -444,6 +445,36 @@ const _load = async (dataPoint: DataPoint) => {
   }
 }
 
+/**
+ * 遍历所有localData执行给定方法
+ * @param element 
+ * @param fn 
+ */
+const _visitChildren = (element: DataPoint, fn: (el: DataPoint) => void) => {
+  fn(element)
+  if(element.type === 'record') {
+    for(let fieldName in element.data) {
+      const field = element.fieldsInfo[fieldName]
+      if(!field) continue
+
+      if(['one2many', 'many2many', 'many2one'].includes(field.type)) {
+        const hasChange = element._changes && fieldName in element._changes
+        const value = hasChange ? (element._changes as any)[fieldName] : element.data[fieldName]
+        const relElement = localData[value]
+        relElement && _visitChildren(relElement, fn)
+      }
+    }
+  }
+
+  if(element.type === 'list') {
+    element = _applyX2ManyOperations(element)
+    _.each(element.data, (id: DataPointId) => {
+      const elem = localData[id]
+      _visitChildren(elem, fn)
+    })
+  }
+}
+
 
 // ------  public  ------------
 
@@ -462,6 +493,32 @@ export const load = async (params: LoadParams): Promise<DataPointId> => {
   const dataPoint = _makeDataPoint(params)
   await _load(dataPoint)
   return dataPoint.id
+}
+
+/**
+ * 放弃所有改动
+ * @param id 
+ */
+export const discardChanges = (id: DataPointId) => {
+  const element = localData[id]
+  _visitChildren(element, (elem: DataPoint) => {
+    elem._changes = null
+    elem._isDirty = false
+  })
+}
+
+/**
+ * 判断表单是否有改动
+ * @param id 
+ */
+export const isDirty = (id: DataPointId) => {
+  let isDirty = false
+  _visitChildren(localData[id], (r: DataPoint) => {
+    if(r._isDirty) {
+      isDirty = true
+    }
+  })
+  return isDirty
 }
 
 /**
@@ -573,6 +630,7 @@ export const save = async (recordID: DataPointId) => {
 
   if(method === 'create' || Object.keys(changes).length) {
     const res = await saveRecord(record.model, method, record.data.id as number, changes)
+    record._isDirty = false
     return res
   }
 

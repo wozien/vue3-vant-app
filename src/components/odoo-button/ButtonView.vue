@@ -28,7 +28,7 @@
 import { defineComponent, PropType, computed, ref, watchEffect, reactive, toRaw } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useStore } from '@/store'
-import { Toast } from 'vant'
+import { Toast, Dialog } from 'vant'
 import { ViewButton } from '@/assets/js/class'
 import { callButton } from '@/api/odoo'
 import { createModal } from '@/components/modal'
@@ -37,7 +37,7 @@ import Button from './Button.vue'
 import FlowSign from '@/views/flow/FlowSign.vue'
 import FlowProcess from '@/views/flow/FlowProcess.vue'
 import UserSelect from '@/components/user-picker/UserSelect.vue'
-import { save } from '@/assets/js/class/DataPoint'
+import { save, isDirty, isNew, discardChanges } from '@/assets/js/class/DataPoint'
 import { sessionStorageKeys } from '@/assets/js/constant'
 
 export default defineComponent({
@@ -67,6 +67,7 @@ export default defineComponent({
         return item
       })
     })
+    const curRecord = computed(() => store.getters.curRecord)
 
     // 按钮点击入口
     const onButtonClick = async (button: string | ViewButton) => {
@@ -81,6 +82,8 @@ export default defineComponent({
             onEdit(); break
           case 'save': 
             onSave(); break
+          case 'cancel':
+            onCancel(); break
 
         }
       } else if(button.type === 'object') {
@@ -121,6 +124,36 @@ export default defineComponent({
             readonly: 1
           })
         })
+      }
+    }
+    // 取消
+    const onCancel = () => {
+      const recordId = curRecord.value.id
+      const dirty = isDirty(recordId)
+      const back = () => {
+        const isNewRecord = isNew(recordId)
+        if(isNewRecord) {
+          router.back()
+        } else {
+          router.replace({
+            name: 'view',
+            query: Object.assign({}, route.query, {
+              readonly: 1
+            })
+          })
+        }
+      }
+
+      if(dirty) {
+        Dialog.confirm({
+          message: '是否确定放弃表单修改？'
+        }).then(() => {
+          discardChanges(recordId)
+          store.commit('SET_RECORD_TOKEN')
+          back()
+        }).catch(() => {})
+      } else {
+        back()
       }
     }
 
