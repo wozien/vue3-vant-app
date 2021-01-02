@@ -8,8 +8,8 @@
       </div>
       <div class="right">
         <div class="icon">
-          <Icon name="file"/>
-          <Icon name="message"/>
+          <Icon name="file" @click="onClickFile"/>
+          <Icon name="message" @click="onClickMessage"/>
         </div>
         <span class="status">{{ state_name }}</span>
       </div>
@@ -22,8 +22,13 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, reactive, computed, watch, toRaw, onMounted, toRefs, watchEffect } from 'vue'
+import { 
+  defineComponent, reactive, computed, watch, toRaw,
+  toRefs, watchEffect, onMounted, onBeforeUnmount 
+} from 'vue'
+import _ from 'lodash'
 import { useRoute } from 'vue-router'
+import { Toast } from 'vant'
 import { useStore } from '@/store'
 import FormCanvas from './FormCanvas'
 import ButtonView from '@/components/odoo-button/ButtonView.vue'
@@ -72,11 +77,11 @@ export default defineComponent({
         model = route.query.model as string
         id = route.query.id as string
       }
-      if(searchFields.value.length && model && id) {
+      if(searchFields.value.length && model) {
         // datapoint load
         await store.dispatch('loadRecord', {
           modelName: model,
-          res_id: +id,
+          res_id: id ? +id: undefined,
           viewType: 'form',
           fieldsInfo: toRaw(props.fieldsInfo)
         })
@@ -92,6 +97,9 @@ export default defineComponent({
       }
     }
 
+    const onClickFile = () => Toast('暂不支持附件功能')
+    const onClickMessage = () => Toast('暂不支持沟通记录功能')
+
     // 穿透表体切换当前的datapoint数据
     watchEffect(() => {
       setCurRecord()
@@ -99,6 +107,13 @@ export default defineComponent({
 
     watch(searchFields, val => {
       if(val.length) loadRecord()
+    })
+
+    watch(() => route.query.id, (val, oldVal) => {
+      // 点击创建重新load数据
+      if(!val && oldVal) {
+        loadRecord()
+      }
     })
 
     watch(curRecord, (val) => {
@@ -117,13 +132,20 @@ export default defineComponent({
       loadRecord()
     })
 
+    onBeforeUnmount(() => {
+      const loadParams = JSON.parse(sessionStorage.getItem(sessionStorageKeys.loadParams) || '{}')
+      sessionStorage.setItem(sessionStorageKeys.loadParams, JSON.stringify(_.omit(loadParams, 'id')))
+    })
+
     return {
       ...toRefs(data),
       isReadonly,
       height,
       localData: computed(() => store.state.localData),
       curRecordId: computed(() => store.state.curRecordId),
-      curRecord
+      curRecord,
+      onClickFile,
+      onClickMessage
     }
   }
 })

@@ -40,7 +40,7 @@ export default defineComponent({
 
   setup(props) {
     const store = useStore()
-    const { string, placeholder, type, value } = useFieldCommon(props, store)
+    const { string, placeholder, type, value, setValue } = useFieldCommon(props, store)
     const { state, onOpenModal } = useModal(props)
 
     const onConfirm = (cb: Function) => {
@@ -54,6 +54,9 @@ export default defineComponent({
         value.value = item.display_name
         state.active = 0
         cb()
+
+        // notify change
+        setValue(item)
       }
     }
 

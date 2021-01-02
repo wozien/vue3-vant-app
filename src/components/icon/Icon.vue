@@ -3,7 +3,7 @@
     class-prefix="ins-icon" 
     :size="size"
     :name="name"
-    color="#646566"
+    :color="color || '#646566'"
     style="margin-right: 8px"
   />
 </template>
@@ -20,7 +20,8 @@ export default defineComponent({
     size: {
       type: String,
       default: '20'
-    }
+    },
+    color: String
   }
 })
 </script>

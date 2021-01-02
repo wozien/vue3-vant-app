@@ -23,12 +23,16 @@
         </van-list>
       </van-pull-refresh>
     </div>
+
+    <div class="add-btn" @click="onAddBtn">
+      <i class="ins-icon ins-icon-plus" />
+    </div> 
   </Page>
 </template>
 
 <script lang="ts">
 import { defineComponent, reactive, toRefs, computed, watch } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import ListCard from './ListCard.vue'
 import { Record } from '@/assets/js/class'
 import { viewCommonProps } from '@/assets/js/hooks/view-common'
@@ -46,6 +50,8 @@ export default defineComponent({
 
   setup(props) {
     const route = useRoute()
+    const router = useRouter()
+
     const state = reactive({
       searchValue: '',
       loading: false,
@@ -87,6 +93,18 @@ export default defineComponent({
       onLoad()
     }
 
+    const onAddBtn = () => {
+      // sessionStorage.clear()
+      router.push({
+        name: 'view',
+        query: {
+          model: route.query.model,
+          viewType: 'form',
+          id: ''
+        }
+      })
+    }
+
     watch(searchFields, () => {
       onLoad()
     })
@@ -95,7 +113,8 @@ export default defineComponent({
       ...toRefs(state),
       searchFields,
       onLoad,
-      onRefresh
+      onRefresh,
+      onAddBtn
     }
   }
 })
@@ -106,6 +125,23 @@ export default defineComponent({
   .list-container {
     height: calc(100vh - 56px);
     overflow: auto;
+  }
+
+  .add-btn {
+    position: absolute;
+    right: 10px;
+    bottom: 20px;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: @primary-color;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    .ins-icon {
+      color: #fff;
+      font-size: 26px;
+    }
   }
 }
 </style>

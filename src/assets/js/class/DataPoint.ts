@@ -116,13 +116,52 @@ const _applyChange = (recordID: DataPointId, changes: DataPointData) => {
     if(field && (field.type === 'one2many' || field.type === 'many2many')) {
       _applyX2ManyChange(record, fieldName, changes[fieldName])
     } else if(field && (field.type === 'many2one' || field.type === 'reference')) {
-      // TODO
+      _applyX2OneChange(record, fieldName, changes[fieldName])
     } else {
       (record._changes as any)[fieldName] = changes[fieldName]
     }
   }
 
   // TODO trigger onchange handle
+}
+
+/**
+ * many2one 值更新处理
+ * @param record 
+ * @param fieldName 
+ * @param data 
+ */
+const _applyX2OneChange = (record: DataPoint, fieldName: string, data: any) => {
+  if(!data || !data.id) {
+    (record._changes as any)[fieldName] = false
+    return
+  }
+
+  let relatedID
+  if (record._changes && fieldName in record._changes) {
+      relatedID = (record._changes as any)[fieldName];
+  } else {
+      relatedID = record.data[fieldName];
+  }
+
+  const relatedRecord = localData[relatedID];
+  if (relatedRecord && (data.id === localData[relatedID].res_id)) {
+    return
+  }
+
+  const relData = _.pick(data, 'id', 'display_name');
+  // TODO fetch name_get
+
+  const rec = _makeDataPoint({
+    data: relData,
+    fieldsInfo: relatedRecord.fieldsInfo,
+    modelName: relatedRecord.model,
+    parentId: record.id,
+    res_id: data.id,
+    viewType: relatedRecord.viewType
+  });
+
+  (record._changes as any)[fieldName] = rec.id
 }
 
 /**
@@ -184,6 +223,21 @@ const _makeDataPoint = <T extends LoadParams>(params: T): DataPoint => {
 }
 
 /**
+ * 表单创建数据构建
+ * @param modelName 
+ * @param params 
+ */
+const _makeDefaultRecord = (modelName: string, params: LoadParams): DataPointId => {
+  // TODO default_get
+
+  const record = _makeDataPoint({
+    ...params,
+    modelName
+  })
+  return record.id
+}
+
+/**
  * 获取字段名数组
  * @param dataPoint 
  */
@@ -214,6 +268,7 @@ const _generateChanges = (record: DataPoint, options: any) => {
   for(let fieldName in record.fieldsInfo) {
     const type = record.fieldsInfo[fieldName].type
     
+    let value
     if(type === 'one2many' || type === 'many2many') {
       if (commands[fieldName] && commands[fieldName].length) { 
         changes[fieldName] = commands[fieldName];
@@ -221,7 +276,8 @@ const _generateChanges = (record: DataPoint, options: any) => {
         delete changes[fieldName]
       }
     } else if(type === 'many2one' && fieldName in changes) {
-      // TODO
+      value = changes[fieldName]
+      changes[fieldName] = value ? localData[value].res_id : false
     } else if(type === 'reference' && fieldName in changes) {
       // TODO 
     } else if(type === 'char' && changes[fieldName] === '') {
@@ -489,6 +545,11 @@ export const load = async (params: LoadParams): Promise<DataPointId> => {
   _.each(_.keys(localData), (key: string) => {
     _.unset(localData, key)
   })
+
+  // create
+  if(params.type === 'record' && !params.res_id) {
+    return _makeDefaultRecord(params.modelName, params)
+  }
   
   const dataPoint = _makeDataPoint(params)
   await _load(dataPoint)

@@ -15,6 +15,7 @@ const actions: ActionTree<State, State> = {
   },
 
   async loadRecord({ commit }, params: any) {
+    params.type = params.type || 'record'
     const id = await load(params)
     commit('SET_CUR_RECORD', id)
   }

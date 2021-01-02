@@ -69,7 +69,7 @@ function parseDateTime(value: string) {
   return parseDate(value)
 }
 
-function parseMany2one(value: any[] | string) {
+function parseMany2one(value: any) {
   if (_.isArray(value)) {
       return {
           id: value[0],
@@ -78,7 +78,7 @@ function parseMany2one(value: any[] | string) {
   }
   if (_.isNumber(value) || _.isString(value)) {
       return {
-          id: parseInt(value, 10),
+          id: parseInt(value as string, 10),
       };
   }
   return value;

@@ -3,6 +3,7 @@ import { VuexStore } from '@/store'
 import { Field, Item, DataPointState, DataPointData } from '@/assets/js/class'
 import { DataPoint } from '@/assets/js/class/DataPoint'
 import fieldUtils from '@/assets/js/utils/field-utils'
+import { notifyChanges } from '@/assets/js/class/DataPoint'
 
 export const fieldCommonProps = {
   item: Object as PropType<Item>,
@@ -21,6 +22,15 @@ export default function(props: any, store: VuexStore) {
   const value = ref<FieldValue> ('')
   const rawValue = ref<RawFieldValue>('')
   const curRecord = computed<DataPointState>(() => store.getters.curRecord)
+
+  const setValue = (value: any) => {
+    const field = props.field
+    if(field) {
+      value = (fieldUtils.parse as any)[field.type](value)
+      notifyChanges(curRecord.value.id, { [field.name]: value })
+    }
+    store.commit('SET_RECORD_TOKEN')
+  }
 
   watchEffect(() => {
     if(props.field && curRecord.value) {
@@ -45,6 +55,7 @@ export default function(props: any, store: VuexStore) {
     type,
     value,
     rawValue,
-    curRecord
+    curRecord,
+    setValue
   }
 }

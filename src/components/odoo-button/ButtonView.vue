@@ -27,6 +27,7 @@
 <script lang="tsx">
 import { defineComponent, PropType, computed, ref, watchEffect, reactive, toRaw } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import _ from 'lodash'
 import { useStore } from '@/store'
 import { Toast, Dialog } from 'vant'
 import { ViewButton } from '@/assets/js/class'
@@ -80,10 +81,12 @@ export default defineComponent({
         switch(button.funcName) {
           case 'edit':
             onEdit(); break
-          case 'save': 
+          case 'save':
             onSave(); break
           case 'cancel':
             onCancel(); break
+          case 'create': 
+            onCreate(); break
 
         }
       } else if(button.type === 'object') {
@@ -155,6 +158,20 @@ export default defineComponent({
       } else {
         back()
       }
+    }
+    // 创建
+    const onCreate = () => {
+      const loadParams = JSON.parse(sessionStorage.getItem(sessionStorageKeys.loadParams) || '{}')
+      sessionStorage.setItem(sessionStorageKeys.loadParams, JSON.stringify(_.omit(loadParams, 'id')))
+
+      router.replace({
+        name: 'view',
+        query: {
+          model: route.query.model,
+          viewType: 'form',
+          id: ''
+        }
+      })
     }
 
     watchEffect(() => {
