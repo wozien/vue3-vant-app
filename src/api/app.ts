@@ -109,6 +109,16 @@ export const fetchMany2OneData = async (model: string): Promise<HttpRes> => {
 }
 
 /**
+ * 默认值获取
+ * @param model 
+ * @param fieldNames 
+ */
+export const fetchDefaultValues = async (model: string, fieldNames: string[]) => {
+  const res = await callKw(model, 'default_get', [fieldNames || []])
+  return res.data
+}
+
+/**
  * 单据保存
  * @param model 
  * @param method 

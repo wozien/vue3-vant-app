@@ -120,20 +120,24 @@ function useCard(record: Record | ListCard, fieldsInfo: FieldsInfo, appName?:str
       string: field.string,
       value: ''
     }
+    res.fields.push(fieldItem)
+
+    const fieldType = field.type
     const fieldValue = record.raw[field.name]
-    if(field.type === 'selection' && field.selection?.length) {
+    if(fieldValue === false && fieldType !== 'boolean') return
+
+    if(fieldType === 'selection' && field.selection?.length) {
       for(let [key, value] of field.selection) {
         if(key === fieldValue) {
           fieldItem.value = value; break
         }
       }
-    } else if(field.type === 'many2one') {
+    } else if(fieldType === 'many2one' && Array.isArray(fieldValue)) {
       const [, value] = fieldValue
       fieldItem.value = value
     } else {
       fieldItem.value = fieldValue
     }
-    res.fields.push(fieldItem)
   })
 
   return res

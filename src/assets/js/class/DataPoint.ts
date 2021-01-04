@@ -9,7 +9,7 @@ import { fetchRecord } from '@/api/app'
 import { FieldsInfo } from '@/assets/js/class'
 import fieldUtils from '@/assets/js/utils/field-utils'
 import { str2Date } from '@/assets/js/utils/date'
-import { saveRecord } from '@/api/app'
+import { saveRecord, fetchDefaultValues } from '@/api/app'
 import { sessionStorageKeys } from '@/assets/js/constant'
 
 export type DataPointId = string
@@ -20,7 +20,7 @@ export type DataPointData = {
 }
 
 interface DataPointProps {
-  _changes: Object | any[] | null
+  _changes: any
   id: DataPointId
   type: DataPointType
   viewType: ViewType
@@ -139,7 +139,7 @@ const _applyX2OneChange = (record: DataPoint, fieldName: string, data: any) => {
 
   let relatedID
   if (record._changes && fieldName in record._changes) {
-      relatedID = (record._changes as any)[fieldName];
+      relatedID = record._changes[fieldName];
   } else {
       relatedID = record.data[fieldName];
   }
@@ -150,18 +150,19 @@ const _applyX2OneChange = (record: DataPoint, fieldName: string, data: any) => {
   }
 
   const relData = _.pick(data, 'id', 'display_name');
+  const field = record.fieldsInfo[fieldName]
   // TODO fetch name_get
 
   const rec = _makeDataPoint({
     data: relData,
-    fieldsInfo: relatedRecord.fieldsInfo,
-    modelName: relatedRecord.model,
+    fieldsInfo: {},
+    modelName: field.relation as string,
     parentId: record.id,
     res_id: data.id,
-    viewType: relatedRecord.viewType
+    viewType: 'form'
   });
 
-  (record._changes as any)[fieldName] = rec.id
+  record._changes[fieldName] = rec.id
 }
 
 /**
@@ -227,13 +228,20 @@ const _makeDataPoint = <T extends LoadParams>(params: T): DataPoint => {
  * @param modelName 
  * @param params 
  */
-const _makeDefaultRecord = (modelName: string, params: LoadParams): DataPointId => {
-  // TODO default_get
-
+const _makeDefaultRecord = async (modelName: string, params: LoadParams) => {
+  const fieldNames = Object.keys(params.fieldsInfo)
   const record = _makeDataPoint({
     ...params,
     modelName
   })
+
+  // 默认值处理
+  const res = await fetchDefaultValues(modelName, fieldNames)
+  if(res.ret === 0) {
+    applyDefaultValues(record.id, res.data, { fieldNames })
+    // TODO fetch m2o data
+  }
+
   return record.id
 }
 
@@ -502,6 +510,80 @@ const _load = async (dataPoint: DataPoint) => {
 }
 
 /**
+ * 解析表体的默认值
+ * @param record 
+ * @param fieldName 
+ * @param commands 
+ */
+const _processX2ManyCommands = (record: DataPoint, fieldName: string, commands: any) => {
+  const field = record.fieldsInfo[fieldName]
+  const fieldsInfo = field && field.list || {}
+  const viewType = record.viewType
+
+  const list = _makeDataPoint({
+    type: 'list',
+    viewType: viewType,
+    modelName: field.relation as string,
+    parentId: record.id,
+    fieldsInfo,
+    res_ids: []
+  });
+  record._changes[fieldName] = list.id
+
+  list._changes = []
+  commands = commands || []
+  _.each(commands, (value: any) => {
+    if(value[0] === 0) {
+      const r = _makeDataPoint({
+        viewType,
+        modelName: list.model,
+        fieldsInfo: fieldsInfo,
+        parentId: list.id
+      });
+
+      list._changes.push({operation: 'ADD', id: r.id})
+
+      _.each(_getFieldsName(r), (fieldName) => {
+        r.data[fieldName] = null
+      })
+
+      r._changes = _.defaults(value[2], r.data)
+      for(let fieldName in r._changes) {
+        if(!(fieldName in r._changes)) continue
+
+        if(fieldName in r.fieldsInfo) {
+          const field = r.fieldsInfo[fieldName]
+          const fieldType = field.type
+          let rec 
+          if(fieldType === 'many2one') {
+            rec = _makeDataPoint({
+              viewType,
+              modelName: field.relation as string,
+              fieldsInfo: {
+                id: { type: 'integer', name: 'id'},
+                display_name: { type: 'char', name: 'display_name'} 
+              },
+              data: { id: r._changes[fieldName] },
+              parentId: r.id
+            })
+            r._changes[fieldName] = rec.id
+          } else if(fieldType === 'reference') {
+            // TODO
+          } else if(['one2many', 'many2many'].includes(fieldType)) {
+            const x2mCommands = value[2][fieldName]
+            _processX2ManyCommands(r, fieldName, x2mCommands)
+          } else {
+            r._changes[fieldName] = _parseServerValue(field, r._changes[fieldName])
+          }
+        }
+      }
+    }
+  })
+
+  // TODO fetch m2o display_name
+}
+
+/**
  * 遍历所有localData执行给定方法
  * @param element 
  * @param fn 
@@ -538,6 +620,63 @@ export let localData: LocalData = {}
 export const recordMap = new Map<string, DataPointId>()
 
 /**
+ * 默认值处理
+ * @param recordID 
+ * @param values 
+ * @param options 
+ */
+export const applyDefaultValues = (recordID: DataPointId, values: any, options: any) => {
+  options = options || {}
+  const record = localData[recordID]
+  const viewType = record.viewType || options.viewType
+  const fieldNames = options.fieldNames
+  let fieldName, field
+  record._changes = record._changes || {}
+
+  values = _.pick(values, fieldNames)
+
+  // 空值
+  for (var i = 0; i < fieldNames.length; i++) {
+    fieldName = fieldNames[i];
+    if (!(fieldName in values) && !(fieldName in record._changes)) {
+      field = record.fieldsInfo[fieldName];
+      if (field.type === 'float' || field.type === 'integer' ) {
+        values[fieldName] = 0;
+      } else if (field.type === 'one2many' || field.type === 'many2many') {
+        values[fieldName] = [];
+      } else {
+        values[fieldName] = null;
+      }
+    }
+  }
+
+  for(let fieldName in values) {
+    field = record.fieldsInfo[fieldName]
+    record.data[fieldName] = null
+
+    if(field.type === 'many2one' && values[fieldName]) {
+      const r = _makeDataPoint({
+        modelName: field.relation as string,
+        data: { id: values[fieldName] },
+        fieldsInfo: {
+          id: { type: 'integer', name: 'id'},
+          display_name: { type: 'char', name: 'display_name'} 
+        },
+        parentId: record.id,
+        viewType: viewType
+      });
+      (record._changes as any)[fieldName] = r.id
+    } else if(field.type === 'reference' && values[fieldName]) {
+      // TODO
+    } else if(field.type === 'one2many' || field.type === 'many2many') {
+      _processX2ManyCommands(record, fieldName, values[fieldName])
+    } else {
+      (record._changes as any)[fieldName] = _parseServerValue(field, values[fieldName])
+    }
+  }
+}
+
+/**
  * 表单数据加载入口, 只会调用一次
  * @param params 
  */
@@ -548,7 +687,7 @@ export const load = async (params: LoadParams): Promise<DataPointId> => {
 
   // create
   if(params.type === 'record' && !params.res_id) {
-    return _makeDefaultRecord(params.modelName, params)
+    return await _makeDefaultRecord(params.modelName, params)
   }
   
   const dataPoint = _makeDataPoint(params)
