@@ -28,7 +28,7 @@
 import { defineComponent, reactive, toRefs } from 'vue'
 import { useStore } from '@/store'
 import useFieldCommon, { fieldCommonProps } from '@/assets/js/hooks/field-common'
-import { fetchMany2OneData } from '@/api/app'
+import { fetchMany2OneData } from '@/api/record'
 import { Toast } from 'vant'
 
 type Many2OneValue = [number, string]

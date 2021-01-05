@@ -40,6 +40,7 @@ import FlowProcess from '@/views/flow/FlowProcess.vue'
 import UserSelect from '@/components/user-picker/UserSelect.vue'
 import { save, isDirty, isNew, discardChanges } from '@/assets/js/class/DataPoint'
 import { sessionStorageKeys } from '@/assets/js/constant'
+import { deleteRecord } from '@/api/record'
 
 export default defineComponent({
   components: {
@@ -89,7 +90,12 @@ export default defineComponent({
             onCreate(); break
 
         }
-      } else if(button.type === 'object') {
+      } else if(button.type === 'object') {    
+
+        if(button.funcName === 'svc_std_pre_physical_delete') {
+          // 删除特殊处理
+          onDelete(); return
+        }
         // call_button
         const { model, id } = route.query
         if(button && model && id) {
@@ -173,6 +179,19 @@ export default defineComponent({
           id: ''
         }
       })
+    }
+    // 删除
+    const onDelete = () => {
+      const record = curRecord.value
+      Dialog.confirm({
+        message: '确实是否删除改表单记录?'
+      }).then(async () => {
+        const res = await deleteRecord(record.model, record.res_id)
+        if(res.ret === 0) {
+          Toast('删除成功')
+          router.back()
+        }
+      }).catch(() => {})
     }
 
     watchEffect(() => {

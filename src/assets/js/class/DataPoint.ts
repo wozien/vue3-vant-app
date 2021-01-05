@@ -5,11 +5,10 @@
 
 import _ from 'lodash'
 import { ViewType } from './index'
-import { fetchRecord } from '@/api/app'
 import { FieldsInfo } from '@/assets/js/class'
 import fieldUtils from '@/assets/js/utils/field-utils'
 import { str2Date } from '@/assets/js/utils/date'
-import { saveRecord, fetchDefaultValues } from '@/api/app'
+import { fetchRecord, saveRecord, fetchDefaultValues } from '@/api/record'
 import { sessionStorageKeys } from '@/assets/js/constant'
 
 export type DataPointId = string
