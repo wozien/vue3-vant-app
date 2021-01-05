@@ -23,11 +23,11 @@ export default function(props: any, store: VuexStore) {
   const rawValue = ref<RawFieldValue>('')
   const curRecord = computed<DataPointState>(() => store.getters.curRecord)
 
-  const setValue = (value: any) => {
+  const setValue = async (value: any) => {
     const field = props.field
     if(field) {
       value = (fieldUtils.parse as any)[field.type](value)
-      notifyChanges(curRecord.value.id, { [field.name]: value })
+      await notifyChanges(curRecord.value.id, { [field.name]: value })
     }
     store.commit('SET_RECORD_TOKEN')
   }

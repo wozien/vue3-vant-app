@@ -24,7 +24,7 @@
 <script lang="ts">
 import { 
   defineComponent, reactive, computed, watch, toRaw,
-  toRefs, watchEffect, onMounted, onBeforeUnmount 
+  toRefs, watchEffect, onMounted, onBeforeUnmount
 } from 'vue'
 import _ from 'lodash'
 import { useRoute } from 'vue-router'
@@ -90,17 +90,21 @@ export default defineComponent({
     }
 
     const setCurRecord = () => {
-      const { model, id } = route.query
-      if(model && id) {
-        const recordId = getRecordId(model as string, id as string)
+      const { subModel, subId } = route.query
+      if(subModel) {
+        const recordId = getRecordId(subModel as string, subId as string)
         recordId && store.commit('SET_CUR_RECORD', recordId)
+      } else {
+        store.commit('RESET_CUR_RECORD')
+        // clear x2mcommand cache
+        sessionStorage.setItem(sessionStorageKeys.x2manyCommand, '')
       }
     }
 
     const onClickFile = () => Toast('暂不支持附件功能')
     const onClickMessage = () => Toast('暂不支持沟通记录功能')
 
-    // 穿透表体切换当前的datapoint数据
+    // 表体行表单返回主表单
     watchEffect(() => {
       setCurRecord()
     }) 

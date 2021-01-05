@@ -121,6 +121,7 @@ export default defineComponent({
       const res = await save(store.state.curRecordId)
       if(res === true || res.ret === 0) {
         Toast('保存成功')
+        store.commit('SET_RECORD_TOKEN')
         router.replace({
           name: 'view',
           query: Object.assign({}, route.query, {

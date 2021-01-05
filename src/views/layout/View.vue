@@ -54,7 +54,8 @@ export default defineComponent({
 
     watchEffect(() => {
       if(curApp.value.isLoaded && route.query.model) {
-        const { model, viewType } = route.query
+        let { model, viewType } = route.query
+        model = route.query.subModel || model
         ctx.value = getContext(curApp.value as App, model as string, viewType as ViewType)
       }
     })

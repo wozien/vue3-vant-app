@@ -83,6 +83,25 @@ const x2ManyCommands = {
 }
 
 /**
+ * 表体增加行
+ * @param list 
+ */
+const _addX2ManyDefaultRecord = async (list: DataPoint) => {
+  const params = {
+    modelName: list.model,
+    fieldsInfo: list.fieldsInfo,
+    parentId: list.id,
+    viewType: list.viewType
+  }
+
+  const recordID = await _makeDefaultRecord(list.model, params)
+  list._changes.push({operation: 'ADD', id: recordID, isNew: true})
+  list.data.push(recordID)
+
+  return recordID
+}
+
+/**
  * 根据changes计算最新的res_ids
  * @param list 
  */
@@ -91,7 +110,18 @@ const _applyX2ManyOperations = (list: DataPoint) => {
   list.res_ids = list.res_ids.slice(0)
   const changes = list._changes || []
   _.each(changes, (change: any) => {
+    let relRecord
+    if(change.id) {
+      relRecord = localData[change.id]
+    }
+
     switch (change.operation) {
+      case 'ADD': 
+        list.res_ids.push(relRecord?.res_id as string)
+        break
+      case 'DELETE': 
+        list.res_ids = _.without(list.res_ids, relRecord?.res_id) as string[]
+        break
       case 'UPDATE':
         break
     }
@@ -105,22 +135,24 @@ const _applyX2ManyOperations = (list: DataPoint) => {
  * @param recordID 
  * @param changes 
  */
-const _applyChange = (recordID: DataPointId, changes: DataPointData) => {
+const _applyChange = (recordID: DataPointId, changes: DataPointData): Promise<any> => {
   const record = localData[recordID]
   record._changes = record._changes || {}
   record._isDirty = true
-
+  const defs = []
   // apply changes to local data
   for(let fieldName in changes) {
     const field = record.fieldsInfo[fieldName]
     if(field && (field.type === 'one2many' || field.type === 'many2many')) {
-      _applyX2ManyChange(record, fieldName, changes[fieldName])
+      defs.push(_applyX2ManyChange(record, fieldName, changes[fieldName]))
     } else if(field && (field.type === 'many2one' || field.type === 'reference')) {
       _applyX2OneChange(record, fieldName, changes[fieldName])
     } else {
-      (record._changes as any)[fieldName] = changes[fieldName]
+      record._changes[fieldName] = changes[fieldName]
     }
   }
+
+  return Promise.all(defs)
 
   // TODO trigger onchange handle
 }
@@ -172,18 +204,25 @@ const _applyX2OneChange = (record: DataPoint, fieldName: string, data: any) => {
  * @param command 
  */
 const _applyX2ManyChange = (record: DataPoint, fieldName: string, command: any) => {
-  const localID = record.data[fieldName]
+  const localID = (record._changes && record._changes[fieldName]) || record.data[fieldName]
   const list = localData[localID]
   list._changes = list._changes || []
+  const defs = []
+
   switch(command.operation) {
-    
+    case 'CREATE':
+      defs.push(_addX2ManyDefaultRecord(list))
+      break
     case 'UPDATE':
       !_.find(list._changes as any[], {operation: 'UPDATE', id: command.id}) && 
       (list._changes as any[]).push({operation: 'UPDATE', id: command.id})
       if(command.data) {
-        _applyChange(command.id, command.data)
+        defs.push(_applyChange(command.id, command.data))
       }
+      break
   }
+
+  return Promise.all(defs)
 }
 
 /**
@@ -344,8 +383,8 @@ const _generateX2ManyCommands = (record: DataPoint, options: any) => {
             changes = relRecord ? _generateChanges(relRecord, options) : {}
             if(!_.isEmpty(changes)) {
               command = x2ManyCommands.update(relRecord.res_id, changes)
+              commands[fieldName].push(command)
             }
-            commands[fieldName].push(command)
           } else if(addedIds.includes(list.res_ids[i])) {
             // add command
             relRecord = _.find(relRecordAdded, {res_id: list.res_ids[i]})
@@ -353,7 +392,7 @@ const _generateX2ManyCommands = (record: DataPoint, options: any) => {
               //TODO
             }
             changes = _generateChanges(relRecord, _.extend({}, options, {changesOnly: true}))
-            if(isNew(relRecord)) {
+            if(isNew(relRecord.id)) {
               commands[fieldName].push(x2ManyCommands.create(relRecord.res_id, changes))
             } else {
               // TODO
@@ -618,6 +657,7 @@ const _visitChildren = (element: DataPoint, fn: (el: DataPoint) => void) => {
 
 export let localData: LocalData = {}
 export const recordMap = new Map<string, DataPointId>()
+export let rootID: DataPointId
 
 /**
  * 默认值处理
@@ -685,14 +725,16 @@ export const load = async (params: LoadParams): Promise<DataPointId> => {
     _.unset(localData, key)
   })
 
-  // create
   if(params.type === 'record' && !params.res_id) {
-    return await _makeDefaultRecord(params.modelName, params)
+    // create
+    rootID = await _makeDefaultRecord(params.modelName, params)
+  } else {
+    const dataPoint = _makeDataPoint(params)
+    await _load(dataPoint)
+    rootID = dataPoint.id
   }
   
-  const dataPoint = _makeDataPoint(params)
-  await _load(dataPoint)
-  return dataPoint.id
+  return rootID
 }
 
 /**
@@ -793,14 +835,14 @@ export const getRecordId = (modelKey: string, res_id: string): DataPointId => {
  * @param recordID
  * @param changes 
  */
-export const notifyChanges = (recordID: DataPointId, changes: DataPointData) => {
+export const notifyChanges = async (recordID: DataPointId, changes: DataPointData) => {
   const record = localData[recordID]
   const parentRecord = record.parentId && localData[record.parentId]
 
   if(parentRecord && parentRecord.type === 'list') {
-    // x2many changes
+    // x2many changes 子视图字段修改
     let x2manyCommad = JSON.parse(sessionStorage.getItem(sessionStorageKeys.x2manyCommand) || '{}')
-    if(x2manyCommad) {
+    if(x2manyCommad && x2manyCommad.type === 'UPDATE') {
       changes = {
         [x2manyCommad.fieldName]: {
           operation: x2manyCommad.type,
@@ -812,7 +854,7 @@ export const notifyChanges = (recordID: DataPointId, changes: DataPointData) => 
     }
   }
   
-  _applyChange(recordID, changes)
+  await _applyChange(recordID, changes)
 }
 
 /**
@@ -831,6 +873,21 @@ export const save = async (recordID: DataPointId) => {
   if(method === 'create' || Object.keys(changes).length) {
     const res = await saveRecord(record.model, method, record.data.id as number, changes)
     record._isDirty = false
+    record._changes = {} 
+
+    if(res.ret === 0) {
+      // 移除其他DataPoint
+      _.each(_.keys(localData), (key: string) => {
+        key !== record.id && _.unset(localData, key)
+      })
+  
+      // reload data
+      if(isNew(record.id)) {
+        record.res_id = res.data
+      }
+      await _fetchRecord(record)
+    }
+
     return res
   }
 
