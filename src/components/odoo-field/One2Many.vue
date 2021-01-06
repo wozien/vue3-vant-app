@@ -24,7 +24,7 @@
 
 <script lang="ts">
 import _ from 'lodash'
-import { defineComponent, watchEffect, ref, nextTick } from 'vue'
+import { defineComponent, ref, nextTick, watchEffect } from 'vue'
 import { useStore } from '@/store'
 import { useRouter, useRoute } from 'vue-router'
 import useFieldCommon, { fieldCommonProps } from '@/assets/js/hooks/field-common'
@@ -101,8 +101,8 @@ export default defineComponent({
       }
       sessionStorage.setItem(sessionStorageKeys.x2manyCommand, JSON.stringify(commandInfo))
     }
-    
-    watchEffect(async () => {
+
+    watchEffect(() => {
       columns.value = getColumns(rawValue.value)
       tableData.value = getData(rawValue.value)
     })
@@ -136,7 +136,7 @@ function getColumns(list: any) {
 
 function getData(list: any) {
   let res: any[] = []
-  if(list) {
+  if(list && list.data) {
     const fieldsInfo = list.fieldsInfo
     res = list.data.map((record: any) => {
       const row = {} as any

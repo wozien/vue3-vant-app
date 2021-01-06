@@ -27,7 +27,7 @@ import {
   toRefs, watchEffect, onMounted, onBeforeUnmount
 } from 'vue'
 import _ from 'lodash'
-import { useRoute } from 'vue-router'
+import { useRoute, onBeforeRouteUpdate } from 'vue-router'
 import { Toast } from 'vant'
 import { useStore } from '@/store'
 import FormCanvas from './FormCanvas'
@@ -113,13 +113,6 @@ export default defineComponent({
       if(val.length) loadRecord()
     })
 
-    watch(() => route.query.id, (val, oldVal) => {
-      // 点击创建重新load数据
-      if(!val && oldVal) {
-        loadRecord()
-      }
-    })
-
     watch(curRecord, (val) => {
       if(val && val.creator) {
         data.creator = {
@@ -134,6 +127,15 @@ export default defineComponent({
 
     onMounted(() => {
       loadRecord()
+    })
+
+    onBeforeRouteUpdate((to, from) => {
+      // 在表单点击创建，重新load数据
+      const { viewType: fromViewType, subId: fromSubId } = from.query
+      const { viewType, id, subId } = to.query
+      if(fromViewType === 'form' && viewType === 'form' && !id && !subId && !fromSubId) {
+        loadRecord()
+      }
     })
 
     onBeforeUnmount(() => {

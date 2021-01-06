@@ -63,12 +63,13 @@ export const saveRecord = async (model: string, method: string, id: number, chan
  * @param model
  * @param id 
  */
-export const deleteRecord = async (model: string, id: number): Promise<HttpRes> => {
-  const context = {
-    active_model: model,
-    model_ids: [id],
-    numbers_json: JSON.stringify([id])
-  }
+export const deleteRecord = async (model: string, id: number, context = {}): Promise<HttpRes> => {
+  // const context = {
+  //   class_name: model,
+  //   active_model: model,
+  //   model_ids: [id],
+  //   numbers_json: JSON.stringify([id])
+  // }
 
   let res = await callKw('sys.admin.delete.confirm.wizard', 'create', [{}], { context })
   if(res.data) {

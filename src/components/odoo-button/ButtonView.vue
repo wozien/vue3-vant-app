@@ -91,11 +91,6 @@ export default defineComponent({
 
         }
       } else if(button.type === 'object') {    
-
-        if(button.funcName === 'svc_std_pre_physical_delete') {
-          // 删除特殊处理
-          onDelete(); return
-        }
         // call_button
         const { model, id } = route.query
         if(button && model && id) {
@@ -105,7 +100,13 @@ export default defineComponent({
           toast.clear()
           if(res.ret === 0) {
             const action = res.data
-            handleServiceAction(action, button)
+            
+            if(button.funcName === 'svc_std_pre_physical_delete') {
+              // 删除特殊处理
+              onDelete(action);
+            } else {
+              handleServiceAction(action, button)
+            }
           }
         }
       }
@@ -125,14 +126,16 @@ export default defineComponent({
     // 保存
     const onSave = async () => {
       const res = await save(store.state.curRecordId)
+      let query = Object.assign({}, route.query, { readonly: 1 })
       if(res === true || res.ret === 0) {
         Toast('保存成功')
-        store.commit('SET_RECORD_TOKEN')
+        if(res !==true && res.data && !query.id) {
+          store.commit('SET_RECORD_TOKEN')
+          query.id = res.data
+        }
         router.replace({
           name: 'view',
-          query: Object.assign({}, route.query, {
-            readonly: 1
-          })
+          query
         })
       }
     }
@@ -181,12 +184,12 @@ export default defineComponent({
       })
     }
     // 删除
-    const onDelete = () => {
+    const onDelete = (action: any) => {
       const record = curRecord.value
       Dialog.confirm({
         message: '确实是否删除改表单记录?'
       }).then(async () => {
-        const res = await deleteRecord(record.model, record.res_id)
+        const res = await deleteRecord(record.model, record.res_id, action.context || {})
         if(res.ret === 0) {
           Toast('删除成功')
           router.back()
