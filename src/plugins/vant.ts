@@ -24,6 +24,7 @@ import {
   IndexBar,
   IndexAnchor,
   Tag,
+  Lazyload
 } from 'vant'
 
 export default function(app: App){
@@ -51,4 +52,5 @@ export default function(app: App){
   app.use(IndexBar)
   app.use(IndexAnchor)
   app.use(Tag)
+  app.use(Lazyload)
 }

@@ -15,6 +15,8 @@ export interface StudioView {
 }
 
 export type ViewButtonType = 'event' | 'object'
+
+type ViewButtonMode =  'readonly' | 'edit'
 export interface ViewButton {
   key: string
   type: ViewButtonType
@@ -22,7 +24,7 @@ export interface ViewButton {
   funcName: string
   funcType: string
   highlight: Boolean
-  mode: 'readonly' | 'edit'
+  mode: ViewButtonMode
   isFlow: Boolean
 }
 
@@ -78,7 +80,9 @@ class View {
     }, 'children')
 
     if(this.isSubView) {
-      res.unshift(this._makePresetButton('newLine', 'new Line'))
+      res.unshift(this._makePresetButton('back', 'Back', 'readonly'))
+      res.unshift(this._makePresetButton('saveLine', 'Save Line'))
+      res.unshift(this._makePresetButton('newLine', 'New Line'))
       res.push(this._makePresetButton('deleteLine', 'Delete Line'))
     }
 
@@ -93,22 +97,24 @@ class View {
       'Create': '创建',
       'Cancel': '取消',
       'Save': '保存',
-      'Insert Line': '行保存',
+      'Back': '返回',
+      'Insert Line': '行插入',
       'Copy Line': '行复制',
       'Delete Line': '行删除',
-      'new Line': '保存并新增'
+      'Save Line': '行保存',
+      'New Line': '保存并新增'
     }
     return buttonMap[key as keyof typeof buttonMap] || key
   }
 
-  _makePresetButton(funcName: string, string: string): ViewButton {
+  _makePresetButton(funcName: string, string: string, mode?: ViewButtonMode): ViewButton {
     return {
       key: uuid(6),
       type: 'event',
       string: this._getButtonString(string),
       funcName: funcName,
       funcType: 'preset',
-      mode: 'edit',
+      mode: mode || 'edit',
       highlight: false,
       isFlow: false
     }

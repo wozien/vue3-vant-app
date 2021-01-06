@@ -54,7 +54,7 @@ export default defineComponent({
 
     // 表体行点击
     const onCellClick: VxeTableEvents.CellClick = ({ row }) => {
-      if(props.readonly) return
+      // if(props.readonly) return
       const record = _.find((rawValue.value as any).data, { res_id: row.id })
       if(record) {
         // 把表体操作在session中

@@ -1,6 +1,6 @@
 <template>
   <Page name="form-view">
-    <div class="header van-hairline--bottom" v-show="isReadonly">
+    <div class="header van-hairline--bottom" v-show="showHeader">
       <van-image :src="creator.avatar" width="40" height="40" round/>
       <div class="info">
         <p class="name">{{ creator.name }}</p>
@@ -63,10 +63,13 @@ export default defineComponent({
     const searchFields = computed(() => {
       return props.fieldsInfo ? Object.keys(props.fieldsInfo) : []
     })
-    const isReadonly = computed(() => route.query.readonly as string === '1')
+    const showHeader = computed(() => {
+      const { readonly, subModel } = route.query
+      return readonly === '1' && !subModel
+    })
     const height = computed(() => {
       const res = document.body.clientHeight - 50
-      return isReadonly.value ? res - 70 : res
+      return showHeader.value ? res - 70 : res
     })
     const curRecord = computed(() => store.getters.curRecord)
 
@@ -117,7 +120,7 @@ export default defineComponent({
       if(val && val.creator) {
         data.creator = {
           name: val.creator.name,
-          avatar: val.creator.avatar || '/img/mm1.jpeg',
+          avatar: val.creator.avatar || '/img/avatar.png',
           date: formatDate('M月d日 hh:mm', val.creator.date)
         }
         data.state = val.state
@@ -145,7 +148,7 @@ export default defineComponent({
 
     return {
       ...toRefs(data),
-      isReadonly,
+      showHeader,
       height,
       localData: computed(() => store.state.localData),
       curRecordId: computed(() => store.state.curRecordId),

@@ -25,7 +25,7 @@
 </template>
 
 <script lang="tsx">
-import { defineComponent, PropType, computed, ref, watchEffect, reactive, toRaw } from 'vue'
+import { defineComponent, PropType, computed, ref, watchEffect, reactive, toRaw, nextTick } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import _ from 'lodash'
 import { useStore } from '@/store'
@@ -38,7 +38,10 @@ import Button from './Button.vue'
 import FlowSign from '@/views/flow/FlowSign.vue'
 import FlowProcess from '@/views/flow/FlowProcess.vue'
 import UserSelect from '@/components/user-picker/UserSelect.vue'
-import { save, isDirty, isNew, discardChanges } from '@/assets/js/class/DataPoint'
+import { 
+  save, isDirty, isNew, discardChanges, rootID, notifyChanges, 
+  findDataPoint, DataPoint 
+} from '@/assets/js/class/DataPoint'
 import { sessionStorageKeys } from '@/assets/js/constant'
 import { deleteRecord } from '@/api/record'
 
@@ -61,10 +64,10 @@ export default defineComponent({
 
     const renderButtons = ref<ViewButton[]>([])
     const capsuleButtons = computed(() => {
-      return renderButtons.value.slice(0, 4)
+      return renderButtons.value.slice(0, 3)
     })
     const moreButtons = computed(() => {
-      return renderButtons.value.slice(4).map((item: any) => {
+      return renderButtons.value.slice(3).map((item: any) => {
         item.text = item.string
         return item
       })
@@ -88,6 +91,13 @@ export default defineComponent({
             onCancel(); break
           case 'create': 
             onCreate(); break
+          case 'back':
+          case 'saveLine':
+            router.back(); break
+          case 'insertLine': 
+            onInsertLine(); break
+          case 'newLine':
+            onNewLine(); break
 
         }
       } else if(button.type === 'object') {    
@@ -196,6 +206,46 @@ export default defineComponent({
         }
       }).catch(() => {})
     }
+    // 行插入
+    const onInsertLine = () => {
+      const subModel = route.query.subModel as string
+      const list = findDataPoint({ type: 'list', model: subModel })
+      const rowIndex = _.findIndex((list as any).data || [], (id: string) => id === curRecord.value.id)
+      onNewLine(rowIndex !== -1 ? +rowIndex : undefined)
+    }
+    // 保存并新增
+    const onNewLine = async (rowIndex?: number) => {
+      const subModel = route.query.subModel as string
+      const record = findDataPoint(rootID) as DataPoint
+      if(record) {
+        const fieldsInfo = record.fieldsInfo
+        const field = _.find(_.values(fieldsInfo), { relation: subModel })
+        if(field) {
+          const command: any = {
+            operation: 'CREATE'
+          }
+          rowIndex && (command.position = rowIndex)
+          await notifyChanges(rootID, { [field.name]: command })
+          store.commit('SET_RECORD_TOKEN')
+          nextTick(() => {
+            const list = findDataPoint({ type: 'list', model: subModel })
+            if(list) {
+              const data = (list as any).data || []
+              const curRecordId = rowIndex ? data[rowIndex] : _.last(data)
+              const curRecord = findDataPoint(curRecordId)
+              if(curRecord) {
+                router.replace({
+                  name: 'view',
+                  query: Object.assign({}, route.query, {
+                    subId: (curRecord as any).res_id
+                  })
+                })
+              }
+            }
+          })
+        }
+      }
+    }
 
     watchEffect(() => {
       const res = calcButtons(props.buttons, route.query.readonly as string)
@@ -242,7 +292,11 @@ function handleServiceAction(action: any, button: ViewButton) {
         handleFlowConsult(action); break
       case '_handleViewProcess':
         handleFlowViewProcess(action); break
+      default:
+        Toast('暂不支持'); break
     }
+  } else {
+    Toast('暂不支持')
   }
 }
 

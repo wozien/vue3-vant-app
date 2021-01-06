@@ -11,7 +11,7 @@
       </li>
     </ul>
     <footer>
-      <van-image v-if="createImg" :src="createImg" width="25" height="25" round></van-image>
+      <van-image v-if="createImg" :src="createImg" width="25" height="25" round lazy-load></van-image>
       <span v-if="creator" class="create">{{ `${creator} ${createDate} 发起` }}</span>
     </footer>
   </div>
@@ -109,7 +109,7 @@ function useCard(record: Record | ListCard, fieldsInfo: FieldsInfo, appName?:str
     state: record.state,
     stateType: '',
     creator: record.creator.name,
-    createImg: record.creator.avatar || '/img/mm1.jpeg',
+    createImg: record.creator.avatar || '/img/avatar.png',
     createDate: formatDate('M月d日 hh:mm', record.creator.time),
     fields: []
   }

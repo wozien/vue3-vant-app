@@ -1183,10 +1183,10 @@
   dependencies:
     "@popperjs/core" "^2.5.4"
 
-"@vant/use@^1.0.0":
-  version "1.0.0"
-  resolved "https://registry.npm.taobao.org/@vant/use/download/@vant/use-1.0.0.tgz#68db22af1130ccf867814fec5ec8c4f7ad94f36d"
-  integrity sha1-aNsirxEwzPhngU/sXsjE962U820=
+"@vant/use@^1.0.2":
+  version "1.0.2"
+  resolved "https://registry.npm.taobao.org/@vant/use/download/@vant/use-1.0.2.tgz?cache=0&other_urls=https%3A%2F%2Fregistry.npm.taobao.org%2F%40vant%2Fuse%2Fdownload%2F%40vant%2Fuse-1.0.2.tgz#75486aedf3539382baa922c77eeb8a2e2394a948"
+  integrity sha1-dUhq7fNTk4K6qSLHfuuKLiOUqUg=
   dependencies:
     "@babel/runtime" "7.x"
 
@@ -8791,15 +8791,15 @@ validate-npm-package-license@^3.0.1:
     spdx-expression-parse "^3.0.0"
 
 vant@^3.0.0:
-  version "3.0.0"
-  resolved "https://registry.npm.taobao.org/vant/download/vant-3.0.0.tgz#f1268c60ccb8e6be62f0d009480597db855f3f77"
-  integrity sha1-8SaMYMy45r5i8NAJSAWX24VfP3c=
+  version "3.0.2"
+  resolved "https://registry.npm.taobao.org/vant/download/vant-3.0.2.tgz#2777f37b97626ef8e88ca07cc01956ee038c103d"
+  integrity sha1-J3fze5dibvjojKB8wBlW7gOMED0=
   dependencies:
     "@babel/runtime" "7.x"
     "@vant/icons" "^1.5.0"
     "@vant/lazyload" "^1.0.2"
     "@vant/popperjs" "^1.0.2"
-    "@vant/use" "^1.0.0"
+    "@vant/use" "^1.0.2"
 
 vary@~1.1.2:
   version "1.1.2"

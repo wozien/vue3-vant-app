@@ -85,7 +85,8 @@ const x2ManyCommands = {
  * 表体增加行
  * @param list 
  */
-const _addX2ManyDefaultRecord = async (list: DataPoint) => {
+const _addX2ManyDefaultRecord = async (list: DataPoint, options: any) => {
+  options = options || {}
   const params = {
     modelName: list.model,
     fieldsInfo: list.fieldsInfo,
@@ -95,7 +96,13 @@ const _addX2ManyDefaultRecord = async (list: DataPoint) => {
 
   const recordID = await _makeDefaultRecord(list.model, params)
   list._changes.push({operation: 'ADD', id: recordID, isNew: true})
-  list.data.push(recordID)
+
+  if(typeof options.position === 'number') {
+    // insert line
+    list.data.splice(options.position, 0, recordID)
+  } else {
+    list.data.push(recordID)
+  }
 
   return recordID
 }
@@ -210,7 +217,7 @@ const _applyX2ManyChange = (record: DataPoint, fieldName: string, command: any) 
 
   switch(command.operation) {
     case 'CREATE':
-      defs.push(_addX2ManyDefaultRecord(list))
+      defs.push(_addX2ManyDefaultRecord(list, { position: command.position || 'bottom' }))
       break
     case 'UPDATE':
       !_.find(list._changes as any[], {operation: 'UPDATE', id: command.id}) && 
@@ -854,6 +861,18 @@ export const notifyChanges = async (recordID: DataPointId, changes: DataPointDat
   }
   
   await _applyChange(recordID, changes)
+}
+
+/**
+ * 查找dataPoint
+ * @param props 
+ */
+export const findDataPoint = (props: DataPointId | any) => {
+  if(typeof props === 'string') {
+    return localData[props]
+  } else {
+    return _.find(_.values(localData), props)
+  }
 }
 
 /**
