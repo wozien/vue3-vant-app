@@ -98,6 +98,8 @@ export default defineComponent({
             onInsertLine(); break
           case 'newLine':
             onNewLine(); break
+          case 'deleteLine':
+            onDeleteLine(); break
 
         }
       } else if(button.type === 'object') {    
@@ -243,6 +245,26 @@ export default defineComponent({
               }
             }
           })
+        }
+      }
+    }
+    // 行删除
+    const onDeleteLine = async () => {
+      const subModel = route.query.subModel as string
+      const record = findDataPoint(rootID) as DataPoint
+      if(record) {
+        const fieldsInfo = record.fieldsInfo
+        const field = _.find(_.values(fieldsInfo), { relation: subModel })
+        if(field) {
+          // ignore m2m
+          await notifyChanges(rootID, {
+            [field.name]: {
+              operation: 'DELETE',
+              ids: [curRecord.value.id]
+            }
+          })
+          store.commit('SET_RECORD_TOKEN')
+          router.back()
         }
       }
     }

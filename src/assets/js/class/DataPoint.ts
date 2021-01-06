@@ -133,6 +133,7 @@ const _applyX2ManyOperations = (list: DataPoint) => {
     }
   })
 
+  _setDataInRange(list)
   return list
 }
 
@@ -226,6 +227,20 @@ const _applyX2ManyChange = (record: DataPoint, fieldName: string, command: any) 
         defs.push(_applyChange(command.id, command.data))
       }
       break
+    case 'DELETE':
+      let idsToRemove = command.ids
+      list._changes = _.reject(list._changes, function (change: any) {
+        var idInCommands =command.ids.includes(change.id);
+        if (idInCommands && change.operation === 'ADD') {
+            idsToRemove = _.without(idsToRemove, change.id);
+        }
+        return idInCommands;
+      });
+      _.each(idsToRemove, function (id: string) {
+        var operation = list._forceM2MUnlink ? 'FORGET': 'DELETE';
+        list._changes.push({operation: operation, id: id});
+      });
+      break
   }
 
   return Promise.all(defs)
@@ -249,6 +264,7 @@ const _makeDataPoint = <T extends LoadParams>(params: T): DataPoint => {
   }
 
   const dataPoint: DataPoint = {
+    _cache: type === 'list' ? {} : undefined,
     _changes: null,
     id: _.uniqueId(params.modelName + '_'),
     model: params.modelName,
@@ -493,7 +509,7 @@ const _fetchRecord = async (record: DataPoint) => {
  * 构造表体的dataPoint
  * @param record 
  */
-const _fetchX2Manys = async (record: DataPoint) => {
+const _fetchX2Manys = (record: DataPoint) => {
   const fieldsInfo = record.fieldsInfo
   const defs = [] as any[]
   _.each(fieldsInfo, (field: any, fieldName: string) => {
@@ -538,10 +554,12 @@ const _fetchX2ManysData = async (list: DataPoint) => {
           data
         })
         _parseServerData(dataPoint)
+        list._cache[id] = dataPoint.id
         list.data.push(dataPoint.id)
       }
     })
   }
+  return res.data
 }
 
 /**
@@ -626,6 +644,19 @@ const _processX2ManyCommands = (record: DataPoint, fieldName: string, commands: 
   })
 
   // TODO fetch m2o display_name
+}
+
+/**
+ * 表体根据res_ids重新计算data
+ * @param list 
+ */
+const _setDataInRange = (list: DataPoint) => {
+  list.data = []
+  _.each(list.res_ids, (id: any) => {
+    if(list._cache[id]) {
+      list.data.push(list._cache[id])
+    }
+  })
 }
 
 /**
@@ -794,7 +825,7 @@ export const isNew = (id: DataPointId) => {
 export const get = (id: DataPointId) => {
   if(!(id in localData)) return null
 
-  const element = localData[id]
+  let element = localData[id]
   if(element.type === 'record') {
     const data = _.extend({}, element.data, element._changes || {})
     for(let fieldName in data) {
@@ -818,6 +849,10 @@ export const get = (id: DataPointId) => {
       data
     }
   }
+
+  element = _applyX2ManyOperations(element)
+  //TODO sort list?
+  _setDataInRange(element)
 
   const list = {
     ...element,
