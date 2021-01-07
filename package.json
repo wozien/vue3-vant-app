@@ -5,8 +5,8 @@
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "cross-env WX_ENV=prod vue-cli-service build",
-    "build:dev": "cross-env WX_ENV=dev vue-cli-service build",
     "build:uat": "cross-env WX_ENV=uat vue-cli-service build",
+    "build:dev": "cross-env WX_ENV=dev vue-cli-service build",
     "lint": "vue-cli-service lint --mode production --fix"
   },
   "dependencies": {
