@@ -87,6 +87,7 @@ const x2ManyCommands = {
  */
 const _addX2ManyDefaultRecord = async (list: DataPoint, options: any) => {
   options = options || {}
+  const position = options.position || 'bottom'
   const params = {
     modelName: list.model,
     fieldsInfo: list.fieldsInfo,
@@ -95,14 +96,9 @@ const _addX2ManyDefaultRecord = async (list: DataPoint, options: any) => {
   }
 
   const recordID = await _makeDefaultRecord(list.model, params)
-  list._changes.push({operation: 'ADD', id: recordID, isNew: true})
-
-  if(typeof options.position === 'number') {
-    // insert line
-    list.data.splice(options.position, 0, recordID)
-  } else {
-    list.data.push(recordID)
-  }
+  const record = localData[recordID]
+  list._changes.push({operation: 'ADD', id: recordID, isNew: true, position})
+  list._cache[record.res_id as any] = recordID
 
   return recordID
 }
@@ -123,7 +119,13 @@ const _applyX2ManyOperations = (list: DataPoint) => {
 
     switch (change.operation) {
       case 'ADD': 
-        list.res_ids.push(relRecord?.res_id as string)
+        const resID = relRecord ? relRecord.res_id : change.resID;
+        if(typeof change.position === 'number') {
+          // insert line  
+          list.res_ids.splice(change.position, 0, resID)
+        } else {
+          list.res_ids.push(resID)
+        }
         break
       case 'DELETE': 
         list.res_ids = _.without(list.res_ids, relRecord?.res_id) as string[]
@@ -555,7 +557,7 @@ const _fetchX2ManysData = async (list: DataPoint) => {
         })
         _parseServerData(dataPoint)
         list._cache[id] = dataPoint.id
-        list.data.push(dataPoint.id)
+        // list.data.push(dataPoint.id)
       }
     })
   }
