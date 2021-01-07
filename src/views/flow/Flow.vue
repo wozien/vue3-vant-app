@@ -161,7 +161,7 @@ function useList(searchType: Ref<string>, user: Ref<User>) {
         stateType: '',
         creator: row.submit_user,
         createDate: formatDate('M月d日 hh:mm', date),
-        createImg: '/img/mm1.jpeg',
+        createImg: '/img/avatar.png',
         fields: [
           { name: 'bill_number', string: '单据编号', value: row.bill_number}
         ],

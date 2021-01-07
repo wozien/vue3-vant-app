@@ -28,7 +28,7 @@
 import { defineComponent, PropType, computed, ref, watchEffect, reactive, toRaw } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import _ from 'lodash'
-import { useStore } from '@/store'
+import store, { useStore } from '@/store'
 import { Toast, Dialog } from 'vant'
 import { ViewButton } from '@/assets/js/class'
 import { callButton } from '@/api/odoo'
@@ -40,7 +40,7 @@ import FlowProcess from '@/views/flow/FlowProcess.vue'
 import UserSelect from '@/components/user-picker/UserSelect.vue'
 import { 
   save, isDirty, isNew, discardChanges, rootID, notifyChanges, 
-  findDataPoint, DataPoint, copyRecord, get
+  findDataPoint, DataPoint, copyRecord, get, reload
 } from '@/assets/js/class/DataPoint'
 import { sessionStorageKeys } from '@/assets/js/constant'
 import { deleteRecord } from '@/api/record'
@@ -393,6 +393,8 @@ function handleFlowAgree(action: any) {
     }
     const res = await flowAgreen(state.opinion, Object.assign(getFlowParams(), action.context || {}))
     if(res.ret === 0) {
+      await reload()
+      store.commit('SET_RECORD_TOKEN')
       Toast('审批成功'); cb()
     } 
   }

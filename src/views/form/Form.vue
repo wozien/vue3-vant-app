@@ -7,11 +7,15 @@
         <p class="time">{{ `${creator.date} 发起` }}</p> 
       </div>
       <div class="right">
-        <div class="icon">
-          <Icon name="file" @click="onClickFile"/>
-          <Icon name="message" @click="onClickMessage"/>
+        <van-image v-if="state === 'audit'" 
+          :src="require('@/assets/img/audit.png')" width="45" height="45" round/>
+        <div class="icons">
+          <div class="icon">
+            <Icon name="file" @click="onClickFile"/>
+            <Icon name="message" @click="onClickMessage"/>
+          </div>
+          <span v-if="state !== 'audit'" class="status">{{ state_name }}</span>
         </div>
-        <span class="status">{{ state_name }}</span>
       </div>
     </div>
     <div class="form-canvas" :style="{'height': height + 'px'}">
@@ -183,12 +187,17 @@ export default defineComponent({
       }
     }
     .right {
-      .icon {
-        text-align: right;
-      }
-      .status {
-        color: @info-color;
-        font-size: 13px;
+      display: flex;
+      align-items: center;
+      .icons {
+        margin-left: 10px;
+        .icon {
+          text-align: right;
+        }
+        .status {
+          color: @info-color;
+          font-size: 13px;
+        }
       }
     }
   }

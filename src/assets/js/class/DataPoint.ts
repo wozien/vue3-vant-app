@@ -1069,20 +1069,34 @@ export const save = async (recordID: DataPointId) => {
     record._changes = {} 
 
     if(res.ret === 0) {
-      // 移除其他DataPoint
-      _.each(_.keys(localData), (key: string) => {
-        key !== record.id && _.unset(localData, key)
-      })
-  
       // reload data
       if(isNew(record.id)) {
         record.res_id = res.data
       }
-      await _fetchRecord(record)
+
+      await reload(record)
     }
 
     return res
   }
 
   return true
+}
+
+/**
+ * 重新加载record
+ * @param record 
+ */
+export const reload = async (record?: DataPoint) => {
+  if(!record) {
+    record = localData[rootID]
+  }
+
+  const recordId = record.id || rootID
+  // 移除其他DataPoint
+  _.each(_.keys(localData), (key: string) => {
+    key !== recordId && _.unset(localData, key)
+  })
+
+  await _fetchRecord(record)
 }
