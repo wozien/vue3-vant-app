@@ -4,7 +4,9 @@
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",
-    "build": "vue-cli-service build",
+    "build": "cross-env WX_ENV=prod vue-cli-service build",
+    "build:dev": "cross-env WX_ENV=dev vue-cli-service build",
+    "build:uat": "cross-env WX_ENV=uat vue-cli-service build",
     "lint": "vue-cli-service lint --mode production --fix"
   },
   "dependencies": {
@@ -13,6 +15,7 @@
     "axios": "^0.21.0",
     "bpmn-js": "^7.5.0",
     "core-js": "^3.6.5",
+    "cross-env": "^7.0.3",
     "lodash": "^4.17.20",
     "url": "^0.11.0",
     "vant": "^3.0.0",
