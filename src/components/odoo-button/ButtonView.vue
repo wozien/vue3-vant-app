@@ -25,7 +25,7 @@
 </template>
 
 <script lang="tsx">
-import { defineComponent, PropType, computed, ref, watchEffect, reactive, toRaw, nextTick } from 'vue'
+import { defineComponent, PropType, computed, ref, watchEffect, reactive, toRaw } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import _ from 'lodash'
 import { useStore } from '@/store'
@@ -40,7 +40,7 @@ import FlowProcess from '@/views/flow/FlowProcess.vue'
 import UserSelect from '@/components/user-picker/UserSelect.vue'
 import { 
   save, isDirty, isNew, discardChanges, rootID, notifyChanges, 
-  findDataPoint, DataPoint 
+  findDataPoint, DataPoint, copyRecord, get
 } from '@/assets/js/class/DataPoint'
 import { sessionStorageKeys } from '@/assets/js/constant'
 import { deleteRecord } from '@/api/record'
@@ -91,6 +91,8 @@ export default defineComponent({
             onCancel(); break
           case 'create': 
             onCreate(); break
+          case 'copy': 
+            onCopy(); break
           case 'back':
           case 'saveLine':
             router.back(); break
@@ -100,6 +102,8 @@ export default defineComponent({
             onNewLine(); break
           case 'deleteLine':
             onDeleteLine(); break
+          case 'copyLine':
+            onCopyLine(); break
 
         }
       } else if(button.type === 'object') {    
@@ -141,7 +145,7 @@ export default defineComponent({
       let query = Object.assign({}, route.query, { readonly: 1 })
       if(res === true || res.ret === 0) {
         Toast('保存成功')
-        if(res !==true && res.data && !query.id) {
+        if(res !==true && res.data &&  (!query.id || (query.id as string).startsWith('virtual_'))) {
           store.commit('SET_RECORD_TOKEN')
           query.id = res.data
         }
@@ -208,64 +212,94 @@ export default defineComponent({
         }
       }).catch(() => {})
     }
+    // 复制
+    const onCopy = async () => {
+      const record = await copyRecord(curRecord.value.id)
+      store.commit('SET_RECORD_TOKEN')
+      router.replace({
+        name: 'view',
+        query: Object.assign({}, route.query, {
+          readonly: 0,
+          id: record.res_id
+        })
+      })
+    }
     // 行插入
     const onInsertLine = () => {
-      const subModel = route.query.subModel as string
-      const list = findDataPoint({ type: 'list', model: subModel })
-      const rowIndex = _.findIndex((list as any).data || [], (id: string) => id === curRecord.value.id)
+      const list = get(curRecord.value.parentId)
+      const rowIndex = _.findIndex((list as any).data || [], (record: any) => record.id === curRecord.value.id)
       onNewLine(rowIndex !== -1 ? +rowIndex : undefined)
     }
     // 保存并新增
     const onNewLine = async (rowIndex?: number) => {
-      const subModel = route.query.subModel as string
-      const record = findDataPoint(rootID) as DataPoint
-      if(record) {
-        const fieldsInfo = record.fieldsInfo
-        const field = _.find(_.values(fieldsInfo), { relation: subModel })
-        if(field) {
-          const command: any = {
-            operation: 'CREATE'
+      const field = getX2MField()
+      if(field) {
+        const command: any = {
+          operation: 'CREATE'
+        }
+        rowIndex !== undefined && (command.position = rowIndex)
+        await notifyChanges(rootID, { [field.name]: command })
+        const list = get(curRecord.value.parentId)
+        if(list) {
+          const resIds = (list as any).res_ids || []
+          const id = rowIndex !== undefined ? resIds[rowIndex] : _.last(resIds)
+          if(id) {
+            router.replace({
+              name: 'view',
+              query: Object.assign({}, route.query, {
+                subId: id
+              })
+            })
           }
-          rowIndex && (command.position = rowIndex)
-          await notifyChanges(rootID, { [field.name]: command })
-          store.commit('SET_RECORD_TOKEN')
-          nextTick(() => {
-            const list = findDataPoint({ type: 'list', model: subModel })
-            if(list) {
-              const data = (list as any).data || []
-              const curRecordId = rowIndex ? data[rowIndex] : _.last(data)
-              const curRecord = findDataPoint(curRecordId)
-              if(curRecord) {
-                router.replace({
-                  name: 'view',
-                  query: Object.assign({}, route.query, {
-                    subId: (curRecord as any).res_id
-                  })
-                })
-              }
-            }
-          })
         }
       }
     }
     // 行删除
     const onDeleteLine = async () => {
+      const field = getX2MField()
+      if(field) {
+        // ignore m2m
+        await notifyChanges(rootID, {
+          [field.name]: {
+            operation: 'DELETE',
+            ids: [curRecord.value.id]
+          }
+        })
+        router.back()
+      }
+    }
+    // 行复制
+    const onCopyLine = async () => {
+      const field = getX2MField()
+      if(field) {
+        await notifyChanges(rootID, {
+          [field.name]: {
+            operation: 'COPY_O2M',
+            id: curRecord.value.id
+          }
+        })
+        const list = get(curRecord.value.parentId)
+        if(list) {
+          const id = _.last((list as any).res_ids || [])
+          if(id) {
+            router.replace({
+              name: 'view',
+              query: Object.assign({}, route.query, {
+                subId: id
+              })
+            })
+          }
+        }
+      }
+    }
+  
+    const getX2MField = () => {
       const subModel = route.query.subModel as string
       const record = findDataPoint(rootID) as DataPoint
       if(record) {
         const fieldsInfo = record.fieldsInfo
         const field = _.find(_.values(fieldsInfo), { relation: subModel })
-        if(field) {
-          // ignore m2m
-          await notifyChanges(rootID, {
-            [field.name]: {
-              operation: 'DELETE',
-              ids: [curRecord.value.id]
-            }
-          })
-          store.commit('SET_RECORD_TOKEN')
-          router.back()
-        }
+        return field
       }
     }
 

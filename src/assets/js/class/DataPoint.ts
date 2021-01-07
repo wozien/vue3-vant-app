@@ -87,7 +87,6 @@ const x2ManyCommands = {
  */
 const _addX2ManyDefaultRecord = async (list: DataPoint, options: any) => {
   options = options || {}
-  const position = options.position || 'bottom'
   const params = {
     modelName: list.model,
     fieldsInfo: list.fieldsInfo,
@@ -97,7 +96,7 @@ const _addX2ManyDefaultRecord = async (list: DataPoint, options: any) => {
 
   const recordID = await _makeDefaultRecord(list.model, params)
   const record = localData[recordID]
-  list._changes.push({operation: 'ADD', id: recordID, isNew: true, position})
+  list._changes.push({operation: 'ADD', id: recordID, isNew: true, position: options.position })
   list._cache[record.res_id as any] = recordID
 
   return recordID
@@ -135,7 +134,7 @@ const _applyX2ManyOperations = (list: DataPoint) => {
     }
   })
 
-  _setDataInRange(list)
+  _setDataInRange(list) // update list.data by res_ids
   return list
 }
 
@@ -214,13 +213,13 @@ const _applyX2OneChange = (record: DataPoint, fieldName: string, data: any) => {
  */
 const _applyX2ManyChange = (record: DataPoint, fieldName: string, command: any) => {
   const localID = (record._changes && record._changes[fieldName]) || record.data[fieldName]
-  const list = localData[localID]
+  let list = localData[localID]
   list._changes = list._changes || []
   const defs = []
 
   switch(command.operation) {
     case 'CREATE':
-      defs.push(_addX2ManyDefaultRecord(list, { position: command.position || 'bottom' }))
+      defs.push(_addX2ManyDefaultRecord(list, { position: command.position }))
       break
     case 'UPDATE':
       !_.find(list._changes as any[], {operation: 'UPDATE', id: command.id}) && 
@@ -232,7 +231,7 @@ const _applyX2ManyChange = (record: DataPoint, fieldName: string, command: any) 
     case 'DELETE':
       let idsToRemove = command.ids
       list._changes = _.reject(list._changes, function (change: any) {
-        var idInCommands =command.ids.includes(change.id);
+        var idInCommands = command.ids.includes(change.id);
         if (idInCommands && change.operation === 'ADD') {
             idsToRemove = _.without(idsToRemove, change.id);
         }
@@ -243,9 +242,127 @@ const _applyX2ManyChange = (record: DataPoint, fieldName: string, command: any) 
         list._changes.push({operation: operation, id: id});
       });
       break
+    case 'COPY_O2M':
+      defs.push(copyLine(list, command.id))
+      break
   }
 
   return Promise.all(defs)
+}
+
+/**
+ * 表体字段的复制
+ * @param recordID 
+ * @param defaultTemplate 
+ */
+const _copyX2ManyRecord = async (recordID: DataPointId, defaultTemplate: any) => {
+  const list = localData[recordID]
+  const listState = get(recordID)
+  const resIdMap = {} as any
+
+  // TODO o2m in list fields
+  list._changes = []
+  list._cache = {}
+  list.res_ids = []
+
+  await _getX2ManyDefaultData(list, defaultTemplate)
+  // TODO o2m in list fields default values
+  await Promise.all(_.map(listState.data, async (record: DataPoint) => {
+    list._changes.push({operation: 'ADD', id: record.id, isNew: true})
+    await copyRecord(record.id, defaultTemplate)
+    const { res_id, id } = localData[record.id]
+    resIdMap[id] = res_id
+    record._isDirty = true
+  }))
+
+  _.each(list._changes, ({ id }: any) => {
+    const res_id = resIdMap[id]
+    res_id && (list._cache[res_id] = id)
+  })
+
+  return list
+}
+
+/**
+ * 请求表单数据
+ * @param record 
+ */
+const _fetchRecord = async (record: DataPoint) => {
+  const { model, res_id } = record
+  const fieldNames = _getFieldsName(record)
+  const res = await fetchRecord(model, res_id as number, fieldNames)
+  if(res.ret === 0) {
+    const recordData = res.data
+    if(recordData.odoo_data.length) {
+      _.extend(record, { 
+        data: recordData.odoo_data[0],
+        creator:{
+          ...recordData.create_user,
+          date: str2Date(res.data.create_date || '')
+        },
+        ..._.pick(recordData, ['state', 'state_name'])
+      })
+      _parseServerData(record)
+      await _fetchX2Manys(record)
+    }
+  }
+}
+
+/**
+ * 构造表体的dataPoint
+ * @param record 
+ */
+const _fetchX2Manys = (record: DataPoint) => {
+  const fieldsInfo = record.fieldsInfo
+  const defs = [] as any[]
+  _.each(fieldsInfo, (field: any, fieldName: string) => {
+    if(field.type === 'one2many' || field.type === 'many2many') {
+      const ids = record.data[fieldName] || []
+      const fieldInfo = record.fieldsInfo[fieldName]
+      const fieldsInfo = fieldInfo.list || {}
+      // TODO 暂不考虑表体是联动视图的情况
+      const list = _makeDataPoint({
+        type: 'list',
+        viewType: 'list',
+        modelName: field.relation,
+        res_ids: ids,
+        fieldsInfo,
+        parentId: record.id
+      })
+      record.data[fieldName] = list.id
+      defs.push(_fetchX2ManysData(list))
+    }
+  })
+  return Promise.all(defs)
+}
+
+/**
+ * 请求表体数据
+ * @param list 
+ */
+const _fetchX2ManysData = async (list: DataPoint) => {
+  const { model, res_ids } = list
+  const res = await fetchRecord(model, res_ids as number[], _getFieldsName(list))
+  if(res.ret === 0) {
+    const records = res.data
+    _.each(res_ids, (id: any) => {
+      const data = _.find(records, { id })
+      if(data) {
+        const dataPoint = _makeDataPoint({
+          viewType: list.viewType,
+          parentId: list.id,
+          modelName: list.model,
+          res_id: id,
+          fieldsInfo: list.fieldsInfo,
+          data
+        })
+        _parseServerData(dataPoint)
+        list._cache[id] = dataPoint.id
+        list.data.push(dataPoint.id)
+      }
+    })
+  }
+  return res.data
 }
 
 /**
@@ -314,6 +431,38 @@ const _makeDefaultRecord = async (modelName: string, params: LoadParams) => {
  */
 const _getFieldsName = (dataPoint: DataPoint) => {
   return Object.keys(dataPoint.fieldsInfo || {})
+}
+
+/**
+ * 创建一条默认的record
+ * @param record 
+ */
+const _getDefaultData = async (record: DataPoint) => {
+  const recordId = await _makeDefaultRecord(record.model, {
+    fieldsInfo: record.fieldsInfo,
+    viewType: record.viewType,
+    modelName: record.model
+  })
+
+  const defaultRecord = localData[recordId]
+  delete localData[recordId]
+
+  return defaultRecord
+}
+
+/**
+ * 获取o2m字段的默认值模版
+ * @param list 
+ * @param defaultTemplate 
+ */
+const _getX2ManyDefaultData = async (list: DataPoint, defaultTemplate: any) => {
+  const model = list.model
+  // default values cache
+  if(defaultTemplate[model]) return defaultTemplate[model]
+
+  const listRecord = await _getDefaultData(list)
+  defaultTemplate[model] = listRecord._changes
+  return listRecord
 }
 
 /**
@@ -483,88 +632,6 @@ const _parseServerData = (record: DataPoint) => {
 }
 
 /**
- * 请求表单数据
- * @param record 
- */
-const _fetchRecord = async (record: DataPoint) => {
-  const { model, res_id } = record
-  const fieldNames = _getFieldsName(record)
-  const res = await fetchRecord(model, res_id as number, fieldNames)
-  if(res.ret === 0) {
-    const recordData = res.data
-    if(recordData.odoo_data.length) {
-      _.extend(record, { 
-        data: recordData.odoo_data[0],
-        creator:{
-          ...recordData.create_user,
-          date: str2Date(res.data.create_date || '')
-        },
-        ..._.pick(recordData, ['state', 'state_name'])
-      })
-      _parseServerData(record)
-      await _fetchX2Manys(record)
-    }
-  }
-}
-
-/**
- * 构造表体的dataPoint
- * @param record 
- */
-const _fetchX2Manys = (record: DataPoint) => {
-  const fieldsInfo = record.fieldsInfo
-  const defs = [] as any[]
-  _.each(fieldsInfo, (field: any, fieldName: string) => {
-    if(field.type === 'one2many' || field.type === 'many2many') {
-      const ids = record.data[fieldName] || []
-      const fieldInfo = record.fieldsInfo[fieldName]
-      const fieldsInfo = fieldInfo.list || {}
-      // TODO 暂不考虑表体是联动视图的情况
-      const list = _makeDataPoint({
-        type: 'list',
-        viewType: 'list',
-        modelName: field.relation,
-        res_ids: ids,
-        fieldsInfo,
-        parentId: record.id
-      })
-      record.data[fieldName] = list.id
-      defs.push(_fetchX2ManysData(list))
-    }
-  })
-  return Promise.all(defs)
-}
-
-/**
- * 请求表体数据
- * @param list 
- */
-const _fetchX2ManysData = async (list: DataPoint) => {
-  const { model, res_ids } = list
-  const res = await fetchRecord(model, res_ids as number[], _getFieldsName(list))
-  if(res.ret === 0) {
-    const records = res.data
-    _.each(res_ids, (id: any) => {
-      const data = _.find(records, { id })
-      if(data) {
-        const dataPoint = _makeDataPoint({
-          viewType: list.viewType,
-          parentId: list.id,
-          modelName: list.model,
-          res_id: id,
-          fieldsInfo: list.fieldsInfo,
-          data
-        })
-        _parseServerData(dataPoint)
-        list._cache[id] = dataPoint.id
-        // list.data.push(dataPoint.id)
-      }
-    })
-  }
-  return res.data
-}
-
-/**
  * 加载dataPoint数据
  * @param dataPoint 
  */
@@ -587,7 +654,7 @@ const _processX2ManyCommands = (record: DataPoint, fieldName: string, commands: 
 
   const list = _makeDataPoint({
     type: 'list',
-    viewType: viewType,
+    viewType: 'list',
     modelName: field.relation as string,
     parentId: record.id,
     fieldsInfo,
@@ -756,6 +823,76 @@ export const applyDefaultValues = (recordID: DataPointId, values: any, options: 
 }
 
 /**
+ * 表单复制
+ * @param recordID 
+ * @param defaultTemplate 
+ */
+export const copyRecord = async (recordID: DataPointId, defaultTemplate?: any) => {
+  const record = localData[recordID]
+  const { data, fieldsInfo } = record
+  const isHeader = !defaultTemplate
+  const changes = record._changes || {}
+  const defs = [] as any[]
+
+  if (isHeader) {
+    delete data.display_name;
+    delete changes.display_name;
+  }
+
+  defaultTemplate = defaultTemplate || {}
+  const defaultData = defaultTemplate[record.model] = defaultTemplate[record.model] || (await _getDefaultData(record))._changes
+  record.res_id =  _.uniqueId('virtual_')
+  recordMap.set(`${record.model}_${record.res_id}`, recordID)
+
+  _.each(data, (value, fieldName) => {
+    const field = fieldsInfo[fieldName]
+    if(fieldName === 'id' || fieldName === 'state') {
+      // TODO 判断不允许复制的字段
+      changes[fieldName] = data[fieldName] = defaultData[fieldName] || false;
+    } else if(field.type === 'one2many') {
+      defs.push(_copyX2ManyRecord(value, defaultTemplate))
+    } else {
+      changes[fieldName] = value
+    }
+  })
+
+  await Promise.all(defs)
+  record._changes = changes
+
+  // TODO trigger onchange 
+
+  return record
+}
+
+/**
+ * 表体行的复制处理
+ * @param list 
+ * @param id 
+ */
+export const copyLine = async (list: DataPoint, id: DataPointId) => {
+  const record = localData[id]
+  const fieldsInfo = list.fieldsInfo
+  const localRecordID = await _addX2ManyDefaultRecord(list, {})
+  const localRecord = localData[localRecordID]
+
+  const changes = _.extend({}, record.data, record._changes)
+
+  _.each(changes, (value: any, fieldName: string) => {
+    const field = fieldsInfo[fieldName]
+    // TODO judge field copy option to continue
+
+    if(field && field.type === 'one2many') {
+      // TODO process o2m field in list
+    } else if(fieldName !== 'id' && fieldName !== 'state') {
+      changes[fieldName] = value
+    }
+  })
+
+  localRecord._changes = changes
+  return localRecord
+}
+
+/**
  * 表单数据加载入口, 只会调用一次
  * @param params 
  */
@@ -763,6 +900,7 @@ export const load = async (params: LoadParams): Promise<DataPointId> => {
   _.each(_.keys(localData), (key: string) => {
     _.unset(localData, key)
   })
+  // recordMap.clear()
 
   if(params.type === 'record' && !params.res_id) {
     // create
@@ -854,7 +992,7 @@ export const get = (id: DataPointId) => {
 
   element = _applyX2ManyOperations(element)
   //TODO sort list?
-  _setDataInRange(element)
+  // _setDataInRange(element)
 
   const list = {
     ...element,
