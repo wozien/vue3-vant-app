@@ -449,6 +449,8 @@ function handleFlowReturn(action: any) {
     }
     const res = await flowReturn(state.nodeKey, state.opinion, Object.assign(getFlowParams(), context))
     if(res.ret === 0) {
+      await reload()
+      store.commit('SET_RECORD_TOKEN')
       Toast('退回成功'); cb()
     } 
   }
