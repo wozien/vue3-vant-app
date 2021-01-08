@@ -90,6 +90,7 @@ export default {
   format: {
     char: formatChar,
     text: formatChar,
+    boolean: _.identity,
     date: formatDate,
     datetime: formatDateTime,
     integer: formatInteger,
@@ -100,6 +101,7 @@ export default {
   parse: {
     char: _.identity,
     text: _.identity,
+    boolean: _.identity,
     date: parseDate,
     datetime: parseDateTime,
     integer: _.identity, // TODO

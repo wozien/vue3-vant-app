@@ -202,5 +202,6 @@ function useList(searchType: Ref<string>, user: Ref<User>) {
 <style lang="less" scoped>
 .list-container {
   height: calc(100vh - 44px);
+  overflow: auto;
 }
 </style>
