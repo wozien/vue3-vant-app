@@ -8,6 +8,7 @@ import '@assets/style/iconfont.less'
 import 'xe-utils'
 import VXETable from 'vxe-table'
 import 'vxe-table/lib/style.css'
+
 // import vConsole from 'vconsole'
 
 // new vConsole()

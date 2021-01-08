@@ -1,4 +1,5 @@
 const path = require('path')
+const webpack = require('webpack')
 const merge = require('webpack-merge')
 const tsImportPluginFactory = require('ts-import-plugin')
 
@@ -46,6 +47,16 @@ module.exports = {
         });
         return options
       })
+  },
+
+  configureWebpack: {
+    plugins: [
+      new webpack.DefinePlugin({
+        'process.env': {
+          WX_ENV: JSON.stringify(process.env.WX_ENV)
+        }
+      })
+    ]
   },
 
   css: {
