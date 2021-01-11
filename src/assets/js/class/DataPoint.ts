@@ -7,7 +7,7 @@ import _ from 'lodash'
 import { ViewType } from './index'
 import { FieldsInfo } from '@/assets/js/class'
 import fieldUtils from '@/assets/js/utils/field-utils'
-import { str2Date } from '@/assets/js/utils/date'
+import { str2Date, formatDate } from '@/assets/js/utils/date'
 import { fetchRecord, saveRecord, fetchDefaultValues } from '@/api/record'
 import { sessionStorageKeys } from '@/assets/js/constant'
 
@@ -504,6 +504,13 @@ const _generateChanges = (record: DataPoint, options: any) => {
       changes[fieldName] = false
     } else if(changes[fieldName] === null) {
       changes[fieldName] = false
+    }
+
+    // Date to UTC string
+    if(['date', 'datetime'].includes(type) && changes[fieldName]) {
+      const isUTC = type === 'datetime'
+      const fmt = isUTC ? 'yyyy-MM-dd hh:mm:ss' : 'yyyy-MM-dd'
+      changes[fieldName] = formatDate(fmt, changes[fieldName], isUTC)
     }
   }
 

@@ -2,27 +2,33 @@
  * 日期相关
  */
 
- export const formatDate = (fmt: string, date: Date = new Date()): string => {
-    const o = {   
-        'M+' : date.getMonth()+1,                 
-        'd+' : date.getDate(),                   
-        'h+' : date.getHours(),                   
-        'm+' : date.getMinutes(),               
-        's+' : date.getSeconds(),                
-        'q+' : Math.floor((date.getMonth()+3)/3), 
-        'S'  : date.getMilliseconds()             
-    };   
-    if(/(y+)/.test(fmt)) {
-        fmt=fmt.replace(RegExp.$1, (date.getFullYear()+'').substr(4 - RegExp.$1.length)); 
-    }
-        
-    for(var k in o)  {
-        if(new RegExp('('+ k +')').test(fmt)) {
-            fmt = fmt.replace(RegExp.$1, RegExp.$1.length == 1 ? 
-              (o as any)[k] : ('00'+ (o as any)[k]).substr((''+ (o as any)[k]).length));  
-        }
-    }
-    return fmt;   
+ export const formatDate = (fmt: string, date: Date = new Date(), isUTC = false): string => {
+  const year = isUTC ? date.getUTCFullYear() : date.getFullYear()
+  const month = isUTC ? date.getUTCMonth() : date.getMonth()
+  const day = isUTC ? date.getUTCDate() : date.getDate()
+  const hours = isUTC ? date.getUTCHours() : date.getHours()
+  const minutes = isUTC ? date.getUTCMinutes() : date.getMinutes()
+  const seconds = isUTC ? date.getUTCSeconds() : date.getSeconds()
+  const o = {   
+      'M+' : month + 1,                 
+      'd+' : day,                   
+      'h+' : hours,                   
+      'm+' : minutes,               
+      's+' : seconds,                
+      'q+' : Math.floor((month+3)/3), 
+      'S'  : isUTC ? date.getUTCMilliseconds() : date.getMilliseconds()             
+  };   
+  if(/(y+)/.test(fmt)) {
+      fmt=fmt.replace(RegExp.$1, (year + '').substr(4 - RegExp.$1.length)); 
+  }
+      
+  for(var k in o)  {
+      if(new RegExp('('+ k +')').test(fmt)) {
+          fmt = fmt.replace(RegExp.$1, RegExp.$1.length == 1 ? 
+            (o as any)[k] : ('00'+ (o as any)[k]).substr((''+ (o as any)[k]).length));  
+      }
+  }
+  return fmt;   
  }
 
 /**

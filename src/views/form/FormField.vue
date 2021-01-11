@@ -5,6 +5,8 @@
   <Many2One v-else-if="type === 'many2one'" v-bind="{field, item, readonly}"/>
   <!-- one2many -->
   <One2Many v-else-if="type === 'one2many'" v-bind="{field, item, readonly}"/>
+  <!-- date -->
+  <DateField v-else-if="type ==='date' || type === 'datetime'" v-bind="{field, item, readonly}"/>
   <!-- normal -->
   <div v-else class="form-item-field" :data-dbname="field && field.name" :data-type="type">
     <!-- boolean -->
@@ -31,13 +33,14 @@
 import { defineComponent, computed } from 'vue'
 import { useStore } from '@/store'
 import useFieldCommon, { fieldCommonProps } from '@/assets/js/hooks/field-common'
-import { Many2One, One2Many, Selection } from '@/components/odoo-field'
+import { Many2One, One2Many, Selection, DateField } from '@/components/odoo-field'
 
 export default defineComponent({
   components: {
     Many2One,
     One2Many,
-    Selection
+    Selection,
+    DateField
   },
 
   props: {

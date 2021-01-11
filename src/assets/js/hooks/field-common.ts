@@ -19,15 +19,24 @@ export default function(props: any, store: VuexStore) {
   const placeholder = computed(() => props.item && props.item.placeholder || `请输入${string.value}`)
   const type = computed(() => props.field && props.field.type)
 
-  const value = ref<FieldValue> ('')
-  const rawValue = ref<RawFieldValue>('')
+  const value = ref<FieldValue> ('')   // format value
+  const rawValue = ref<RawFieldValue>('')  // parse value
   const curRecord = computed<DataPointState>(() => store.getters.curRecord)
 
-  const setValue = async (value: any) => {
+  const setValue = async (val: any) => {
     const field = props.field
     if(field) {
-      value = (fieldUtils.parse as any)[field.type](value)
-      await notifyChanges(curRecord.value.id, { [field.name]: value })
+      const fieldType = field.type
+      if(['float', 'integer'].includes(fieldType)) {
+        // vant field 组件会把数字类型的设置为字符串
+        if(val == rawValue.value) return
+      }
+
+      if(!['date', 'datetime'].includes(fieldType)) {
+        // value is Date Object same as rawValue
+        val = (fieldUtils.parse as any)[fieldType](val)
+      }
+      await notifyChanges(curRecord.value.id, { [field.name]: val })
     }
     store.commit('SET_RECORD_TOKEN')
   }
