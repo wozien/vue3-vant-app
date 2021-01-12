@@ -10,9 +10,9 @@ const resolve = dir => {
 module.exports = {
   // 静态资源根路径
   publicPath: process.env.NODE_ENV === 'production' ? '/' : '/',
-  
   // 生产不打包sourcemap文件
   productionSourceMap: false,
+  parallel: false,
 
   chainWebpack: config => {
     // 别名
@@ -29,6 +29,7 @@ module.exports = {
       .use('ts-loader')
       .tap(options => {
         options = merge(options, {
+          happyPackMode: true,
           transpileOnly: true,
           getCustomTransformers: () => ({
             before: [
