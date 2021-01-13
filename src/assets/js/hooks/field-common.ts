@@ -23,22 +23,21 @@ export default function(props: any, store: VuexStore) {
   const rawValue = ref<RawFieldValue>('')  // parse value
   const curRecord = computed<DataPointState>(() => store.getters.curRecord)
 
+  let lastValue: any
+
   const setValue = async (val: any) => {
     const field = props.field
     if(field) {
       const fieldType = field.type
-      if(['float', 'integer'].includes(fieldType)) {
-        // vant field 组件会把数字类型的设置为字符串
-        if(val == rawValue.value) return
-      }
-
       if(!['date', 'datetime'].includes(fieldType)) {
         // value is Date Object same as rawValue
         val = (fieldUtils.parse as any)[fieldType](val)
       }
+      if(lastValue && lastValue === val) return
+
       await notifyChanges(curRecord.value.id, { [field.name]: val })
+      store.commit('SET_RECORD_TOKEN')
     }
-    store.commit('SET_RECORD_TOKEN')
   }
 
   watchEffect(() => {
@@ -51,7 +50,8 @@ export default function(props: any, store: VuexStore) {
       } else {
         rawValue.value = (data as DataPointData)[fieldName]
       }
-      
+      lastValue = rawValue.value
+
       if(!props.field.isX2Many()) {
         value.value = (fieldUtils.format as any)[field.type](rawValue.value, field)
       }

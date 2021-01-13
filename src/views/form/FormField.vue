@@ -15,13 +15,20 @@
         <van-checkbox v-model="value" shape="square" :disabled="readonly"/>
       </template>
     </van-field>
+    <!-- readonly -->
+    <van-field 
+      v-else-if="readonly"
+      :readonly="true"
+      :label="string"
+      v-model="value"
+      center
+    />
     <!-- char, integer, float， text -->
     <van-field v-else
       :type="renderType"
       :label="string" 
       :placeholder="placeholder" 
-      :readonly="readonly"
-      v-model="value"
+      v-model="rawValue"
       clearable
       center
       @update:model-value="setValue"
@@ -50,6 +57,7 @@ export default defineComponent({
   setup(props) {
     const store = useStore()
     const { string, placeholder, type, value, rawValue, setValue } = useFieldCommon(props, store)
+
     const renderType = computed(() => {
       return getRenderType(type.value)
     })

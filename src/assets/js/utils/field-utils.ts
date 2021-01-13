@@ -1,6 +1,8 @@
-import { str2Date, formatDate as date2Str } from './date'
 import _ from 'lodash'
+import { str2Date, formatDate as date2Str } from './date'
 import { DataPoint } from '@/assets/js/class'
+import { insertThousandSeps } from '@/assets/js/utils/tools'
+import sprintf from './sprintf.js'
 
 // -------------- format --------------
 
@@ -24,18 +26,22 @@ function formatDateTime(value: Date | boolean) {
 }
 
 function formatInteger(value: any) {
-  if(value === false) {
+  if(!value && value !== 0) {
     return ''
   }
-  // TODO 千分位处理
-  return value
+  // 千分位处理
+  return insertThousandSeps(sprintf('%d', value))
 }
 
 function formatFloat(value: any) {
   if(value === false) {
     return ''
   }
-  return value
+  // TODO 查看配置的精度
+  const percision = 2
+  const formatted = sprintf('%.' + percision + 'f', value || 0).split('.')
+  formatted[0] = insertThousandSeps(formatted[0])
+  return formatted.join('.')
 }
 
 function formatSelection(value: any, field?: any) {
@@ -54,6 +60,13 @@ function formatMany2one(value: DataPoint | [number, string]) {
 
 
 // --------------- parse --------------
+
+function parseNumber(value: string) {
+  // 把千分位数字字符串转为number
+  const escapedSep = _.escapeRegExp(',')
+  value = value.replace(new RegExp(escapedSep, 'g'), '').replace('.', '')
+  return Number(value)
+}
 
 function parseDate(value: string) {
   if (!value) {
@@ -104,8 +117,8 @@ export default {
     boolean: _.identity,
     date: parseDate,
     datetime: parseDateTime,
-    integer: _.identity, // TODO
-    float: _.identity,    // TODO
+    integer: parseNumber, 
+    float: parseNumber,    // TODO
     selection: _.identity,
     many2one: parseMany2one
   }

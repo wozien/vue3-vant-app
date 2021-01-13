@@ -58,3 +58,14 @@ export const uuid = (len = 6) => {
   }
   return res
 };
+
+/**
+ * 整形数字千分位
+ * @param num 
+ */
+export const insertThousandSeps = (num: number | string) => {
+  if(typeof num === 'number') num = num + ''
+
+  const exp = /\d{1,3}(?=(\d{3})+?)/g
+  return num.replace(exp, '$&,')
+}
