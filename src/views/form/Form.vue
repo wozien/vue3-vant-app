@@ -148,6 +148,8 @@ export default defineComponent({
     onBeforeUnmount(() => {
       const loadParams = JSON.parse(sessionStorage.getItem(sessionStorageKeys.loadParams) || '{}')
       sessionStorage.setItem(sessionStorageKeys.loadParams, JSON.stringify(_.omit(loadParams, 'id')))
+
+      store.commit('SET_CUR_RECORD', '')
     })
 
     return {

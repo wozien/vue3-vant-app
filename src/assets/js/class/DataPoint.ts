@@ -769,7 +769,7 @@ const _visitChildren = (element: DataPoint, fn: (el: DataPoint) => void) => {
 // ------  public  ------------
 
 export let localData: LocalData = {}
-export const recordMap = new Map<string, DataPointId>()
+export let recordMap: Map<string, DataPointId>
 export let rootID: DataPointId
 
 /**
@@ -907,7 +907,7 @@ export const load = async (params: LoadParams): Promise<DataPointId> => {
   _.each(_.keys(localData), (key: string) => {
     _.unset(localData, key)
   })
-  // recordMap.clear()
+  recordMap = new Map<string, DataPointId>()
 
   if(params.type === 'record' && !params.res_id) {
     // create

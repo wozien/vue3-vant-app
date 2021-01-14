@@ -16,8 +16,11 @@ export type RawFieldValue = FieldValue | DataPoint
 
 export default function(props: any, store: VuexStore) {
   const string = computed(() => props.item && (props.item.string || props.field.string))
-  const placeholder = computed(() => props.item && props.item.placeholder || `请输入${string.value}`)
   const type = computed(() => props.field && props.field.type)
+  const placeholder = computed(() => { 
+    const res = props.item && props.item.placeholder || `请输入${string.value}`
+    return props.readonly ? '' : res
+  })
 
   const value = ref<FieldValue> ('')   // format value
   const rawValue = ref<RawFieldValue>('')  // parse value
@@ -33,7 +36,7 @@ export default function(props: any, store: VuexStore) {
         // value is Date Object same as rawValue
         val = (fieldUtils.parse as any)[fieldType](val)
       }
-      if(lastValue && lastValue === val) return
+      if(lastValue !== undefined && lastValue === val) return
 
       await notifyChanges(curRecord.value.id, { [field.name]: val })
       store.commit('SET_RECORD_TOKEN')

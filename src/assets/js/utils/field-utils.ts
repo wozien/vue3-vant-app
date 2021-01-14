@@ -11,18 +11,25 @@ function formatChar(value: string) {
   return value
 }
 
+function formatBoolean(value: boolean, field: any, options?: any) {
+  if(options?.format) {
+    return value ? '是' : '否'
+  }
+  return value
+}
+
 function formatDate(value: Date | boolean) {
   if (typeof value === 'boolean') {
     return ''
   }
-  return date2Str('yyyy-MM-dd', value)
+  return date2Str('yyyy年MM月dd日', value)
 }
 
 function formatDateTime(value: Date | boolean) {
   if (typeof value === 'boolean') {
     return ''
   }
-  return date2Str('yyyy-MM-dd hh:mm', value)
+  return date2Str('yyyy年MM月dd日 hh时:mm分', value)
 }
 
 function formatInteger(value: any) {
@@ -112,7 +119,7 @@ export default {
   format: {
     char: formatChar,
     text: formatChar,
-    boolean: _.identity,
+    boolean: formatBoolean,
     date: formatDate,
     datetime: formatDateTime,
     integer: formatInteger,

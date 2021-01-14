@@ -24,6 +24,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { Record, FieldsInfo } from '@/assets/js/class'
 import { formatDate } from '@/assets/js/utils/date'
 import { sessionStorageKeys } from '@/assets/js/constant'
+import fieldUtils from '@/assets/js/utils/field-utils'
 
 interface ListCardField {
   name: string
@@ -123,21 +124,12 @@ function useCard(record: Record | ListCard, fieldsInfo: FieldsInfo, appName?:str
     res.fields.push(fieldItem)
 
     const fieldType = field.type
-    const fieldValue = record.raw[field.name]
-    if(fieldValue === false && fieldType !== 'boolean') return
-
-    if(fieldType === 'selection' && field.selection?.length) {
-      for(let [key, value] of field.selection) {
-        if(key === fieldValue) {
-          fieldItem.value = value; break
-        }
-      }
-    } else if(fieldType === 'many2one' && Array.isArray(fieldValue)) {
-      const [, value] = fieldValue
-      fieldItem.value = value
-    } else {
-      fieldItem.value = fieldValue
+    let fieldValue = record.raw[field.name]
+    if(fieldType === 'date' || fieldType === 'datetime') {
+      // to Date Obj
+      fieldValue = (fieldUtils.parse as any)[fieldType](fieldValue, field)
     }
+    fieldItem.value = (fieldUtils.format as any)[fieldType](fieldValue, field, { format: fieldType === 'boolean' })
   })
 
   return res

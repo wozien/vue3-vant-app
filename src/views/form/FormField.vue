@@ -12,7 +12,7 @@
     <!-- boolean -->
     <van-field v-if="type === 'boolean'" :label="string" >
       <template #input>
-        <van-checkbox v-model="value" shape="square" :disabled="readonly"/>
+        <van-checkbox v-model="value" shape="square" :disabled="readonly" @change="setValue"/>
       </template>
     </van-field>
     <!-- readonly -->
@@ -23,12 +23,24 @@
       v-model="value"
       center
     />
-    <!-- char, integer, float， text -->
-    <van-field v-else
+    <!-- integer, float -->
+    <van-field 
+      v-else-if="type === 'integer' || type === 'float'"
       :type="renderType"
       :label="string" 
       :placeholder="placeholder" 
       v-model="rawValue"
+      clearable
+      center
+      @update:model-value="setValue"
+    />
+    <!-- char, text -->
+    <van-field 
+      v-else
+      :type="renderType"
+      :label="string" 
+      :placeholder="placeholder" 
+      v-model="value"
       clearable
       center
       @update:model-value="setValue"
