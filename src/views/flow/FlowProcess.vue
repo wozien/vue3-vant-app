@@ -28,13 +28,13 @@
   </div>
 </template>
 
-<script>
-import { ref, watchEffect } from 'vue'
+<script lang="ts">
+import { defineComponent ,ref, watchEffect } from 'vue'
 import BpmnJS from 'bpmn-js/lib/Modeler'
 import { formatDate } from '@/assets/js/utils/date'
 import { Dialog } from 'vant'
 
-export default {
+export default defineComponent({
   props: {
     options: {
       type: Object,
@@ -55,7 +55,7 @@ export default {
 
     watchEffect(() => {
       if(props.options.nodelist) {
-        list.value = props.options.nodelist.map(item => {
+        list.value = props.options.nodelist.map((item: any) => {
           const date = new Date(item.time.replace(/-/g, '/'))
           return {
             ...item,
@@ -71,12 +71,12 @@ export default {
       active
     }
   }
-}
+})
 
 //  bpmn logic
-let viewer
+let viewer: any
 
-async function initBpmn(container, options) {
+async function initBpmn(container: any, options: any) {
   container.innerHTML = ''
   viewer = new BpmnJS({ container })
 
@@ -84,7 +84,7 @@ async function initBpmn(container, options) {
     await viewer.importXML(options.xml)
     viewer.get('canvas').zoom('fit-viewport', 'center')
     setColor(options)
-    disabledEvent(options)
+    disabledEvent()
     bindEvent(container, options)
   } catch(err) {
     // const { warnings, message } = err
@@ -92,7 +92,7 @@ async function initBpmn(container, options) {
   }
 }
 
-function setColor(options) {
+function setColor(options: any) {
   const colors = {
     default: '#c8c9cc',
     done: '#07c160',
@@ -103,7 +103,7 @@ function setColor(options) {
   options.currentNodeId && setNodeColor(options.currentNodeId, colors.current)
 }
 
-function setDefaultColor(color) {
+function setDefaultColor(color: any) {
   const elements = viewer.get('elementRegistry')._elements
   const nodeObj = { shape: [] }
   for(let key in elements) {
@@ -113,17 +113,17 @@ function setDefaultColor(color) {
   changeColor(nodeObj, color)
 }
 
-function setNodeColor(nodeIds, color) {
+function setNodeColor(nodeIds: any, color: any) {
   const registry = viewer.get('elementRegistry')
   const nodeObj = { shape: [] }
-  nodeIds.forEach(id => {
+  nodeIds.forEach((id: any) => {
     const element = registry.get(id)
     classifyNode(nodeObj, element)
   })
   changeColor(nodeObj, color)
 }
 
-function classifyNode(nodeObj, element) {
+function classifyNode(nodeObj: any, element: any) {
   if(element.type === 'bpmn:EndEvent') {
     nodeObj.end = element
   } else if(element.type === 'bpmn:StartEvent') {
@@ -133,7 +133,7 @@ function classifyNode(nodeObj, element) {
   }
 }
 
-function changeColor(nodeObj, color) {
+function changeColor(nodeObj: any, color: any) {
   const modeling = viewer.get('modeling')
   nodeObj.start && modeling.setColor(nodeObj.start, { stroke: color })
   nodeObj.end && modeling.setColor(nodeObj.end, { stroke: color })
@@ -171,8 +171,8 @@ function disabledEvent() {
   eventBus.off(disableEvents, null)
 }
 
-function showNodeInfo(nodeInfos) {
-  const getMessage = (nodeInfo) => {
+function showNodeInfo(nodeInfos: any) {
+  const getMessage = (nodeInfo: any) => {
     return `    审核人: ${nodeInfo.person}
     ${nodeInfo.time ? (`审核时间: ${nodeInfo.time}
     审核状态: ${nodeInfo.state ? '审核通过': '审核驳回'}`) : ''}
@@ -187,9 +187,9 @@ function showNodeInfo(nodeInfos) {
   }, 200);
 }
 
-function bindEvent(container, options) {
+function bindEvent(container: any, options: any) {
   if(options.nodes) {
-    options.nodes.forEach(node => {
+    options.nodes.forEach((node: any) => {
       const elem = container.querySelector(`[data-element-id=${node.nodeId}]`)
       elem && elem.addEventListener('touchstart', () => {
         showNodeInfo(node.nodeinfo)

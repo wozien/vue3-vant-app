@@ -8,3 +8,8 @@ declare module 'url' {
   const classes: any
   export default classes
 }
+
+declare module 'bpmn-js/lib/Modeler' {
+  const classes: any
+  export default classes
+}

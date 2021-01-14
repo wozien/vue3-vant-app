@@ -58,6 +58,15 @@ function formatMany2one(value: DataPoint | [number, string]) {
   return value
 }
 
+function formatX2Many(value: any) {
+  if (value.data.length === 0) {
+      return 'No records'
+  } else if (value.data.length === 1) {
+      return '1 record'
+  } else {
+      return value.data.length + ' records'
+  }
+}
 
 // --------------- parse --------------
 
@@ -109,7 +118,9 @@ export default {
     integer: formatInteger,
     float: formatFloat,
     selection: formatSelection,
-    many2one: formatMany2one
+    many2one: formatMany2one,
+    one2many: formatX2Many,
+    many2many: formatX2Many
   },
   parse: {
     char: _.identity,
@@ -120,6 +131,8 @@ export default {
     integer: parseNumber, 
     float: parseNumber,    // TODO
     selection: _.identity,
-    many2one: parseMany2one
+    many2one: parseMany2one,
+    one2many: _.identity,
+    many2many: _.identity
   }
 }

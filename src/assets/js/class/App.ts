@@ -126,9 +126,10 @@ class App {
       findTree(view.items, (item: Item) => {
         if(item.fieldKey) {
           const field = model?.fields.find((f: Field) => f.key === item.fieldKey)
+          const options = field?.options || {}
           if(field) {
             const info = {
-              type: field.type,
+              type: options.relatedType || field.type,
               name: field.name,
               string: item.string
             }
