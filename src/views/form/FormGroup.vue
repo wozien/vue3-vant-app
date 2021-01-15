@@ -1,9 +1,9 @@
 <template>
   <!-- group -->
   <div class="form-item-grop" v-if="type === 'group'">
-    <h2 class="group-header" v-if="renderItem.string" @click="expanded = !expanded">
+    <h2 class="group-header" v-if="renderItem.string" @click="toggle">
       <span class="string">{{ renderItem.string }}</span>
-      <van-icon v-if="canfold" name="arrow-down" :class="['fold-icon', !expanded && 'rotate-fold-icon']" />
+      <van-icon v-if="canfold" name="arrow" :class="['fold-icon', !expanded && 'rotate-fold-icon']" />
     </h2>
     <div class="group-wrapper" ref="wrapperRef" @transitionend="onTransitionEnd" v-show="show">
       <div class="group-content" ref="contentRef">
@@ -40,6 +40,11 @@ export default defineComponent({
       return attrs.value.can_fold && attrs.value.can_fold.checked
     })
 
+    const toggle = () => {
+      if(!canfold.value) return
+      expanded.value = !expanded.value
+    }
+
     const onTransitionEnd = () => {
       if(!expanded.value) {
         show.value = false
@@ -64,7 +69,7 @@ export default defineComponent({
         if(offsetHeight) {
           const contentHeight = `${offsetHeight}px`
           wrapperRef.value.style.height = val ? 0 : contentHeight
-          
+
           // use double raf to ensure animation can start
           doubleRaf(() => {
             wrapperRef.value.style.height = val ? contentHeight : 0
@@ -81,6 +86,7 @@ export default defineComponent({
       show,
       wrapperRef,
       contentRef,
+      toggle,
       onTransitionEnd
     }
   }
@@ -101,8 +107,9 @@ export default defineComponent({
 
     .fold-icon {
       transition: transform .25s ease;
+      transform: rotate(-90deg);
       &.rotate-fold-icon {
-        transform: rotate(-180deg);
+        transform: rotate(90deg);
       }
     }
   }
