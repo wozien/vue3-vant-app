@@ -33,7 +33,6 @@
 <script lang="ts">
 import { defineComponent, reactive, toRefs, computed, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { useStore } from '@/store'
 import ListCard from './ListCard.vue'
 import { Record } from '@/assets/js/class'
 import { viewCommonProps } from '@/assets/js/hooks/view-common'
@@ -52,7 +51,6 @@ export default defineComponent({
   setup(props) {
     const route = useRoute()
     const router = useRouter()
-    const store = useStore()
 
     const state = reactive({
       searchValue: '',
@@ -114,7 +112,6 @@ export default defineComponent({
     return {
       ...toRefs(state),
       searchFields,
-      curRecord: computed(() => store.getters.curRecord),
       onLoad,
       onRefresh,
       onAddBtn

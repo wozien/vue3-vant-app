@@ -25,7 +25,8 @@ export interface ViewButton {
   funcType: string
   highlight: Boolean
   mode: ViewButtonMode
-  isFlow: Boolean
+  isFlow: Boolean,
+  loading: Boolean
 }
 
 class View {
@@ -74,7 +75,8 @@ class View {
           funcType: button.func_type,
           mode: button.mode,
           highlight: button.highlight,
-          isFlow: this._isFlowButton(button)
+          isFlow: this._isFlowButton(button),
+          loading: false
         })
       }
     }, 'children')
@@ -116,7 +118,8 @@ class View {
       funcType: 'preset',
       mode: mode || 'edit',
       highlight: false,
-      isFlow: false
+      isFlow: false,
+      loading: false
     }
   }
 

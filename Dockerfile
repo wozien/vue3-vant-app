@@ -10,7 +10,9 @@ COPY . /app
 RUN yarn config set registry https://registry.npm.taobao.org
 
 RUN yarn
-RUN yarn build
+# 生产环境
+# RUN yarn build
+RUN yarn build:uat
 
 RUN rm -rf /app/src
 RUN rm -rf /app/node_modules

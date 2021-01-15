@@ -1,6 +1,7 @@
 <template>
   <van-button 
     :type="highlight ? 'primary' : 'default'"
+    :loading="button.loading"
     size="small" 
     round
     @click="onClickBtn"

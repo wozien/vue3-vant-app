@@ -21,6 +21,7 @@
     <div class="form-canvas" :style="{'height': height + 'px'}">
       <FormCanvas :items="curView && curView.items" :fields="fields"/>
     </div>
+    <LineSwitcher v-show="showLineSwitcher"/>
     <ButtonView :buttons="curView && curView.buttons"/>
   </Page>
 </template>
@@ -36,6 +37,7 @@ import { Toast } from 'vant'
 import { useStore } from '@/store'
 import FormCanvas from './FormCanvas'
 import ButtonView from '@/components/odoo-button/ButtonView.vue'
+import LineSwitcher from '@/components/line-switcher/LineSwitcher.vue'
 import { formatDate } from '@/assets/js/utils/date'
 import { viewCommonProps } from '@/assets/js/hooks/view-common'
 import { getRecordId } from '@/assets/js/class/DataPoint'
@@ -44,7 +46,8 @@ import { sessionStorageKeys } from '@/assets/js/constant'
 export default defineComponent({
   components: {
     FormCanvas,
-    ButtonView
+    ButtonView,
+    LineSwitcher
   },
 
   props: {
@@ -71,9 +74,11 @@ export default defineComponent({
       const { readonly, subModel } = route.query
       return readonly === '1' && !subModel
     })
+    const showLineSwitcher = computed(() => {
+      return !!route.query.subModel
+    })
     const height = computed(() => {
-      const res = document.body.clientHeight - 50
-      return showHeader.value ? res - 70 : res
+      return document.body.clientHeight - 50 - +(showHeader.value && 70) - +(showLineSwitcher.value && 50)
     })
     const curRecord = computed(() => store.getters.curRecord)
 
@@ -155,6 +160,7 @@ export default defineComponent({
     return {
       ...toRefs(data),
       showHeader,
+      showLineSwitcher,
       height,
       localData: computed(() => store.state.localData),
       curRecordId: computed(() => store.state.curRecordId),

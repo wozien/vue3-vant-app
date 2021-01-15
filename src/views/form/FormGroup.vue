@@ -1,12 +1,14 @@
 <template>
   <!-- group -->
   <div class="form-item-grop" v-if="type === 'group'">
-    <h2 class="group-header" v-if="renderItem.string">
+    <h2 class="group-header" v-if="renderItem.string" @click="expanded = !expanded">
       <span class="string">{{ renderItem.string }}</span>
-      <van-icon name="arrow-down" v-if="canfold"></van-icon>
+      <van-icon v-if="canfold" name="arrow-down" :class="['fold-icon', !expanded && 'rotate-fold-icon']" />
     </h2>
-    <div class="group-container">
-      <slot></slot>
+    <div class="group-wrapper" ref="wrapperRef" @transitionend="onTransitionEnd" v-show="show">
+      <div class="group-content" ref="contentRef">
+        <slot></slot>
+      </div>
     </div>
   </div>
 
@@ -17,8 +19,9 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType, computed } from 'vue'
+import { defineComponent, PropType, ref, computed, watch, nextTick } from 'vue'
 import { Item } from '@/assets/js/class'
+import { doubleRaf, raf } from '@vant/use'
 
 export default defineComponent({
   props: {
@@ -27,14 +30,58 @@ export default defineComponent({
   },
 
   setup(props) {
+    const expanded = ref(true)
+    const show = ref(expanded.value)
+    const wrapperRef = ref()
+    const contentRef = ref()
+
     const attrs = computed(() => props.renderItem && props.renderItem.attrs || {})
     const canfold = computed(() => {
       return attrs.value.can_fold && attrs.value.can_fold.checked
     })
+
+    const onTransitionEnd = () => {
+      if(!expanded.value) {
+        show.value = false
+      } else {
+        wrapperRef.value.style.height = ''
+      }
+    }
+
+    watch(expanded, (val) => {
+      if(val) {
+        show.value = true
+      }
+
+      // Use raf: flick when opened in safari
+      // Use nextTick: closing animation failed when set `user-select: none`
+      const tick = val ? nextTick : raf
+
+      tick(() => {
+        if(!wrapperRef.value || !contentRef.value) return
+
+        const { offsetHeight } = contentRef.value
+        if(offsetHeight) {
+          const contentHeight = `${offsetHeight}px`
+          wrapperRef.value.style.height = val ? 0 : contentHeight
+          
+          // use double raf to ensure animation can start
+          doubleRaf(() => {
+            wrapperRef.value.style.height = val ? contentHeight : 0
+          })
+        } else {
+          onTransitionEnd()
+        }
+      })
+    })
     
     return {
-      attrs,
-      canfold
+      canfold,
+      expanded,
+      show,
+      wrapperRef,
+      contentRef,
+      onTransitionEnd
     }
   }
 })
@@ -51,6 +98,19 @@ export default defineComponent({
       flex: 1;
       font-size: 13px;
     }
+
+    .fold-icon {
+      transition: transform .25s ease;
+      &.rotate-fold-icon {
+        transform: rotate(-180deg);
+      }
+    }
+  }
+
+  .group-wrapper {
+    overflow: hidden;
+    transition: height 0.3s ease-in-out;
+    will-change: height;
   }
 }
 </style>

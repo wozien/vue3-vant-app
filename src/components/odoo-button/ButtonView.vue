@@ -77,34 +77,36 @@ export default defineComponent({
 
     // 按钮点击入口
     const onButtonClick = async (button: string | ViewButton) => {
+
       if(typeof button === 'string') {
         button = renderButtons.value.find((btn: ViewButton) => btn.key === button) as ViewButton
       }
 
+      button.loading = true
       if(button.type === 'event') {
         // 前端写死的按钮
         switch(button.funcName) {
           case 'edit':
             onEdit(); break
           case 'save':
-            onSave(); break
+            await onSave(); break
           case 'cancel':
             onCancel(); break
           case 'create': 
             onCreate(); break
           case 'copy': 
-            onCopy(); break
+            await onCopy(); break
           case 'back':
           case 'saveLine':
             router.back(); break
           case 'insertLine': 
-            onInsertLine(); break
+            await onInsertLine(); break
           case 'newLine':
-            onNewLine(); break
+            await onNewLine(); break
           case 'deleteLine':
             onDeleteLine(); break
           case 'copyLine':
-            onCopyLine(); break
+            await onCopyLine(); break
 
         }
       } else if(button.type === 'object') {    
@@ -127,6 +129,8 @@ export default defineComponent({
           }
         }
       }
+
+      button.loading = false
     }
 
     const onSelect = (item: any) => onButtonClick(item)
@@ -226,10 +230,10 @@ export default defineComponent({
       })
     }
     // 行插入
-    const onInsertLine = () => {
+    const onInsertLine = async () => {
       const list = get(curRecord.value.parentId)
       const rowIndex = _.findIndex((list as any).data || [], (record: any) => record.id === curRecord.value.id)
-      onNewLine(rowIndex !== -1 ? +rowIndex : undefined)
+      await onNewLine(rowIndex !== -1 ? +rowIndex : undefined)
     }
     // 保存并新增
     const onNewLine = async (rowIndex?: number) => {

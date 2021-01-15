@@ -1185,7 +1185,7 @@
 
 "@vant/use@^1.0.2":
   version "1.0.2"
-  resolved "https://registry.npm.taobao.org/@vant/use/download/@vant/use-1.0.2.tgz?cache=0&other_urls=https%3A%2F%2Fregistry.npm.taobao.org%2F%40vant%2Fuse%2Fdownload%2F%40vant%2Fuse-1.0.2.tgz#75486aedf3539382baa922c77eeb8a2e2394a948"
+  resolved "https://registry.npm.taobao.org/@vant/use/download/@vant/use-1.0.2.tgz#75486aedf3539382baa922c77eeb8a2e2394a948"
   integrity sha1-dUhq7fNTk4K6qSLHfuuKLiOUqUg=
   dependencies:
     "@babel/runtime" "7.x"
