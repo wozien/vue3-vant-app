@@ -37,6 +37,7 @@ import ListCard from './ListCard.vue'
 import { Record } from '@/assets/js/class'
 import { viewCommonProps } from '@/assets/js/hooks/view-common'
 import { fetchListData } from '@/api/app'
+import { fetchReferencesBatch } from '@/assets/js/class/Record'
 
 export default defineComponent({
   components: {
@@ -67,10 +68,11 @@ export default defineComponent({
     const onLoad = async () => {
       if(searchFields.value.length) {      
         const res = await fetchListData(route.query.model as string, lastId, searchFields.value)
-        state.loading = false
         state.refreshing = false
         if(res.ret === 0) {
           if(res.data.length) {
+            await fetchReferencesBatch(res.data, props.fieldsInfo)
+            state.loading = false  // loading的状态需要放在所有请求完成
             res.data.forEach((raw: any, index: number) => {
               const record = new Record(raw)
               state.list.push(record)

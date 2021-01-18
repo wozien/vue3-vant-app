@@ -46,6 +46,16 @@ export const fetchDefaultValues = async (model: string, fieldNames: string[]) =>
 }
 
 /**
+ * odoo name_get 接口
+ * @param model 
+ * @param resID 
+ */
+export const fetchNameGet = async (model: string, resID: number | number[]): Promise<HttpRes> => {
+  const res = await callKw(model, 'name_get', [resID])
+  return res.data
+}
+
+/**
  * 单据保存
  * @param model 
  * @param method 
@@ -64,13 +74,6 @@ export const saveRecord = async (model: string, method: string, id: number, chan
  * @param id 
  */
 export const deleteRecord = async (model: string, id: number, context = {}): Promise<HttpRes> => {
-  // const context = {
-  //   class_name: model,
-  //   active_model: model,
-  //   model_ids: [id],
-  //   numbers_json: JSON.stringify([id])
-  // }
-
   let res = await callKw('sys.admin.delete.confirm.wizard', 'create', [{}], { context })
   if(res.data) {
     res = res.data

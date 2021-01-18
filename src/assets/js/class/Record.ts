@@ -1,9 +1,12 @@
 /**
- * 表单记录
+ * 列表记录处理
  */
 
+import _ from 'lodash'
 import { getApp } from './App'
 import { str2Date } from '@/assets/js/utils/date'
+import { FieldsInfo } from './Field'
+import { fetchNameGet } from '@/api/record'
 
 export interface RecordRaw {
   id: number
@@ -75,6 +78,54 @@ class Record {
       }
     }
   }
+}
+
+const _getTofetch = (data: any[], fieldsInfo: FieldsInfo) => {
+  const res = {} as any
+  data.forEach((row: any) => {
+    for(let fieldName in row) {
+      const field = fieldsInfo[fieldName]
+      if(field && field.type === 'reference') {
+        const [model, resID] = row[fieldName].split(',')
+        if(!res[model]) {
+          res[model] = []
+        }
+        res[model].push(+resID)
+      }
+    }
+  })
+
+  return res
+}
+
+/**
+ * 批量获取列表的reference字段
+ * @param raws 
+ * @param fieldsInfo 
+ */
+export const fetchReferencesBatch = async (raws: RecordRaw[], fieldsInfo?: FieldsInfo) => {
+  if(!fieldsInfo) return;
+  const toFetchs = _getTofetch(raws.map((raw: RecordRaw) => raw.odoo_data), fieldsInfo)
+
+  const result = {} as any
+  await Promise.all(_.map(toFetchs, async (ids: number[], model: string) => {
+    const res = await fetchNameGet(model, ids)
+    if(res.ret === 0) {
+      _.each(res.data, (value: any) => {
+        result[`${model},${value[0]}`] = value
+      })
+    }
+  }))
+
+  raws.forEach((raw: RecordRaw) => {
+    _.each(raw.odoo_data, (value: any, fieldName: string) => {
+      const field = fieldsInfo[fieldName]
+      if(field && field.type === 'reference') {
+        raw.odoo_data[fieldName] = result[value]
+      }
+    })
+  })
+
 }
 
 export default Record

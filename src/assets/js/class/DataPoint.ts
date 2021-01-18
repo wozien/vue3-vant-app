@@ -8,7 +8,7 @@ import { ViewType } from './index'
 import { FieldsInfo } from '@/assets/js/class'
 import fieldUtils from '@/assets/js/utils/field-utils'
 import { str2Date, formatDate } from '@/assets/js/utils/date'
-import { fetchRecord, saveRecord, fetchDefaultValues } from '@/api/record'
+import { fetchRecord, saveRecord, fetchDefaultValues, fetchNameGet } from '@/api/record'
 import { sessionStorageKeys } from '@/assets/js/constant'
 
 export type DataPointId = string
@@ -303,7 +303,10 @@ const _fetchRecord = async (record: DataPoint) => {
         ..._.pick(recordData, ['state', 'state_name'])
       })
       _parseServerData(record)
-      await _fetchX2Manys(record)
+      await Promise.all([
+        _fetchX2Manys(record),
+        _fetchReferences(record),
+      ])
     }
   }
 }
@@ -363,6 +366,53 @@ const _fetchX2ManysData = async (list: DataPoint) => {
     })
   }
   return res.data
+}
+
+/**
+ * 新建reference的record
+ * @param record 
+ * @param fieldName 
+ */
+const _fetchReference = async (record: DataPoint, fieldName: string): Promise<DataPoint | undefined> => {
+  const value = record._changes && record._changes[fieldName] || record.data[fieldName]
+  const [model, resID] = value && value.split(',')
+  if(model && model !== 'False' && resID) {
+    const res = await fetchNameGet(model, +resID)
+    if(res.ret === 0 && res.data?.length) {
+      const result = res.data
+      return _makeDataPoint({
+        data: {
+          id: result[0][0],
+          display_name: result[0][1]
+        },
+        fieldsInfo: {
+          id: { type: 'integer', name: 'id'},
+          display_name: { type: 'char', name: 'display_name'} 
+        },
+        parentId: record.id,
+        modelName: model,
+        viewType: 'form',
+      })
+    }
+  }
+}
+
+/**
+ * 获取reference数据
+ * @param record 
+ */
+const _fetchReferences = async (record: DataPoint) => {
+  const fieldsInfo = record.fieldsInfo
+  const defs = [] as any[]
+  _.each(fieldsInfo, (field: any, fieldName: string) => {
+    if(field.type === 'reference') {
+      const def = _fetchReference(record, fieldName).then((dataPoint?: DataPoint) => {
+        dataPoint && (record.data[fieldName] = dataPoint.id)
+      })
+      defs.push(def)
+    }
+  })
+  return Promise.all(defs)
 }
 
 /**
@@ -982,10 +1032,8 @@ export const get = (id: DataPointId) => {
       }
       if(!field) continue
 
-      if(field.type === 'many2one') {
+      if(field.type === 'many2one' || field.type === 'reference') {
         data[fieldName] = get(data[fieldName]) || false
-      } else if(field.type === 'reference') {
-        // TODO reference field handle
       } else if(field.type === 'one2many' || field.type === 'many2many') {
         data[fieldName] = get(data[fieldName]) || []
       }

@@ -56,7 +56,8 @@ export default function(props: any, store: VuexStore) {
       lastValue = rawValue.value
 
       if(!props.field.isX2Many()) {
-        value.value = (fieldUtils.format as any)[field.type](rawValue.value, field)
+        const fieldType = field.options?.relatedType || field.type
+        value.value = (fieldUtils.format as any)[fieldType](rawValue.value, field)
       }
     }
   })

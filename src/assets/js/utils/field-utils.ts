@@ -127,7 +127,8 @@ export default {
     selection: formatSelection,
     many2one: formatMany2one,
     one2many: formatX2Many,
-    many2many: formatX2Many
+    many2many: formatX2Many,
+    reference: formatMany2one,
   },
   parse: {
     char: _.identity,
@@ -140,6 +141,7 @@ export default {
     selection: _.identity,
     many2one: parseMany2one,
     one2many: _.identity,
-    many2many: _.identity
+    many2many: _.identity,
+    reference: parseMany2one
   }
 }
