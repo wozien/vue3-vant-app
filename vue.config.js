@@ -68,6 +68,8 @@ module.exports = {
           modifyVars: {
             'tabs-default-color': '#1989fa',
             'dialog-confirm-button-text-color': '#1989fa',
+            'tree-select-item-active-color': '#1989fa',
+            'sidebar-selected-border-color': '#1989fa',
             'popover-action-line-height': 44
           }
         },

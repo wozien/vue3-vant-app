@@ -125,7 +125,6 @@ export const fetchReferencesBatch = async (raws: RecordRaw[], fieldsInfo?: Field
       }
     })
   })
-
 }
 
 export default Record

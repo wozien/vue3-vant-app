@@ -25,7 +25,8 @@ import {
   IndexAnchor,
   Tag,
   Lazyload,
-  DatetimePicker
+  DatetimePicker,
+  TreeSelect
 } from 'vant'
 
 export default function(app: App){
@@ -55,4 +56,5 @@ export default function(app: App){
   app.use(Tag)
   app.use(Lazyload)
   app.use(DatetimePicker)
+  app.use(TreeSelect)
 }

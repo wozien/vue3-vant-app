@@ -72,7 +72,7 @@ export default defineComponent({
         if(res.ret === 0) {
           if(res.data.length) {
             await fetchReferencesBatch(res.data, props.fieldsInfo)
-            state.loading = false  // loading的状态需要放在所有请求完成
+            state.loading = false  // loading的状态需要放在所有后面
             res.data.forEach((raw: any, index: number) => {
               const record = new Record(raw)
               state.list.push(record)

@@ -3,6 +3,8 @@
   <Selection v-if="type === 'selection'" v-bind="{field, item, readonly}" />
   <!-- many2one -->
   <Many2One v-else-if="type === 'many2one'" v-bind="{field, item, readonly}"/>
+  <!-- reference -->
+  <Reference v-else-if="type === 'reference'" v-bind="{field, item, readonly}"/>
   <!-- one2many -->
   <One2Many v-else-if="type === 'one2many'" v-bind="{field, item, readonly}"/>
   <!-- date -->
@@ -52,14 +54,15 @@
 import { defineComponent, computed } from 'vue'
 import { useStore } from '@/store'
 import useFieldCommon, { fieldCommonProps } from '@/assets/js/hooks/field-common'
-import { Many2One, One2Many, Selection, DateField } from '@/components/odoo-field'
+import { Many2One, One2Many, Selection, DateField, Reference } from '@/components/odoo-field'
 
 export default defineComponent({
   components: {
     Many2One,
     One2Many,
     Selection,
-    DateField
+    DateField,
+    Reference
   },
 
   props: {

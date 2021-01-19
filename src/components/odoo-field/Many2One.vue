@@ -12,13 +12,15 @@
     />
 
     <Modal v-model:show="showModal" confirm-text="确定" @confirm="onConfirm">
-      <div class="list-wrapper">
+      <div class="refer-selector">
         <van-search v-model="searchValue" placeholder="输入名称搜索" shape="round"></van-search>
-        <van-cell v-for="item in list" :key="item.id" :title="item.display_name" @click="active=item.id">
-          <template #right-icon>
-            <van-icon v-if="active === item.id" name="success"></van-icon>
-          </template>
-        </van-cell>
+        <div class="list-wrapper">
+          <van-cell v-for="item in list" :key="item.id" :title="item.display_name" @click="active=item.id">
+            <template #right-icon>
+              <van-icon v-if="active === item.id" name="success"></van-icon>
+            </template>
+          </van-cell>
+        </div>
       </div>
     </Modal>
   </div>
@@ -30,8 +32,6 @@ import { useStore } from '@/store'
 import useFieldCommon, { fieldCommonProps } from '@/assets/js/hooks/field-common'
 import { fetchMany2OneData } from '@/api/record'
 import { Toast } from 'vant'
-
-type Many2OneValue = [number, string]
 
 export default defineComponent({
   props: {
@@ -102,4 +102,11 @@ function useModal(props: any) {
 </script>
 
 <style lang="less" scoped>
+.refer-selector {
+  height: 100%;
+  .list-wrapper {
+    height: calc(100% - 54px);
+    overflow-y: auto;
+  }
+}
 </style>

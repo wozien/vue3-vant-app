@@ -185,18 +185,20 @@ const _applyX2OneChange = (record: DataPoint, fieldName: string, data: any) => {
   }
 
   const relatedRecord = localData[relatedID];
-  if (relatedRecord && (data.id === localData[relatedID].res_id)) {
+  if (relatedRecord && (data.id === localData[relatedID].res_id) && 
+      (!data.model || data.model === relatedRecord.model)) {
     return
   }
 
   const relData = _.pick(data, 'id', 'display_name');
   const field = record.fieldsInfo[fieldName]
+  const coModel = field.type === 'reference' ? data.model : field.relation
   // TODO fetch name_get
 
   const rec = _makeDataPoint({
     data: relData,
     fieldsInfo: {},
-    modelName: field.relation as string,
+    modelName: coModel,
     parentId: record.id,
     res_id: data.id,
     viewType: 'form'
@@ -549,7 +551,8 @@ const _generateChanges = (record: DataPoint, options: any) => {
       value = changes[fieldName]
       changes[fieldName] = value ? localData[value].res_id : false
     } else if(type === 'reference' && fieldName in changes) {
-      // TODO 
+      value = changes[fieldName]
+      changes[fieldName] = value ? localData[value].model + ',' + localData[value].res_id : false
     } else if(type === 'char' && changes[fieldName] === '') {
       changes[fieldName] = false
     } else if(changes[fieldName] === null) {
