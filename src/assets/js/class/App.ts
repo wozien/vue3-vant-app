@@ -2,7 +2,7 @@
  * 应用类
  */
 import _ from 'lodash'
-import { Action, Model, View, ViewType, Item, Field, FieldsInfo } from './index' 
+import { Action, Model, View, ViewType, Item, Field, FieldsInfo, FieldInfo } from './index' 
 import { fetchAction, fetchAppModel, fetchAppView } from '@/api/app'
 import { fetchFlowView } from '@/api/workflow'
 import { findTree } from '@/assets/js/utils/tools'
@@ -121,22 +121,25 @@ class App {
   getViewFields(views: View[], parentObj?: any) {
     parentObj = parentObj || this.fieldsInfo
     for(let view of views) {
-      const fieldsInfo = {} as any
+      const fieldsInfo = {} as FieldsInfo
       const model = this.getModel(view.model)
       findTree(view.items, (item: Item) => {
         if(item.fieldKey) {
           const field = model?.fields.find((f: Field) => f.key === item.fieldKey)
           const options = field?.options || {}
           if(field) {
-            const info = {
+            const info: FieldInfo = {
               type: options.relatedType || field.type,
               name: field.name,
               string: item.string
             }
-            field.relation && ((info as any).relation = field.relation)
-            field.selection && ((info as any).selection = field.selection)
+            field.relation && (info.relation = field.relation)
+            field.selection && (info.selection = field.selection)
             if(item.subView?.length) {
               this.getViewFields(item.subView, info)
+            }
+            if(item.attrs?.on_change === '1') {
+              info.onChange = true
             }
             fieldsInfo[info.name] = info
           }

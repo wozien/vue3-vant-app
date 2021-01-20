@@ -84,3 +84,14 @@ export const deleteRecord = async (model: string, id: number, context = {}): Pro
   
   return res.data
 }
+
+/**
+ * odoo onchange
+ * @param model 
+ * @param args 
+ * @param context 
+ */
+export const fetchOnChange = async (model: string, args: any[], context = {}): Promise<HttpRes> => {
+  let res = await callKw(model, 'onchange', args, { context })
+  return res.data
+}

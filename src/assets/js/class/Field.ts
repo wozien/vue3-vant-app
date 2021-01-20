@@ -25,6 +25,7 @@ export interface FieldInfo {
   string?: string
   relation?: string
   selection?: [string, string][]
+  onChange?: boolean
   list?: FieldsInfo
 }
 

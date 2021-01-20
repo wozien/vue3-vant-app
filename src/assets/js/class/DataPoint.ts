@@ -8,7 +8,7 @@ import { ViewType } from './index'
 import { FieldsInfo } from '@/assets/js/class'
 import fieldUtils from '@/assets/js/utils/field-utils'
 import { str2Date, formatDate } from '@/assets/js/utils/date'
-import { fetchRecord, saveRecord, fetchDefaultValues, fetchNameGet } from '@/api/record'
+import { fetchRecord, saveRecord, fetchDefaultValues, fetchNameGet, fetchOnChange } from '@/api/record'
 import { sessionStorageKeys } from '@/assets/js/constant'
 
 export type DataPointId = string
@@ -77,7 +77,11 @@ const x2ManyCommands = {
   // (2, id[, _])
   DELETE: 2,
   delete: function (id: string | number) {
-      return [x2ManyCommands.DELETE, id, false]
+    return [x2ManyCommands.DELETE, id, false]
+  },
+  LINK_TO: 4,
+  link_to: function (id: string | number) {
+    return [x2ManyCommands.LINK_TO, id, false];
   }
 }
 
@@ -148,6 +152,7 @@ const _applyChange = (recordID: DataPointId, changes: DataPointData): Promise<an
   record._changes = record._changes || {}
   record._isDirty = true
   const defs = []
+
   // apply changes to local data
   for(let fieldName in changes) {
     const field = record.fieldsInfo[fieldName]
@@ -160,9 +165,107 @@ const _applyChange = (recordID: DataPointId, changes: DataPointData): Promise<an
     }
   }
 
-  return Promise.all(defs)
+  return Promise.all(defs).then(() => {
+    const onChangeFields = [] as string[]
+    for(let fieldName in changes) {
+      const field = record.fieldsInfo[fieldName] 
+      if(field && field.onChange) {
+        const isX2Many = field.type === 'one2many' || field.type === 'many2many'
+        if(!isX2Many) {
+          onChangeFields.push(fieldName)
+        }
+      }
+    }
 
-  // TODO trigger onchange handle
+    return new Promise((resolve) => {
+      if(onChangeFields.length) {
+        _performOnChange(record, onChangeFields).then((result: any) => {
+          resolve(_.keys(changes).concat(Object.keys(result && result.value || {})))
+        })
+      } else {
+        resolve(_.keys(changes))
+      }
+    })
+  })
+}
+
+/**
+ * 值控制返回结果处理
+ * @param values 
+ * @param record 
+ */
+const _applyOnChange = (values: any, record: DataPoint) => {
+  const defs = [] as any[]
+  let rec
+  record._changes = record._changes || {}
+  _.each(values, (val: any, name: string) => {
+    const field = record.fieldsInfo[name]
+    if(!field) return
+
+    let oldValue = name in record._changes ? record._changes[name] : record.data[name];
+    let id;
+
+    if(field.type === 'many2one') {
+      id = false;
+      if (val) {
+        var data = _.isArray(val) ?
+            {id: val[0], display_name: val[1]} :
+            {id: val};
+        if (!oldValue || (localData[oldValue].res_id !== data.id)) {
+            // only register a change if the value has changed
+            rec = _makeDataPoint({
+                data: data,
+                modelName: field.relation as string,
+                parentId: record.id,
+                fieldsInfo: {
+                  id: { type: 'integer', name: 'id'},
+                  display_name: { type: 'char', name: 'display_name'} 
+                },
+                viewType: 'form'
+            });
+            id = rec.id;
+            record._changes[name] = id;
+        }
+      } else {
+          record._changes[name] = false;
+      }
+    } else if(field.type === 'reference') {
+      id = false;
+      if (val) {
+          var ref = val.split(',');
+          var modelName = ref[0];
+          var resID = parseInt(ref[1]);
+          if (!oldValue || localData[oldValue].res_id !== resID ||
+              localData[oldValue].model !== modelName) {
+              // only register a change if the value has changed
+              rec = _makeDataPoint({
+                  data: {id: parseInt(ref[1])},
+                  modelName: modelName,
+                  parentId: record.id,
+                  fieldsInfo: {
+                    id: { type: 'integer', name: 'id'},
+                    display_name: { type: 'char', name: 'display_name'} 
+                  },
+                  viewType: 'form'
+              });
+              defs.push(_fetchNameGet(rec));
+              id = rec.id;
+              record._changes[name] = id;
+          }
+      } else {
+          record._changes[name] = id;
+      }
+    } else if(field.type === 'one2many' || field.type === 'many2many') {
+      // TODO 表头联动表头暂时不考虑，太tm复杂了
+    } else {
+      const newValue = _parseServerValue(field, val);
+      if (newValue !== oldValue) {
+          record._changes[name] = newValue
+      }
+    }
+  })
+
+  return Promise.all(defs)
 }
 
 /**
@@ -253,6 +356,34 @@ const _applyX2ManyChange = (record: DataPoint, fieldName: string, command: any) 
 }
 
 /**
+ * onchange的参数
+ * @param record 
+ */
+const _buildOnchangeSpecs = (record: DataPoint) => {
+  let hasOnchange = false;
+  const specs = {} as any
+  const fieldsInfo = record.fieldsInfo
+  generateSpecs(fieldsInfo)
+
+  function generateSpecs (fieldsInfo: FieldsInfo, prefix?: string) {
+      prefix = prefix || '';
+      _.each(Object.keys(fieldsInfo), function (name) {
+          const field = fieldsInfo[name]
+          const key = prefix + name;
+          specs[key] = field.onChange ? '1' : ''
+          if (field.onChange) {
+              hasOnchange = true;
+          }
+          if (field.type === 'one2many' || field.type === 'many2many') {
+            // TODO 联动视图
+            generateSpecs(field.list as FieldsInfo, key + '.')
+          }
+      });
+  }
+  return hasOnchange ? specs : false;
+}
+
+/**
  * 表体字段的复制
  * @param recordID 
  * @param defaultTemplate 
@@ -310,6 +441,17 @@ const _fetchRecord = async (record: DataPoint) => {
         _fetchReferences(record),
       ])
     }
+  }
+}
+
+/**
+ * name_get
+ * @param record 
+ */
+const _fetchNameGet = async (record: DataPoint) => {
+  const res = await fetchNameGet(record.model, record.res_id as number)
+  if(res.ret === 0) {
+    (record.data as any).display_name = (res.data as any)[0][1]
   }
 }
 
@@ -571,6 +713,26 @@ const _generateChanges = (record: DataPoint, options: any) => {
 }
 
 /**
+ * onchange的必要参数
+ * @param record 
+ * @param option 
+ */
+const _generateOnChangeData = (record: DataPoint, options?: any) => {
+  options = _.extend({}, options || {}, {withReadonly: true})
+  const commands = _generateX2ManyCommands(record, options)
+  const data = _.extend(get(record.id, {raw: true}).data, commands)
+  for(let fieldName in data) {
+    const field = record.fieldsInfo[fieldName]
+    if(field && ['date', 'datetime'].includes(field.type)) {
+      const isUTC = field.type === 'datetime'
+      const fmt = isUTC ? 'yyyy-MM-dd hh:mm:ss' : 'yyyy-MM-dd'
+      data[fieldName] = formatDate(fmt, data[fieldName], isUTC)
+    }
+  }
+  return data
+}
+
+/**
  * 获取表体的操作命令
  * @param record 
  * @param options 
@@ -608,6 +770,7 @@ const _generateX2ManyCommands = (record: DataPoint, options: any) => {
         const addedIds = _.difference(list.res_ids, oldResIDs);
         const keptIds = _.intersection(oldResIDs, list.res_ids);
 
+        let didChange = false
         let changes, command, relRecord
         for (var i = 0; i < list.res_ids.length; i++) {
           // update command
@@ -616,21 +779,32 @@ const _generateX2ManyCommands = (record: DataPoint, options: any) => {
             changes = relRecord ? _generateChanges(relRecord, options) : {}
             if(!_.isEmpty(changes)) {
               command = x2ManyCommands.update(relRecord.res_id, changes)
-              commands[fieldName].push(command)
+            } else {
+              command = x2ManyCommands.link_to(list.res_ids[i])
             }
+            commands[fieldName].push(command)
           } else if(addedIds.includes(list.res_ids[i])) {
             // add command
             relRecord = _.find(relRecordAdded, {res_id: list.res_ids[i]})
             if(!relRecord) {
-              //TODO
+              commands[fieldName].push(x2ManyCommands.link_to(list.res_ids[i]));
+              continue;
             }
             changes = _generateChanges(relRecord, _.extend({}, options, {changesOnly: true}))
-            if(isNew(relRecord.id)) {
-              commands[fieldName].push(x2ManyCommands.create(relRecord.res_id, changes))
+            if(!isNew(relRecord.id)) {
+              commands[fieldName].push(x2ManyCommands.link_to(relRecord.res_id))
+              delete changes.id
+              if (!_.isEmpty(changes)) {
+                commands[fieldName].push(x2ManyCommands.update(relRecord.res_id, changes))
+              }
             } else {
-              // TODO
+              commands[fieldName].push(x2ManyCommands.create(relRecord.res_id, changes))
             }
           }
+        }
+
+        if (options.changesOnly && !didChange && addedIds.length === 0 && removedIds.length === 0) {
+          commands[fieldName] = []
         }
 
         // delete command 
@@ -689,6 +863,30 @@ const _parseServerData = (record: DataPoint) => {
       data[fieldName] = _parseServerValue(field, val)
     }
   })
+}
+
+/**
+ * onchange入口
+ * @param record 
+ * @param fields 
+ */
+const _performOnChange = async (record: DataPoint, fields: string[] | string) => {
+  const onchangeSpec = _buildOnchangeSpecs(record)
+  if(!onchangeSpec) {
+    return
+  }
+
+  const idList = record.data.id ? [record.data.id] : []
+  if(fields.length === 1) {
+    fields = fields[0]
+  }
+
+  const currentData = _generateOnChangeData(record, {changesOnly: false})
+  const res = await fetchOnChange(record.model, [idList, currentData, fields, onchangeSpec])
+  if(res.ret === 0) {
+    await _applyOnChange(res.data.value, record)
+  }
+  return res
 }
 
 /**
@@ -1022,23 +1220,47 @@ export const isNew = (id: DataPointId) => {
  * 获取DataPointState(合并_changes到data中)
  * @param id 
  */
-export const get = (id: DataPointId) => {
+export const get = (id: DataPointId, options?: any) => {
   if(!(id in localData)) return null
+  options = options || {}
 
   let element = localData[id]
   if(element.type === 'record') {
     const data = _.extend({}, element.data, element._changes || {})
     for(let fieldName in data) {
       const field = element.fieldsInfo[fieldName]
+      let relDataPoint
       if(data[fieldName] == null) {
         data[fieldName] = false
       }
       if(!field) continue
 
-      if(field.type === 'many2one' || field.type === 'reference') {
-        data[fieldName] = get(data[fieldName]) || false
+      if(field.type === 'many2one') {
+        if(options.raw) {
+          relDataPoint = localData[data[fieldName]]
+          data[fieldName] = relDataPoint ? relDataPoint.res_id : false
+        } else {
+          data[fieldName] = get(data[fieldName]) || false
+        }
+      } else if(field.type === 'reference') {
+        if(options.raw) {
+          relDataPoint = localData[data[fieldName]]
+          data[fieldName] = relDataPoint ? relDataPoint.model + ',' + relDataPoint.res_id : false
+        } else {
+          data[fieldName] = get(data[fieldName]) || false
+        }
       } else if(field.type === 'one2many' || field.type === 'many2many') {
-        data[fieldName] = get(data[fieldName]) || []
+        if(options.raw) {
+          if(typeof data[fieldName] === 'string') {
+            relDataPoint = localData[data[fieldName]]
+            relDataPoint = _applyX2ManyOperations(relDataPoint)
+            data[fieldName] = relDataPoint.res_ids
+          } else {
+            data[fieldName] = data[fieldName] || []
+          }
+        } else {
+          data[fieldName] = get(data[fieldName]) || []
+        }
       }
     }
 

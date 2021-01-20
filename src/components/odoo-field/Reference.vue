@@ -14,7 +14,7 @@
     <Modal v-model:show="showModal" confirm-text="确定" @confirm="onConfirm">
       <div class="m2o-selector">
         <van-search v-model="searchValue" placeholder="输入名称搜索" shape="round"></van-search>
-        <div class="list-wrapper" ref="listWrapperRef">
+        <div class="list-wrapper">
           <van-tree-select 
             v-model:active-id="activeId"
             v-model:main-active-index="mainActiveId"

@@ -28,9 +28,9 @@ class Action {
     this.views = raw.views
     this.modelKey = raw.res_model
     this.domain = new Domain(raw.domain)
-    if(raw.context) {
-      this.context = JSON.parse(raw.context)
-    }
+    // if(raw.context) {
+    //   this.context = JSON.parse(raw.context)
+    // }
   }
 }
 
