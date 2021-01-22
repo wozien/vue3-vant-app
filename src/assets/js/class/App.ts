@@ -131,7 +131,7 @@ class App {
             const info: FieldInfo = {
               type: options.relatedType || field.type,
               name: field.name,
-              string: item.string
+              string: field.string || item.string
             }
             field.relation && (info.relation = field.relation)
             field.selection && (info.selection = field.selection)

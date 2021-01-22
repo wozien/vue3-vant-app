@@ -15,7 +15,7 @@ export type FieldValue = string | number | boolean | Date
 export type RawFieldValue = FieldValue | DataPoint
 
 export default function(props: any, store: VuexStore) {
-  const string = computed(() => props.item && (props.item.string || props.field.string))
+  const string = computed(() => props.field?.string || props.item?.string)
   const type = computed(() => props.field && props.field.type)
   const placeholder = computed(() => { 
     const res = props.item && props.item.placeholder || `请输入${string.value}`
