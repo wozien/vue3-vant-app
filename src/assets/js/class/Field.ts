@@ -1,3 +1,5 @@
+import { Modifiers, ModifierKey } from './index'
+
 export type FieldType = 'char'|'text'|'integer'|'float'|'date'|'datetime'|'boolean'|
   'selection'|'one2many'|'many2one'|'many2many'|'related'|'reference'
 
@@ -42,6 +44,7 @@ class Field {
   relation?: string
   selection?: [string, string][]
   fields: Field[]
+  modifiers: Modifiers
 
   constructor(fieldObj: StudioField) {
     this.key = fieldObj.key
@@ -51,10 +54,27 @@ class Field {
     this.relation =  fieldObj.relation || ''
     this.options = fieldObj.options
     this.fields = fieldObj.fields.map(f => new Field(f))
+    this.modifiers = {}
+    this._formatModifier()
   }
 
   isX2Many() {
     return ['one2many', 'many2many'].includes(this.type)
+  }
+
+  _isModifierKey(key: string) {
+    return ['readonly', 'required'].includes(key)
+  }
+
+  _formatModifier() {
+    for(let key in this.options) {
+      if(this._isModifierKey(key)) {
+        const value = this.options[key]
+        if(value.checked) {
+          this.modifiers[key as ModifierKey] = true
+        }
+      }
+    }
   }
 }
 

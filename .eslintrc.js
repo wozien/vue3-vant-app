@@ -38,7 +38,6 @@ module.exports = {
     'vue/no-parsing-error': [2, {
       'x-invalid-end-tag': false
     }],
-    'quotes': [2, 'single'],
     'no-case-declarations': 'off'
   }
 }

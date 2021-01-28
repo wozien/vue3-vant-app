@@ -26,7 +26,8 @@ import {
   Tag,
   Lazyload,
   DatetimePicker,
-  TreeSelect
+  TreeSelect,
+  Empty
 } from 'vant'
 
 export default function(app: App){
@@ -57,4 +58,5 @@ export default function(app: App){
   app.use(Lazyload)
   app.use(DatetimePicker)
   app.use(TreeSelect)
+  app.use(Empty)
 }

@@ -1,6 +1,6 @@
 import { FieldType } from './Field'
 import View, { StudioView } from './View'
-
+import { Modifiers, ModifierKey } from './index'
 export interface StudioItem {
   key: string
   string: string
@@ -23,6 +23,7 @@ class Item {
   fieldKey: string
   placeholder: string
   items: Item[]
+  modifiers: Modifiers
   attrs?: any
   options?: any
   subView?: View[]
@@ -37,14 +38,32 @@ class Item {
     this.attrs = itemObj.attrs || {}
     this.options = itemObj.options || {}
     this.items = itemObj.items.map(i => new Item(i))
+    this.modifiers = {}
 
     if(itemObj.subView?.length) {
       this.subView = itemObj.subView.map(v => new View(v))
     }
+
+    this._formatModifier();
   }
 
   get isContainer() {
     return ['notebook', 'group', 'page'].includes(this.widget)
+  }
+
+  _isModifierKey(key: string) {
+    return ['readonly', 'required', 'invisible', 'column_invisible'].includes(key)
+  }
+
+  _formatModifier() {
+    for(let key in this.attrs) {
+      if(this._isModifierKey(key)) {
+        const value = this.attrs[key] as any
+        if(value.checked) {
+          this.modifiers[key as ModifierKey] = value.domain.length ? value.domain : value.checked
+        }
+      }
+    }
   }
 }
 

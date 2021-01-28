@@ -11,7 +11,7 @@
         <van-list
           v-model:loading="loading"
           :finished="finished"
-          finished-text="没有更多了"
+          :finished-text="showEmpty ? '' : '没有更多了'"
           @load="onLoad"
         >
           <ListCard v-for="item in list"
@@ -22,6 +22,8 @@
           />
         </van-list>
       </van-pull-refresh>
+
+      <van-empty v-show="showEmpty" description="暂无数据"/>
     </div>
 
     <div class="add-btn" @click="onAddBtn">
@@ -63,6 +65,9 @@ export default defineComponent({
     const searchFields = computed(() => {
       return props.fieldsInfo ? Object.keys(props.fieldsInfo) : []
     })
+    const showEmpty = computed(() => {
+      return state.list.length === 0 && !state.loading
+    })
 
     let lastId = 0;
     const onLoad = async () => {
@@ -70,7 +75,8 @@ export default defineComponent({
         const res = await fetchListData(route.query.model as string, lastId, searchFields.value)
         state.refreshing = false
         if(res.ret === 0) {
-          if(res.data.length) {
+          const length = res.data.length
+          if(length) {
             await fetchReferencesBatch(res.data, props.fieldsInfo)
             state.loading = false  // loading的状态需要放在所有后面
             res.data.forEach((raw: any, index: number) => {
@@ -78,8 +84,10 @@ export default defineComponent({
               state.list.push(record)
               if(index === res.data.length - 1) lastId = record.id
             })
-          } else {
+          } 
+          if(!length || length < 6) {
             state.finished = true
+            state.loading = false 
           }
         } 
       } else {
@@ -114,6 +122,7 @@ export default defineComponent({
     return {
       ...toRefs(state),
       searchFields,
+      showEmpty,
       onLoad,
       onRefresh,
       onAddBtn

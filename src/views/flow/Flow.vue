@@ -12,7 +12,7 @@
         <van-list
           v-model:loading="loading"
           :finished="finished"
-          finished-text="没有更多了"
+          :finished-text="showEmpty ? '' : '没有更多了'"
           @load="onLoad"
         >
           <ListCard v-for="item in list"
@@ -21,6 +21,8 @@
           />
         </van-list>
       </van-pull-refresh>
+
+      <van-empty v-show="showEmpty" description="暂无数据"/>
     </div>
   </Page>
 </template>
@@ -78,13 +80,14 @@ export default defineComponent({
       }
     })
     const group = useGroup(searchType.value)
-    const { listState, onLoad, onRefresh } = useList(searchType, user)
+    const { listState, showEmpty, onLoad, onRefresh } = useList(searchType, user)
 
     return {
       group,
       searchType,
       active,
       ...toRefs(listState),
+      showEmpty,
       onLoad,
       onRefresh
     }
@@ -119,6 +122,9 @@ function useList(searchType: Ref<string>, user: Ref<User>) {
     loading: false,
     finished: false,
     refreshing: false
+  })
+  const showEmpty = computed(() => {
+    return state.list.length === 0 && !state.loading
   })
 
   const onLoad = async () => {
@@ -192,6 +198,7 @@ function useList(searchType: Ref<string>, user: Ref<User>) {
   return {
     searchType,
     listState: state,
+    showEmpty,
     onLoad,
     onRefresh
   }

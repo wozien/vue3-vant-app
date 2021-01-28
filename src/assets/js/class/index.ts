@@ -1,3 +1,11 @@
+
+import { DomainArr } from './Domain'
+
+export type ModifierKey = 'readonly' | 'required' | 'invisible' | 'column_invisible'
+export type Modifiers = {
+  [key in ModifierKey]?: Boolean | DomainArr
+}
+
 export * from './Action'
 export * from './Model'
 export * from './View'

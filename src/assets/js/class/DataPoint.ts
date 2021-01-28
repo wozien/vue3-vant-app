@@ -10,6 +10,7 @@ import fieldUtils from '@/assets/js/utils/field-utils'
 import { str2Date, formatDate } from '@/assets/js/utils/date'
 import { fetchRecord, saveRecord, fetchDefaultValues, fetchNameGet, fetchOnChange } from '@/api/record'
 import { sessionStorageKeys } from '@/assets/js/constant'
+import Domain from '../odoo/Domain'
 
 export type DataPointId = string
 export type DataPointType = 'record' | 'list'
@@ -417,6 +418,37 @@ const _copyX2ManyRecord = async (recordID: DataPointId, defaultTemplate: any) =>
 }
 
 /**
+ * 解析modifiers
+ * @param element 
+ * @param modifiers 
+ */
+const _evalModifiers = (element: DataPoint, modifiers: any) => {
+  const result = {} as any
+  let evalContext: any
+  const evalModifier = (mod: any) => {
+    if (mod === undefined || mod === false || mod === true) {
+      return !!mod;
+    }
+    evalContext = evalContext || _getEvalContext(element)
+    return (new Domain(mod, evalContext) as any).compute(evalContext)
+  }
+
+  if ('invisible' in modifiers) {
+      result.invisible = evalModifier(modifiers.invisible);
+  }
+  if ('column_invisible' in modifiers) {
+      result.column_invisible = evalModifier(modifiers.column_invisible);
+  }
+  if ('readonly' in modifiers) {
+      result.readonly = evalModifier(modifiers.readonly);
+  }
+  if ('required' in modifiers) {
+      result.required = evalModifier(modifiers.required);
+  }
+  return result;
+}
+
+/**
  * 请求表单数据
  * @param record 
  */
@@ -644,6 +676,7 @@ const _getDefaultData = async (record: DataPoint) => {
   return defaultRecord
 }
 
+
 /**
  * 获取o2m字段的默认值模版
  * @param list 
@@ -816,6 +849,76 @@ const _generateX2ManyCommands = (record: DataPoint, options: any) => {
   }
 
   return commands
+}
+
+/**
+ * 获取evalContext
+ * @param element 
+ * @param forDomain 
+ */
+const _getEvalContext = (element: DataPoint, forDomain = false) => {
+  const evalContext = element.type === 'record' ? _getRecordEvalContext(element, forDomain) : {};
+  // TODO union session_context .ext
+  return evalContext
+}
+
+/**
+ * 获取contenxt
+ * @param record 
+ * @param forDomain 
+ */
+const _getRecordEvalContext = (record: DataPoint, forDomain = false) => {
+  const context = _.extend({}, record.data, record._changes)
+  let relDataPoint: any
+
+  function generateX2ManyCommands(fieldName: string) {
+    const commands = _generateX2ManyCommands(record, {fieldNames: [fieldName]})
+    return commands[fieldName]
+  }
+
+  for(let fieldName in context) {
+    const field = record.fieldsInfo[fieldName]
+    if(context[fieldName] === null) {
+      context[fieldName] = false;
+    }
+    if (!field || field.name === 'id') {
+      continue;
+    }
+
+    // TODO 时间转换这里可能有问题 Date => string
+    if (field.type === 'date' || field.type === 'datetime') {
+      if (context[fieldName]) {
+          context[fieldName] = JSON.parse(JSON.stringify(context[fieldName]));
+      }
+      continue;
+    }
+    if (field.type === 'many2one') {
+      relDataPoint = localData[context[fieldName]];
+      context[fieldName] = relDataPoint ? relDataPoint.res_id : false;
+      continue;
+    }
+
+    if (field.type === 'one2many' || field.type === 'many2many') {
+      var ids;
+      if (!context[fieldName] || _.isArray(context[fieldName])) { // no dataPoint created yet
+          ids = context[fieldName] ? context[fieldName].slice(0) : [];
+      } else {
+          relDataPoint = _applyX2ManyOperations(localData[context[fieldName]]);
+          ids = relDataPoint.res_ids.slice(0);
+      }
+      if (!forDomain) {
+          ids.toJSON = generateX2ManyCommands.bind(null, fieldName);
+      } else if (field.type === 'one2many') { // Ids are evaluated as a list of ids
+          ids = _.filter(ids, function (id) {
+              return typeof id !== 'string';
+          });
+      }
+      context[fieldName] = ids;
+    }
+
+  }
+
+  return context
 }
 
 /**
@@ -1148,6 +1251,16 @@ export const copyLine = async (list: DataPoint, id: DataPointId) => {
 
   localRecord._changes = changes
   return localRecord
+}
+
+/**
+ * 解析modifiers
+ * @param id 
+ * @param modifiers 
+ */
+export const evalModifiers = (id: DataPointId, modifiers: any) => {
+  const record = localData[id]
+  return _evalModifiers(record, modifiers)
 }
 
 /**

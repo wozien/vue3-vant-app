@@ -2,7 +2,7 @@ import _ from 'lodash'
 import { str2Date, formatDate as date2Str } from './date'
 import { DataPoint } from '@/assets/js/class'
 import { insertThousandSeps } from '@/assets/js/utils/tools'
-import sprintf from './sprintf.js'
+import sprintf from '../odoo/sprintf.js'
 
 // -------------- format --------------
 

@@ -10,16 +10,16 @@
   <!-- date -->
   <DateField v-else-if="type ==='date' || type === 'datetime'" v-bind="{field, item, readonly}"/>
   <!-- normal -->
-  <div v-else class="form-item-field" :data-dbname="field && field.name" :data-type="type">
+  <div v-else v-show="!invisible" class="form-item-field" :data-dbname="field && field.name" :data-type="type">
     <!-- boolean -->
     <van-field v-if="type === 'boolean'" :label="string" >
       <template #input>
-        <van-checkbox v-model="value" shape="square" :disabled="readonly" @change="setValue"/>
+        <van-checkbox v-model="value" shape="square" :disabled="isReadonly" @change="setValue"/>
       </template>
     </van-field>
     <!-- readonly -->
     <van-field 
-      v-else-if="readonly"
+      v-else-if="isReadonly"
       :readonly="true"
       :label="string"
       v-model="value"
@@ -31,6 +31,7 @@
       :type="renderType"
       :label="string" 
       :placeholder="placeholder" 
+      :required="modifiers && !!modifiers.required"
       v-model="rawValue"
       clearable
       center
@@ -42,6 +43,7 @@
       :type="renderType"
       :label="string" 
       :placeholder="placeholder" 
+      :required="modifiers && !!modifiers.required"
       v-model="value"
       clearable
       center
@@ -71,7 +73,18 @@ export default defineComponent({
 
   setup(props) {
     const store = useStore()
-    const { string, placeholder, type, value, rawValue, setValue } = useFieldCommon(props, store)
+    const {
+      string,
+      placeholder,
+      type,
+      value,
+      rawValue,
+      curRecord,
+      modifiers,
+      isReadonly,
+      invisible,
+      setValue
+    } = useFieldCommon(props, store)
 
     const renderType = computed(() => {
       return getRenderType(type.value)
@@ -83,6 +96,10 @@ export default defineComponent({
       type,
       value,
       rawValue,
+      curRecord,
+      modifiers,
+      isReadonly,
+      invisible,
       renderType,
       setValue
     }
