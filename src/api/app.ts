@@ -4,7 +4,8 @@
 
 import http, { HttpRes } from './http'
 import { loadAction, searchRead } from './odoo'
-import { DomainArr } from '@/assets/js/class'
+import Domain from '@/assets/js/odoo/Domain'
+import pyUtils from '@/assets/js/odoo/py_utils'
 
 // 获取应用市场数据
 export const fetchAppData = async (): Promise<HttpRes> => {
@@ -64,13 +65,21 @@ export const fetchListData: (
   model: string,
   lastId: number,
   fields: string[],
-  limit?: number
-) => Promise<HttpRes> = async (model, lastId, searchFields, limit = 6) => {
+  limit?: number,
+  domain?: any[]
+) => Promise<HttpRes> = async (model, lastId, searchFields, limit = 6, domain = []) => {
+  const arrayToString = Domain.prototype.arrayToString
+  const stringToArray = Domain.prototype.stringToArray
+
+  // console.log(pyUtils.assembleDomains([arrayToString([['id', '<', lastId]]), arrayToString([['id', '<', lastId]])], 'AND'))
   // 构造odoo的查询domain
-  const domain: DomainArr = lastId ? [['id', '<', lastId]] : []
+  const lastIdDomain = lastId ? [['id', '<', lastId]] : []
+  const queryDomain = domain.length ?
+    pyUtils.assembleDomains([arrayToString(domain), arrayToString(lastIdDomain)], 'AND') : lastIdDomain
+  
   const res = await searchRead({
     model,
-    domain,
+    domain: stringToArray(queryDomain),
     limit,
     fields: searchFields
   })

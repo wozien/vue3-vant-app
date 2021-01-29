@@ -132,7 +132,7 @@ const _applyX2ManyOperations = (list: DataPoint) => {
         }
         break
       case 'DELETE': 
-        list.res_ids = _.without(list.res_ids, relRecord?.res_id) as string[]
+        list.res_ids = _.without(list.res_ids, relRecord?.res_id as any) as string[]
         break
       case 'UPDATE':
         break
@@ -1269,7 +1269,8 @@ export const evalModifiers = (id: DataPointId, modifiers: any) => {
  */
 export const load = async (params: LoadParams): Promise<DataPointId> => {
   _.each(_.keys(localData), (key: string) => {
-    _.unset(localData, key)
+    delete localData[key]
+    // _.unset(localData, key)
   })
   recordMap = new Map<string, DataPointId>()
 
@@ -1488,7 +1489,7 @@ export const reload = async (record?: DataPoint) => {
   const recordId = record.id || rootID
   // 移除其他DataPoint
   _.each(_.keys(localData), (key: string) => {
-    key !== recordId && _.unset(localData, key)
+    key !== recordId && (delete localData[key])
   })
 
   await _fetchRecord(record)

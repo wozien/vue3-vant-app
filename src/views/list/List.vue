@@ -2,7 +2,7 @@
   <Page name="list-view">
     <van-search v-model="searchValue" shape="round" placeholder="请输入编号搜索" show-action>
       <template #action>
-        <Icon name="filter" />
+        <Icon name="filter" @click="showSearchView=true"/>
       </template>
     </van-search>
 
@@ -29,6 +29,15 @@
     <div class="add-btn" @click="onAddBtn">
       <i class="ins-icon ins-icon-plus" />
     </div> 
+
+    <van-popup 
+      v-model:show="showSearchView" 
+      position="right" 
+      :safe-area-inset-bottom="true"
+      :style="{height: '100%', width: '80%'}"
+    >
+      <SearchView :fields="fields" @search="onSearch"></SearchView>
+    </van-popup>
   </Page>
 </template>
 
@@ -40,10 +49,12 @@ import { Record } from '@/assets/js/class'
 import { viewCommonProps } from '@/assets/js/hooks/view-common'
 import { fetchListData } from '@/api/app'
 import { fetchReferencesBatch } from '@/assets/js/class/Record'
+import SearchView from '@views/search/SearchView.vue'
 
 export default defineComponent({
   components: {
-    ListCard
+    ListCard,
+    SearchView
   },
 
   props: {
@@ -60,7 +71,8 @@ export default defineComponent({
       loading: false,
       finished: false,
       refreshing: false,
-      list: [] as Record[]
+      list: [] as Record[],
+      showSearchView: false
     })
     const searchFields = computed(() => {
       return props.fieldsInfo ? Object.keys(props.fieldsInfo) : []
@@ -70,9 +82,9 @@ export default defineComponent({
     })
 
     let lastId = 0;
-    const onLoad = async () => {
+    const onLoad = async (domain = []) => {
       if(searchFields.value.length) {      
-        const res = await fetchListData(route.query.model as string, lastId, searchFields.value)
+        const res = await fetchListData(route.query.model as string, lastId, searchFields.value, 6, domain)
         state.refreshing = false
         if(res.ret === 0) {
           const length = res.data.length
@@ -95,12 +107,12 @@ export default defineComponent({
       }
     }
 
-    const onRefresh = () => {
+    const onRefresh = (domain = []) => {
       state.finished = false
       state.list = []
       state.loading = true
       lastId = 0
-      onLoad()
+      onLoad(domain)
     }
 
     const onAddBtn = () => {
@@ -115,6 +127,12 @@ export default defineComponent({
       })
     }
 
+    const onSearch = (domain: any) => {
+      console.log(domain)
+      onRefresh(domain)
+      state.showSearchView = false
+    }
+
     watch(searchFields, () => {
       onLoad()
     })
@@ -125,7 +143,8 @@ export default defineComponent({
       showEmpty,
       onLoad,
       onRefresh,
-      onAddBtn
+      onAddBtn,
+      onSearch
     }
   }
 })

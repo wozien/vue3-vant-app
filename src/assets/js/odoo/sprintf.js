@@ -1,5 +1,5 @@
 /**
- * Copy By underscore.string
+ * Copy By lodash.string
  * @param {*} str 
  * @param {*} qty 
  */

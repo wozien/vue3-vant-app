@@ -79,8 +79,8 @@ function formatX2Many(value: any) {
 
 function parseNumber(value: string) {
   // 把千分位数字字符串转为number
-  const escapedSep = _.escapeRegExp(',')
-  value = value.replace(new RegExp(escapedSep, 'g'), '')
+  // const escapedSep = _.escapeRegExp(',')
+  value = value.replace(new RegExp(',', 'g'), '')
   return Number(value)
 }
 
