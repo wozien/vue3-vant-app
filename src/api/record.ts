@@ -30,8 +30,15 @@ export const fetchRecord: (
  * m2o字段数据获取
  * @param model 
  */
-export const fetchMany2OneData = async (model: string): Promise<HttpRes> => {
-  const res = await callKw(model, 'ps_name_search')
+export const fetchMany2OneData = async (model: string, searchValue = '', domain: any = []): Promise<HttpRes> => {
+  const kw = {
+    operator: "ilike",
+    name: searchValue,
+    view_type: 'form',
+    model,
+    args: domain
+  }
+  const res = await callKw(model, 'ps_name_search', [], kw)
   return res.data
 }
 

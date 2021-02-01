@@ -28,11 +28,12 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, reactive, toRefs, watch, watchEffect } from 'vue'
+import { defineComponent, reactive, toRefs, watch, watchEffect, computed } from 'vue'
 import { useStore } from '@/store'
 import useFieldCommon, { fieldCommonProps } from '@/assets/js/hooks/field-common'
 import { fetchMany2OneData } from '@/api/record'
 import { Toast } from 'vant'
+import { getDomain } from '@/assets/js/class/DataPoint'
 
 export default defineComponent({
   props: {
@@ -41,8 +42,12 @@ export default defineComponent({
 
   setup(props) {
     const store = useStore()
-    const { string, placeholder, type, value, rawValue, setValue } = useFieldCommon(props, store)
+    const { string, placeholder, type, value, rawValue, setValue, curRecord } = useFieldCommon(props, store)
     const { state, onOpenModal } = useModal(props)
+
+    const domain = computed(() => {
+    return  curRecord && getDomain(curRecord.value.id, { fieldName: props.field?.name })
+  })
 
     const onConfirm = (cb: Function) => {
       if(state.activeId === -1) {
@@ -67,6 +72,25 @@ export default defineComponent({
       cb()
     }
 
+    const loadData = async (model?: string) => {
+      if(!model) {
+        const activeModel = state.models[state.mainActiveId]
+        model = activeModel.model
+      }
+      const res = await fetchMany2OneData(model as string, state.searchValue, domain.value)
+      state.items.forEach((item: any) => {
+        if(item.text === model) {
+          item.children = res.data.map((row: any) => {
+            const [id, name] = row
+            return {
+              text: name,
+              id
+            }
+          })
+        }
+      })
+    }
+
     watch(rawValue, val => {
       const { model } = val as any
       if(model) {
@@ -79,20 +103,11 @@ export default defineComponent({
       const activeModel = state.models[val]
       state.activeId = -1
       if(activeModel) {
-        const res = await fetchMany2OneData(activeModel.model)
-        state.items.forEach((item: any) => {
-          if(item.text === activeModel.name) {
-            item.children = res.data.map((row: any) => {
-              const [id, name] = row
-              return {
-                text: name,
-                id
-              }
-            })
-          }
-        })
+        await loadData(activeModel.model)
       }
     })
+
+    watch(() => state.searchValue, () => loadData())
 
     return {
       string,

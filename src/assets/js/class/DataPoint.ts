@@ -53,7 +53,8 @@ export interface LoadParams {
   data?: { 
     id?: number
     [key: string]: any
-  }
+  },
+  domain?: any[]
 }
 
 type LocalData = {
@@ -611,11 +612,13 @@ const _makeDataPoint = <T extends LoadParams>(params: T): DataPoint => {
   const dataPoint: DataPoint = {
     _cache: type === 'list' ? {} : undefined,
     _changes: null,
+    _domains: {},
     id: _.uniqueId(params.modelName + '_'),
     model: params.modelName,
     viewType: params.viewType,
     fieldsInfo: params.fieldsInfo,
     parentId: params.parentId,
+    domain: params.domain || [],
     type,
     data,
     res_id,
@@ -919,6 +922,35 @@ const _getRecordEvalContext = (record: DataPoint, forDomain = false) => {
   }
 
   return context
+}
+
+/**
+ * 获取domain
+ * @param element 
+ * @param options 
+ */
+const _getDomain = (element: DataPoint, options: any = {}) => {
+  const stringToArray = Domain.prototype.stringToArray
+  if(options && options.fieldName) {
+    if(element._domains[options.fieldName]) {
+      return stringToArray(
+        element._domains[options.fieldName],
+        _getEvalContext(element, true)
+      )
+    }
+    const field = element.fieldsInfo[options.fieldName]
+    if(field && field.domain) {
+      return stringToArray(
+        field.domain,
+        _getEvalContext(element, true)
+      )
+    }
+    // TODO 解析字段模型属性上的domain
+  }
+  return stringToArray(
+    element.domain,
+    _getEvalContext(element, true)
+  )
 }
 
 /**
@@ -1403,6 +1435,16 @@ export const get = (id: DataPointId, options?: any) => {
  */
 export const getRecordId = (modelKey: string, res_id: string): DataPointId => {
   return recordMap.get(`${modelKey}_${res_id}`) as DataPointId
+}
+
+/**
+ * 获取domain
+ * @param id 
+ * @param options 
+ */
+export const getDomain = (id: DataPointId, options: any = {}) => {
+  const element = localData[id]
+  return _getDomain(element, options)
 }
 
 /**

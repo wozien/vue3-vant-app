@@ -27,11 +27,12 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, reactive, toRefs } from 'vue'
+import { defineComponent, reactive, toRefs, Ref, computed, watch } from 'vue'
 import { useStore } from '@/store'
 import useFieldCommon, { fieldCommonProps } from '@/assets/js/hooks/field-common'
 import { fetchMany2OneData } from '@/api/record'
 import { Toast } from 'vant'
+import { getDomain } from '@/assets/js/class/DataPoint'
 
 export default defineComponent({
   props: {
@@ -40,8 +41,8 @@ export default defineComponent({
 
   setup(props) {
     const store = useStore()
-    const { string, placeholder, type, value, setValue } = useFieldCommon(props, store)
-    const { state, onOpenModal } = useModal(props)
+    const { string, placeholder, type, value, setValue, curRecord } = useFieldCommon(props, store)
+    const { state, onOpenModal } = useModal(props, curRecord)
 
     const onConfirm = (cb: Function) => {
       if(!state.active) {
@@ -72,7 +73,7 @@ export default defineComponent({
   }
 })
 
-function useModal(props: any) {
+function useModal(props: any, curRecord: Ref<any>) {
   const state = reactive({
     showModal: false,
     searchValue: '',
@@ -80,9 +81,18 @@ function useModal(props: any) {
     list: [] as {id:number, display_name: string}[]
   })
 
+  const domain = computed(() => {
+    return  curRecord && getDomain(curRecord.value.id, { fieldName: props.field?.name })
+  })
+
   const onOpenModal = async () => {
     if(props.readonly) return;
-    const res = await fetchMany2OneData(props.field?.relation)
+    await loadData()
+    state.showModal = true
+  }
+
+  const loadData = async () => {
+    const res = await fetchMany2OneData(props.field?.relation, state.searchValue, domain.value)
     if(res.ret === 0) {
       state.list = res.data.map((item: any) => {
         return {
@@ -90,9 +100,12 @@ function useModal(props: any) {
           display_name: item[1]
         }
       })
-      state.showModal = true
     }
   }
+
+  watch(() => state.searchValue, () => {
+    loadData()
+  })
 
   return {
     state,

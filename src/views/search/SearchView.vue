@@ -11,8 +11,21 @@
           <input type="text" v-model="values[item.name]" :placeholder="item.placeholder">
         </div>
         <!-- date-range -->
-        <!-- <div v-else-if="item.type === 'date_range'" class="form-item__range">
-        </div> -->
+        <div v-else-if="item.type === 'date_range'" class="form-item__range">
+          <div class="date-node form-item--border">
+            <span :class="[!values[item.name].start && 'phld']" @click="onClickDateNode('start', item.name)">
+              {{ values[item.name].start  || '选择时间' }}
+            </span>
+            <van-icon name="arrow-down"></van-icon>
+          </div>
+          <span class="spec"> - </span>
+          <div class="date-node form-item--border">
+            <span :class="[!values[item.name].end && 'phld']"  @click="onClickDateNode('end', item.name)">
+              {{ values[item.name].end || '选择时间' }}
+            </span>
+            <van-icon name="arrow-down"></van-icon>
+          </div>
+        </div>
         <div v-else-if="item.type === 'selection'" class="form-item__selection">
           <span v-for="btn in item.options" 
           :key="btn.key"
@@ -26,13 +39,23 @@
       <van-button round block @click="onReset">重置</van-button>
       <van-button type="primary" round block @click="onSearch">筛选</van-button>
     </div>
+
+    <!-- datepicker -->
+    <van-popup v-model:show="showPicker" position="bottom" teleport="body" round>
+      <van-datetime-picker 
+        type="date"
+        v-model="dateValue" 
+        @cancel="showPicker = false" 
+        @confirm="onConfirm"/>
+    </van-popup>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, reactive, PropType } from 'vue'
+import { defineComponent, reactive, PropType, toRefs } from 'vue'
 import { searchItems, getDefaultValues, getDomain } from './search-helper'
 import { Fields } from '@/assets/js/class'
+import { formatDate } from '@/assets/js/utils/date'
 
 export default defineComponent({
   props: {
@@ -43,6 +66,11 @@ export default defineComponent({
 
   setup(props, { emit }) {
     const values = reactive(getDefaultValues())
+    const dateState = reactive({
+      showPicker: false,
+      dateValue: new Date(),
+      currentNode: {} as any
+    })
 
     const onSearch = () => {
       const searchValues: any = {}
@@ -61,11 +89,28 @@ export default defineComponent({
       }
     }
 
+    const onClickDateNode = (node: string, fieldName: string) => {
+      dateState.currentNode = { node, fieldName }
+      dateState.showPicker = true
+      const value = values[fieldName]
+      dateState.dateValue = value[node] ? new Date(value[node]) : new Date()
+    }
+
+    const onConfirm = () => {
+      const { node, fieldName } = dateState.currentNode
+      values[fieldName][node] = formatDate('yyyy-MM-dd', dateState.dateValue)
+      dateState.showPicker = false
+    }
+
     return {
       values,
       searchItems,
+      formatDate,
+      ...toRefs(dateState),
       onSearch,
-      onReset
+      onReset,
+      onClickDateNode,
+      onConfirm
     }
   }
 })
@@ -82,12 +127,13 @@ export default defineComponent({
     .form-item {
       padding: 6px 10px;
       color: @text-color;
-      font-size: 14px;
+      font-size: 13px;
       &__label {
         display: inline-block;
         margin-bottom: 8px;
         padding-left: 6px;
         color: @text-color-light-1;
+        font-size: 14px;
       }
       &__input {
         padding: 4px 10px;
@@ -97,7 +143,6 @@ export default defineComponent({
           width: 100%;
           &::placeholder {
             color: @text-color-light-2;
-            font-size: 13px;
           }
         }
       }
@@ -110,12 +155,31 @@ export default defineComponent({
           margin-right: 10px;
           margin-bottom: 6px;
           border-radius: 20px;
-          font-size: 13px;
           &.active {
             color: #fff;
             background: @primary-color;
             border-color: @primary-color;
           }
+        }
+      }
+      &__range {
+        display: flex;
+        align-items: center;
+        > .date-node { 
+          flex: 1;
+          padding: 4px 10px;
+          display: flex;
+          align-items: center;
+          min-height: 30px;
+          > span { 
+            flex: 1; 
+            &.phld {
+              color: @text-color-light-2;
+            }
+          }
+        }
+        > .spec {
+          margin: 0px 6px;
         }
       }
       &--border {

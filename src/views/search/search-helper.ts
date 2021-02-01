@@ -17,7 +17,7 @@ type SearchItem = {
 // search item schame
 export const searchItems: SearchItem[] = [
   {
-    name: 'bill_number',
+    name: 'number',
     type: 'input',
     label: '单据编号',
     placeholder: '请输入单据编号'
@@ -28,21 +28,21 @@ export const searchItems: SearchItem[] = [
     label: '创建人',
     placeholder: '请输入创建人'
   },
-  // {
-  //   name: 'create_date',
-  //   type: 'date_range',
-  //   label: '创建时间'
-  // },
+  {
+    name: 'create_date',
+    type: 'date_range',
+    label: '创建时间'
+  },
   {
     name: 'state',
     type: 'selection',
     label: '单据状态',
     options: [
       { key: '', string: '全部' },
-      { key: 'Temporary', string: '暂存' },
-      { key: 'Save', string: '已保存' },
-      { key: 'Submit', string: '审核中' },
-      { key: 'Audit', string: '已审核' }
+      { key: 'temporary', string: '暂存' },
+      { key: 'save', string: '已保存' },
+      { key: 'submit', string: '审核中' },
+      { key: 'audit', string: '已审核' }
     ]
   }
 ]
@@ -57,8 +57,8 @@ export const getDefaultValues = () => {
       values[item.name] = ''
     } else if(item.type === 'date_range') {
       values[item.name] = { 
-        start: new Date(),
-        end: new Date()
+        start: false,
+        end: false,
       }
     }
   }
@@ -75,12 +75,24 @@ export const getDomain = (values: Record<string, any>, searchItems: SearchItem[]
   for(let item of searchItems) {
     const { name, type } = item
     const value = values[name]
+    const domain = []
 
     if(!value || value === '' || value === false) continue;
 
     if(type === 'input') {
-      domains.push(arrayToString([[name, 'ilike', value]]))
+      domain.push([name, 'ilike', value])
+    } else if(type === 'selection') {
+      domain.push([name, '=', value])
+    } else if(type === 'date_range') {
+      if(value['start']) {
+        domain.push([name, '>=', `${value['start']} 00:00:00`])
+      } 
+      if(value['end']) {
+        domain.push([name, '<=', `${value['end']} 23:59:59`])
+        domain.length > 1 && domain.unshift('&')
+      }
     }
+    domains.push(arrayToString(domain))
   }
 
   return stringToArray(pyUtils.assembleDomains(domains, 'AND'))

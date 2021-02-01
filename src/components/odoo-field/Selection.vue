@@ -11,7 +11,7 @@
       @click="onOpen"
     />
 
-    <van-popup v-model:show="showPicker" position="bottom" round>
+    <van-popup v-model:show="showPicker" position="bottom" teleport="body" round>
       <van-picker
         :columns="columns"
         @confirm="onConfirm"

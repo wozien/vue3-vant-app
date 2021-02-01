@@ -1,4 +1,4 @@
-import { Modifiers, ModifierKey } from './index'
+import { Modifiers, ModifierKey, DomainArr } from './index'
 
 export type FieldType = 'char'|'text'|'integer'|'float'|'date'|'datetime'|'boolean'|
   'selection'|'one2many'|'many2one'|'many2many'|'related'|'reference'
@@ -29,6 +29,7 @@ export interface FieldInfo {
   selection?: [string, string][]
   onChange?: boolean
   list?: FieldsInfo
+  domain?: DomainArr
 }
 
 export type FieldsInfo = {

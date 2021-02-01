@@ -1,6 +1,6 @@
 import { FieldType } from './Field'
 import View, { StudioView } from './View'
-import { Modifiers, ModifierKey } from './index'
+import { Modifiers, ModifierKey, DomainArr } from './index'
 export interface StudioItem {
   key: string
   string: string
@@ -8,6 +8,7 @@ export interface StudioItem {
   fieldType: FieldType
   fieldKey: string
   placeholder: string
+  domain: DomainArr
   attrs?: any
   options?: any
   items: StudioItem[]
@@ -24,6 +25,7 @@ class Item {
   placeholder: string
   items: Item[]
   modifiers: Modifiers
+  domain: DomainArr
   attrs?: any
   options?: any
   subView?: View[]
@@ -35,6 +37,7 @@ class Item {
     this.fieldType = itemObj.fieldType
     this.fieldKey = itemObj.fieldKey
     this.placeholder = itemObj.placeholder
+    this.domain = this._formatDomain(itemObj.domain)
     this.attrs = itemObj.attrs || {}
     this.options = itemObj.options || {}
     this.items = itemObj.items.map(i => new Item(i))
@@ -64,6 +67,15 @@ class Item {
         }
       }
     }
+  }
+
+  _formatDomain(domain: DomainArr) {
+    return domain.map((item: any) => {
+      if(typeof item !== 'string') {
+        item = item.slice(0, 3)
+      }
+      return item
+    })
   }
 }
 

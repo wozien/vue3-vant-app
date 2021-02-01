@@ -2,7 +2,7 @@
 import pyUtils from './py_utils.js'
 
 const py = window.py
-const _ = window._
+const _ = window.udjs
 
 class Domain {
   constructor(domain, evalContext) {

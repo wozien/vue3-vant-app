@@ -141,6 +141,9 @@ class App {
             if(item.attrs?.on_change === '1') {
               info.onChange = true
             }
+            if(item.domain.length) {
+              info.domain = item.domain
+            }
             fieldsInfo[info.name] = info
           }
         }
