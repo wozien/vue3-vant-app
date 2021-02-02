@@ -46,8 +46,11 @@ export default function(props: any, store: VuexStore) {
     }
   }
 
+  let handle: any
   watchEffect(() => {
-    if(props.field && curRecord.value) {
+    if(props.field && curRecord.value && (!handle || handle === curRecord.value.id)) {
+      // console.log(curRecord.value.id)
+      if(!handle) handle = curRecord.value.id
       const data = curRecord.value.data
       const field = props.field as Field
       const item = props.item as Item
@@ -77,6 +80,8 @@ export default function(props: any, store: VuexStore) {
         })
         if(!_.isEmpty(evalutedModifiers)) {
           modifiers.value = evalModifiers(curRecord.value.id, evalutedModifiers)
+        } else {
+          modifiers.value = {}
         }
       }
     }

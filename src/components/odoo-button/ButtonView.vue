@@ -26,7 +26,7 @@
 </template>
 
 <script lang="tsx">
-import { defineComponent, PropType, computed, ref, watchEffect, reactive, toRaw } from 'vue'
+import { defineComponent, PropType, computed, ref, watchEffect, reactive, toRaw, inject } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import _ from 'lodash'
 import store, { useStore } from '@/store'
@@ -74,6 +74,7 @@ export default defineComponent({
       })
     })
     const curRecord = computed(() => store.getters.curRecord)
+    const canBeSaved = inject<Function>('canBeSaved')
 
     // 按钮点击入口
     const onButtonClick = async (button: string | ViewButton) => {
@@ -97,8 +98,9 @@ export default defineComponent({
           case 'copy': 
             await onCopy(); break
           case 'back':
-          case 'saveLine':
             router.back(); break
+          case 'saveLine':
+            onSaveLine(); break
           case 'insertLine': 
             await onInsertLine(); break
           case 'newLine':
@@ -146,6 +148,10 @@ export default defineComponent({
     }
     // 保存
     const onSave = async () => {
+      const canSaved = canBeSaved && canBeSaved(); 
+      if(!canSaved) {
+        Toast('存在必录项未填'); return;
+      }
       const res = await save(store.state.curRecordId)
       let query = Object.assign({}, route.query, { readonly: 1 })
       if(res === true || res.ret === 0) {
@@ -159,6 +165,14 @@ export default defineComponent({
           query
         })
       }
+    }
+    // 行保存
+    const onSaveLine = () => {
+      const canSaved = canBeSaved && canBeSaved(); 
+      if(!canSaved) {
+        Toast('存在必录项未填'); return;
+      }
+      router.back()
     }
     // 取消
     const onCancel = () => {
@@ -327,9 +341,8 @@ export default defineComponent({
  * 计算显示的按钮
  */
 function calcButtons(buttons: ViewButton[], readonly: string): ViewButton[]{
-  // TODO 按钮domain和权限控制
-
   const mode = readonly === '1' ? 'readonly' : 'edit'
+  // TODO visible domain 计算
   return buttons.filter((btn: ViewButton) => btn.mode === mode)
 }
 

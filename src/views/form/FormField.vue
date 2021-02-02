@@ -59,6 +59,8 @@ import useFieldCommon, { fieldCommonProps } from '@/assets/js/hooks/field-common
 import { Many2One, One2Many, Selection, DateField, Reference } from '@/components/odoo-field'
 
 export default defineComponent({
+  name: 'FormField',
+
   components: {
     Many2One,
     One2Many,
@@ -90,6 +92,10 @@ export default defineComponent({
       return getRenderType(type.value)
     })
 
+    const isSet = () => {
+      return !modifiers.value?.required || !!value.value || type.value === 'boolean'
+    }
+
     return {
       string,
       placeholder,
@@ -101,6 +107,7 @@ export default defineComponent({
       isReadonly,
       invisible,
       renderType,
+      isSet,
       setValue
     }
   }

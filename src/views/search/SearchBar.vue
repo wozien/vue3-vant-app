@@ -14,7 +14,7 @@
 <script lang="ts">
 import _ from 'lodash'
 import { computed, defineComponent, PropType, ref, watch } from 'vue'
-import { getDomain } from './search-helper'
+import { getDomain, SearchItem } from './search-helper'
 
 export default defineComponent({
   props: {
@@ -38,11 +38,11 @@ export default defineComponent({
     }, 600)
 
     const getSearchDomain = (val: string) => {
-      const values = props.searchFields.reduce((res, key) => {
+      const values = props.searchFields.reduce((res: any, key: string) => {
         res[key] = val
         return res
       } , {})
-      return getDomain(values, searchItems.value)
+      return getDomain(values, searchItems.value as SearchItem[])
     }
 
     watch(searchValue, val => {

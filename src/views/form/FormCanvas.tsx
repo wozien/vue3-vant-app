@@ -1,10 +1,11 @@
 import _ from 'lodash'
-import { defineComponent, PropType }  from 'vue'
+import { defineComponent, PropType, ref, Ref }  from 'vue'
 import { useRoute } from 'vue-router'
 import { Item, Fields } from '@/assets/js/class'
 import FormGroup from './FormGroup.vue'
 import FormField from './FormField.vue'
 import FormNotebook from './FormNotebook'
+import useExpose from '@/assets/js/hooks/use-expose'
 
 const FormCanvas = defineComponent({
   components: {
@@ -20,6 +21,21 @@ const FormCanvas = defineComponent({
 
   setup(props) {
     const route = useRoute()
+    const FieldCompRefs: Ref<any>[]= []
+
+    const canBeSaved = () => {
+      let allSet = true
+      for(let compRef of FieldCompRefs) {
+        if(compRef && compRef.value) {
+          if(!compRef.value.isSet()) {
+            allSet = false
+            break
+          }
+        }
+      }
+      return allSet
+    }
+    useExpose({ canBeSaved })
 
     const renderItem = (item: Item) => {
       const items = item.items
@@ -40,8 +56,10 @@ const FormCanvas = defineComponent({
         default:
           const field = _.find(props.fields as any, { key: item.fieldKey })
           const readonly = route.query.readonly as string === '1' ? true : false
+          const compRef = ref(null)
+          FieldCompRefs.push(compRef)
           return (
-            <FormField item={item} field={field} readonly={readonly}/>
+            <FormField item={item} field={field} readonly={readonly} ref={compRef}/>
           )
       }
     }

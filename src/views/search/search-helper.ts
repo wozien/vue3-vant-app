@@ -5,7 +5,7 @@ import pyUtils from '@/assets/js/odoo/py_utils'
 const arrayToString = Domain.prototype.arrayToString
 const stringToArray = Domain.prototype.stringToArray
 
-type SearchItem = {
+export type SearchItem = {
   name: string
   type: 'input' | 'date_range' | 'selection'
   label: string

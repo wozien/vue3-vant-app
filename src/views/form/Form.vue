@@ -19,7 +19,7 @@
       </div>
     </div>
     <div class="form-canvas" :style="{'height': height + 'px'}">
-      <FormCanvas :items="curView && curView.items" :fields="fields"/>
+      <FormCanvas :items="curView && curView.items" :fields="fields" ref="formRef"/>
     </div>
     <LineSwitcher v-show="showLineSwitcher"/>
     <ButtonView :buttons="curView && curView.buttons"/>
@@ -29,7 +29,7 @@
 <script lang="ts">
 import { 
   defineComponent, reactive, computed, watch, toRaw,
-  toRefs, watchEffect, onMounted, onBeforeUnmount
+  toRefs, watchEffect, onMounted, onBeforeUnmount, provide, ref
 } from 'vue'
 import _ from 'lodash'
 import { useRoute, onBeforeRouteUpdate } from 'vue-router'
@@ -57,7 +57,6 @@ export default defineComponent({
   setup(props) {
     const route = useRoute()
     const store = useStore()
-
     const data = reactive({
       creator: {
         name: '',
@@ -67,6 +66,7 @@ export default defineComponent({
       state: '',
       state_name: ''
     })
+    const formRef = ref()
     const searchFields = computed(() => {
       return props.fieldsInfo ? Object.keys(props.fieldsInfo) : []
     })
@@ -153,12 +153,16 @@ export default defineComponent({
     onBeforeUnmount(() => {
       const loadParams = JSON.parse(sessionStorage.getItem(sessionStorageKeys.loadParams) || '{}')
       sessionStorage.setItem(sessionStorageKeys.loadParams, JSON.stringify(_.omit(loadParams, 'id')))
-
       store.commit('SET_CUR_RECORD', '')
+    })
+
+    provide('canBeSaved', () => {
+      return formRef.value?.canBeSaved() && true
     })
 
     return {
       ...toRefs(data),
+      formRef,
       showHeader,
       showLineSwitcher,
       height,

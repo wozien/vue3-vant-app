@@ -1,14 +1,13 @@
-import { defineAsyncComponent } from 'vue'
 import { RouteRecordRaw } from 'vue-router'
 
-const Login = defineAsyncComponent(() => import('@views/layout/Login.vue'))
-const Layout = defineAsyncComponent(() => import('@views/layout/Layout.vue'))
-const Dashboard = defineAsyncComponent(() => import('@views/dashboard/Dashboard.vue'))
-const Market = defineAsyncComponent(() => import('@views/market/Market.vue'))
-const User = defineAsyncComponent(() => import('@views/user/User.vue'))
-const CompanyList = defineAsyncComponent(() => import('@views/user/CompanyList.vue'))
-const View = defineAsyncComponent(() => import('@views/layout/View.vue'))
-const Flow = defineAsyncComponent(() => import('@views/flow/Flow.vue'))
+const Login = () => import('@views/layout/Login.vue')
+const Layout = () => import('@views/layout/Layout.vue')
+const Dashboard = () => import('@views/dashboard/Dashboard.vue')
+const Market = () => import('@views/market/Market.vue')
+const User = () => import('@views/user/User.vue')
+const CompanyList = () => import('@views/user/CompanyList.vue')
+const View = () => import('@views/layout/View.vue')
+const Flow = () => import('@views/flow/Flow.vue')
 
 const routes: RouteRecordRaw[] = [
   {

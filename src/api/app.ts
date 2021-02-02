@@ -3,7 +3,7 @@
  */
 
 import http, { HttpRes } from './http'
-import { loadAction, searchRead } from './odoo'
+import { callKw, loadAction, searchRead } from './odoo'
 import Domain from '@/assets/js/odoo/Domain'
 import pyUtils from '@/assets/js/odoo/py_utils'
 
@@ -86,3 +86,14 @@ export const fetchListData: (
 
   return res.data
 } 
+
+/**
+ * 按钮权限接口
+ * @param model 
+ * @param buttons 
+ */
+export const chekcButtonAccess = async (model: string, buttons: any[]): Promise<HttpRes> => {
+  const args = [model, buttons]
+  const res = await callKw(model, 'button_access_check', args)
+  return res.data
+}

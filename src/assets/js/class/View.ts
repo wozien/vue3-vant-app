@@ -1,6 +1,7 @@
 
 import { Item, StudioItem } from './index'
 import { findTree, uuid } from '@/assets/js/utils/tools' 
+import { chekcButtonAccess } from '@/api/app'
 
 export type ViewType = 'form' | 'list'
 
@@ -61,6 +62,7 @@ class View {
   }
 
   _initButtons(options: any): ViewButton[] {
+    // 目前设计器的按钮配置只存这两个位置
     if(!options.singleButton && !options.batchBodyButton) return []
     const { custom: buttons } = this.isSubView ? options.batchBodyButton : options.singleButton 
     const res: ViewButton[] = []
@@ -86,6 +88,8 @@ class View {
       res.unshift(this._makePresetButton('saveLine', 'Save Line'))
       res.unshift(this._makePresetButton('newLine', 'New Line'))
       res.push(this._makePresetButton('deleteLine', 'Delete Line'))
+    } else if(this.type === 'form') {
+      this._checkButtons(res)
     }
 
     return res
@@ -125,6 +129,27 @@ class View {
 
   _isFlowButton(item: any) {
     return !item.is_event && item.func_name.startsWith('workflow_')
+  }
+
+  async _checkButtons(buttons: ViewButton[]) {
+    // 构造权限接口数据
+    const args = buttons.map((button: ViewButton) => {
+      return {
+        attrs: {
+          key: button.key,
+          type: button.type,
+          name: button.funcName
+        },
+        tag: 'button',
+        children: []
+      }
+    })
+    const res = await chekcButtonAccess(this.model, args)
+    if(res.ret === 0) {
+      this.buttons = buttons.filter((button: ViewButton) => {
+        return res.data && res.data.length && res.data.find((item: any) => item.attrs.key === button.key)
+      })
+    }
   }
 }
 
