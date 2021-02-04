@@ -19,7 +19,8 @@ export default function(props: any, store: VuexStore) {
   const string = computed(() => props.field?.string || props.item?.string)
   const type = computed(() => props.field && props.field.type)
   const placeholder = computed(() => { 
-    const res = props.item && props.item.placeholder || `请输入${string.value}`
+    const text = (props.field && props.field.isComplexField()) ? '选择' : '输入'
+    const res = props.item && props.item.placeholder || `请${text}${string.value}`
     return props.readonly ? '' : res
   })
 
@@ -49,7 +50,6 @@ export default function(props: any, store: VuexStore) {
   let handle: any
   watchEffect(() => {
     if(props.field && curRecord.value && (!handle || handle === curRecord.value.id)) {
-      // console.log(curRecord.value.id)
       if(!handle) handle = curRecord.value.id
       const data = curRecord.value.data
       const field = props.field as Field

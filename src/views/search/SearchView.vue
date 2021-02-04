@@ -136,7 +136,7 @@ export default defineComponent({
         font-size: 14px;
       }
       &__input {
-        padding: 4px 10px;
+        padding: 5px 10px;
         > input {
           border: none;
           outline: none;

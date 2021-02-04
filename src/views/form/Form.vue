@@ -107,6 +107,7 @@ export default defineComponent({
         const recordId = getRecordId(subModel as string, subId as string)
         recordId && store.commit('SET_CUR_RECORD', recordId)
       } else {
+        // 从表体回到表头
         store.commit('RESET_CUR_RECORD')
         // clear x2mcommand cache
         sessionStorage.setItem(sessionStorageKeys.x2manyCommand, '')

@@ -59,6 +59,12 @@ export default defineComponent({
     })
 
     const onSwitchCompany = async () => {
+      if(!companyList.value.length) {
+        Toast('暂无企业列表数据'); return
+      } else if(!active.value) {
+        Toast('请先选择一个企业'); return
+      }
+
       Toast.loading({
         duration: 0,
         forbidClick: true,

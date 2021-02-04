@@ -4,6 +4,7 @@
     :app-name="ctx && ctx.appName"
     :fields-info="ctx && ctx.fieldsInfo"
     :fields="ctx && ctx.fields"
+    :cur-view="ctx && ctx.curView"
   />
   <FormView v-else
     :fields-info="ctx && ctx.fieldsInfo"

@@ -88,7 +88,7 @@ class View {
       res.unshift(this._makePresetButton('saveLine', 'Save Line'))
       res.unshift(this._makePresetButton('newLine', 'New Line'))
       res.push(this._makePresetButton('deleteLine', 'Delete Line'))
-    } else if(this.type === 'form') {
+    } else  {
       this._checkButtons(res)
     }
 
@@ -132,13 +132,22 @@ class View {
   }
 
   async _checkButtons(buttons: ViewButton[]) {
+    const getName = (name: string) => {
+      if(name === 'create') {
+        return 'pre_create'
+      } else if (name === 'edit') {
+        return 'pre_write'
+      } 
+      return name
+    }
+
     // 构造权限接口数据
     const args = buttons.map((button: ViewButton) => {
       return {
         attrs: {
           key: button.key,
           type: button.type,
-          name: button.funcName
+          name: getName(button.funcName)
         },
         tag: 'button',
         children: []

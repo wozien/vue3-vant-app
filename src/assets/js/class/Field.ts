@@ -63,6 +63,10 @@ class Field {
     return ['one2many', 'many2many'].includes(this.type)
   }
 
+  isComplexField() {
+    return ['selection', 'many2one', 'reference', 'one2many', 'date', 'datetime'].includes(this.type)
+  }
+
   _isModifierKey(key: string) {
     return ['readonly', 'required'].includes(key)
   }

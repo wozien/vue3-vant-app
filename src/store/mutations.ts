@@ -20,7 +20,7 @@ const mutations: MutationTree<State> = {
 
   'SET_ORGS' (state, data: {id: number; name: string;}[]) {
     state.orgs = data
-    if(data.length) {
+    if(data && data.length) {
       state.curOrg = data[0]
     }
   },
@@ -30,7 +30,11 @@ const mutations: MutationTree<State> = {
   },
 
   'RESET_CUR_RECORD' (state) {
-    state.curRecordId = rootID
+    // 重置当前curRecordId为表头的，在表体回到表头的场景将会调用
+    // 但是需要排除从列表进入表头, 在列表的时候curRecordId为空
+    if(state.curRecordId) {
+      state.curRecordId = rootID
+    }
   },
 
   'SET_RECORD_TOKEN' (state) {

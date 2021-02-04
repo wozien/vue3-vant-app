@@ -28,7 +28,7 @@
       <van-empty v-show="showEmpty" description="暂无数据"/>
     </div>
 
-    <div class="add-btn" @click="onAddBtn">
+    <div class="add-btn" @click="onAddBtn" v-if="canCreate">
       <i class="ins-icon ins-icon-plus" />
     </div> 
 
@@ -46,6 +46,7 @@
 <script lang="ts">
 import { defineComponent, reactive, toRefs, computed, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { useStore } from '@/store'
 import ListCard from './ListCard.vue'
 import { Record } from '@/assets/js/class'
 import { viewCommonProps } from '@/assets/js/hooks/view-common'
@@ -69,6 +70,7 @@ export default defineComponent({
   setup(props) {
     const route = useRoute()
     const router = useRouter()
+    const store = useStore()
 
     const state = reactive({
       searchValue: '',
@@ -89,6 +91,9 @@ export default defineComponent({
       const res = ['create_uid']
       if(props.fields && 'bill_number' in props.fields) res.push('bill_number')
       return res
+    })
+    const canCreate = computed(() => {
+      return props.curView && props.curView.buttons.findIndex((btn: any) => btn.funcName === 'create') > -1;
     })
 
     let lastId = 0;
@@ -149,9 +154,11 @@ export default defineComponent({
 
     return {
       ...toRefs(state),
+      curRecord: computed(() => store.getters.curRecord),
       searchFields,
       searchBarFields,
       showEmpty,
+      canCreate,
       onLoad,
       onRefresh,
       onAddBtn,

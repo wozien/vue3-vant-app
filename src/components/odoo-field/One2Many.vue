@@ -13,7 +13,11 @@
         :field="col.field"
         :title="col.title"
         min-width="120"
-      />
+      >
+        <template v-if="col.fieldType === 'boolean'" #default="{ row }">
+          <van-checkbox v-model="row[col.field]" :disabled="true" shape="square" />
+        </template>
+      </vxe-table-column>
     </vxe-table>
 
     <div class="add-row" v-if="!readonly">
@@ -36,6 +40,7 @@ import { notifyChanges } from '@/assets/js/class/DataPoint'
 interface Column {
   field: string
   title: string
+  fieldType: string
 }
 
 export default defineComponent({
@@ -127,7 +132,8 @@ function getColumns(list: any) {
     if(field) {
       res.push({
         field: field.name,
-        title: field.string
+        title: field.string,
+        fieldType: field.type
       } as Column)
     }
   }

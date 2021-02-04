@@ -127,6 +127,8 @@ export default defineComponent({
               onDelete(action);
             } else {
               handleServiceAction(action, button)
+              await reload()
+              store.commit('SET_RECORD_TOKEN')
             }
           }
         }
@@ -222,7 +224,7 @@ export default defineComponent({
     const onDelete = (action: any) => {
       const record = curRecord.value
       Dialog.confirm({
-        message: '确实是否删除改表单记录?'
+        message: '确实是否删除该表单记录?'
       }).then(async () => {
         const res = await deleteRecord(record.model, record.res_id, action.context || {})
         if(res.ret === 0) {
