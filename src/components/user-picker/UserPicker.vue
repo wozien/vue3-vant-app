@@ -41,10 +41,16 @@ export default defineComponent({
       emit('select', state.selected)
       cb()
     }
+
+    const reset = () => {
+      state.selected.members = []
+      state.selected.roles = []
+    }
     
     return {
       showModal,
       ...toRefs(state),
+      reset,
       onConfirm
     }
   }

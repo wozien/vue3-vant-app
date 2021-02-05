@@ -68,7 +68,7 @@ class View {
     const res: ViewButton[] = []
 
     findTree(buttons, (button: any) => {
-      if(!button.expand) {
+      if(!button.expand && !button.forbidden) {
         res.push({
           key: button.key,
           type: button.is_event ? 'event' : 'object',

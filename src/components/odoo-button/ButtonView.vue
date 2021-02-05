@@ -1,3 +1,4 @@
+
 <template>
   <div class="ins-button-wrapper van-hairline--top">
     <van-popover 
@@ -122,7 +123,7 @@ export default defineComponent({
           if(res.ret === 0) {
             const action = res.data
             
-            if(button.funcName === 'svc_std_pre_physical_delete') {
+            if(button.funcName === 'svc_std_pre_physical_delete' || button.funcName === 'svc_std_pre_delete') {
               // 删除特殊处理
               onDelete(action);
             } else {
@@ -208,16 +209,12 @@ export default defineComponent({
     }
     // 创建
     const onCreate = () => {
-      const loadParams = JSON.parse(sessionStorage.getItem(sessionStorageKeys.loadParams) || '{}')
-      sessionStorage.setItem(sessionStorageKeys.loadParams, JSON.stringify(_.omit(loadParams, 'id')))
-
       router.replace({
         name: 'view',
-        query: {
-          model: route.query.model,
-          viewType: 'form',
-          id: ''
-        }
+        query: Object.assign({}, route.query, {
+          id: '',
+          readonly: 0
+        })
       })
     }
     // 删除
@@ -408,9 +405,6 @@ function handleFlowAgree(action: any) {
     placeholder="请输入审批意见" show-word-limit autosize/>
   )
   const confirm = async (cb: Function) => {
-    if(!state.opinion) {
-      Toast('审批意见不能为空'); cb(true); return
-    }
     const res = await flowAgreen(state.opinion, Object.assign(getFlowParams(), action.context || {}))
     if(res.ret === 0) {
       await reload()
@@ -466,6 +460,8 @@ function handleFlowReturn(action: any) {
   const confirm = async (cb: Function) => {
     if(!state.nodeKey) {
       Toast('退回节点不能为空'); cb(true); return
+    } else if(!state.opinion) {
+      Toast('打回意见不能为空'); cb(true); return
     }
     const res = await flowReturn(state.nodeKey, state.opinion, Object.assign(getFlowParams(), context))
     if(res.ret === 0) {
@@ -505,7 +501,13 @@ function handleFlowSign(action: any) {
     }
   }
 
-  createModal({ render, confirm, hideFooter: false })
+  const cancel = () => {
+    if(signRef.value) {
+      (signRef.value as any).reset()
+    }
+  }
+
+  createModal({ render, confirm, cancel, hideFooter: false })
 }
 
 /**

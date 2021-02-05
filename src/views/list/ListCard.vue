@@ -63,35 +63,23 @@ export default defineComponent({
     const cardData = useCard(props.record, props.fieldsInfo, props.appName)
 
     const onClickCard = () => {
+      const query = {
+        id: cardData.id,
+        readonly: 1,
+        viewType: 'form'
+      } as any
+
       if(cardData.isFlow) {
         // 工作流
         sessionStorage.setItem(sessionStorageKeys.flowParams, JSON.stringify(cardData.context))
-        sessionStorage.setItem(sessionStorageKeys.loadParams, JSON.stringify({ 
-          model: cardData.model,
-          id: cardData.id
-        }))
-        router.push({
-          name: 'view',
-          query: {
-            viewType: 'form',
-            id: cardData.id,
-            readonly: 1,
-            model: cardData.model
-          }
-        })
-      } else {
-        const loadParams = JSON.parse(sessionStorage.getItem(sessionStorageKeys.loadParams) || '{}')
-        loadParams.id = cardData.id
-        sessionStorage.setItem(sessionStorageKeys.loadParams, JSON.stringify(loadParams))
-        router.push({
-          name: 'view',
-          query: Object.assign({}, route.query, {
-            viewType: 'form',
-            id: cardData.id,
-            readonly: 1
-          })
-        })
-      }
+        sessionStorage.removeItem(sessionStorageKeys.loadParams)
+        query.model = cardData.model
+      } 
+      
+      router.push({
+        name: 'view',
+        query: Object.assign({}, route.query, query)
+      })
     }
 
     return {

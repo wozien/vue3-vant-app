@@ -23,11 +23,11 @@
     </div>
   </div>
 
-  <UserPicker v-model:show="showPicker" @select="onUserSelected"/>
+  <UserPicker v-model:show="showPicker" @select="onUserSelected" ref="pickerRef"/>
 </template>
 
 <script lang="ts">
-import { defineComponent, reactive, toRefs, toRaw } from 'vue'
+import { defineComponent, ref, reactive, toRefs, toRaw, onBeforeUnmount } from 'vue'
 import UserPicker from '@/components/user-picker/UserPicker.vue'
 
 export default defineComponent({
@@ -36,13 +36,12 @@ export default defineComponent({
   },
 
   setup() {
+    const pickerRef = ref()
     const state = reactive({
       type: '1',
       receiver: '',
       showPicker: false,
-      selected: {
-        members: []
-      }
+      selected: null
     })
 
     const onUserSelected = (data: any) => {
@@ -50,20 +49,34 @@ export default defineComponent({
       state.receiver = calcReceiver(data)
     }
 
-    const getData= () => {
+    const getData = () => {
       const data = {
         type: state.type === '1' ? 'before' : 'after',
         receiver: state.receiver,
         selected: toRaw(state.selected)
       }
-      state.type = '1'
-      state.receiver = ''
+      reset()
       return data
     }
 
+    const reset = () => {
+      state.type = '1'
+      state.receiver = ''
+      state.selected = null
+      if(pickerRef.value) {
+        (pickerRef.value as any).reset()
+      }
+    }
+
+    onBeforeUnmount(() => {
+      console.log('onBeforeUnmount')
+    })
+
     return {
+      pickerRef,
       ...toRefs(state),
       onUserSelected,
+      reset,
       getData
     }
   }
@@ -75,7 +88,7 @@ function calcReceiver(data: any) {
   const res = [] as string[]
   members.forEach((mb: any) => res.push(mb.name))
   roles.forEach((rl: any) => res.push(rl.name))
-  return res.join(',')
+  return res.length > 3 ? res.slice(0, 3).join(',') + '等' : res.join(',')
 }
 </script>
 

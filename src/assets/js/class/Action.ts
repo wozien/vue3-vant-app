@@ -1,6 +1,8 @@
 
 import { ViewType } from './View'
-import Domain from './Domain'
+import Domain from '@/assets/js/odoo/Domain'
+
+const stringToDomain = Domain.prototype.stringToArray
 
 type ActionView = [number, ViewType]
 
@@ -17,7 +19,7 @@ export interface ActionRaw {
 class Action {
   id: number
   name: string
-  domain: Domain
+  domain: any[]
   modelKey: string
   context?: any
   views: ActionView[]
@@ -27,7 +29,9 @@ class Action {
     this.name = raw.name
     this.views = raw.views
     this.modelKey = raw.res_model
-    this.domain = new Domain(raw.domain)
+    this.domain = raw.domain.length ? stringToDomain(raw.domain) : []
+
+    // TODO action context 处理
     // if(raw.context) {
     //   this.context = JSON.parse(raw.context)
     // }

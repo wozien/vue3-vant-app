@@ -11,7 +11,8 @@ export default defineComponent({
     hideFooter: Boolean,
     confirmText: String,
     render: Function,
-    confirm: Function
+    confirm: Function,
+    cancel: Function
   },
 
   emits: ['confirm', 'cancel', 'update:show'],
@@ -27,6 +28,9 @@ export default defineComponent({
     const onCancel = () => {
       emit('update:show', false)
       emit('cancel')
+      if(props.cancel) {
+        props.cancel()
+      }
     }
 
     const onConfirm = () => {

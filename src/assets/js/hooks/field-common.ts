@@ -47,10 +47,13 @@ export default function(props: any, store: VuexStore) {
     }
   }
 
-  let handle: any
+  // handleModel 是为了处理一些不必要的effect
+  // 比如，表头进入表体，避免表头字段在destroy前会执行该effect
+  // 在表体视图行切换的时候需要重新执行effect
+  let handleModel: any
   watchEffect(() => {
-    if(props.field && curRecord.value && (!handle || handle === curRecord.value.id)) {
-      if(!handle) handle = curRecord.value.id
+    if(props.field && curRecord.value && (!handleModel || handleModel === curRecord.value.model)) {
+      if(!handleModel) handleModel = curRecord.value.model
       const data = curRecord.value.data
       const field = props.field as Field
       const item = props.item as Item

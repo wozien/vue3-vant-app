@@ -627,7 +627,7 @@ const _makeDataPoint = <T extends LoadParams>(params: T): DataPoint => {
 
   localData[dataPoint.id] = dataPoint
   if(dataPoint.type === 'record') {
-    recordMap.set(`${dataPoint.model}_${res_id}`, dataPoint.id)
+    recordMap && recordMap.set(`${dataPoint.model}_${res_id}`, dataPoint.id)
   }
   return dataPoint
 }
@@ -1155,7 +1155,7 @@ const _visitChildren = (element: DataPoint, fn: (el: DataPoint) => void) => {
 // ------  public  ------------
 
 export let localData: LocalData = {}
-export let recordMap: Map<string, DataPointId>
+export let recordMap: Map<string, DataPointId> | null
 export let rootID: DataPointId
 
 /**
@@ -1235,11 +1235,11 @@ export const copyRecord = async (recordID: DataPointId, defaultTemplate?: any) =
   defaultTemplate = defaultTemplate || {}
   const defaultData = defaultTemplate[record.model] = defaultTemplate[record.model] || (await _getDefaultData(record))._changes
   record.res_id =  _.uniqueId('virtual_')
-  recordMap.set(`${record.model}_${record.res_id}`, recordID)
+  recordMap && recordMap.set(`${record.model}_${record.res_id}`, recordID)
 
   _.each(data, (value, fieldName) => {
     const field = fieldsInfo[fieldName]
-    if(fieldName === 'id' || fieldName === 'state') {
+    if(fieldName === 'id' || fieldName === 'state' || fieldName === 'number') {
       // TODO 判断不允许复制的字段
       changes[fieldName] = data[fieldName] = defaultData[fieldName] || false;
     } else if(field.type === 'one2many') {
@@ -1300,11 +1300,7 @@ export const evalModifiers = (id: DataPointId, modifiers: any) => {
  * @param params 
  */
 export const load = async (params: LoadParams): Promise<DataPointId> => {
-  _.each(_.keys(localData), (key: string) => {
-    delete localData[key]
-    // _.unset(localData, key)
-  })
-  recordMap = new Map<string, DataPointId>()
+  clean()
 
   if(params.type === 'record' && !params.res_id) {
     // create
@@ -1433,8 +1429,8 @@ export const get = (id: DataPointId, options?: any) => {
  * @param modelKey 
  * @param res_id 
  */
-export const getRecordId = (modelKey: string, res_id: string): DataPointId => {
-  return recordMap.get(`${modelKey}_${res_id}`) as DataPointId
+export const getRecordId = (modelKey: string, res_id: string) => {
+  return recordMap && recordMap.get(`${modelKey}_${res_id}`) as DataPointId
 }
 
 /**
@@ -1536,3 +1532,11 @@ export const reload = async (record?: DataPoint) => {
 
   await _fetchRecord(record)
 }
+
+export const clean = () => {
+  _.each(_.keys(localData), (key: string) => {
+    delete localData[key]
+  })
+  recordMap = new Map<string, DataPointId>()
+  rootID = ''
+} 

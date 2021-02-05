@@ -65,17 +65,25 @@ export const fetchListData: (
   model: string,
   lastId: number,
   fields: string[],
-  limit?: number,
-  domain?: any[]
-) => Promise<HttpRes> = async (model, lastId, searchFields, limit = 6, domain = []) => {
+  domain: {
+    search?: any[],
+    action?: any[]
+  },
+  limit?: number
+) => Promise<HttpRes> = async (model, lastId, searchFields, domain, limit = 6) => {
   const arrayToString = Domain.prototype.arrayToString
   const stringToArray = Domain.prototype.stringToArray
+  const actionDomain = domain.action || []
+  const searchDomain = domain.search || []
 
   // console.log(pyUtils.assembleDomains([arrayToString([['id', '<', lastId]]), arrayToString([['id', '<', lastId]])], 'AND'))
   // 构造odoo的查询domain
   const lastIdDomain = lastId ? [['id', '<', lastId]] : []
-  const queryDomain = domain.length ?
-    pyUtils.assembleDomains([arrayToString(domain), arrayToString(lastIdDomain)], 'AND') : lastIdDomain
+  const queryDomain = pyUtils.assembleDomains([
+    arrayToString(actionDomain), 
+    arrayToString(searchDomain),
+    arrayToString(lastIdDomain)
+  ], 'AND')
   
   const res = await searchRead({
     model,

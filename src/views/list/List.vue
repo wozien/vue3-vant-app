@@ -64,7 +64,11 @@ export default defineComponent({
 
   props: {
     ...viewCommonProps,
-    appName: String
+    appName: String,
+    actionDomain: {
+      type: Array,
+      default: () => []
+    }
   },
 
   setup(props) {
@@ -99,7 +103,10 @@ export default defineComponent({
     let lastId = 0;
     const onLoad = async () => {
       if(searchFields.value.length) {      
-        const res = await fetchListData(route.query.model as string, lastId, searchFields.value, 6, state.domain)
+        const res = await fetchListData(route.query.model as string, lastId, searchFields.value, {
+          search: state.domain,
+          action: props.actionDomain
+        })
         state.refreshing = false
         if(res.ret === 0) {
           const length = res.data.length

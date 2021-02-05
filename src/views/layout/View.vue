@@ -5,6 +5,7 @@
     :fields-info="ctx && ctx.fieldsInfo"
     :fields="ctx && ctx.fields"
     :cur-view="ctx && ctx.curView"
+    :action-domain="ctx && ctx.actionDomain"
   />
   <FormView v-else
     :fields-info="ctx && ctx.fieldsInfo"
@@ -27,7 +28,8 @@ interface ViewContext {
   curModel: Model
   curView: View
   fields: Fields
-  fieldsInfo: FieldsInfo
+  fieldsInfo: FieldsInfo,
+  actionDomain?: any[] 
 }
 
 export default defineComponent({
@@ -47,10 +49,9 @@ export default defineComponent({
     useTitle(title)
 
     onBeforeMount(async () => {
-      const loadParams = JSON.parse(sessionStorage.getItem(sessionStorageKeys.loadParams) || '{}')
-      let { menuId, actionId, model } = loadParams
-      if(!model) { model = route.query.model as string }
-      const res = await getAppAsync(model as string, menuId as string, actionId as string)
+      let loadParams = JSON.parse(sessionStorage.getItem(sessionStorageKeys.loadParams) || '{}')
+      let { menuId, actionId } = loadParams
+      const res = await getAppAsync(route.query.model as string , menuId as string, actionId as string)
       curApp.value = res
     })
 
@@ -80,7 +81,8 @@ function getContext(curApp: App, modelKey: string, viewType: ViewType): ViewCont
     curView,
     appName: curApp.name,
     fields: curModel && curModel.getFields() || {},
-    fieldsInfo: fieldsInfo || {}
+    fieldsInfo: fieldsInfo || {},
+    actionDomain: curApp.action?.domain
   }
 }
 </script>

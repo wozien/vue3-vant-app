@@ -31,7 +31,6 @@ import {
   defineComponent, reactive, computed, watch, toRaw,
   toRefs, watchEffect, onMounted, onBeforeUnmount, provide, ref
 } from 'vue'
-import _ from 'lodash'
 import { useRoute, onBeforeRouteUpdate } from 'vue-router'
 import { Toast } from 'vant'
 import { useStore } from '@/store'
@@ -42,6 +41,7 @@ import { formatDate } from '@/assets/js/utils/date'
 import { viewCommonProps } from '@/assets/js/hooks/view-common'
 import { getRecordId } from '@/assets/js/class/DataPoint'
 import { sessionStorageKeys } from '@/assets/js/constant'
+import { load as loadDataPoint, clean as cleanRecord } from '@/assets/js/class/DataPoint'
 
 export default defineComponent({
   components: {
@@ -83,16 +83,12 @@ export default defineComponent({
     const curRecord = computed(() => store.getters.curRecord)
 
     const loadRecord = async () => {
-      const loadParams = JSON.parse(sessionStorage.getItem(sessionStorageKeys.loadParams) || '{}')
-      let { model, id } = loadParams
-      if(!model) {
-        model = route.query.model as string
-        id = route.query.id as string
-      }
-      if(searchFields.value.length && model) {
+      let { model, id } = route.query
+      if(searchFields.value.length && props.fieldsInfo) {
         // datapoint load
-        await store.dispatch('loadRecord', {
-          modelName: model,
+        await loadDataPoint({
+          type: 'record',
+          modelName: model as string,
           res_id: id ? +id: undefined,
           viewType: 'form',
           fieldsInfo: toRaw(props.fieldsInfo)
@@ -107,10 +103,8 @@ export default defineComponent({
         const recordId = getRecordId(subModel as string, subId as string)
         recordId && store.commit('SET_CUR_RECORD', recordId)
       } else {
-        // 从表体回到表头
         store.commit('RESET_CUR_RECORD')
-        // clear x2mcommand cache
-        sessionStorage.setItem(sessionStorageKeys.x2manyCommand, '')
+        sessionStorage.removeItem(sessionStorageKeys.x2manyCommand)
       }
     }
 
@@ -152,9 +146,8 @@ export default defineComponent({
     })
 
     onBeforeUnmount(() => {
-      const loadParams = JSON.parse(sessionStorage.getItem(sessionStorageKeys.loadParams) || '{}')
-      sessionStorage.setItem(sessionStorageKeys.loadParams, JSON.stringify(_.omit(loadParams, 'id')))
       store.commit('SET_CUR_RECORD', '')
+      cleanRecord()
     })
 
     provide('canBeSaved', () => {
