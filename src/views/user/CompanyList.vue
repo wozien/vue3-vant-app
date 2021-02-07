@@ -22,7 +22,7 @@
 
 <script lang="ts">
 import { defineComponent, ref, onMounted } from 'vue'
-import { useRouter} from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import { useStore } from '@/store'
 import { Toast } from 'vant'
 import { fetchCompanyList, switchCompany } from '@/api/user'
@@ -39,6 +39,7 @@ export default defineComponent({
     const companyList = ref<Company[]>([])
     const active = ref('')
     const router = useRouter()
+    const route = useRoute()
     const store = useStore()
 
     onMounted(async () => {
@@ -52,8 +53,12 @@ export default defineComponent({
             oauthUrl: oauth2_login_url
           }
         })
-        if(companyList.value.length) {
+        const len = companyList.value.length 
+        if(len) {
           active.value = store.state.user.company.dbName || companyList.value[0]?.dbName
+          if(len === 1 && !route.query.keepSwitch) {
+            onSwitchCompany()
+          }
         }
       }
     })

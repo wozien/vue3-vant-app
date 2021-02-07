@@ -27,7 +27,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, reactive, toRefs, toRaw, onBeforeUnmount } from 'vue'
+import { defineComponent, ref, reactive, toRefs, toRaw } from 'vue'
 import UserPicker from '@/components/user-picker/UserPicker.vue'
 
 export default defineComponent({
@@ -67,10 +67,6 @@ export default defineComponent({
         (pickerRef.value as any).reset()
       }
     }
-
-    onBeforeUnmount(() => {
-      console.log('onBeforeUnmount')
-    })
 
     return {
       pickerRef,
