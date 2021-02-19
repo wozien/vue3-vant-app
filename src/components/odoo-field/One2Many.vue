@@ -35,7 +35,7 @@ import useFieldCommon, { fieldCommonProps } from '@/assets/js/hooks/field-common
 import fieldUtils from '@/assets/js/utils/field-utils'
 import { VxeTableEvents } from 'vxe-table'
 import { sessionStorageKeys } from '@/assets/js/constant'
-import { notifyChanges } from '@/assets/js/class/DataPoint'
+import { notifyChanges, DataPointState } from '@/assets/js/class/DataPoint'
 
 interface Column {
   field: string
@@ -108,8 +108,8 @@ export default defineComponent({
     }
 
     watchEffect(() => {
-      columns.value = getColumns(rawValue.value)
-      tableData.value = getData(rawValue.value)
+      columns.value = getColumns(rawValue.value as DataPointState)
+      tableData.value = getData(rawValue.value as DataPointState)
     })
 
     return {
@@ -123,24 +123,27 @@ export default defineComponent({
   }
 })
 
-function getColumns(list: any) {
+function getColumns(list: DataPointState) {
   let res: Column[] = []
   const fieldsInfo = list.fieldsInfo
 
   for(let fieldName in fieldsInfo) {
     const field = fieldsInfo[fieldName]
-    if(field) {
-      res.push({
-        field: field.name,
-        title: field.string,
-        fieldType: field.type
-      } as Column)
+    // TODO 暂时不考虑需要computed的invisible
+    if(!field || field.modifiers?.invisible) {
+      continue
     }
+    
+    res.push({
+      field: field.name,
+      title: field.string,
+      fieldType: field.type
+    } as Column)
   }
   return res
 }
 
-function getData(list: any) {
+function getData(list: DataPointState) {
   let res: any[] = []
   if(list && list.data) {
     const fieldsInfo = list.fieldsInfo
@@ -148,6 +151,7 @@ function getData(list: any) {
       const row = {} as any
       for(let fieldName in record.data) {
         const field = fieldsInfo[fieldName]
+        if(!field) continue
         const value = record.data[fieldName]
         if(fieldName === 'id') {
           row[fieldName] = value

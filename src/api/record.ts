@@ -102,3 +102,12 @@ export const fetchOnChange = async (model: string, args: any[], context = {}): P
   let res = await callKw(model, 'onchange', args, { context })
   return res.data
 }
+
+/**
+ * 动态获取弹性域字段信息
+ * @param domain 
+ */
+export const fetchFlexFields = async (domain: any[]): Promise<HttpRes> => {
+  let res = await callKw('ir.model.flex.fields', 'get_flex_fields', domain)
+  return res.data
+}

@@ -17,7 +17,13 @@ export type RawFieldValue = FieldValue | DataPoint
 
 export default function(props: any, store: VuexStore) {
   const string = computed(() => props.field?.string || props.item?.string)
-  const type = computed(() => props.field && props.field.type)
+  const type = computed(() => {
+    if(props.item && props.item.isSupportWidget) {
+      return props.item.widget
+    } else {
+      return props.field && props.field.type
+    }
+  })
   const placeholder = computed(() => { 
     const text = (props.field && props.field.isComplexField()) ? '选择' : '输入'
     const res = props.item && props.item.placeholder || `请${text}${string.value}`

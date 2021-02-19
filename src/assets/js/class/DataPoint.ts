@@ -815,6 +815,7 @@ const _generateX2ManyCommands = (record: DataPoint, options: any) => {
             changes = relRecord ? _generateChanges(relRecord, options) : {}
             if(!_.isEmpty(changes)) {
               command = x2ManyCommands.update(relRecord.res_id, changes)
+              didChange = true
             } else {
               command = x2ManyCommands.link_to(list.res_ids[i])
             }
@@ -1431,6 +1432,37 @@ export const get = (id: DataPointId, options?: any) => {
  */
 export const getRecordId = (modelKey: string, res_id: string) => {
   return recordMap && recordMap.get(`${modelKey}_${res_id}`) as DataPointId
+}
+
+/**
+ * 获取记录中某个字段的值
+ * @param id 
+ * @param fieldName 
+ */
+export const getRecordData = (id: DataPointId, fieldName: string) => {
+  if(!id || !fieldName) return
+  const record = localData[id]
+  const changes = record._changes || {}
+  const value = changes[fieldName] || record.data[fieldName]
+  const field = record.fieldsInfo[fieldName]
+  if(!field || !value) return value
+
+  if(field.type === 'many2one' || field.type === 'reference') {
+    return get(value) || false
+  } else if(field.type === 'many2many' || field.type === 'one2many') {
+    return get(value) || []
+  } else {
+    return value
+  }
+}
+
+/**
+ * 获取给定的reocrdId的context
+ * @param id 
+ */
+export const getEvalContext = (id: DataPointId) => {
+  const element = localData[id]
+  return _getEvalContext(element, false)
 }
 
 /**

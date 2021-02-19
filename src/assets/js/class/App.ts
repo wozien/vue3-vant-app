@@ -114,42 +114,70 @@ class App {
   }
 
   /**
-   * 整理视图字段数据
+   * 整理视图字段数据, 可以理解为把odoo的DataPoint中的fields和fieldsInfo整合到一起
    * @param views 
    * @param parentObj 
    */
   getViewFields(views: View[], parentObj?: any) {
     parentObj = parentObj || this.fieldsInfo
+
     for(let view of views) {
-      const fieldsInfo = {} as FieldsInfo
       const model = this.getModel(view.model)
-      findTree(view.items, (item: Item) => {
-        if(item.fieldKey) {
-          const field = model?.fields.find((f: Field) => f.key === item.fieldKey)
-          const options = field?.options || {}
-          if(field) {
-            const info: FieldInfo = {
-              type: options.relatedType || field.type,
-              name: field.name,
-              string: field.string || item.string
-            }
-            field.relation && (info.relation = field.relation)
-            field.selection && (info.selection = field.selection)
-            if(item.subView?.length) {
-              this.getViewFields(item.subView, info)
-            }
-            if(item.attrs?.on_change === '1') {
-              info.onChange = true
-            }
-            if(item.domain.length) {
-              info.domain = item.domain
-            }
+
+      if(model) {
+        const fieldsInfo = {} as FieldsInfo
+        findTree(view.items, (item: Item) => {
+          if(item.fieldKey) {
+            const field = model.getField(item.fieldKey)
+            if(!field) return
+            const info = this._getFieldInfo(field, item)
             fieldsInfo[info.name] = info
           }
+        }, 'items')
+
+        const flexFields = model.getFlexFields()
+        if(flexFields.length) {
+          flexFields.forEach((field: Field) => {
+            const info = this._getFieldInfo(field)
+            fieldsInfo[info.name] = info
+          })
         }
-      }, 'items')
-      parentObj[view.type] = fieldsInfo
+        parentObj[view.type] = fieldsInfo
+      }
     }
+  }
+
+  _getFieldInfo(field: Field, item?: Item) {
+    const options = field?.options || {}
+    const info: FieldInfo = {
+      type: options.relatedType || field.type,
+      name: field.name,
+      string: field.string || item?.string
+    }
+    field.relation && (info.relation = field.relation)
+    field.selection && (info.selection = field.selection)
+
+    if(item) {
+      if(item.subView?.length) {
+        this.getViewFields(item?.subView, info)
+      }
+      if(item.attrs?.on_change === '1') {
+        info.onChange = true
+      }
+      if(item.domain.length) {
+        info.domain = item.domain
+      }
+      if(!_.isEmpty(item.modifiers)) {
+        info.modifiers = item.modifiers
+      }
+    }
+    
+    if(field.flex) {
+      info.modifiers = Object.assign({}, info.modifiers || {}, {
+        invisible: true
+      })
+    }
+    return info
   }
 }
 

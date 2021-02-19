@@ -12,7 +12,7 @@ export interface StudioItem {
   attrs?: any
   options?: any
   items: StudioItem[]
-  subView: StudioView[]
+  subView?: StudioView[]
   [key: string]: any
 }
 
@@ -54,6 +54,10 @@ class Item {
     return ['notebook', 'group', 'page'].includes(this.widget)
   }
 
+  get isSupportWidget() {
+    return ['flex_dropdown'].includes(this.widget)
+  }
+
   _isModifierKey(key: string) {
     return ['readonly', 'required', 'invisible', 'column_invisible'].includes(key)
   }
@@ -63,7 +67,7 @@ class Item {
       if(this._isModifierKey(key)) {
         const value = this.attrs[key] as any
         if(value.checked) {
-          this.modifiers[key as ModifierKey] = value.domain.length ? value.domain : value.checked
+          this.modifiers[key as ModifierKey] = value.domain?.length ? value.domain : value.checked
         }
       }
     }

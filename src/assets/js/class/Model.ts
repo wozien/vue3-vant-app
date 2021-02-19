@@ -26,6 +26,7 @@ class Model {
       if(odooField) {
         // 翻译的处理
         field.string = odooField.string;
+        odooField.flex && (field.flex = true);
         (odooField.selection) && (field.selection = odooField.selection)
       }
       return field
@@ -42,6 +43,10 @@ class Model {
       res[field.name] = field
     })
     return res
+  }
+
+  getFlexFields(): Field[] {
+    return this.fields.filter((f: Field) => f.flex)
   }
 }
 

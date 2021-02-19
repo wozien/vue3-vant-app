@@ -75,6 +75,11 @@ function formatX2Many(value: any) {
   }
 }
 
+function formatJsonb(value: any) {
+  value = typeof value === 'object' ? value : {}
+  return JSON.stringify(value)
+} 
+
 // --------------- parse --------------
 
 function parseNumber(value: string) {
@@ -113,6 +118,10 @@ function parseMany2one(value: any) {
   return value;
 }
 
+function parseJsonb(value: string) {
+  return value ? JSON.parse(value) : {}
+}
+
 // format datapoint.data -> 前端控件显示
 // parse server data -> datapoint.data
 export default {
@@ -129,6 +138,7 @@ export default {
     one2many: formatX2Many,
     many2many: formatX2Many,
     reference: formatMany2one,
+    jsonb: formatJsonb
   },
   parse: {
     char: _.identity,
@@ -142,6 +152,7 @@ export default {
     many2one: parseMany2one,
     one2many: _.identity,
     many2many: _.identity,
-    reference: parseMany2one
+    reference: parseMany2one,
+    jsonb: parseJsonb
   }
 }

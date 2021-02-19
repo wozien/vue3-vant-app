@@ -21,6 +21,9 @@ export interface OdooField {
   [key: string]: any
 }
 
+/**
+ * 视图上存在的字段描述
+ */
 export interface FieldInfo {
   name: string
   type: FieldType
@@ -30,6 +33,7 @@ export interface FieldInfo {
   onChange?: boolean
   list?: FieldsInfo
   domain?: DomainArr
+  modifiers?: Modifiers
 }
 
 export type FieldsInfo = {
@@ -44,6 +48,7 @@ class Field {
   options: any
   relation?: string
   selection?: [string, string][]
+  flex?: boolean
   fields: Field[]
   modifiers: Modifiers
 
