@@ -10,7 +10,7 @@ export default {
   BASE_URL: wxEnv === 'dev' ? 'http://182.92.100.160:18080' : 'http://odoo.studio.insuite.cn',
 
   WX_APP_ID: wxEnv === 'dev' ? 'wxef1dd7f831c0b5f6' :
-    (wxEnv === 'uat' ? 'wx59392d14e4411f29' : 'wx33e995dcf375d68a'),
+    (wxEnv === 'uat' ? 'wx33e995dcf375d68a' : 'wx33e995dcf375d68a'),
     
   WX_OPEN_ID: 'oWkYa5j_tQDiPWuWvdcbimgI40Tk'
 }
