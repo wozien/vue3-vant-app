@@ -12,7 +12,7 @@
     />
 
     <Modal v-model:show="showModal" @confirm="onConfirm">
-      <FlexForm :flex-fields="flexFields" ref="flexFormRef"/>
+      <FlexDropForm :flex-fields="flexFields" ref="flexFormRef"/>
     </Modal>
   </div>
 </template>
@@ -25,11 +25,11 @@ import useFieldCommon, { fieldCommonProps } from '@/assets/js/hooks/field-common
 import { findDataPoint, getRecordData, notifyChanges } from '@/assets/js/class/DataPoint'
 import { Toast } from 'vant'
 import { fetchFlexFields } from '@/api/record'
-import FlexForm from './FlexDropForm.vue'
+import FlexDropForm from './FlexDropForm'
 
 export default defineComponent({
   components: {
-    FlexForm
+    FlexDropForm
   },
 
   props: {
@@ -108,7 +108,3 @@ function getDependDomain(depend: string, recordID: string): any[] {
 }
 
 </script>
-
-<style lang="less" scoped>
-
-</style>

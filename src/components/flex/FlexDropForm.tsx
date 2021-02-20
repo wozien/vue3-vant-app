@@ -1,8 +1,5 @@
-
-
-<script lang="tsx">
 import _ from 'lodash'
-import { defineComponent, ref, watchEffect, computed } from 'vue'
+import { defineComponent, ref, watchEffect, computed, Ref } from 'vue'
 import { useStore } from '@/store'
 import { getApp } from '@/assets/js/class/App'
 import { Item, Fields } from '@/assets/js/class'
@@ -31,7 +28,7 @@ export default defineComponent({
     const items = ref<(Item | null)[]>([])
     const curRecord = computed(() => store.getters.curRecord)
     const fields = getFields(curRecord.value.model as string) as Fields
-    let FieldCompRefs: Ref<any>[]= []
+    let FieldCompRefs: Ref<any>[] = []
 
     watchEffect(() => {
       if(props.flexFields.length) {
@@ -91,6 +88,7 @@ export default defineComponent({
 
     const renderItems = () => {
       const templates = [] as any
+      FieldCompRefs = []
       items.value.forEach((item: Item|null) => {
         if(item) {
           const field = _.find(fields, (f: any) => f.key === item.fieldKey)
@@ -104,13 +102,8 @@ export default defineComponent({
       return templates
     }
 
-    return () => {
-      // 这里需要清空上次的组件实
-      FieldCompRefs = []
-      return <div class="flex-form">{ renderItems() }</div>
-    }
+    return () => (<div class="flex-form">{ renderItems() }</div>)
   }
-
 })
 
 function getFields(modelKey: string) {
@@ -118,6 +111,3 @@ function getFields(modelKey: string) {
   const curModel = curApp.getModel(modelKey)
   return curModel && curModel.getFields()
 }
-</script>
-
-<style lang="less" scoped></style>

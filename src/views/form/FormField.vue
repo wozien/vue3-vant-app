@@ -9,8 +9,6 @@
   <One2Many v-else-if="type === 'one2many'" v-bind="{field, item, readonly}" v-show="!invisible"/>
   <!-- date -->
   <DateField v-else-if="type ==='date' || type === 'datetime'" v-bind="{field, item, readonly}" v-show="!invisible"/>
-  <!-- flex -->
-  <FlexDrop v-else-if="type === 'flex_dropdown'" v-bind="{field, item, readonly}" v-show="!invisible"/>
   <!-- normal -->
   <div v-else v-show="!invisible" class="form-item-field" :data-dbname="field && field.name" :data-type="type">
     <!-- boolean -->
@@ -59,7 +57,6 @@ import { defineComponent, computed } from 'vue'
 import { useStore } from '@/store'
 import useFieldCommon, { fieldCommonProps } from '@/assets/js/hooks/field-common'
 import { Many2One, One2Many, Selection, DateField, Reference } from '@/components/odoo-field'
-import FlexDrop from '@/components/flex/FlexDrop.vue'
 
 export default defineComponent({
   name: 'FormField',
@@ -69,8 +66,7 @@ export default defineComponent({
     One2Many,
     Selection,
     DateField,
-    Reference,
-    FlexDrop
+    Reference
   },
 
   props: {

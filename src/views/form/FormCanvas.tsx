@@ -5,13 +5,15 @@ import { Item, Fields } from '@/assets/js/class'
 import FormGroup from './FormGroup.vue'
 import FormField from './FormField.vue'
 import FormNotebook from './FormNotebook'
+import FlexDrop from '@/components/flex/FlexDrop.vue'
 import useExpose from '@/assets/js/hooks/use-expose'
 
 const FormCanvas = defineComponent({
   components: {
     FormGroup,
     FormField,
-    FormNotebook
+    FormNotebook,
+    FlexDrop
   },
 
   props: {
@@ -39,6 +41,9 @@ const FormCanvas = defineComponent({
 
     const renderItem = (item: Item) => {
       const items = item.items
+      const field = _.find(props.fields as any, { key: item.fieldKey })
+      const readonly = route.query.readonly as string === '1' ? true : false
+
       switch(item.widget) {
         case 'statusbar': return null
         case 'group': 
@@ -53,9 +58,11 @@ const FormCanvas = defineComponent({
               { items.length ? renderItems(items) : null }
             </FormNotebook>
           )
+        case 'flex_dropdown':
+          return (
+            <FlexDrop item={item} field={field} readonly={readonly} />
+          )
         default:
-          const field = _.find(props.fields as any, { key: item.fieldKey })
-          const readonly = route.query.readonly as string === '1' ? true : false
           const compRef = ref(null)
           FieldCompRefs.push(compRef)
           return (
@@ -71,9 +78,7 @@ const FormCanvas = defineComponent({
       }
     }
 
-    return () => {
-      return renderItems(props.items)
-    }
+    return () => renderItems(props.items)
   }
 })
 
