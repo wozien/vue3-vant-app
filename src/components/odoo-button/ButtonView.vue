@@ -356,6 +356,8 @@ function handleServiceAction(action: any, button: ViewButton) {
     // 返回向导视图
     if(button.isFlow) {
       handleWorkflowAction(action, button)
+    } else {
+      // TODO 处理其他类型向导
     }
   } else if(action.type === 'ir.actions.cus_function') {
     switch(action.funcName) {
@@ -382,6 +384,8 @@ function handleWorkflowAction(action: any, button: ViewButton) {
       handleFlowAgree(action); break
     case 'workflow_back_getInfo':
       handleFlowReturn(action); break
+    case 'workflow_veto':
+      handleFlowVeto(action); break
   }
 }
 
@@ -406,14 +410,36 @@ function handleFlowAgree(action: any) {
   )
   const confirm = async (cb: Function) => {
     const res = await flowAgreen(state.opinion, Object.assign(getFlowParams(), action.context || {}))
+    console.log(res)
     if(res.ret === 0) {
-      await reload()
-      store.commit('SET_RECORD_TOKEN')
-      Toast('审批成功'); cb()
+      await postAction(res.data, true)
+      cb()
     } 
   }
 
-  createModal({ render, confirm, hideFooter: false })
+  createModal({ render, confirm })
+}
+
+/**
+ * 审批否决
+ */
+function handleFlowVeto(action: any) {
+  const state = reactive({
+    opinion: ''
+  })
+    const render = () => (
+    <van-field v-model={state.opinion} rows="4" label="审批意见" type="textarea" maxlength="50"
+    placeholder="请输入审批意见" show-word-limit autosize/>
+  )
+  const confirm = async (cb: Function) => {
+    const res = await flowAgreen(state.opinion, Object.assign(getFlowParams(), action.context || {approve_type: '0'}))
+    if(res.ret === 0) {
+      await postAction(res.data, true)
+      cb()
+    } 
+  }
+
+  createModal({ render, confirm })
 }
 
 /**
@@ -465,13 +491,12 @@ function handleFlowReturn(action: any) {
     }
     const res = await flowReturn(state.nodeKey, state.opinion, Object.assign(getFlowParams(), context))
     if(res.ret === 0) {
-      await reload()
-      store.commit('SET_RECORD_TOKEN')
-      Toast('退回成功'); cb()
+      await postAction(res.data, true)
+      cb()
     } 
   }
 
-  createModal({ render, confirm, hideFooter: false })
+  createModal({ render, confirm })
 }
 
 /**
@@ -507,7 +532,7 @@ function handleFlowSign(action: any) {
     }
   }
 
-  createModal({ render, confirm, cancel, hideFooter: false })
+  createModal({ render, confirm, cancel })
 }
 
 /**
@@ -532,7 +557,7 @@ function handleFlowConsult(action: any) {
     }
   }
 
-  createModal({ render, confirm, hideFooter: false })
+  createModal({ render, confirm })
 }
 
 /**
@@ -546,6 +571,16 @@ function handleFlowViewProcess(action: any) {
   const confirm = () => {}
 
   createModal({ render, confirm, hideFooter: true })
+}
+
+async function postAction(action: any, needReload?: boolean) {
+  if('notify_toast' in action) {
+    Toast(action.notify_toast.message)
+  }
+  if(needReload) {
+    await reload()
+    store.commit('SET_RECORD_TOKEN')
+  }
 }
 
 </script>
