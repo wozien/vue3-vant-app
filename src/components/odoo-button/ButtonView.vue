@@ -4,10 +4,17 @@
     <van-popover 
       v-if="moreButtons.length"
       v-model:show="showPopover" 
-      :actions="moreButtons" 
       placement="top-start"
-      @select="onSelect"
     >
+      <div class="popover-button">
+        <div class="popover-button__item van-hairline--bottom van-ellipsis"
+          v-for="item in moreButtons" 
+          :key="item.key" 
+          @click="onSelect(item)"
+        >
+          {{ item.text }}
+        </div>  
+      </div> 
       <template #reference>
         <van-icon name="ellipsis" />
         <!-- <van-button size="small" round>更多</van-button>  -->
@@ -64,6 +71,7 @@ export default defineComponent({
     const router = useRouter()
     const store = useStore()
 
+    const showPopover = ref(false)
     const renderButtons = ref<ViewButton[]>([])
     const capsuleButtons = computed(() => {
       return renderButtons.value.slice(0, 3)
@@ -138,7 +146,10 @@ export default defineComponent({
       button.loading = false
     }
 
-    const onSelect = (item: any) => onButtonClick(item)
+    const onSelect = (item: any) =>  {
+      onButtonClick(item)
+      showPopover.value = false
+    }
 
     // 编辑
     const onEdit = () => {
@@ -327,7 +338,7 @@ export default defineComponent({
     })
 
     return {
-      showPopover: ref(false),
+      showPopover,
       capsuleButtons,
       moreButtons,
       onButtonClick,
