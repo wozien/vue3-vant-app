@@ -531,7 +531,7 @@ function handleFlowSign(action: any) {
       }
       const res = await flowSign(data.type, data.selected, Object.assign(action.context || {}, getFlowParams()))
       if(res.ret === 0) {
-        Toast('加签成功'); 
+        Toast(res.data?.message); 
         (signRef.value as any).reset()
         cb()
       }
