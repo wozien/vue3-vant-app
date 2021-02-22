@@ -86,7 +86,7 @@ class View {
     if(this.isSubView) {
       res.unshift(this._makePresetButton('back', 'Back', 'readonly'))
       res.unshift(this._makePresetButton('saveLine', 'Save Line'))
-      res.unshift(this._makePresetButton('newLine', 'New Line'))
+      res.unshift(this._makePresetButton('newLine', 'New Line', 'edit', {highlight: true}))
       res.push(this._makePresetButton('deleteLine', 'Delete Line'))
     } 
 
@@ -111,7 +111,7 @@ class View {
     return buttonMap[key as keyof typeof buttonMap] || key
   }
 
-  _makePresetButton(funcName: string, string: string, mode?: ViewButtonMode): ViewButton {
+  _makePresetButton(funcName: string, string: string, mode?: ViewButtonMode, options?: any): ViewButton {
     return {
       key: uuid(6),
       type: 'event',
@@ -121,7 +121,8 @@ class View {
       mode: mode || 'edit',
       highlight: false,
       isFlow: false,
-      loading: false
+      loading: false,
+      ...options
     }
   }
 

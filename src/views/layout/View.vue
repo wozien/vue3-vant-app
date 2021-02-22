@@ -5,7 +5,7 @@
     :fields-info="ctx && ctx.fieldsInfo"
     :fields="ctx && ctx.fields"
     :cur-view="ctx && ctx.curView"
-    :action-domain="ctx && ctx.actionDomain"
+    :action="ctx && ctx.action"
   />
   <FormView v-else
     :fields-info="ctx && ctx.fieldsInfo"
@@ -16,7 +16,7 @@
 
 <script lang="ts">
 import { defineComponent, ref, onBeforeMount, computed, watchEffect } from 'vue'
-import { App, getAppAsync, Model, View, ViewType, Fields, FieldsInfo } from '@/assets/js/class'
+import { App, getAppAsync, Model, View, ViewType, Fields, FieldsInfo, Action } from '@/assets/js/class'
 import { useRoute } from 'vue-router'
 import useTitle from '@/assets/js/hooks/use-title'
 import ListView from '../list/List.vue'
@@ -29,7 +29,7 @@ interface ViewContext {
   curView: View
   fields: Fields
   fieldsInfo: FieldsInfo,
-  actionDomain?: any[] 
+  action?: Action
 }
 
 export default defineComponent({
@@ -82,7 +82,7 @@ function getContext(curApp: App, modelKey: string, viewType: ViewType): ViewCont
     appName: curApp.name,
     fields: curModel && curModel.getFields() || {},
     fieldsInfo: fieldsInfo || {},
-    actionDomain: curApp.action?.domain
+    action: curApp.action
   }
 }
 </script>

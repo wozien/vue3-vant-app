@@ -262,11 +262,7 @@ function pycontext() {
   };
 }
 
-/**
-* @param {String} type "domains", "contexts" or "groupbys"
-* @param {Array} object domains or contexts to evaluate
-* @param {Object} [context] evaluation context
-*/
+
 function pyeval(type, object, context) {
   context = _.extend(pycontext(), context || {});
 

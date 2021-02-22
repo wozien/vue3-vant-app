@@ -82,11 +82,12 @@ export const flowSign = async (type: string, selected: any, context: any): Promi
   const params = {
     signBill: [context],
     signConsult: {
-      memberList: (selected?.members || []).map((item: any) => { item.type = 'memberList'; return item }),
+      memberList: selected?.members || [],
       roleList: selected?.roles || [],
       stationList: []
     },
-    signType: type
+    signType: type,
+    signText: type === 'before' ? '前加签' : '后加签'
   }
 
   const res = await http.post('/flowable/sign', { ...params })

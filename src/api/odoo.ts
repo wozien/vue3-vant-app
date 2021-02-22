@@ -23,7 +23,8 @@ export interface OdooSearchRead {
     domain?: DomainArr,
     fields: string[],
     limit?: number,
-    sort?: string
+    sort?: string,
+    context?: Record<string, any>
   }): Promise<AxiosResponse>;
 }
 

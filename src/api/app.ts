@@ -69,8 +69,8 @@ export const fetchListData: (
     search?: any[],
     action?: any[]
   },
-  limit?: number
-) => Promise<HttpRes> = async (model, lastId, searchFields, domain, limit = 6) => {
+  context?: Record<string, any>
+) => Promise<HttpRes> = async (model, lastId, searchFields, domain, context) => {
   const arrayToString = Domain.prototype.arrayToString
   const stringToArray = Domain.prototype.stringToArray
   const actionDomain = domain.action || []
@@ -87,9 +87,10 @@ export const fetchListData: (
   
   const res = await searchRead({
     model,
+    limit: 6,
     domain: stringToArray(queryDomain),
-    limit,
-    fields: searchFields
+    fields: searchFields,
+    context: context || {}
   })
 
   return res.data

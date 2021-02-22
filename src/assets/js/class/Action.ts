@@ -1,8 +1,7 @@
 
 import { ViewType } from './View'
-import Domain from '@/assets/js/odoo/Domain'
-
-const stringToDomain = Domain.prototype.stringToArray
+import Context from '@/assets/js/odoo/Context'
+import pyUtils from '@/assets/js/odoo/py_utils'
 
 type ActionView = [number, ViewType]
 
@@ -19,22 +18,27 @@ export interface ActionRaw {
 class Action {
   id: number
   name: string
-  domain: any[]
+  domain: any
   modelKey: string
   context?: any
   views: ActionView[]
 
-  constructor(raw: ActionRaw) {
-    this.id = raw.id
-    this.name = raw.name
-    this.views = raw.views
-    this.modelKey = raw.res_model
-    this.domain = raw.domain.length ? stringToDomain(raw.domain) : []
+  constructor(action: ActionRaw) {
+    this.id = action.id
+    this.name = action.name
+    this.views = action.views
+    this.modelKey = action.res_model
 
-    // TODO action context 处理
-    // if(raw.context) {
-    //   this.context = JSON.parse(raw.context)
-    // }
+    if(action.context) {
+      // TODO handler user context
+      const userContext = {}
+      const context = new Context(userContext, action.context)
+      this.context = pyUtils.eval('context', context)
+    }
+
+    if(action.domain) {
+      this.domain = pyUtils.eval('domain', action.domain, this.context || {})
+    }
   }
 }
 

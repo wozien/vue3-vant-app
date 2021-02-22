@@ -44,11 +44,11 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, reactive, toRefs, computed, watch } from 'vue'
+import { defineComponent, reactive, toRefs, computed, watch, PropType } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useStore } from '@/store'
 import ListCard from './ListCard.vue'
-import { Record } from '@/assets/js/class'
+import { Record, Action } from '@/assets/js/class'
 import { viewCommonProps } from '@/assets/js/hooks/view-common'
 import { fetchListData } from '@/api/app'
 import { fetchReferencesBatch } from '@/assets/js/class/Record'
@@ -65,10 +65,7 @@ export default defineComponent({
   props: {
     ...viewCommonProps,
     appName: String,
-    actionDomain: {
-      type: Array,
-      default: () => []
-    }
+    action: Object as PropType<Action>
   },
 
   setup(props) {
@@ -105,8 +102,8 @@ export default defineComponent({
       if(searchFields.value.length) {      
         const res = await fetchListData(route.query.model as string, lastId, searchFields.value, {
           search: state.domain,
-          action: props.actionDomain
-        })
+          action: props.action?.domain
+        }, props.action?.context)
         state.refreshing = false
         if(res.ret === 0) {
           const length = res.data.length

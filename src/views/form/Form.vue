@@ -31,7 +31,7 @@ import {
   defineComponent, reactive, computed, watch, toRaw,
   toRefs, watchEffect, onMounted, onBeforeUnmount, provide, ref
 } from 'vue'
-import { useRoute, onBeforeRouteUpdate } from 'vue-router'
+import { useRoute, useRouter, onBeforeRouteUpdate } from 'vue-router'
 import { Toast } from 'vant'
 import { useStore } from '@/store'
 import FormCanvas from './FormCanvas'
@@ -56,6 +56,7 @@ export default defineComponent({
 
   setup(props) {
     const route = useRoute()
+    const router = useRouter()
     const store = useStore()
     const data = reactive({
       creator: {
@@ -101,7 +102,13 @@ export default defineComponent({
       const { subModel, subId } = route.query
       if(subModel) {
         const recordId = getRecordId(subModel as string, subId as string)
-        recordId && store.commit('SET_CUR_RECORD', recordId)
+        if(recordId) {
+          store.commit('SET_CUR_RECORD', recordId)
+        } else if(subId && (subId as string).startsWith('virtual_')){
+          // 添加明细行后直接刷新，返回表头
+          router.back()
+        }
+        
       } else {
         store.commit('RESET_CUR_RECORD')
         sessionStorage.removeItem(sessionStorageKeys.x2manyCommand)
