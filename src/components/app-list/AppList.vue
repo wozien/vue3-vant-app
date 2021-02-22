@@ -15,6 +15,7 @@ import { useRouter } from 'vue-router'
 import { Toast, Notify } from 'vant'
 import { addAppCount } from '@/api/app'
 import { sessionStorageKeys } from '@/assets/js/constant'
+import { getAppAsync } from '@/assets/js/class/App'
 
 interface AppRaw {
   id: number;
@@ -44,11 +45,14 @@ export default defineComponent({
         actionId,
       }
       sessionStorage.setItem(sessionStorageKeys.loadParams, JSON.stringify(loadParams))
+
+      const app = await getAppAsync(modelKey, id + '', actionId)
+      const hasList = app.views && 'list' in app.views
       router.push({
         name: 'view',
         query: {
           model: modelKey,
-          viewType: 'list'
+          viewType: hasList ? 'list' : 'form'
         }
       }).catch(e => {
         Notify({

@@ -529,7 +529,12 @@ function handleFlowSign(action: any) {
       if(errorMsg) {
         Toast(errorMsg); cb(true); return
       }
-      const res = await flowSign(data.type, data.selected, Object.assign(action.context || {}, getFlowParams()))
+      
+      let billData: any
+      if(action.args.length) {
+        billData = action.args[0].billData[0]
+      }
+      const res = await flowSign(data.type, data.selected, Object.assign(action.context || {}, getFlowParams(), billData || {}))
       if(res.ret === 0) {
         Toast(res.data?.message); 
         (signRef.value as any).reset()

@@ -82,7 +82,7 @@ export const flowSign = async (type: string, selected: any, context: any): Promi
   const params = {
     signBill: [context],
     signConsult: {
-      memberList: selected?.members || [],
+      memberList: (selected?.members || []).map((item: any) => { item.type = 'memberList'; return item }),
       roleList: selected?.roles || [],
       stationList: []
     },
