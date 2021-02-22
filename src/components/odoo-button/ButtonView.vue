@@ -23,10 +23,9 @@
 
     <div class="button-capsules">
       <Button 
-        v-for="(button, index) in capsuleButtons" 
+        v-for="button in capsuleButtons" 
         :key="button.key" 
         :button="button"
-        :is-primary="index === 0"
         @click="onButtonClick"
       />
     </div>
@@ -428,7 +427,7 @@ function handleFlowAgree(action: any) {
     } 
   }
 
-  createModal({ render, confirm })
+  createModal({ render, confirm, hideFooter: false })
 }
 
 /**
@@ -450,7 +449,7 @@ function handleFlowVeto(action: any) {
     } 
   }
 
-  createModal({ render, confirm })
+  createModal({ render, confirm, hideFooter: false })
 }
 
 /**
@@ -507,7 +506,7 @@ function handleFlowReturn(action: any) {
     } 
   }
 
-  createModal({ render, confirm })
+  createModal({ render, confirm, hideFooter: false })
 }
 
 /**
@@ -532,7 +531,9 @@ function handleFlowSign(action: any) {
       }
       const res = await flowSign(data.type, data.selected, Object.assign(action.context || {}, getFlowParams()))
       if(res.ret === 0) {
-        Toast('加签成功'); cb()
+        Toast('加签成功'); 
+        (signRef.value as any).reset()
+        cb()
       }
     }
   }
@@ -543,7 +544,7 @@ function handleFlowSign(action: any) {
     }
   }
 
-  createModal({ render, confirm, cancel })
+  createModal({ render, confirm, cancel, hideFooter: false })
 }
 
 /**
@@ -568,7 +569,7 @@ function handleFlowConsult(action: any) {
     }
   }
 
-  createModal({ render, confirm })
+  createModal({ render, confirm, hideFooter: false })
 }
 
 /**

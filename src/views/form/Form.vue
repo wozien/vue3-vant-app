@@ -82,8 +82,8 @@ export default defineComponent({
     })
     const curRecord = computed(() => store.getters.curRecord)
 
-    const loadRecord = async () => {
-      let { model, id } = route.query
+    const loadRecord = async (routeQuery?: Record<string, any>) => {
+      let { model, id } = routeQuery || route.query
       if(searchFields.value.length && props.fieldsInfo) {
         // datapoint load
         await loadDataPoint({
@@ -141,7 +141,7 @@ export default defineComponent({
       const { viewType: fromViewType, subId: fromSubId } = from.query
       const { viewType, id, subId } = to.query
       if(fromViewType === 'form' && viewType === 'form' && !id && !subId && !fromSubId) {
-        loadRecord()
+        loadRecord(to.query)
       }
     })
 

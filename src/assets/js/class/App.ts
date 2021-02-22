@@ -78,6 +78,7 @@ class App {
   }
 
   async loadViews() {
+    const defs = []
     this.views = {} as { [key in ViewType]: View }
     let res
     if(this.actionId) {
@@ -90,10 +91,15 @@ class App {
     if(res.ret === 0) {
       const views = res.data
       for(let type in views) {
-        this.views[type as ViewType] = new View(views[type])
+        const view = new View(views[type])
+        // 按钮权限
+        if(!view.isSubView) {
+          defs.push(view.checkButtonsAccess())
+        }
+        this.views[type as ViewType] = view
       }
     }
-    return true
+    return Promise.all(defs)
   }
 
   getModel(modelKey?: string) {

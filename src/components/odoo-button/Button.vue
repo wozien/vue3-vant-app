@@ -16,13 +16,12 @@ import { ViewButton } from '@/assets/js/class'
 
 export default defineComponent({
   props: {
-    button: Object as PropType<ViewButton>,
-    isPrimary: Boolean
+    button: Object as PropType<ViewButton>
   },
   emits: ['click'],
 
   setup(props, { emit }) {
-    const highlight = computed(() => props.button && props.button.highlight || props.isPrimary)
+    const highlight = computed(() => props.button && props.button.highlight)
     const onClickBtn = () => {
       emit('click', props.button?.key)
     }

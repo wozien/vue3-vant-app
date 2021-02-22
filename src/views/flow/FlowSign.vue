@@ -55,7 +55,6 @@ export default defineComponent({
         receiver: state.receiver,
         selected: toRaw(state.selected)
       }
-      reset()
       return data
     }
 

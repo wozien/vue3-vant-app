@@ -88,9 +88,7 @@ class View {
       res.unshift(this._makePresetButton('saveLine', 'Save Line'))
       res.unshift(this._makePresetButton('newLine', 'New Line'))
       res.push(this._makePresetButton('deleteLine', 'Delete Line'))
-    } else  {
-      this._checkButtons(res)
-    }
+    } 
 
     return res
   }
@@ -131,7 +129,7 @@ class View {
     return !item.is_event && item.func_name.startsWith('workflow_')
   }
 
-  async _checkButtons(buttons: ViewButton[]) {
+  async checkButtonsAccess() {
     const getName = (name: string) => {
       if(name === 'create') {
         return 'pre_create'
@@ -142,12 +140,13 @@ class View {
     }
 
     // 构造权限接口数据
-    const args = buttons.map((button: ViewButton) => {
+    const args = this.buttons.map((button: ViewButton) => {
       return {
         attrs: {
           key: button.key,
           type: button.type,
-          name: getName(button.funcName)
+          name: getName(button.funcName),
+          event: button.funcName === 'copy' && '_onCopyRecord'
         },
         tag: 'button',
         children: []
@@ -155,7 +154,7 @@ class View {
     })
     const res = await chekcButtonAccess(this.model, args)
     if(res.ret === 0) {
-      this.buttons = buttons.filter((button: ViewButton) => {
+      this.buttons = this.buttons.filter((button: ViewButton) => {
         return res.data && res.data.length && res.data.find((item: any) => item.attrs.key === button.key)
       })
     }

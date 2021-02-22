@@ -15,11 +15,13 @@
     </div>
     <div class="flow-log" v-else-if="active === 'log' && list.length">
       <div class="list">
-        <div v-for="item in list" :key="item.nodeId" :class="['list-item', item.state && 'list-item-done']">
+        <div v-for="item in list" :key="item.nodeId" :class="['list-item', item.state && `list-item-${item.state}`]">
           <h2 class="title">{{ item.nodeName }}</h2>
           <div class="content">
-            <p> {{ item.time }} {{ item.person }} <span class="state">{{ item.state ? '审批通过' : '审批驳回' }}</span></p>
-            <p class="opinion">{{ item.options }}</p>
+            <p> {{ item.time }} {{ item.person }}
+              <span class="state">{{ item.state === 'done' ? '审批通过' : (item.state === 'returned' ? '审批驳回' : '') }}</span>
+            </p>
+            <p class="opinion" v-if="item.options">{{ item.options }}</p>
           </div>
         </div>
       </div>
@@ -57,8 +59,10 @@ export default defineComponent({
       if(props.options.nodelist) {
         list.value = props.options.nodelist.map((item: any) => {
           const date = new Date(item.time.replace(/-/g, '/'))
+          const state = item.state == undefined ? '' : (item.state ? 'done' : 'returned')
           return {
             ...item,
+            state,
             time: formatDate('M-d hh:mm', date)
           }
         })
@@ -264,8 +268,8 @@ function bindEvent(container: any, options: any) {
             width: 12px;
             height: 12px;
             border-radius: 50%;
-            background: @error-color;
             margin-right: 6px;
+            background: @text-color-light-2;
           }
         }
            
@@ -278,17 +282,24 @@ function bindEvent(container: any, options: any) {
             border-radius: 4px;
           }
           .state {
-            color: @error-color;
             padding-left: 10px;
           }
         }
 
         &.list-item-done {
           .title::before {
-            background: @success-color
+            background: @success-color;
           }
           .content .state {
             color: @text-color-light-1;
+          }
+        }
+        &.list-item-returned {
+          .title::before {
+            background: @error-color;
+          }
+          .content .state {
+            color: @error-color;
           }
         }
       }
