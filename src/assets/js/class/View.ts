@@ -9,7 +9,7 @@ export interface StudioView {
   model: string
   name: string
   type: ViewType
-  mobileItems: StudioItem[]
+  mobileItems: StudioItem[] | null
   buttons: any[]
   isSubView?: boolean
   options?: any
@@ -46,7 +46,7 @@ class View {
     this.isSubView = viewObj.isSubView || false
     this.options = viewObj.options || {}
     this.buttons = this._initButtons(viewObj.buttons)
-    this.items = viewObj.mobileItems.map(i => new Item(i))
+    this.items = viewObj.mobileItems ? viewObj.mobileItems.map(i => new Item(i)) : []
   }
 
   getSubViews () {

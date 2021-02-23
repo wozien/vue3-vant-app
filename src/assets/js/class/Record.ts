@@ -6,7 +6,7 @@ import _ from 'lodash'
 import { getApp } from './App'
 import { str2Date } from '@/assets/js/utils/date'
 import { FieldsInfo } from './Field'
-import { fetchNameGet } from '@/api/record'
+import { fetchNameGet, fetchRecord } from '@/api/record'
 
 export interface RecordRaw {
   id: number
@@ -80,17 +80,24 @@ class Record {
   }
 }
 
-const _getTofetch = (data: any[], fieldsInfo: FieldsInfo) => {
+const _getTofetch = (data: any[], fieldTypes: string[], fieldsInfo: FieldsInfo) => {
   const res = {} as any
   data.forEach((row: any) => {
     for(let fieldName in row) {
       const field = fieldsInfo[fieldName]
-      if(field && field.type === 'reference') {
-        const [model, resID] = row[fieldName].split(',')
-        if(!res[model]) {
-          res[model] = []
-        }
-        res[model].push(+resID)
+      if(!field || !fieldTypes.includes(field.type)) continue
+
+      switch(field.type) {
+        case 'reference':
+          const [model, resID] = row[fieldName].split(',')
+          res[model] = [...res[model] || [], +resID]
+          break
+
+        case 'many2many':
+        case 'one2many':
+          const relation = field.relation
+          if(relation) 
+            res[relation] = (res[relation] || []).concat(row[fieldName])
       }
     }
   })
@@ -105,7 +112,7 @@ const _getTofetch = (data: any[], fieldsInfo: FieldsInfo) => {
  */
 export const fetchReferencesBatch = async (raws: RecordRaw[], fieldsInfo?: FieldsInfo) => {
   if(!fieldsInfo) return;
-  const toFetchs = _getTofetch(raws.map((raw: RecordRaw) => raw.odoo_data), fieldsInfo)
+  const toFetchs = _getTofetch(raws.map((raw: RecordRaw) => raw.odoo_data), ['reference'], fieldsInfo)
 
   const result = {} as any
   await Promise.all(_.map(toFetchs, async (ids: number[], model: string) => {
@@ -122,6 +129,39 @@ export const fetchReferencesBatch = async (raws: RecordRaw[], fieldsInfo?: Field
       const field = fieldsInfo[fieldName]
       if(field && field.type === 'reference') {
         raw.odoo_data[fieldName] = result[value]
+      }
+    })
+  })
+}
+
+/**
+ * 批量获取列表的x2many字段
+ * @param raws 
+ * @param fieldsInfo 
+ */
+export const fetchX2ManysBatch = async (raws: RecordRaw[], fieldsInfo?: FieldsInfo) => {
+  if(!fieldsInfo) return
+  const fieldTypes = ['many2many', 'one2many']
+  const toFetchs = _getTofetch(raws.map((raw: RecordRaw) => raw.odoo_data), fieldTypes, fieldsInfo)
+
+  const result = {} as any
+  await Promise.all(_.map(toFetchs, async (ids: number[], model: string) => {
+    ids = Array.from(new Set(ids))
+    const res = await fetchRecord(model, ids, ['display_name'])
+    if(res.ret === 0) {
+      result[model] = res.data
+    }
+  }))
+
+  raws.forEach((raw: RecordRaw) => {
+    _.each(raw.odoo_data, (value: any, fieldName: string) => {
+      const field = fieldsInfo[fieldName]
+      if(!field) return
+      const model = field.relation
+      if(fieldTypes.includes(field.type) && model && Array.isArray(result[model])) {
+        raw.odoo_data[fieldName] = result[model]
+          .filter((item: any) => value.includes(item.id))
+          .map((item: any) => item.display_name)
       }
     })
   })

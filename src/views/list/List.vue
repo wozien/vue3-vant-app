@@ -51,7 +51,7 @@ import ListCard from './ListCard.vue'
 import { Record, Action } from '@/assets/js/class'
 import { viewCommonProps } from '@/assets/js/hooks/view-common'
 import { fetchListData } from '@/api/app'
-import { fetchReferencesBatch } from '@/assets/js/class/Record'
+import { fetchReferencesBatch, fetchX2ManysBatch } from '@/assets/js/class/Record'
 import SearchView from '@views/search/SearchView.vue'
 import SearchBar from '@views/search/SearchBar.vue'
 
@@ -108,7 +108,10 @@ export default defineComponent({
         if(res.ret === 0) {
           const length = res.data.length
           if(length) {
-            await fetchReferencesBatch(res.data, props.fieldsInfo)
+            await Promise.all([
+              fetchReferencesBatch(res.data, props.fieldsInfo),
+              fetchX2ManysBatch(res.data, props.fieldsInfo)
+            ])
             state.loading = false  // loading的状态需要放在所有后面
             res.data.forEach((raw: any, index: number) => {
               const record = new Record(raw)

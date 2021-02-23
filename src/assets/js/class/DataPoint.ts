@@ -655,7 +655,7 @@ const _fetchReferencesBatched = (list: DataPoint) => {
   const fieldNames = _getFieldsName(list)
   fieldNames.forEach((fieldName: string) => {
     const field = list.fieldsInfo[fieldName]
-    if(field.type === 'reference') {
+    if(field && field.type === 'reference') {
       defs.push(_fetchReferenceBatched(list, fieldName))
     }
   })
@@ -729,7 +729,8 @@ const _makeDefaultRecord = async (modelName: string, params: LoadParams) => {
  * @param dataPoint 
  */
 const _getFieldsName = (dataPoint: DataPoint) => {
-  return Object.keys(dataPoint.fieldsInfo || {})
+  const res =  Object.keys(dataPoint.fieldsInfo || {})
+  return res.length ? res : ['display_name']
 }
 
 /**

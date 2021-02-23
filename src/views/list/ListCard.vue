@@ -89,7 +89,6 @@ export default defineComponent({
   }
 })
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function useCard(record: Record | ListCard, fieldsInfo: FieldsInfo, appName?:string) {
   if(!(record instanceof Record)) return record
   const res: ListCard = {
@@ -118,7 +117,12 @@ function useCard(record: Record | ListCard, fieldsInfo: FieldsInfo, appName?:str
       // to Date Obj
       fieldValue = (fieldUtils.parse as any)[fieldType](fieldValue, field)
     }
-    fieldItem.value = (fieldUtils.format as any)[fieldType](fieldValue, field, { format: fieldType === 'boolean' })
+
+    if(fieldType === 'many2many' || fieldType === 'one2many') {
+      fieldItem.value = Array.isArray(fieldValue) ? fieldValue.join(',') : ''
+    } else {
+      fieldItem.value = (fieldUtils.format as any)[fieldType](fieldValue, field, { format: fieldType === 'boolean' })
+    }
   })
 
   return res
