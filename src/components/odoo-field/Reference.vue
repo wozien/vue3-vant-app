@@ -79,7 +79,7 @@ export default defineComponent({
       }
       const res = await fetchMany2OneData(model as string, state.searchValue, domain.value)
       state.items.forEach((item: any) => {
-        if(item.text === model) {
+        if(item.model === model) {
           item.children = res.data.map((row: any) => {
             const [id, name] = row
             return {
@@ -143,7 +143,7 @@ function useModal(props: any) {
         const [model, name] = row
         if(model && name) {
           state.models.push({ model, name })
-          state.items.push({ text: name, children: [] })
+          state.items.push({ text: name, model, children: [] })
         }
       })
     }

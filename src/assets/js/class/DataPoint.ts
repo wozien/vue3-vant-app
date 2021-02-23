@@ -510,7 +510,11 @@ const _fetchX2Manys = (record: DataPoint) => {
         parentId: record.id
       })
       record.data[fieldName] = list.id
-      defs.push(_fetchX2ManysData(list))
+      defs.push(_fetchX2ManysData(list).then(() => {
+        return Promise.all([
+          _fetchReferencesBatched(list)
+        ])
+      }))
     }
   })
   return Promise.all(defs)
@@ -587,6 +591,72 @@ const _fetchReferences = async (record: DataPoint) => {
         dataPoint && (record.data[fieldName] = dataPoint.id)
       })
       defs.push(def)
+    }
+  })
+  return Promise.all(defs)
+}
+
+/** 
+ * @param datapoints 
+ * @param model 
+ * @param fieldName 
+ */
+const _fetchReferenceData = async (datapoints: Record<string, DataPointId[]>, model: string, fieldName: string) => {
+  const ids = _.map(Object.keys(datapoints), (id: string) => parseInt(id))
+  const res = await fetchNameGet(model, ids)
+  if(res.ret === 0) {
+    _.each(res.data, (value: any) => {
+      const recordIds = datapoints[value[0]]
+      _.each(recordIds, (recordId: string) => {
+        const record = localData[recordId]
+        const referenceDp = _makeDataPoint({
+          data: {
+            id: value[0],
+            display_name: value[1]
+          },
+          fieldsInfo: {
+            id: { type: 'integer', name: 'id'},
+            display_name: { type: 'char', name: 'display_name'} 
+          },
+          parentId: recordId,
+          modelName: model,
+          viewType: 'form',
+        })
+        record.data[fieldName] = referenceDp.id
+      })
+    })
+  }
+  return true
+}
+
+/**
+ * @param list 
+ * @param fieldName 
+ */
+const _fetchReferenceBatched = (list: DataPoint, fieldName: string) => {
+  list = _applyX2ManyOperations(list)
+
+  const toFetch = _getDataToFetchByModel(list, fieldName);
+  const defs = [] as any
+  // one name_get by model
+  _.each(toFetch, (datapoints, model) => {
+      defs.push(_fetchReferenceData(datapoints, model, fieldName));
+  })
+
+  return Promise.all(defs);
+}
+
+/**
+ * 批量获取表体中的reference字段值
+ * @param list 
+ */
+const _fetchReferencesBatched = (list: DataPoint) => {
+  const defs = [] as any
+  const fieldNames = _getFieldsName(list)
+  fieldNames.forEach((fieldName: string) => {
+    const field = list.fieldsInfo[fieldName]
+    if(field.type === 'reference') {
+      defs.push(_fetchReferenceBatched(list, fieldName))
     }
   })
   return Promise.all(defs)
@@ -679,6 +749,32 @@ const _getDefaultData = async (record: DataPoint) => {
   return defaultRecord
 }
 
+/**
+ * ref数据批量获取预整理
+ * @param list 
+ * @param fieldName 
+ */
+const _getDataToFetchByModel = (list: DataPoint, fieldName: string) => {
+  const toFetch = {} as any
+  _.each(list.data, (recordId: DataPointId) => {
+    const record = localData[recordId]
+    const value = record.data[fieldName]
+    // 过滤已经获取数据的ref字段
+    if(value && !localData[value]) {
+      const [model, resID] = value.split(',')
+      if(!(model in toFetch)) {
+        toFetch[model] = {} as any
+      }
+
+      if(toFetch[model][resID]) {
+        toFetch[model][resID].push(recordId)
+      } else {
+        toFetch[model][resID] = [recordId]
+      }
+    }
+  })
+  return toFetch
+}
 
 /**
  * 获取o2m字段的默认值模版

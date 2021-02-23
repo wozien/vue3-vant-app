@@ -21,7 +21,7 @@
 import _ from 'lodash'
 import { defineComponent, PropType } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { Record, FieldsInfo } from '@/assets/js/class'
+import { Record, FieldsInfo, FieldInfo } from '@/assets/js/class'
 import { formatDate } from '@/assets/js/utils/date'
 import { sessionStorageKeys } from '@/assets/js/constant'
 import fieldUtils from '@/assets/js/utils/field-utils'
@@ -103,10 +103,11 @@ function useCard(record: Record | ListCard, fieldsInfo: FieldsInfo, appName?:str
     fields: []
   }
   
-  _.each(fieldsInfo, (field: any) => {
+  _.each(fieldsInfo, (field: FieldInfo) => {
+    if(field.modifiers?.invisible) return;
     const fieldItem: ListCardField = {
       name: field.name,
-      string: field.string,
+      string: field.string || '',
       value: ''
     }
     res.fields.push(fieldItem)

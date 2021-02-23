@@ -420,7 +420,6 @@ function handleFlowAgree(action: any) {
   )
   const confirm = async (cb: Function) => {
     const res = await flowAgreen(state.opinion, Object.assign(getFlowParams(), action.context || {}))
-    console.log(res)
     if(res.ret === 0) {
       await postAction(res.data, true)
       cb()
