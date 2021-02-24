@@ -82,7 +82,7 @@ function useModal(props: any, curRecord: Ref<any>) {
   })
 
   const domain = computed(() => {
-    return  curRecord && getDomain(curRecord.value.id, { fieldName: props.field?.name })
+    return curRecord && getDomain(curRecord.value.id, { fieldName: props.field?.name })
   })
 
   const onOpenModal = async () => {

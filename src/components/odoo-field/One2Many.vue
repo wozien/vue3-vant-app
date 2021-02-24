@@ -17,6 +17,11 @@
         <template v-if="col.fieldType === 'boolean'" #default="{ row }">
           <van-checkbox v-model="row[col.field]" :disabled="true" shape="square" />
         </template>
+        <template v-else-if="col.fieldType === 'many2many'" #default="{ row }">
+          <van-tag v-for="item in row[col.field]" :key="item.id" round plain style="margin-right: 6px">
+            {{ item.display_name }}
+          </van-tag>
+        </template>
       </vxe-table-column>
     </vxe-table>
 
@@ -152,8 +157,11 @@ function getData(list: DataPointState) {
       for(let fieldName in record.data) {
         const field = fieldsInfo[fieldName]
         if(!field) continue
-        const value = record.data[fieldName]
+        let value = record.data[fieldName]
         if(fieldName === 'id') {
+          row[fieldName] = value
+        } else if(field.type === 'many2many' || field.type === 'one2many') {
+          value = _.map((value as any).data, 'data')
           row[fieldName] = value
         } else {
           row[fieldName] = (fieldUtils.format as any)[field.type](value, field)

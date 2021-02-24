@@ -147,8 +147,10 @@ const _applyX2ManyOperations = (list: DataPoint) => {
           list.res_ids.push(resID)
         }
         break
+      case 'FORGET':
       case 'DELETE': 
-        list.res_ids = _.without(list.res_ids, relRecord?.res_id as any) as string[]
+        const deletedResID = relRecord ? relRecord.res_id : change.id
+        list.res_ids = _.without(list.res_ids, deletedResID) as string[]
         break
       case 'UPDATE':
         break
@@ -350,6 +352,9 @@ const _applyX2ManyChange = (record: DataPoint, fieldName: string, command: any) 
         defs.push(_applyChange(command.id, command.data))
       }
       break
+    case 'FORGET':
+        list._forceM2MUnlink = true
+    // no-fallthrough
     case 'DELETE':
       let idsToRemove = command.ids
       list._changes = _.reject(list._changes, function (change: any) {
@@ -367,6 +372,26 @@ const _applyX2ManyChange = (record: DataPoint, fieldName: string, command: any) 
     case 'COPY_O2M':
       defs.push(copyLine(list, command.id))
       break
+    case 'ADD_M2M':
+      list._forceM2MLink = true
+      const data = _.isArray(command.ids) ? command.ids : [command.ids]
+      _.each(data, (d: any) => {
+        const rec = _makeDataPoint({
+          modelName: list.model,
+          fieldsInfo: {
+            id: { type: 'integer', name: 'id' },
+            display_name: { type: 'char', name: 'display_name'}
+          },
+          viewType: 'form',
+          parentId: list.id,
+          data: d,
+          res_id: d.id
+        })
+        list._cache[rec.res_id as number] = rec.id
+        list._changes.push({operation: 'ADD', id: rec.id})
+      })
+      break
+    
   }
 
   return Promise.all(defs)
@@ -527,6 +552,7 @@ const _fetchX2Manys = (record: DataPoint) => {
       record.data[fieldName] = list.id
       defs.push(_fetchX2ManysData(list).then(() => {
         return Promise.all([
+          _fetchX2ManysBatched(list),
           _fetchReferencesBatched(list)
         ])
       }))
@@ -678,6 +704,57 @@ const _fetchReferencesBatched = (list: DataPoint) => {
 }
 
 /**
+ * 获取表体的x2m字段数据
+ * @param list 
+ * @param toFetch 
+ * @param fieldName 
+ */
+const _fetchRelatedData = async (list: DataPoint, toFetch: Record<number, DataPoint[]>, fieldName: string) => {
+  const ids = Object.keys(toFetch).map((id: string) => +id)
+  const field = list.fieldsInfo[fieldName]
+  if(!ids.length || !field) {
+    return Promise.resolve()
+  }
+  
+  // TODO 这里暂时只考虑m2m字段， 所以只查询display_name
+  const res = await fetchRecord(field.relation as string, ids, ['display_name'])
+  if(res.ret === 0) {
+    const records = _.uniq(_.flatten(_.values(toFetch)))
+    _updateRecordsData(records, fieldName, res.data)
+  }
+  return res
+}
+
+/**
+ * 获取表体上的x2many字段数据
+ * @param list 
+ * @param fieldName 
+ */
+const _fetchX2ManyBatched = (list: DataPoint, fieldName: string) => {
+  list = _applyX2ManyOperations(list)
+  // sort list?
+
+  const toFetch = _getDataToFetch(list, fieldName);
+  return _fetchRelatedData(list, toFetch, fieldName);
+}
+
+/**
+ * 批量获取表体上的x2many字段数据
+ * @param list 
+ */
+const _fetchX2ManysBatched = (list: DataPoint) => {
+  const defs = [] as any
+  const fieldNames = _getFieldsName(list)
+  fieldNames.forEach((fieldName: string) => {
+    const field = list.fieldsInfo[fieldName]
+    if(field && (field.type === 'many2many' || field.type === 'one2many')) {
+      defs.push(_fetchX2ManyBatched(list, fieldName))
+    }
+  })
+  return Promise.all(defs)
+}
+
+/**
 * 增加新的data point数据
 * @param params 
 */
@@ -766,6 +843,38 @@ const _getDefaultData = async (record: DataPoint) => {
 }
 
 /**
+ * @param list 
+ * @param fieldName 
+ */
+const _getDataToFetch = (list: DataPoint, fieldName: string) => {
+  const toFetch = {} as any
+  const fieldsInfo = list.fieldsInfo
+  const field = fieldsInfo[fieldName]
+
+  let recordIds = list.data
+  recordIds.forEach((recordId: string) => {
+    const record = localData[recordId]
+    if(typeof record.data[fieldName] === 'string') return
+
+    _.each(record.data[fieldName], (id: number) => {
+      toFetch[id] = toFetch[id] || []
+      toFetch[id].push(record)
+    })
+
+    const m2mList = _makeDataPoint({
+      type: 'list',
+      modelName: field.relation as string,
+      parentId: list.id,
+      fieldsInfo: _getFieldsInfo(),
+      viewType: 'list',
+      res_ids: record.data[fieldName]
+    })
+    record.data[fieldName] = m2mList.id
+  })
+  return toFetch
+}
+
+/**
  * ref数据批量获取预整理
  * @param list 
  * @param fieldName 
@@ -790,6 +899,17 @@ const _getDataToFetchByModel = (list: DataPoint, fieldName: string) => {
     }
   })
   return toFetch
+}
+
+/**
+ * 获取fieldsInfo
+ * @param element 
+ */
+const _getFieldsInfo = (element?: DataPoint) => {
+  return element ? element.fieldsInfo : {
+    id: { type: 'integer', name: 'id'},
+    display_name: { type: 'char', name: 'display_name'}
+  } as FieldsInfo
 }
 
 /**
@@ -912,8 +1032,30 @@ const _generateX2ManyCommands = (record: DataPoint, options: any) => {
       })
 
       list = _applyX2ManyOperations(list)
+      // sort list?
 
-      if(type === 'one2many') {
+      if(type === 'many2many' || list._forceM2MLink) {
+        const relRecordCreated = _.filter(relRecordAdded, function (rec) {
+          return typeof rec.res_id === 'string';
+        })
+        const realIDs = _.difference(list.res_ids, _.map(relRecordCreated, 'res_id'));
+        // replace command
+        commands[fieldName].push(x2ManyCommands.replace_with(realIDs));
+
+        _.each(relRecordCreated,  (relRecord) => {
+          const changes = _generateChanges(relRecord, options);
+          commands[fieldName].push(x2ManyCommands.create(relRecord.ref, changes));
+        });
+
+        _.each(relRecordUpdated, (relRecord) => {
+          const changes = _generateChanges(relRecord, options);
+          if (!_.isEmpty(changes)) {
+            const command = x2ManyCommands.update(relRecord.res_id, changes);
+            commands[fieldName].push(command);
+          }
+        });
+
+      } else if(type === 'one2many') {
         const removedIds = _.difference(oldResIDs, list.res_ids);
         const addedIds = _.difference(list.res_ids, oldResIDs);
         const keptIds = _.intersection(oldResIDs, list.res_ids);
@@ -1231,6 +1373,33 @@ const _setDataInRange = (list: DataPoint) => {
     if(list._cache[id]) {
       list.data.push(list._cache[id])
     }
+  })
+}
+
+/**
+ * 更新表体里 x2m 字段的record
+ * @param records 
+ * @param fieldName 
+ * @param values 
+ */
+const _updateRecordsData = (records: DataPoint[], fieldName: string, values: any[]) => {
+  if(!records.length || !values) return
+
+  _.each(records, (record: DataPoint) => {
+    const x2mList = localData[record.data[fieldName]]
+    x2mList.data = []
+    _.each(x2mList.res_ids, (id: any) => {
+      const rec = _makeDataPoint({
+        viewType: 'form',
+        modelName: x2mList.model,
+        fieldsInfo: _getFieldsInfo(),
+        parentId: x2mList.id,
+        res_id: id,
+        data: _.find(values, { id })
+      })
+      x2mList.data.push(rec.id)
+      x2mList._cache[id] = rec.id
+    })
   })
 }
 
