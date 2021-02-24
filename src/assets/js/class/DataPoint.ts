@@ -81,9 +81,24 @@ const x2ManyCommands = {
   delete: function (id: string | number) {
     return [x2ManyCommands.DELETE, id, false]
   },
+  // (3, id[, _]) removes relation, but not linked record itself
+  FORGET: 3,
+  forget: function (id: string | number) {
+      return [x2ManyCommands.FORGET, id, false];
+  },
   LINK_TO: 4,
   link_to: function (id: string | number) {
     return [x2ManyCommands.LINK_TO, id, false];
+  },
+  // (5[, _[, _]])
+  DELETE_ALL: 5,
+  delete_all: function () {
+      return [5, false, false];
+  },
+  // (6, _, ids) replaces all linked records with provided ids
+  REPLACE_WITH: 6,
+  replace_with: function (ids: any[]) {
+      return [6, false, ids];
   }
 }
 
