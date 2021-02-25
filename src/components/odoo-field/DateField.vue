@@ -14,7 +14,7 @@
 
     <van-popup v-model:show="showPicker" position="bottom" teleport="body" round>
       <van-datetime-picker 
-        v-model="rawValue" 
+        v-model="dateValue" 
         :type="type" 
         :formatter="formatter"
         @cancel="showPicker = false" 
@@ -24,7 +24,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, reactive, toRefs } from 'vue'
+import { defineComponent, reactive, toRefs, watchEffect } from 'vue'
 import { useStore } from '@/store'
 import useFieldCommon, { fieldCommonProps } from '@/assets/js/hooks/field-common'
 
@@ -38,7 +38,8 @@ export default defineComponent({
     const { string, placeholder, type, value, rawValue, isReadonly, isRequired, setValue } = useFieldCommon(props, store)
     const state = reactive({
       showPicker: false,
-      columns: [] as string[]
+      columns: [] as string[],
+      dateValue: new Date()
     })
 
     const onOpen = () => {
@@ -51,7 +52,7 @@ export default defineComponent({
       state.showPicker = false
     }
 
-     const formatter = (colType: string, val: string) => {
+    const formatter = (colType: string, val: string) => {
       if(type.value === 'date') {
         switch(colType) {
           case 'year':  val += '年'; break
@@ -63,6 +64,10 @@ export default defineComponent({
       }
       return val
     }
+
+    watchEffect(() => {
+      state.dateValue = (rawValue.value as Date) || new Date()
+    })
 
     return {
       string,

@@ -158,7 +158,11 @@ function useCard(record: Record | ListCard, fieldsInfo: FieldsInfo, appName?:str
       display: flex;
       margin-bottom: 4px;
       .string {
+        flex: 0 0 100px;
+      }
+      .value {
         flex: 1;
+        text-align: right;
       }
     }
   }

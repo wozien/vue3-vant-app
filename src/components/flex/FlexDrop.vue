@@ -4,8 +4,9 @@
       :label="string" 
       :placeholder="placeholder" 
       v-model="value"
-      :clickable="!readonly"
-      :is-link="!readonly"
+      :required="isRequired"
+      :clickable="!isReadonly"
+      :is-link="!isReadonly"
       readonly
       center
       @click="onClickFlex"
@@ -38,7 +39,7 @@ export default defineComponent({
 
   setup(props) {
     const store = useStore()
-    const { string, placeholder, type, value, setValue, curRecord } = useFieldCommon(props, store)
+    const { string, placeholder, type, value, isReadonly, isRequired, curRecord, setValue } = useFieldCommon(props, store)
     const showModal = ref(false)
     const flexFields = ref<any[]>([])
     const flexFormRef = ref()
@@ -81,6 +82,8 @@ export default defineComponent({
       placeholder,
       type,
       value,
+      isReadonly,
+      isRequired,
       setValue,
       curRecord,
       showModal,
