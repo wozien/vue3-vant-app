@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         // 注意根据需要修改配置
-        branch_name = "dev"
+        branch_name = "prod"
         docker_remote = "tcp://172.18.0.1:2375"
         docker_host = "res.insuite.net"
         docker_file_path = "./docker/Dockerfile"
