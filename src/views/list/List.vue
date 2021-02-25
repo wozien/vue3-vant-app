@@ -75,7 +75,7 @@ export default defineComponent({
 
     const state = reactive({
       searchValue: '',
-      loading: true,
+      loading: false,
       finished: false,
       refreshing: false,
       list: [] as Record[],
@@ -133,8 +133,8 @@ export default defineComponent({
       state.refreshing = false
       state.finished = false
       state.list = []
-      state.loading = true
       lastId = 0
+      state.loading = true
       onLoad()
     }
 
@@ -157,6 +157,7 @@ export default defineComponent({
     }
 
     watch(searchFields, () => {
+      state.loading = true
       onLoad()
     })
 

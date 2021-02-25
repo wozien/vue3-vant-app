@@ -29,6 +29,7 @@ export default function(props: any, store: VuexStore) {
   const modifiers = ref()
   const curRecord = computed<DataPointState>(() => store.getters.curRecord)
   const isReadonly = computed(() => (modifiers.value && modifiers.value.readonly) || props.readonly)
+  const isRequired = computed(() => !isReadonly.value && modifiers.value && modifiers.value.required)
   const invisible = computed(() => modifiers.value && modifiers.value.invisible)
 
   let lastValue: any
@@ -99,6 +100,7 @@ export default function(props: any, store: VuexStore) {
     curRecord,
     modifiers,
     isReadonly,
+    isRequired,
     invisible,
     setValue
   }

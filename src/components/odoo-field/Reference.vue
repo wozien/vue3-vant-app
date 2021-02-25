@@ -4,8 +4,9 @@
       :label="string" 
       :placeholder="placeholder" 
       v-model="value"
-      :clickable="!readonly"
-      :is-link="!readonly"
+      :required="isRequired"
+      :clickable="!isReadonly"
+      :is-link="!isReadonly"
       readonly
       center
       @click="onOpenModal"
@@ -42,7 +43,7 @@ export default defineComponent({
 
   setup(props) {
     const store = useStore()
-    const { string, placeholder, type, value, rawValue, setValue, curRecord } = useFieldCommon(props, store)
+    const { string, placeholder, type, value, rawValue, isReadonly, isRequired, curRecord, setValue } = useFieldCommon(props, store)
     const { state, onOpenModal } = useModal(props)
 
     const domain = computed(() => {
@@ -115,6 +116,8 @@ export default defineComponent({
       type,
       value,
       rawValue,
+      isReadonly,
+      isRequired,
       ...toRefs(state),
       onOpenModal,
       onConfirm

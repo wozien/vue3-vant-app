@@ -2,8 +2,9 @@
   <div class="form-item-field" :data-dbname="field && field.name" :data-type="type">
     <van-field
       :label="string" 
+      :required="isRequired"
       :clickable="false"
-      :is-link="!readonly"
+      :is-link="!isReadonly"
       readonly
       center
       @click="onClick"
@@ -14,7 +15,7 @@
           <van-tag v-for="item in items" 
             :key="item.id" 
             round plain
-            :closeable="!readonly"
+            :closeable="!isReadonly"
             @click.prevent
             @close="onTagClose(item.id)"
           >{{ item.display_name }}</van-tag> 
@@ -54,7 +55,7 @@ export default defineComponent({
       columns: [] as string[],
       loading: false
     })
-    const { type, string, placeholder, rawValue, curRecord, setValue } = useFieldCommon(props, store)
+    const { type, string, placeholder, rawValue, curRecord, isReadonly, isRequired, setValue } = useFieldCommon(props, store)
     const items = computed(() => {
       if(rawValue.value) {
         return _.map((rawValue.value as any).data, 'data')
@@ -81,7 +82,7 @@ export default defineComponent({
     }
 
     const onClick = async () => {
-      if(props.readonly) return;
+      if(isReadonly.value) return;
       await loadData()
       state.showPicker = true
     }
@@ -117,6 +118,8 @@ export default defineComponent({
       placeholder,
       rawValue,
       curRecord,
+      isReadonly,
+      isRequired,
       items,
       onTagClose,
       onClick,

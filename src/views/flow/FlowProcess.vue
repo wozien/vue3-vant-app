@@ -291,7 +291,7 @@ function bindEvent(container: any, options: any) {
             background: @success-color;
           }
           .content .state {
-            color: @text-color-light-1;
+            color: @success-color;
           }
         }
         &.list-item-returned {

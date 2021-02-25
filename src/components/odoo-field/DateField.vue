@@ -4,8 +4,9 @@
       :label="string" 
       :placeholder="placeholder" 
       v-model="value"
-      :clickable="!readonly"
-      :right-icon="!readonly ? 'notes-o' : ''"
+      :required="isRequired"
+      :clickable="!isReadonly"
+      :right-icon="!isReadonly ? 'notes-o' : ''"
       readonly
       center
       @click="onOpen"
@@ -34,7 +35,7 @@ export default defineComponent({
 
   setup(props) {
     const store = useStore()
-    const { string, placeholder, type, value, rawValue, setValue } = useFieldCommon(props, store)
+    const { string, placeholder, type, value, rawValue, isReadonly, isRequired, setValue } = useFieldCommon(props, store)
     const state = reactive({
       showPicker: false,
       columns: [] as string[]
@@ -69,6 +70,8 @@ export default defineComponent({
       type,
       value,
       rawValue,
+      isReadonly,
+      isRequired,
       ...toRefs(state),
       formatter,
       onOpen,

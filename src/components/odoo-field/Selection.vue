@@ -4,8 +4,9 @@
       :label="string" 
       :placeholder="placeholder" 
       v-model="value"
-      :clickable="!readonly"
-      :is-link="!readonly"
+      :required="isRequired"
+      :clickable="!isReadonly"
+      :is-link="!isReadonly"
       readonly
       center
       @click="onOpen"
@@ -33,7 +34,7 @@ export default defineComponent({
 
   setup(props) {
     const store = useStore()
-    const { string, placeholder, type, value, setValue } = useFieldCommon(props, store)
+    const { string, placeholder, type, value, isReadonly, isRequired, setValue } = useFieldCommon(props, store)
     const state = reactive({
       showPicker: false,
       columns: [] as string[]
@@ -61,6 +62,8 @@ export default defineComponent({
       placeholder,
       type,
       value,
+      isReadonly,
+      isRequired,
       ...toRefs(state),
       onOpen,
       onConfirm

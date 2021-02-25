@@ -14,7 +14,7 @@
   <!-- normal -->
   <div v-else v-show="!invisible" class="form-item-field" :data-dbname="field && field.name" :data-type="type">
     <!-- boolean -->
-    <van-field v-if="type === 'boolean'" :label="string" >
+    <van-field v-if="type === 'boolean'" :label="string" :required="isRequired">
       <template #input>
         <van-checkbox v-model="value" shape="square" :disabled="isReadonly" @change="setValue"/>
       </template>
@@ -33,7 +33,7 @@
       :type="renderType"
       :label="string" 
       :placeholder="placeholder" 
-      :required="modifiers && !!modifiers.required"
+      :required="isRequired"
       v-model="rawValue"
       clearable
       center
@@ -45,7 +45,7 @@
       :type="renderType"
       :label="string" 
       :placeholder="placeholder" 
-      :required="modifiers && !!modifiers.required"
+      :required="isRequired"
       v-model="value"
       clearable
       center
@@ -87,6 +87,7 @@ export default defineComponent({
       curRecord,
       modifiers,
       isReadonly,
+      isRequired,
       invisible,
       setValue
     } = useFieldCommon(props, store)
@@ -108,6 +109,7 @@ export default defineComponent({
       curRecord,
       modifiers,
       isReadonly,
+      isRequired,
       invisible,
       renderType,
       isSet,
