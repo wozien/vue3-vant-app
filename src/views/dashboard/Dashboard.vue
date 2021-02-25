@@ -1,7 +1,7 @@
 <template>
   <div class="dashboard-page">
     <div class="card header">
-      <van-image :src="user.avatar" width="60" height="60" fit="cover" round />
+      <van-image :src="user.avatar" width="60" height="60" fit="cover" round/>
       <div class="info">
         <p class="name">{{ greet.greeting }}, {{ user.nickname }}</p>
         <p class="time">{{ greet.week }}</p>
@@ -29,8 +29,9 @@
         <span class="more" @click="$router.push('/market')">全部应用</span>
         <van-icon name="arrow" color="#c8c9cc"/>
       </div>
+      <Loading v-model:show="loading"/>
       <AppList :app-data="appData" v-if="appData.length"/>
-      <p v-else class="no-data">暂无数据</p>
+      <p v-else-if="!loading" class="no-data">暂无数据</p>
     </div>
   </div>
 </template>
@@ -56,7 +57,7 @@ export default defineComponent({
       willApproval: 0
     })
     const greet = useGreet()
-    const { appData } = useUsually()
+    const { appData, loading } = useUsually()
     
     const onGotoFlow = (type: string) => {
       router.push({
@@ -80,6 +81,7 @@ export default defineComponent({
       user: computed(() => store.state.user),
       greet,
       appData,
+      loading,
       onGotoFlow
     }
   }
@@ -114,8 +116,10 @@ function useGreet() {
 
 function useUsually() {
   const appData = ref([])
+  const loading = ref(true)
   const fetch = async () => {
     const res = await fetchUsuallyApp()
+    loading.value = false
     if(res.ret === 0) {
       appData.value = res.data
     }
@@ -124,7 +128,8 @@ function useUsually() {
   onActivated(() => fetch())
 
   return {
-    appData
+    appData,
+    loading
   }
 }
 

@@ -8,7 +8,7 @@
     </van-tabs>
 
     <div class="list-container">
-      <van-pull-refresh v-model="refreshing" @refresh="onRefresh">
+      <van-pull-refresh v-model="refreshing" @refresh="onRefresh" >
         <van-list
           v-model:loading="loading"
           :finished="finished"
@@ -20,9 +20,8 @@
             :record="item"
           />
         </van-list>
+        <van-empty v-show="showEmpty" description="暂无数据"/>
       </van-pull-refresh>
-
-      <van-empty v-show="showEmpty" description="暂无数据"/>
     </div>
   </Page>
 </template>
@@ -119,7 +118,7 @@ function useList(searchType: Ref<string>, user: Ref<User>) {
   const state = reactive({
     offset: 0,
     list: [],
-    loading: false,
+    loading: true,
     finished: false,
     refreshing: false
   })
@@ -139,7 +138,7 @@ function useList(searchType: Ref<string>, user: Ref<User>) {
 
         if(!rows.length || rows.length < 10) {
           state.finished = true
-        }
+        } 
       }
     }
     state.loading = false
@@ -147,10 +146,14 @@ function useList(searchType: Ref<string>, user: Ref<User>) {
   }
 
   const onRefresh = () => {
+    // 下拉刷新会把refreshing设置为true， 会和列表同时出现两个加载中
+    state.refreshing = false
+
+    // 清空数据
     state.finished = false
     state.list = []
-    state.loading = true
     state.offset = 0
+    state.loading = true
     onLoad()
   }
 

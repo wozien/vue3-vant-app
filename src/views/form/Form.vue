@@ -19,7 +19,8 @@
       </div>
     </div>
     <div class="form-canvas" :style="{'height': height + 'px'}">
-      <FormCanvas :items="curView && curView.items" :fields="fields" ref="formRef"/>
+      <Loading v-model:show="loading" />
+      <FormCanvas v-if="!loading" :items="curView && curView.items" :fields="fields" ref="formRef"/>
     </div>
     <LineSwitcher v-show="showLineSwitcher"/>
     <ButtonView :buttons="curView && curView.buttons"/>
@@ -32,7 +33,7 @@ import {
   toRefs, watchEffect, onMounted, onBeforeUnmount, provide, ref
 } from 'vue'
 import { useRoute, useRouter, onBeforeRouteUpdate } from 'vue-router'
-import { Toast } from 'vant'
+import { Toast, Dialog } from 'vant'
 import { useStore } from '@/store'
 import FormCanvas from './FormCanvas'
 import ButtonView from '@/components/odoo-button/ButtonView.vue'
@@ -41,7 +42,7 @@ import { formatDate } from '@/assets/js/utils/date'
 import { viewCommonProps } from '@/assets/js/hooks/view-common'
 import { getRecordId } from '@/assets/js/class/DataPoint'
 import { sessionStorageKeys } from '@/assets/js/constant'
-import { load as loadDataPoint, clean as cleanRecord } from '@/assets/js/class/DataPoint'
+import { load as loadDataPoint, clean as cleanRecord, isDirty } from '@/assets/js/class/DataPoint'
 
 export default defineComponent({
   components: {
@@ -68,6 +69,7 @@ export default defineComponent({
       state_name: ''
     })
     const formRef = ref()
+    const loading = ref(true)
     const searchFields = computed(() => {
       return props.fieldsInfo ? Object.keys(props.fieldsInfo) : []
     })
@@ -95,6 +97,7 @@ export default defineComponent({
           fieldsInfo: toRaw(props.fieldsInfo)
         })
         setCurRecord()
+        if(loading.value) loading.value = false
       }
     }
 
@@ -143,12 +146,26 @@ export default defineComponent({
       loadRecord()
     })
 
-    onBeforeRouteUpdate((to, from) => {
-      // 在表单点击创建，重新load数据
+    onBeforeRouteUpdate(async (to, from) => {
       const { viewType: fromViewType, subId: fromSubId } = from.query
       const { viewType, id, subId } = to.query
-      if(fromViewType === 'form' && viewType === 'form' && !id && !subId && !fromSubId) {
-        loadRecord(to.query)
+      if(fromViewType === 'form') {
+        if(viewType === 'list' && route.query.readonly === '0') {
+          // 表单回到列表,校验是否又未保存操作
+          const dirty = isDirty(curRecord.value.id)
+          if(dirty) {
+            const bool = await Dialog.confirm({
+              message: '是否确定放弃表单修改？',
+              closeOnPopstate: false
+            }).then(() => true).catch(() => false)
+            return bool
+          }
+        }
+
+        if(viewType === 'form' && !id && !subId && !fromSubId) {
+          // 点击创建
+          loadRecord(to.query)
+        }
       }
     })
 
@@ -157,13 +174,13 @@ export default defineComponent({
       cleanRecord()
     })
 
-    provide('canBeSaved', () => {
-      return formRef.value?.canBeSaved() && true
-    })
+    const canBeSaved = () => formRef.value?.canBeSaved() && true
+    provide('canBeSaved', canBeSaved)
 
     return {
       ...toRefs(data),
       formRef,
+      loading,
       showHeader,
       showLineSwitcher,
       height,

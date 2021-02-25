@@ -27,8 +27,11 @@ import {
   Lazyload,
   DatetimePicker,
   TreeSelect,
-  Empty
+  Empty,
+  Loading
 } from 'vant'
+
+const loadingImg = require('../../public/img/avatar.png')
 
 export default function(app: App){
   app.use(Button)
@@ -55,8 +58,11 @@ export default function(app: App){
   app.use(IndexBar)
   app.use(IndexAnchor)
   app.use(Tag)
-  app.use(Lazyload)
   app.use(DatetimePicker)
   app.use(TreeSelect)
   app.use(Empty)
+  app.use(Loading)
+  app.use(Lazyload, {
+    loading: loadingImg
+  })
 }
