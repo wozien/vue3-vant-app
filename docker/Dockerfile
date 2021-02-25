@@ -1,23 +1,3 @@
-# 重新构建了一个镜像，包含 nginx + nodejs 12.18.3 + yarn 1.22.4
-FROM registry.cn-shenzhen.aliyuncs.com/hkky/parrot-nginx-master as YARN_BUILD
-
-RUN mkdir /app
-# RUN mkdir /app/nginx
-WORKDIR /app
-COPY . /app
-
-# 如果在中国环境下构建请把下面注释打开
-RUN yarn config set registry https://registry.npm.taobao.org
-
-RUN yarn
-# 生产环境
-# RUN yarn build
-RUN yarn build
-
-RUN rm -rf /app/src
-RUN rm -rf /app/node_modules
-RUN rm -rf /app/tests
-
 FROM nginx:latest
 
 RUN mkdir /app
