@@ -597,7 +597,8 @@ const _fetchX2ManysData = async (list: DataPoint) => {
  */
 const _fetchReference = async (record: DataPoint, fieldName: string): Promise<DataPoint | undefined> => {
   const value = record._changes && record._changes[fieldName] || record.data[fieldName]
-  const [model, resID] = value && value.split(',')
+  const model = value && value.split(',')[0]
+  const resID = value && parseInt(value.split(',')[1])
   if(model && model !== 'False' && resID) {
     const res = await fetchNameGet(model, +resID)
     if(res.ret === 0 && res.data?.length) {

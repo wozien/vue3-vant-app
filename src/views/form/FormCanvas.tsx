@@ -45,7 +45,9 @@ const FormCanvas = defineComponent({
       const readonly = route.query.readonly as string === '1' ? true : false
 
       switch(item.widget) {
-        case 'statusbar': return null
+        case 'statusbar': 
+        case 'div':
+          return null
         case 'group': 
         case 'page':
           return (

@@ -23,9 +23,9 @@
             :fields-info="fieldsInfo"
           />
         </van-list>
-      </van-pull-refresh>
 
-      <van-empty v-show="showEmpty" description="暂无数据"/>
+        <van-empty v-show="showEmpty" description="暂无数据"/>
+      </van-pull-refresh>
     </div>
 
     <div class="add-btn" @click="onAddBtn" v-if="canCreate">
@@ -104,7 +104,6 @@ export default defineComponent({
           search: state.domain,
           action: props.action?.domain
         }, props.action?.context)
-        state.refreshing = false
         if(res.ret === 0) {
           const length = res.data.length
           if(length) {

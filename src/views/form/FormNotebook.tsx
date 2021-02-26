@@ -32,7 +32,7 @@ export default defineComponent({
     return () => {
       return (
         <div class="form-item-notebook">
-          <van-tabs>
+          <van-tabs swipe-threshold={2}>
             {getTabItems()}
           </van-tabs>
         </div>

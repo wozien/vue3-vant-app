@@ -28,6 +28,12 @@ class Model {
         field.string = odooField.string;
         odooField.flex && (field.flex = true);
         (odooField.selection) && (field.selection = odooField.selection)
+
+        // 携带字段
+        if(field.type === 'related') {
+          field.type = odooField.type
+          field.relation = odooField.relation
+        }
       }
       return field
     })
