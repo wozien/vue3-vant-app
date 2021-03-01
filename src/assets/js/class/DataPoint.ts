@@ -1,3 +1,5 @@
+/* eslint-disable */
+
 /**
  * 表单记录的相关操作 
  * like odoo basic_model
@@ -567,27 +569,29 @@ const _fetchX2Manys = (record: DataPoint) => {
  */
 const _fetchX2ManysData = async (list: DataPoint) => {
   const { model, res_ids } = list
-  const res = await fetchRecord(model, res_ids as number[], _getFieldsName(list))
-  if(res.ret === 0) {
-    const records = res.data
-    _.each(res_ids, (id: any) => {
-      const data = _.find(records, { id })
-      if(data) {
-        const dataPoint = _makeDataPoint({
-          viewType: list.viewType,
-          parentId: list.id,
-          modelName: list.model,
-          res_id: id,
-          fieldsInfo: list.fieldsInfo,
-          data
-        })
-        _parseServerData(dataPoint)
-        list._cache[id] = dataPoint.id
-        list.data.push(dataPoint.id)
-      }
-    })
+  const fieldNames = _getFieldsName(list)
+  if(res_ids.length && fieldNames.length) {
+    const res = await fetchRecord(model, res_ids as number[], fieldNames)
+    if(res.ret === 0) {
+      const records = res.data
+      _.each(res_ids, (id: any) => {
+        const data = _.find(records, { id })
+        if(data) {
+          const dataPoint = _makeDataPoint({
+            viewType: list.viewType,
+            parentId: list.id,
+            modelName: list.model,
+            res_id: id,
+            fieldsInfo: list.fieldsInfo,
+            data
+          })
+          _parseServerData(dataPoint)
+          list._cache[id] = dataPoint.id
+          list.data.push(dataPoint.id)
+        }
+      })
+    }
   }
-  return res.data
 }
 
 /**
@@ -822,8 +826,7 @@ const _makeDefaultRecord = async (modelName: string, params: LoadParams) => {
  * @param dataPoint 
  */
 const _getFieldsName = (dataPoint: DataPoint) => {
-  const res =  Object.keys(dataPoint.fieldsInfo || {})
-  return res.length ? res : ['display_name']
+  return Object.keys(dataPoint.fieldsInfo || {})
 }
 
 /**

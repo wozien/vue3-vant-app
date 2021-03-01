@@ -26,7 +26,7 @@
     </vxe-table>
 
     <div class="add-row" v-if="!readonly">
-      <van-button size="small" icon="plus" block round @click="onAddRow">添加明细行</van-button>
+      <van-button size="small" icon="plus" round block @click="onAddRow">添加明细行</van-button>
     </div> 
   </div>
 </template>
@@ -180,6 +180,6 @@ function getData(list: DataPointState) {
 
 <style lang="less" scoped>
 .add-row {
-  padding: 10px 6px;
+  padding: 30px 50px 10px;
 }
 </style>

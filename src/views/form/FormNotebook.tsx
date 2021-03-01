@@ -1,6 +1,8 @@
 
 import { defineComponent, PropType, computed } from 'vue'
+import { useStore } from '@/store'
 import { Item } from '@/assets/js/class'
+import { evalModifiers } from '@/assets/js/class/DataPoint'
 
 export default defineComponent({
   props: {
@@ -8,10 +10,12 @@ export default defineComponent({
   },
 
   setup(props, { slots }) {
+    const store = useStore()
     const items = computed(() => props.renderItem?.items || [])
+    const curRecord = computed(() => store.getters.curRecord)
     const slotNodes = computed(() => {
       if(slots && slots.default) {
-        const fragments = slots.default();
+        const fragments = slots.default()
         if(fragments.length) {
           return fragments[0] && fragments[0].children
         }
@@ -22,9 +26,17 @@ export default defineComponent({
     const getTabItems = () => {
       if(items.value.length && slotNodes.value?.length) {
         return items.value.map((item: Item, index) => {
-          return (<van-tab title={item.string}>
-            { slotNodes.value ? (slotNodes.value as any)[index] : null }
-          </van-tab>)
+          let invisible = false
+          if(item.modifiers.invisible) {
+            const modifiers = evalModifiers(curRecord.value.id, item.modifiers)
+            invisible = modifiers.invisible
+          }
+
+          if(!invisible) {
+            return (<van-tab title={item.string}>
+              { slotNodes.value ? (slotNodes.value as any)[index] : null }
+            </van-tab>)
+          }
         })
       }
     }

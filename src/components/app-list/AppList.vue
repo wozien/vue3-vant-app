@@ -85,6 +85,7 @@ export default defineComponent({
       height: 45px;
       border-radius: 10px;
       overflow: hidden;
+      margin-bottom: 4px;
       img {
         width: 100%;
         height: 100%;

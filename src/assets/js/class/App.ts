@@ -19,8 +19,8 @@ class App {
   name: string
   actionId?: number
   action?: Action
-  models: { [key: string]: Model } | null = null
-  views: { [key in ViewType]: View } | null = null
+  models: { [key: string]: Model }
+  views: { [key in ViewType]: View }
   fieldsInfo?: {
     [key in ViewType]: FieldsInfo
   }
@@ -29,6 +29,8 @@ class App {
     this.key = appKey
     this.name = ''
     this.modelKey = modelKey
+    this.models = {}
+    this.views = {} as { [key in ViewType]: View }
     actionId && (this.actionId = actionId)
   }
 
@@ -62,7 +64,6 @@ class App {
   }
 
   async loadModels() {
-    this.models = {}
     const res = await fetchAppModel(this.modelKey)
     if(res.ret === 0) {
       const models = res.data
@@ -79,8 +80,8 @@ class App {
 
   async loadViews() {
     const defs = []
-    this.views = {} as { [key in ViewType]: View }
     let res
+
     if(this.actionId) {
       res = await fetchAppView(this.actionId)
     } else {
@@ -200,7 +201,7 @@ export const getAppAsync : (
   let app: App
 
   if(actionId && typeof actionId === 'string') actionId = +actionId
-  let appKey = `app_${modelKey}_${ menuId || new Date().getTime() }`
+  let appKey = `app_${modelKey}_${ menuId || Date.now() }`
   
   // 优先取缓存
   if(appCaches[appKey]) {
