@@ -34,6 +34,7 @@ export interface FieldInfo {
   list?: FieldsInfo
   domain?: DomainArr
   modifiers?: Modifiers
+  relatedFields?: any
 }
 
 export type FieldsInfo = {

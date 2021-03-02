@@ -58,6 +58,15 @@ class Item {
     return ['flex_dropdown'].includes(this.widget)
   }
 
+  get fieldsToFetch() {
+    if(this.widget === 'many2many_tags') {
+      return {
+        display_name: { type: 'char' }
+      }
+    }
+    return null
+  }
+
   _isModifierKey(key: string) {
     return ['readonly', 'required', 'invisible', 'column_invisible'].includes(key)
   }

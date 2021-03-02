@@ -100,7 +100,7 @@ class App {
         this.views[type as ViewType] = view
       }
     }
-    return Promise.all(defs)
+    return await Promise.all(defs)
   }
 
   getModel(modelKey?: string) {
@@ -155,9 +155,8 @@ class App {
   }
 
   _getFieldInfo(field: Field, item?: Item) {
-    const options = field?.options || {}
     const info: FieldInfo = {
-      type: options.relatedType || field.type,
+      type: field.type,
       name: field.name,
       string: field.string || item?.string
     }
@@ -176,6 +175,9 @@ class App {
       }
       if(!_.isEmpty(item.modifiers)) {
         info.modifiers = item.modifiers
+      }
+      if(item.fieldsToFetch) {
+        info.relatedFields = _.extend({}, item.fieldsToFetch)
       }
     }
     

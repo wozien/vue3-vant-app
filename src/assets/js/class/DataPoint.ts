@@ -541,7 +541,7 @@ const _fetchX2Manys = (record: DataPoint) => {
     if(field.type === 'one2many' || field.type === 'many2many') {
       const ids = record.data[fieldName] || []
       const fieldInfo = record.fieldsInfo[fieldName]
-      const fieldsInfo = fieldInfo.list || {}
+      const fieldsInfo = fieldInfo.list || fieldInfo.relatedFields || {}
       // TODO 暂不考虑表体是联动视图的情况
       const list = _makeDataPoint({
         type: 'list',

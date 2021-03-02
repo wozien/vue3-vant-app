@@ -12,7 +12,7 @@
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
 import { useRouter } from 'vue-router'
-import { Toast, Notify } from 'vant'
+import { Toast } from 'vant'
 import { addAppCount } from '@/api/app'
 import { sessionStorageKeys } from '@/assets/js/constant'
 import { getAppAsync } from '@/assets/js/class/App'
@@ -34,11 +34,6 @@ export default defineComponent({
     const router = useRouter()
   
     const onClickApp = async ({ id, action_id: actionId, model_key: modelKey }: AppRaw) => {
-      const toast = Toast.loading({
-        message: '加载视图...'
-      })
-
-      await addAppCount(id)
       const loadParams = {
         model: modelKey,
         menuId: id,
@@ -46,20 +41,25 @@ export default defineComponent({
       }
       sessionStorage.setItem(sessionStorageKeys.loadParams, JSON.stringify(loadParams))
 
-      const app = await getAppAsync(modelKey, id + '', actionId)
-      const hasList = app.views && 'list' in app.views
-      router.push({
-        name: 'view',
-        query: {
-          model: modelKey,
-          viewType: hasList ? 'list' : 'form'
-        }
-      }).catch(e => {
-        Notify({
-          type: 'danger',
-          message: e.message
+      const toast = Toast.loading({ message: '加载视图...' })
+      try {
+        const [app] = await Promise.all([
+          getAppAsync(modelKey, id + '', actionId),
+          addAppCount(id)
+        ]) 
+        
+        const hasList = app.views && 'list' in app.views
+        router.push({
+          name: 'view',
+          query: {
+            model: modelKey,
+            viewType: hasList ? 'list' : 'form'
+          }
         })
-      }).finally(() => toast.clear())
+        toast.clear()
+      } catch(e) {
+        toast.clear()
+      }
     }
 
     return {
