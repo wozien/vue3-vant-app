@@ -420,7 +420,7 @@ const _buildOnchangeSpecs = (record: DataPoint) => {
           }
           if (field.type === 'one2many' || field.type === 'many2many') {
             // TODO 联动视图
-            generateSpecs(field.list as FieldsInfo, key + '.')
+            generateSpecs((field.list || {}) as FieldsInfo, key + '.')
           }
       });
   }
@@ -520,6 +520,21 @@ const _fetchRecord = async (record: DataPoint) => {
 }
 
 /**
+ * @param group 
+ */
+const _fetchMany2OneGroup = async (group: any[]) => {
+  const ids = _.uniq(_.map(_.map(group, 'record'), 'res_id'))
+  const res = await fetchNameGet(group[0].record.model, ids)
+  if(res.ret === 0) {
+    _.each(group, (obj: any) => {
+      const nameGet = _.find(res.data, function (n) { return n[0] === obj.record.res_id;});
+      obj.record.data.display_name = nameGet[1];
+    })
+  }
+  return true
+}
+
+/**
  * name_get
  * @param record 
  */
@@ -552,12 +567,14 @@ const _fetchX2Manys = (record: DataPoint) => {
         parentId: record.id
       })
       record.data[fieldName] = list.id
-      defs.push(_fetchX2ManysData(list).then(() => {
-        return Promise.all([
-          _fetchX2ManysBatched(list),
-          _fetchReferencesBatched(list)
-        ])
-      }))
+      if(!fieldInfo.__no_fetch) {
+        defs.push(_fetchX2ManysData(list).then(() => {
+          return Promise.all([
+            _fetchX2ManysBatched(list),
+            _fetchReferencesBatched(list)
+          ])
+        }))
+      }
     }
   })
   return Promise.all(defs)
@@ -714,10 +731,10 @@ const _fetchReferencesBatched = (list: DataPoint) => {
  * @param toFetch 
  * @param fieldName 
  */
-const _fetchRelatedData = async (list: DataPoint, toFetch: Record<number, DataPoint[]>, fieldName: string) => {
+const _fetchRelatedData = async (list: DataPoint, toFetch: Record<number, DataPoint[]>, fieldName: string) => { 
   const ids = Object.keys(toFetch).map((id: string) => +id)
   const field = list.fieldsInfo[fieldName]
-  if(!ids.length || !field) {
+  if(!ids.length || !field || field.__no_fetch) {
     return Promise.resolve()
   }
   
@@ -729,6 +746,33 @@ const _fetchRelatedData = async (list: DataPoint, toFetch: Record<number, DataPo
   }
   return res
 }
+
+/**
+ * 批量处理记录的m2o字段的显示名
+ * @param record 
+ */
+const _fetchRelationalData = (record: DataPoint) => {
+  const toBeFetched: any = []
+
+  _.each(_getFieldsName(record), (fieldName: string) => {
+    const field = record.fieldsInfo[fieldName]
+    if(field && field.type === 'many2one' && !field.__no_fetch) {
+      const localId = (record._changes && record._changes[fieldName]) || record.data[fieldName]
+      const relatedRecord = localData[localId]
+      if(!relatedRecord || relatedRecord.data.display_name) {
+        return
+      }
+      // TODO context
+      toBeFetched.push({
+        context: {},
+        record: relatedRecord
+      })
+    }
+  })
+
+  const groups = _.groupBy(toBeFetched, (elem: any) => [elem.record.model, JSON.stringify(elem.context)].join())
+  return Promise.all(_.map(groups, _fetchMany2OneGroup))
+} 
 
 /**
  * 获取表体上的x2many字段数据
@@ -814,8 +858,9 @@ const _makeDefaultRecord = async (modelName: string, params: LoadParams) => {
   // 默认值处理
   const res = await fetchDefaultValues(modelName, fieldNames)
   if(res.ret === 0) {
-    applyDefaultValues(record.id, res.data, { fieldNames })
-    // TODO fetch m2o data
+    await applyDefaultValues(record.id, res.data, { fieldNames })
+    await _performOnChange(record, _.without(fieldNames, '__last_update'))
+    await _fetchRelationalData(record)
   }
 
   return record.id
@@ -995,7 +1040,7 @@ const _generateOnChangeData = (record: DataPoint, options?: any) => {
   const data = _.extend(get(record.id, {raw: true}).data, commands)
   for(let fieldName in data) {
     const field = record.fieldsInfo[fieldName]
-    if(field && ['date', 'datetime'].includes(field.type)) {
+    if(field && ['date', 'datetime'].includes(field.type) && data[fieldName]) {
       const isUTC = field.type === 'datetime'
       const fmt = isUTC ? 'yyyy-MM-dd hh:mm:ss' : 'yyyy-MM-dd'
       data[fieldName] = formatDate(fmt, data[fieldName], isUTC)
@@ -1120,8 +1165,25 @@ const _generateX2ManyCommands = (record: DataPoint, options: any) => {
  */
 const _getEvalContext = (element: DataPoint, forDomain = false) => {
   const evalContext = element.type === 'record' ? _getRecordEvalContext(element, forDomain) : {};
+
+  if(element.parentId) {
+    let parent = localData[element.parentId]
+    if(parent.type === 'list' && parent.parentId) {
+      parent = localData[parent.parentId]
+    }
+    if(parent.type === 'record') {
+      evalContext.parent = _getRecordEvalContext(parent, forDomain)
+    }
+  }
+
   // TODO union session_context .ext
-  return evalContext
+  return _.extend({}, {
+    active_id: evalContext.id || false,
+    active_ids: evalContext.id ? [evalContext.id] : [],
+    active_model: element.model,
+    current_date: formatDate('yyyy-MM-dd'),
+    id: evalContext.id || false
+  }, element.context || {}, evalContext)
 }
 
 /**
@@ -1303,6 +1365,7 @@ const _processX2ManyCommands = (record: DataPoint, fieldName: string, commands: 
   const field = record.fieldsInfo[fieldName]
   const fieldsInfo = field && field.list || {}
   const viewType = record.viewType
+  const defs = [] as any
 
   const list = _makeDataPoint({
     type: 'list',
@@ -1365,6 +1428,8 @@ const _processX2ManyCommands = (record: DataPoint, fieldName: string, commands: 
   })
 
   // TODO fetch m2o display_name
+
+  return Promise.all(defs)
 }
 
 /**
@@ -1452,6 +1517,7 @@ export let rootID: DataPointId
  */
 export const applyDefaultValues = (recordID: DataPointId, values: any, options: any) => {
   options = options || {}
+  const defs = [] as any
   const record = localData[recordID]
   const viewType = record.viewType || options.viewType
   const fieldNames = options.fieldNames
@@ -1479,8 +1545,9 @@ export const applyDefaultValues = (recordID: DataPointId, values: any, options: 
     field = record.fieldsInfo[fieldName]
     record.data[fieldName] = null
 
+    let dp
     if(field.type === 'many2one' && values[fieldName]) {
-      const r = _makeDataPoint({
+      dp = _makeDataPoint({
         modelName: field.relation as string,
         data: { id: values[fieldName] },
         fieldsInfo: {
@@ -1490,15 +1557,29 @@ export const applyDefaultValues = (recordID: DataPointId, values: any, options: 
         parentId: record.id,
         viewType: viewType
       });
-      (record._changes as any)[fieldName] = r.id
+      record._changes[fieldName] = dp.id
     } else if(field.type === 'reference' && values[fieldName]) {
-      // TODO
+      const ref = values[fieldName].split(',')
+      dp = _makeDataPoint({
+        modelName: ref[0],
+        data: { id: parseInt(ref[1])},
+        fieldsInfo: {
+          id: { type: 'integer', name: 'id'},
+          display_name: { type: 'char', name: 'display_name'} 
+        },
+        parentId: record.id,
+        viewType: viewType
+      })
+      defs.push(_fetchNameGet(dp))
+      record._changes[fieldName] = dp.id
     } else if(field.type === 'one2many' || field.type === 'many2many') {
-      _processX2ManyCommands(record, fieldName, values[fieldName])
+      defs.push(_processX2ManyCommands(record, fieldName, values[fieldName]))
     } else {
-      (record._changes as any)[fieldName] = _parseServerValue(field, values[fieldName])
+      record._changes[fieldName] = _parseServerValue(field, values[fieldName])
     }
   }
+
+  return Promise.all(defs)
 }
 
 /**

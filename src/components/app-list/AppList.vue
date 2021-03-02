@@ -55,8 +55,9 @@ export default defineComponent({
             model: modelKey,
             viewType: hasList ? 'list' : 'form'
           }
+        }).then(() => {
+          toast.clear()
         })
-        toast.clear()
       } catch(e) {
         toast.clear()
       }

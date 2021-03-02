@@ -35,6 +35,7 @@ export interface FieldInfo {
   domain?: DomainArr
   modifiers?: Modifiers
   relatedFields?: any
+  __no_fetch?: boolean
 }
 
 export type FieldsInfo = {

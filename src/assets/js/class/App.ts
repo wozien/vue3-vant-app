@@ -179,6 +179,9 @@ class App {
       if(item.fieldsToFetch) {
         info.relatedFields = _.extend({}, item.fieldsToFetch)
       }
+      if(item.modifiers.invisible === true) {
+        info.__no_fetch = true
+      }
     }
     
     if(field.flex) {
