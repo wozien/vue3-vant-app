@@ -13,6 +13,7 @@ import { str2Date, formatDate } from '@/assets/js/utils/date'
 import { fetchRecord, saveRecord, fetchDefaultValues, fetchNameGet, fetchOnChange } from '@/api/record'
 import { sessionStorageKeys } from '@/assets/js/constant'
 import Domain from '../odoo/Domain'
+import { values } from 'xe-utils'
 
 export type DataPointId = string
 export type DataPointType = 'record' | 'list'
@@ -542,6 +543,40 @@ const _fetchNameGet = async (record: DataPoint) => {
   const res = await fetchNameGet(record.model, record.res_id as number)
   if(res.ret === 0) {
     (record.data as any).display_name = (res.data as any)[0][1]
+  }
+}
+
+/**
+ * 批量name_get
+ * @param list 
+ * @param fieldName 
+ */
+const _fetchNameGets = async (list: DataPoint, fieldName: string) => {
+  let model = list.fieldsInfo[fieldName].relation
+  const records = [] as any[]
+  const ids = [] as any[]
+  list = _applyX2ManyOperations(list)
+
+  _.each(list.data, (localId: string) => {
+    const record = localData[localId]
+    const data = record._changes || record.data
+    const m2oId = data[fieldName]
+    if(!m2oId) return
+
+    const m2oRecord = localData[m2oId]
+    records.push(m2oRecord)
+    ids.push(m2oRecord.res_id)
+    model = m2oRecord.model
+  })
+
+  if(!ids.length) return
+
+  const res = await fetchNameGet(model as string, ids)
+  if(res.ret === 0) {
+    _.each(records, (record: DataPoint) => {
+      const nameGet = _.find(res.data, (n: any) => n[0] === record.data.id)
+      record.data.display_name = nameGet[1]
+    })
   }
 }
 
@@ -1261,6 +1296,8 @@ const _getDomain = (element: DataPoint, options: any = {}) => {
     }
     const field = element.fieldsInfo[options.fieldName]
     if(field && field.domain) {
+      // const context =  _getEvalContext(element, true)
+      // console.log(field.domain, context)
       return stringToArray(
         field.domain,
         _getEvalContext(element, true)
@@ -1366,6 +1403,8 @@ const _processX2ManyCommands = (record: DataPoint, fieldName: string, commands: 
   const fieldsInfo = field && field.list || {}
   const viewType = record.viewType
   const defs = [] as any
+  const many2ones = {} as any
+  let r: any
 
   const list = _makeDataPoint({
     type: 'list',
@@ -1376,12 +1415,17 @@ const _processX2ManyCommands = (record: DataPoint, fieldName: string, commands: 
     res_ids: []
   });
   record._changes[fieldName] = list.id
-
   list._changes = []
   commands = commands || []
+
+  const isCommandList = commands.length && _.isArray(commands[0]);
+  if (!isCommandList) {
+      commands = [[6, false, commands]];
+  }
+
   _.each(commands, (value: any) => {
     if(value[0] === 0) {
-      const r = _makeDataPoint({
+      r = _makeDataPoint({
         viewType,
         modelName: list.model,
         fieldsInfo: fieldsInfo,
@@ -1414,20 +1458,50 @@ const _processX2ManyCommands = (record: DataPoint, fieldName: string, commands: 
               parentId: r.id
             })
             r._changes[fieldName] = rec.id
+            many2ones[fieldName] = true
           } else if(fieldType === 'reference') {
-            // TODO
+            const ref = r._changes[fieldName].split(',')
+            rec = _makeDataPoint({
+              viewType,
+              modelName: ref[0],
+              fieldsInfo: {
+                id: { type: 'integer', name: 'id'},
+                display_name: { type: 'char', name: 'display_name'} 
+              },
+              data: {id: ref[1]},
+              parentId: r.id
+            })
+            r._changes[fieldName] = rec.id
+            many2ones[fieldName] = true
           } else if(['one2many', 'many2many'].includes(fieldType)) {
             const x2mCommands = value[2][fieldName]
-            _processX2ManyCommands(r, fieldName, x2mCommands)
+            defs.push(_processX2ManyCommands(r, fieldName, x2mCommands))
           } else {
             r._changes[fieldName] = _parseServerValue(field, r._changes[fieldName])
           }
         }
       }
     }
+
+    if(value[0] === 6) {
+      // REPLACE_WITH
+      _.each(value[2], function (res_id) {
+        list._changes.push({operation: 'ADD', resID: res_id})
+      })
+
+      defs.push(_fetchX2ManysData(list).then(() => {
+        return Promise.all([
+          _fetchX2ManysBatched(list),
+          _fetchReferencesBatched(list)
+        ])
+      }))
+    }
   })
 
-  // TODO fetch m2o display_name
+  // fetch m2o display_name
+  _.each(_.keys(many2ones), (name: string) => {
+    defs.push(_fetchNameGets(list, name))
+  })
 
   return Promise.all(defs)
 }

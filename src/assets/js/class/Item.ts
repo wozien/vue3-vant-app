@@ -37,7 +37,7 @@ class Item {
     this.fieldType = itemObj.fieldType
     this.fieldKey = itemObj.fieldKey
     this.placeholder = itemObj.placeholder
-    this.domain = this._formatDomain(itemObj.domain)
+    this.domain = itemObj.domain
     this.attrs = itemObj.attrs || {}
     this.options = itemObj.options || {}
     this.items = itemObj.items.map(i => new Item(i))
@@ -82,13 +82,28 @@ class Item {
     }
   }
 
-  _formatDomain(domain: DomainArr) {
-    return domain.map((item: any) => {
-      if(typeof item !== 'string') {
-        item = item.slice(0, 3)
+  stringifyDomain() {
+    const domain = this.domain.map((item: any) => {
+      if(Array.isArray(item)) {
+        let [field, operator, value, type] = item
+        if(typeof value === 'boolean') {
+          value = value ? 'True' : 'False'
+        }
+        if(type !== '0' || value === 'False' || value === 'True') {
+          item = `('${field}', '${operator}', ${value})`
+        } else {
+          item = `('${field}', '${operator}', '${value}')`
+        } 
       }
       return item
     })
+
+    return '[' + domain.reduce((pre, cur) => {
+      if(cur === '&' || cur === '|') {
+        cur = `'${cur}'`
+      }
+      return pre ? pre + ', ' + cur : pre + cur
+    }, '') + ']'
   }
 }
 

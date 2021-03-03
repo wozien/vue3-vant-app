@@ -171,7 +171,7 @@ class App {
         info.onChange = true
       }
       if(item.domain.length) {
-        info.domain = item.domain
+        info.domain = item.stringifyDomain()
       }
       if(!_.isEmpty(item.modifiers)) {
         info.modifiers = item.modifiers

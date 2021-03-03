@@ -5,11 +5,11 @@ import { getApp } from '@/assets/js/class/App'
 import { Item, Fields } from '@/assets/js/class'
 import { uuid } from '@/assets/js/utils/tools'
 import { findDataPoint, getEvalContext } from '@/assets/js/class/DataPoint'
-import Domain from '@/assets/js/odoo/Domain.js'
+// import Domain from '@/assets/js/odoo/Domain.js'
 import FormField from '@/views/form/FormField.vue'
 import useExpose from '@/assets/js/hooks/use-expose'
 
-const stringToArray = Domain.prototype.stringToArray
+// const stringToArray = Domain.prototype.stringToArray
 
 export default defineComponent({
   components: {
@@ -57,7 +57,7 @@ export default defineComponent({
             if(f.type === 'many2one' || f.type === 'reference') {
               const field = fieldsInfo[f.name]
               if(field && f.domain.length > 3) {
-                field.domain = stringToArray(f.domain)
+                field.domain = f.domain
               }
             }
           })

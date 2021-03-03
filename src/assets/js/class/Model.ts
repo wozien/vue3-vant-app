@@ -27,7 +27,8 @@ class Model {
         // 翻译的处理
         field.string = odooField.string;
         odooField.flex && (field.flex = true);
-        (odooField.selection) && (field.selection = odooField.selection)
+        odooField.selection && (field.selection = odooField.selection)
+        odooField.domain && (field.domain = odooField.domain)
 
         // 携带字段
         if(field.type === 'related') {

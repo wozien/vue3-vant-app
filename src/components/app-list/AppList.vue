@@ -41,7 +41,7 @@ export default defineComponent({
       }
       sessionStorage.setItem(sessionStorageKeys.loadParams, JSON.stringify(loadParams))
 
-      const toast = Toast.loading({ message: '加载视图...' })
+      const toast = Toast.loading({ message: '加载视图...', duration: 0 })
       try {
         const [app] = await Promise.all([
           getAppAsync(modelKey, id + '', actionId),
