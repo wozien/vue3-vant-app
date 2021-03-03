@@ -1,6 +1,6 @@
 import { FieldType } from './Field'
 import View, { StudioView } from './View'
-import { Modifiers, ModifierKey, DomainArr } from './index'
+import { Modifiers, ModifierKey } from './index'
 export interface StudioItem {
   key: string
   string: string
@@ -8,7 +8,7 @@ export interface StudioItem {
   fieldType: FieldType
   fieldKey: string
   placeholder: string
-  domain: DomainArr
+  domain: string
   attrs?: any
   options?: any
   items: StudioItem[]
@@ -25,7 +25,7 @@ class Item {
   placeholder: string
   items: Item[]
   modifiers: Modifiers
-  domain: DomainArr
+  domain: string
   attrs?: any
   options?: any
   subView?: View[]
@@ -80,30 +80,6 @@ class Item {
         }
       }
     }
-  }
-
-  stringifyDomain() {
-    const domain = this.domain.map((item: any) => {
-      if(Array.isArray(item)) {
-        let [field, operator, value, type] = item
-        if(typeof value === 'boolean') {
-          value = value ? 'True' : 'False'
-        }
-        if(type !== '0' || value === 'False' || value === 'True') {
-          item = `('${field}', '${operator}', ${value})`
-        } else {
-          item = `('${field}', '${operator}', '${value}')`
-        } 
-      }
-      return item
-    })
-
-    return '[' + domain.reduce((pre, cur) => {
-      if(cur === '&' || cur === '|') {
-        cur = `'${cur}'`
-      }
-      return pre ? pre + ', ' + cur : pre + cur
-    }, '') + ']'
   }
 }
 

@@ -21,6 +21,7 @@
               <van-icon v-if="active === item.id" name="success"></van-icon>
             </template>
           </van-cell>
+          <van-empty v-if="!list.length" description="暂无数据"></van-empty>
         </div>
       </div>
     </Modal>
