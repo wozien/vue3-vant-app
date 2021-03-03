@@ -12,17 +12,29 @@
           :key="item.key" 
           @click="onSelect(item)"
         >
-          {{ item.text }}
+          <span v-if="!item.expand">{{ item.string }}</span>
+          <van-popover v-else-if="item.children.length" placement="right-end" v-model:show="showSubPopover" :offset="[0, 44]">
+            <div class="popover-button">
+              <div class="popover-button__item van-hairline--bottom van-ellipsis"
+                v-for="subItem in item.children" 
+                :key="subItem.key" 
+                @click="onSelect(subItem)"
+              >{{ subItem.string }}</div>
+            </div>
+            <template #reference>
+              <span>{{ item.string }}</span>
+              <van-icon name="arrow" class="group-icon" color="#646566"/>
+            </template>
+          </van-popover>
         </div>  
       </div> 
       <template #reference>
         <van-icon name="ellipsis" />
-        <!-- <van-button size="small" round>更多</van-button>  -->
       </template>
     </van-popover>
 
     <div class="button-capsules">
-      <Button 
+      <ButtonCapsule 
         v-for="button in capsuleButtons" 
         :key="button.key" 
         :button="button"
@@ -42,20 +54,20 @@ import { ViewButton } from '@/assets/js/class'
 import { callButton } from '@/api/odoo'
 import { createModal } from '@/components/modal'
 import { flowAgreen, flowReturn, flowSign, flowCirculate } from '@/api/workflow'
-import Button from './Button.vue'
+import ButtonCapsule from './ButtonCapsule.vue'
 import FlowSign from '@/views/flow/FlowSign.vue'
 import FlowProcess from '@/views/flow/FlowProcess.vue'
 import UserSelect from '@/components/user-picker/UserSelect.vue'
 import { 
   save, isDirty, isNew, discardChanges, rootID, notifyChanges, 
-  findDataPoint, DataPoint, copyRecord, get, reload
+  findDataPoint, DataPoint,DataPointId, copyRecord, get, reload, evalModifiers
 } from '@/assets/js/class/DataPoint'
 import { sessionStorageKeys } from '@/assets/js/constant'
 import { deleteRecord } from '@/api/record'
 
 export default defineComponent({
   components: {
-    Button
+    ButtonCapsule
   },
 
   props: {
@@ -71,15 +83,13 @@ export default defineComponent({
     const store = useStore()
 
     const showPopover = ref(false)
+    const showSubPopover = ref(false)
     const renderButtons = ref<ViewButton[]>([])
     const capsuleButtons = computed(() => {
       return renderButtons.value.slice(0, 3)
     })
     const moreButtons = computed(() => {
-      return renderButtons.value.slice(3).map((item: any) => {
-        item.text = item.string
-        return item
-      })
+      return renderButtons.value.slice(3)
     })
     const curRecord = computed(() => store.getters.curRecord)
     const canBeSaved = inject<Function>('canBeSaved')
@@ -91,6 +101,7 @@ export default defineComponent({
         button = renderButtons.value.find((btn: ViewButton) => btn.key === button) as ViewButton
       }
 
+      if(button.expand) return
       button.loading = true
       if(button.type === 'event') {
         // 前端写死的按钮
@@ -125,7 +136,7 @@ export default defineComponent({
         if(button && model && id) {
           const args = [[+id]]
           const toast = Toast.loading('加载中...')
-          const res = await callButton(model as string, button.funcName, args, Object.assign({}, {context: getFlowParams()}))
+          const res = await callButton(model as string, button.funcName as string, args, Object.assign({}, {context: getFlowParams()}))
           toast.clear()
           if(res.ret === 0) {
             const action = res.data
@@ -145,9 +156,12 @@ export default defineComponent({
       button.loading = false
     }
 
-    const onSelect = (item: any) =>  {
-      onButtonClick(item)
-      showPopover.value = false
+    const onSelect = (item: ViewButton) =>  {
+      if(!item.expand) {
+        onButtonClick(item)
+        showPopover.value = false
+        showSubPopover.value = false
+      }
     }
 
     // 编辑
@@ -332,12 +346,15 @@ export default defineComponent({
     }
 
     watchEffect(() => {
-      const res = calcButtons(props.buttons, route.query.readonly as string)
-      renderButtons.value = res
+      if(curRecord.value) {
+        const res = calcButtons(props.buttons, route.query.readonly as string, curRecord.value.id)
+        renderButtons.value = res
+      }
     })
 
     return {
       showPopover,
+      showSubPopover,
       capsuleButtons,
       moreButtons,
       onButtonClick,
@@ -349,10 +366,33 @@ export default defineComponent({
 /**
  * 计算显示的按钮
  */
-function calcButtons(buttons: ViewButton[], readonly: string): ViewButton[]{
+function calcButtons(buttons: ViewButton[], readonly: string, curRecordId: DataPointId): ViewButton[]{
   const mode = readonly === '1' ? 'readonly' : 'edit'
-  // TODO visible domain 计算
-  return buttons.filter((btn: ViewButton) => btn.mode === mode)
+  const calcVisibled = (buttons: ViewButton[]) => {
+    const res: ViewButton[] = []
+    const addButton = (button: ViewButton) => {
+      if(button.children?.length) {
+        button.children = calcVisibled(button.children)
+      }
+      res.push(button)
+    }
+    
+    for(let button of buttons) {
+      // 这里不能直接用button, 因为修改children只影响原数据
+      const canButton = _.extend({}, button)
+      if(canButton.invisible) {
+        const modifier = evalModifiers(curRecordId, { invisible: canButton.invisible })
+        if(!modifier || !modifier.invisible) {
+          addButton(canButton)
+        }
+      } else {
+        addButton(canButton)
+      }
+    }
+    return res
+  }
+ 
+  return calcVisibled(buttons.filter((btn: ViewButton) => btn.mode === mode))
 }
 
 /**

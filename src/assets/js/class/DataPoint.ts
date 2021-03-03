@@ -1296,8 +1296,6 @@ const _getDomain = (element: DataPoint, options: any = {}) => {
     }
     const field = element.fieldsInfo[options.fieldName]
     if(field && field.domain) {
-      // const context =  _getEvalContext(element, true)
-      // console.log(field.domain, context)
       return stringToArray(
         field.domain,
         _getEvalContext(element, true)

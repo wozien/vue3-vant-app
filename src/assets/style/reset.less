@@ -73,8 +73,15 @@ div { box-sizing: border-box}
     font-size: 14px;
     color: #323233;
     margin: 0px 16px;
+    position: relative;
     &:last-child::after {
       border-bottom-width: 0px !important;
+    }
+
+    .group-icon {
+      position: absolute;
+      top: 14px;
+      right: -2px;
     }
   }
 }

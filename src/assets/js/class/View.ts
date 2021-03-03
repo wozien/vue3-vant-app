@@ -22,12 +22,15 @@ export interface ViewButton {
   key: string
   type: ViewButtonType
   string: string
-  funcName: string
-  funcType: string
-  highlight: Boolean
   mode: ViewButtonMode
-  isFlow: Boolean,
-  loading: Boolean
+  highlight: boolean
+  invisible: string
+  loading: boolean
+  funcName?: string
+  funcType?: string
+  isFlow?: boolean
+  expand?: boolean
+  children?: ViewButton[]
 }
 
 class View {
@@ -49,48 +52,53 @@ class View {
     this.items = viewObj.mobileItems ? viewObj.mobileItems.map(i => new Item(i)) : []
   }
 
-  getSubViews () {
-    let views: View[] = []
+  _formatOneButton(button: any) {
+    const buttonItem: ViewButton = {
+      key: button.key,
+      type: button.is_event ? 'event' : 'object',
+      string: this._getButtonString(button.button_string || button.string || button.group_name),
+      mode: button.mode,
+      highlight: button.highlight || false,
+      invisible: button.invisible?.length ? button.invisible : '',
+      loading: false,
+      expand: button.expand
+    }
 
-    findTree(this.items, (item: Item) => {
-      if (item.fieldType === 'one2many' || item.fieldType === 'many2many') {
-        views = views.concat(item.subView as View[])
-      }
-    }, 'items')
+    if(buttonItem.expand) {
+      buttonItem.children = this._formatButtons(button.children)
+    } else {
+      buttonItem.funcName = button.func_name
+      buttonItem.funcType = button.func_type
+    }
 
-    return views
+    return buttonItem
   }
 
-  _initButtons(options: any): ViewButton[] {
+  _formatButtons(buttons: any[] = []) {
+    const viewButtons: ViewButton[] = []
+    for(let button of buttons) {
+      if(button && !button.forbidden) {
+        const buttomItem = this._formatOneButton(button)
+        viewButtons.push(buttomItem)
+      }
+    }
+    return viewButtons
+  }
+
+  _initButtons(options: any) {
     // 目前设计器的按钮配置只存这两个位置
     if(!options.singleButton && !options.batchBodyButton) return []
     const { custom: buttons } = this.isSubView ? options.batchBodyButton : options.singleButton 
-    const res: ViewButton[] = []
-
-    findTree(buttons, (button: any) => {
-      if(!button.expand && !button.forbidden) {
-        res.push({
-          key: button.key,
-          type: button.is_event ? 'event' : 'object',
-          string: this._getButtonString(button.button_string || button.string),
-          funcName: button.func_name,
-          funcType: button.func_type,
-          mode: button.mode,
-          highlight: button.highlight,
-          isFlow: this._isFlowButton(button),
-          loading: false
-        })
-      }
-    }, 'children')
+    const viewButtons = this._formatButtons(buttons)
 
     if(this.isSubView) {
-      res.unshift(this._makePresetButton('back', 'Back', 'readonly'))
-      res.unshift(this._makePresetButton('saveLine', 'Save Line'))
-      res.unshift(this._makePresetButton('newLine', 'New Line', 'edit', {highlight: true}))
-      res.push(this._makePresetButton('deleteLine', 'Delete Line'))
+      viewButtons.unshift(this._makePresetButton('back', 'Back', 'readonly'))
+      viewButtons.unshift(this._makePresetButton('saveLine', 'Save Line'))
+      viewButtons.unshift(this._makePresetButton('newLine', 'New Line', 'edit', {highlight: true}))
+      viewButtons.push(this._makePresetButton('deleteLine', 'Delete Line'))
     } 
 
-    return res
+    return viewButtons
   }
 
   // 前端预置按钮的翻译
@@ -130,6 +138,9 @@ class View {
     return !item.is_event && item.func_name.startsWith('workflow_')
   }
 
+  /**
+   * 按钮权限处理
+   */
   async checkButtonsAccess() {
     const getName = (name: string) => {
       if(name === 'create') {
@@ -141,24 +152,51 @@ class View {
     }
 
     // 构造权限接口数据
-    const args = this.buttons.map((button: ViewButton) => {
-      return {
-        attrs: {
-          key: button.key,
-          type: button.type,
-          name: getName(button.funcName),
-          event: button.funcName === 'copy' && '_onCopyRecord'
-        },
-        tag: 'button',
-        children: []
+    const args = [] as any
+    findTree(this.buttons, (button: ViewButton) => {
+      if(!button.expand) {
+        args.push(
+          {
+            attrs: {
+              key: button.key,
+              type: button.type,
+              name: getName(button.funcName as string),
+              event: button.funcName === 'copy' && '_onCopyRecord'
+            },
+            tag: 'button',
+            children: []
+          }
+        )
       }
-    })
+    }, 'children')
+
     const res = await chekcButtonAccess(this.model, args)
     if(res.ret === 0) {
-      this.buttons = this.buttons.filter((button: ViewButton) => {
-        return res.data && res.data.length && res.data.find((item: any) => item.attrs.key === button.key)
-      })
+      const authButtons = res.data
+      const filterButtons = (buttons: ViewButton[]) => {
+        return buttons.filter((button: ViewButton) => {
+          if(button.expand) {
+            button.children = filterButtons(button.children as ViewButton[])
+            return true
+          }
+          return authButtons.find((item: any) => item.attrs.key === button.key)
+        })
+      }
+      
+      this.buttons = filterButtons(this.buttons)
     }
+  }
+
+  getSubViews () {
+    let views: View[] = []
+
+    findTree(this.items, (item: Item) => {
+      if (item.fieldType === 'one2many' || item.fieldType === 'many2many') {
+        views = views.concat(item.subView as View[])
+      }
+    }, 'items')
+
+    return views
   }
 }
 
