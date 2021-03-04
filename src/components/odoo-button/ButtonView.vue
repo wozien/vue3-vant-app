@@ -368,16 +368,17 @@ export default defineComponent({
  */
 function calcButtons(buttons: ViewButton[], readonly: string, curRecordId: DataPointId): ViewButton[]{
   const mode = readonly === '1' ? 'readonly' : 'edit'
-  const calcVisibled = (buttons: ViewButton[]) => {
+  const _calc = (buttons: ViewButton[]) => {
     const res: ViewButton[] = []
     const addButton = (button: ViewButton) => {
       if(button.children?.length) {
-        button.children = calcVisibled(button.children)
+        button.children = _calc(button.children)
       }
       res.push(button)
     }
     
     for(let button of buttons) {
+      if(button.mode !== mode) continue
       // 这里不能直接用button, 因为修改children只影响原数据
       const canButton = _.extend({}, button)
       if(canButton.invisible) {
@@ -392,7 +393,7 @@ function calcButtons(buttons: ViewButton[], readonly: string, curRecordId: DataP
     return res
   }
  
-  return calcVisibled(buttons.filter((btn: ViewButton) => btn.mode === mode))
+  return _calc(buttons)
 }
 
 /**
@@ -649,15 +650,11 @@ async function postAction(action: any, needReload?: boolean) {
   display: flex;
   align-items: center;
   padding: 0px 10px;
-  .more {
-    flex: 0 0 50px;
-  }
- 
+
   .button-capsules {
     flex: 1;
     display: flex;
     flex-direction: row-reverse;
-    // justify-content: flex-end;
     &::v-deep(.van-button--small) {
       padding: 0px 16px;
       margin-left: 6px;

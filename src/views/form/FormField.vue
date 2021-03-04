@@ -1,16 +1,16 @@
 <template>
   <!-- selection -->
-  <Selection v-if="type === 'selection'" v-bind="{field, item, readonly}" v-show="!invisible"/>
+  <Selection v-if="type === 'selection'" v-bind="{field, item, readonly:isReadonly}" v-show="!invisible"/>
   <!-- many2one -->
-  <Many2One v-else-if="type === 'many2one'" v-bind="{field, item, readonly}" v-show="!invisible"/>
+  <Many2One v-else-if="type === 'many2one'" v-bind="{field, item, readonly:isReadonly}" v-show="!invisible"/>
   <!-- reference -->
-  <Reference v-else-if="type === 'reference'" v-bind="{field, item, readonly}" v-show="!invisible"/>
+  <Reference v-else-if="type === 'reference'" v-bind="{field, item, readonly:isReadonly}" v-show="!invisible"/>
   <!-- one2many -->
-  <One2Many v-else-if="type === 'one2many'" v-bind="{field, item, readonly}" v-show="!invisible"/>
+  <One2Many v-else-if="type === 'one2many'" v-bind="{field, item, readonly:isReadonly}" v-show="!invisible"/>
   <!-- many2many -->
-  <Many2Many v-else-if="type === 'many2many'" v-bind="{field, item, readonly}" v-show="!invisible"/>
+  <Many2Many v-else-if="type === 'many2many'" v-bind="{field, item, readonly:isReadonly}" v-show="!invisible"/>
   <!-- date -->
-  <DateField v-else-if="type ==='date' || type === 'datetime'" v-bind="{field, item, readonly}" v-show="!invisible"/>
+  <DateField v-else-if="type ==='date' || type === 'datetime'" v-bind="{field, item, readonly:isReadonly}" v-show="!invisible"/>
   <!-- normal -->
   <div v-else v-show="!invisible" class="form-item-field" :data-dbname="field && field.name" :data-type="type">
     <!-- boolean -->

@@ -1,5 +1,5 @@
 <template>
-  <div class="form-item-field" :data-dbname="field && field.name" :data-type="type">
+  <div class="form-item-field'" :data-dbname="field && field.name" :data-type="type">
     <van-field
       :label="string" 
       :placeholder="placeholder" 
