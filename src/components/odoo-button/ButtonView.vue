@@ -400,7 +400,7 @@ function calcButtons(buttons: ViewButton[], readonly: string, curRecordId: DataP
  * 处理服务器返回的action
  */
 function handleServiceAction(action: any, button: ViewButton) {
-  if('notify_toast' in action) {
+  if(action.type === 'ir.actions.act_window_close' && 'notify_toast' in action) {
     const message = action.notify_toast.message
     Toast(message)
   } else if(action.type === 'ir.actions.act_window' && action.target === 'new') {
@@ -409,6 +409,7 @@ function handleServiceAction(action: any, button: ViewButton) {
       handleWorkflowAction(action, button)
     } else {
       // TODO 处理其他类型向导
+      Toast('该按钮功能暂不支持')
     }
   } else if(action.type === 'ir.actions.cus_function') {
     switch(action.funcName) {
@@ -419,10 +420,10 @@ function handleServiceAction(action: any, button: ViewButton) {
       case '_handleViewProcess':
         handleFlowViewProcess(action); break
       default:
-        Toast('暂不支持'); break
+        Toast('该按钮功能暂不支持'); break
     }
   } else {
-    Toast('暂不支持')
+    Toast('该按钮功能暂不支持')
   }
 }
 

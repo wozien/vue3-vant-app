@@ -68,4 +68,5 @@ export const createModal = (options: ModalOptions) => {
   }
   
   (instance as any).open(options)
+  return instance
 }
