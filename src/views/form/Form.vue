@@ -7,14 +7,14 @@
         <p class="time">{{ `${creator.date} 发起` }}</p> 
       </div>
       <div class="right">
-        <van-image v-if="state === 'audit'" 
+        <van-image v-if="state === 'audit'"  @click="toProcessView"
           :src="require('@/assets/img/audit.png')" width="45" height="45" round/>
         <div class="icons">
           <div class="icon">
             <Icon name="file" @click="onClickFile"/>
             <Icon name="message" @click="onClickMessage"/>
           </div>
-          <span v-if="state !== 'audit'" class="status">{{ state_name }}</span>
+          <span v-if="state !== 'audit'" class="status" @click="toProcessView">{{ state_name }}</span>
         </div>
       </div>
     </div>
@@ -118,6 +118,13 @@ export default defineComponent({
       }
     }
 
+    const toProcessView = () => {
+      router.push({
+        name: 'flow-process',
+        query: Object.assign({}, route.query)
+      })
+    }
+
     const onClickFile = () => Toast('暂不支持附件功能')
     const onClickMessage = () => Toast('暂不支持沟通记录功能')
 
@@ -187,6 +194,7 @@ export default defineComponent({
       localData: computed(() => store.state.localData),
       curRecordId: computed(() => store.state.curRecordId),
       curRecord,
+      toProcessView,
       onClickFile,
       onClickMessage
     }

@@ -16,6 +16,7 @@
     "types": [
       "webpack-env"
     ],
+    "typeRoots": ["./node_modules/@types"],
     "paths": {
       "@/*": [
         "src/*"
@@ -37,6 +38,7 @@
     "src/assets/js/odoo/*.js"
   ],
   "exclude": [
-    "node_modules"
+    "node_modules",
+    "dist"
   ]
 }

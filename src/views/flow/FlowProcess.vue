@@ -31,33 +31,45 @@
 </template>
 
 <script lang="ts">
-import { defineComponent ,ref, watchEffect } from 'vue'
+import { defineComponent, watchEffect, onBeforeMount, reactive, ref, toRefs } from 'vue'
+import { useRoute } from 'vue-router'
 import BpmnJS from 'bpmn-js/lib/Modeler'
 import { formatDate } from '@/assets/js/utils/date'
 import { Dialog } from 'vant'
+import { callButton } from '@/api/odoo'
+import { sessionStorageKeys } from '@/assets/js/constant'
 
 export default defineComponent({
-  props: {
-    options: {
-      type: Object,
-      default: () => {}
-    }
-  },
 
-  setup(props) {
+  setup() {
+    const route = useRoute()
+    const state = reactive({
+      options: {} as any,
+      list: [],
+      active: 'log'
+    })
     const canvas = ref(null)
-    const list = ref([])
-    const active = ref('log')
 
-    watchEffect(() => {
-      if(canvas.value && props.options.xml) {
-        initBpmn(canvas.value, props.options)
+    onBeforeMount(async () => {
+      const { model, id } = route.query
+      if(model && id) {
+        const flowParams = JSON.parse(sessionStorage.getItem(sessionStorageKeys.flowParams) || '{}')
+        const res = await callButton(model as string, 'workflow_view', [[+id]], {context: flowParams})
+        if(res.ret === 0 && res.data?.args?.length) {
+          state.options = res.data.args[0] || {}
+        }
       }
     })
 
     watchEffect(() => {
-      if(props.options.nodelist) {
-        list.value = props.options.nodelist.map((item: any) => {
+      if(canvas.value && state.options?.xml) {
+        initBpmn(canvas.value, state.options)
+      }
+    })
+
+    watchEffect(() => {
+      if(state.options?.nodelist) {
+        state.list = state.options.nodelist.map((item: any) => {
           const date = new Date(item.time.replace(/-/g, '/'))
           const state = item.state == undefined ? '' : (item.state ? 'done' : 'returned')
           return {
@@ -71,8 +83,7 @@ export default defineComponent({
 
     return {
       canvas,
-      list,
-      active
+      ...toRefs(state)
     }
   }
 })

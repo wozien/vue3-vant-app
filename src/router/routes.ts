@@ -8,6 +8,7 @@ const User = () => import('@views/user/User.vue')
 const CompanyList = () => import('@views/user/CompanyList.vue')
 const View = () => import('@views/layout/View.vue')
 const Flow = () => import('@views/flow/Flow.vue')
+const FlowProcess = () => import('@views/flow/FlowProcess.vue')
 
 const routes: RouteRecordRaw[] = [
   {
@@ -49,6 +50,11 @@ const routes: RouteRecordRaw[] = [
         path: '/workflow',
         name: 'flow',
         component: Flow
+      }, 
+      {
+        path: '/workflowProcess',
+        name: 'flow-process',
+        component: FlowProcess
       }
     ]
   },

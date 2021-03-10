@@ -56,7 +56,6 @@ import { createModal } from '@/components/modal'
 import { flowAgreen, flowReturn, flowSign, flowCirculate } from '@/api/workflow'
 import ButtonCapsule from './ButtonCapsule.vue'
 import FlowSign from '@/views/flow/FlowSign.vue'
-import FlowProcess from '@/views/flow/FlowProcess.vue'
 import UserSelect from '@/components/user-picker/UserSelect.vue'
 import { 
   save, isDirty, isNew, discardChanges, rootID, notifyChanges, 
@@ -103,7 +102,13 @@ export default defineComponent({
 
       if(button.expand) return
       button.loading = true
-      if(button.type === 'event') {
+
+      if(button.funcName === 'workflow_view') {
+        router.push({
+          name: 'flow-process',
+          query: Object.assign({}, route.query)
+        })
+      } else if(button.type === 'event') {
         // 前端写死的按钮
         switch(button.funcName) {
           case 'edit':
@@ -417,8 +422,6 @@ function handleServiceAction(action: any, button: ViewButton) {
         handleFlowSign(action); break
       case '_handleConsult':
         handleFlowConsult(action); break
-      case '_handleViewProcess':
-        handleFlowViewProcess(action); break
       default:
         Toast('该按钮功能暂不支持'); break
     }
@@ -617,19 +620,6 @@ function handleFlowConsult(action: any) {
   }
 
   createModal({ render, confirm, hideFooter: false })
-}
-
-/**
- * 查看全流程
- */
-function handleFlowViewProcess(action: any) {
-  const params = action.args[0] || {}
-  const render = () => {
-    return <FlowProcess options={params}/>
-  }
-  const confirm = () => {}
-
-  createModal({ render, confirm, hideFooter: true })
 }
 
 async function postAction(action: any, needReload?: boolean) {

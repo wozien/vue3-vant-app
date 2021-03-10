@@ -61,6 +61,7 @@ class View {
       highlight: button.highlight || false,
       invisible: button.invisible?.length ? button.invisible : '',
       loading: false,
+      isFlow: this._isFlowButton(button),
       expand: button.expand
     }
 
@@ -135,7 +136,7 @@ class View {
   }
 
   _isFlowButton(item: any) {
-    return !item.is_event && item.func_name.startsWith('workflow_')
+    return !item.is_event && item.func_name?.startsWith('workflow_')
   }
 
   /**
