@@ -1,4 +1,4 @@
-import _ from 'lodash'
+import { isEmpty } from 'lodash-es'
 import { computed, ref, PropType, watchEffect } from 'vue'
 import { VuexStore } from '@/store'
 import { Field, Item, DataPointState, DataPointData, ModifierKey } from '@/assets/js/class'
@@ -73,7 +73,7 @@ export default function(props: any, store: VuexStore) {
       }
 
       // 计算modifiers
-      if(item && field && (!modifiers.value || !_.isEmpty(modifiers.value))) {
+      if(item && field && (!modifiers.value || !isEmpty(modifiers.value))) {
         let evalutedModifiers = {} as any;
         ['readonly', 'required', 'invisible'].forEach((key: string) => {
           if(key in item.modifiers) {
@@ -82,7 +82,7 @@ export default function(props: any, store: VuexStore) {
             evalutedModifiers[key] = field.modifiers[key as ModifierKey]
           }
         })
-        if(!_.isEmpty(evalutedModifiers)) {
+        if(!isEmpty(evalutedModifiers)) {
           modifiers.value = evalModifiers(curRecord.value.id, evalutedModifiers)
         } else {
           modifiers.value = {}

@@ -19,7 +19,7 @@
 </template>
 
 <script lang="ts">
-import _ from 'lodash'
+import { last } from 'lodash-es'
 import { defineComponent, ref } from 'vue'
 import { useStore } from '@/store'
 import useFieldCommon, { fieldCommonProps } from '@/assets/js/hooks/field-common'
@@ -106,7 +106,7 @@ function getDependDomain(depend: string, recordID: string): any[] {
     }
   }
 
-  const data = getRecordData(recordID, _.last(deps) as string)
+  const data = getRecordData(recordID, last(deps) as string)
   return data ? [data.model, data.res_id] : []
 }
 

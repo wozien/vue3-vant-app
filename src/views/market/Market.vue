@@ -13,7 +13,7 @@
 </template>
 
 <script lang="ts">
-import _ from 'lodash'
+import { defaults } from 'lodash-es'
 import { defineComponent, computed, onBeforeMount, watchEffect, reactive, toRefs } from 'vue'
 import AppList from '@/components/app-list/AppList.vue'
 import { fetchAppData } from '@/api/app'
@@ -56,7 +56,7 @@ export default defineComponent({
           for(let item of state.list) {
             const apps = item.apps.filter((app: any) => app.name.includes(state.searchValue))
             if(apps.length) {
-              res.push(_.defaults({ apps }, item))
+              res.push(defaults({ apps }, item))
             }
           }
         }

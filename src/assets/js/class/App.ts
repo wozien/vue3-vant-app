@@ -1,7 +1,7 @@
 /**
  * 应用类
  */
-import _ from 'lodash'
+import { pick, find, isEmpty } from 'lodash-es'
 import { Action, Model, View, ViewType, Item, Field, FieldsInfo, FieldInfo } from './index' 
 import { fetchAction, fetchAppModel, fetchAppView } from '@/api/app'
 import { fetchFlowView } from '@/api/workflow'
@@ -10,6 +10,7 @@ import { sessionStorageKeys } from '@/assets/js/constant'
  
 // TODO 限制缓存个数
 const appCaches: {[key: string]: App} = {}
+
 let activeAppKey: string
 
 class App {
@@ -86,7 +87,7 @@ class App {
       res = await fetchAppView(this.actionId)
     } else {
       const flowParams = JSON.parse(sessionStorage.getItem(sessionStorageKeys.flowParams) || '{}')
-      res = await fetchFlowView(this.modelKey, _.pick(flowParams, ['type', 'bill_number', 'task_id', 'process_id']))
+      res = await fetchFlowView(this.modelKey, pick(flowParams, ['type', 'bill_number', 'task_id', 'process_id']))
     }
 
     if(res.ret === 0) {
@@ -115,7 +116,7 @@ class App {
     let view =  this.views ? this.views[viewType] : null
     if(view && view.model !== modelKey) {
       const subViews = view.getSubViews()
-      view = _.find(subViews, { model: modelKey }) as View
+      view = find(subViews, { model: modelKey }) as View
     }
     return view
   }
@@ -173,11 +174,11 @@ class App {
       if(item.domain.length) {
         info.domain = item.domain
       }
-      if(!_.isEmpty(item.modifiers)) {
+      if(!isEmpty(item.modifiers)) {
         info.modifiers = item.modifiers
       }
       if(item.fieldsToFetch) {
-        info.relatedFields = _.extend({}, item.fieldsToFetch)
+        info.relatedFields = Object.assign({}, item.fieldsToFetch)
       }
       if(item.modifiers.invisible === true) {
         info.__no_fetch = true

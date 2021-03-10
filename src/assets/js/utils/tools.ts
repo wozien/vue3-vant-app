@@ -1,4 +1,4 @@
-import _ from 'lodash'
+import { isFunction, isEmpty, find, iteratee } from 'lodash-es'
 
 /**
  * 树的递归查找
@@ -7,12 +7,12 @@ import _ from 'lodash'
  * @param sonField 
  */
 export const findTree = (items: any[], attrs: Function | Object, sonField = 'children') => {
-  if (!_.isFunction(attrs) && _.isEmpty(attrs)) {
+  if (!isFunction(attrs) && isEmpty(attrs)) {
     return null;
   }
   
   let node = null;
-  let callback = _.iteratee(attrs);
+  let callback = iteratee(attrs);
   let level = 0;
 
   // 递归查找子级所有节点
@@ -20,7 +20,7 @@ export const findTree = (items: any[], attrs: Function | Object, sonField = 'chi
       let children = [] as any[];
       level++;
 
-      node = _.find(items, (item: any) => {
+      node = find(items, (item: any) => {
         children = children.concat(item[sonField] || []);
         
         return callback(item, level);

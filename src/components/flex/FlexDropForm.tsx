@@ -1,4 +1,4 @@
-import _ from 'lodash'
+import { find } from 'lodash-es'
 import { defineComponent, ref, watchEffect, computed, Ref } from 'vue'
 import { useStore } from '@/store'
 import { getApp } from '@/assets/js/class/App'
@@ -72,7 +72,7 @@ export default defineComponent({
       items.value.forEach((item: any, index: number) => {
         const compRef = FieldCompRefs[index]
         if(item && compRef.value && compRef.value.isSet()) {
-          const field = _.find(fields, (f: any) => f.key === item.fieldKey)
+          const field = find(fields, (f: any) => f.key === item.fieldKey)
           if(field) {
             flex[field.name] = evalContext[field.name]
           }
@@ -91,7 +91,7 @@ export default defineComponent({
       FieldCompRefs = []
       items.value.forEach((item: Item|null) => {
         if(item) {
-          const field = _.find(fields, (f: any) => f.key === item.fieldKey)
+          const field = find(fields, (f: any) => f.key === item.fieldKey)
           const compRef = ref(null)
           FieldCompRefs.push(compRef)
           templates.push(

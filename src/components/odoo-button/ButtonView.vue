@@ -47,7 +47,7 @@
 <script lang="tsx">
 import { defineComponent, PropType, computed, ref, watchEffect, reactive, toRaw, inject } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import _ from 'lodash'
+import { find, findIndex, last } from 'lodash-es'
 import store, { useStore } from '@/store'
 import { Toast, Dialog } from 'vant'
 import { ViewButton } from '@/assets/js/class'
@@ -269,7 +269,7 @@ export default defineComponent({
     // 行插入
     const onInsertLine = async () => {
       const list = get(curRecord.value.parentId)
-      const rowIndex = _.findIndex((list as any).data || [], (record: any) => record.id === curRecord.value.id)
+      const rowIndex = findIndex((list as any).data || [], (record: any) => record.id === curRecord.value.id)
       await onNewLine(rowIndex !== -1 ? +rowIndex : undefined)
     }
     // 保存并新增
@@ -284,7 +284,7 @@ export default defineComponent({
         const list = get(curRecord.value.parentId)
         if(list) {
           const resIds = (list as any).res_ids || []
-          const id = rowIndex !== undefined ? resIds[rowIndex] : _.last(resIds)
+          const id = rowIndex !== undefined ? resIds[rowIndex] : last(resIds)
           if(id) {
             router.replace({
               name: 'view',
@@ -322,7 +322,7 @@ export default defineComponent({
         })
         const list = get(curRecord.value.parentId)
         if(list) {
-          const id = _.last((list as any).res_ids || [])
+          const id = last((list as any).res_ids || [])
           if(id) {
             router.replace({
               name: 'view',
@@ -340,7 +340,7 @@ export default defineComponent({
       const record = findDataPoint(rootID) as DataPoint
       if(record) {
         const fieldsInfo = record.fieldsInfo
-        const field = _.find(_.values(fieldsInfo), { relation: subModel })
+        const field = find(Object.values(fieldsInfo), { relation: subModel })
         return field
       }
     }
@@ -380,7 +380,7 @@ function calcButtons(buttons: ViewButton[], readonly: string, curRecordId: DataP
     for(let button of buttons) {
       if(button.mode !== mode) continue
       // 这里不能直接用button, 因为修改children只影响原数据
-      const canButton = _.extend({}, button)
+      const canButton = Object.assign({}, button)
       if(canButton.invisible) {
         const modifier = evalModifiers(curRecordId, { invisible: canButton.invisible })
         if(!modifier || !modifier.invisible) {

@@ -27,7 +27,7 @@
 </template>
 
 <script lang="ts">
-import _ from 'lodash'
+import { find } from 'lodash-es'
 import { defineComponent, computed, reactive, toRefs, watch, Ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useStore, User } from '@/store'
@@ -100,7 +100,7 @@ function useGroup(type: string) {
   let group;
   for(let key in FLOW_TYPES) {
     const types = FLOW_TYPES[key as GROUP_TYPE]
-    if(_.find(types, { type })) {
+    if(find(types, { type })) {
       group = {
         name: key,
         types: types

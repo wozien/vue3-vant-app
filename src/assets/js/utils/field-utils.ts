@@ -1,4 +1,4 @@
-import _ from 'lodash'
+import { find, isNumber, isString, identity } from 'lodash-es'
 import { str2Date, formatDate as date2Str } from './date'
 import { DataPoint } from '@/assets/js/class'
 import { insertThousandSeps } from '@/assets/js/utils/tools'
@@ -52,7 +52,7 @@ function formatFloat(value: any) {
 }
 
 function formatSelection(value: any, field?: any) {
-  const val = _.find(field.selection, (option: any) => option[0] === value)
+  const val = find(field.selection, (option: any) => option[0] === value)
   if(!val) {
     return ''
   }
@@ -61,7 +61,7 @@ function formatSelection(value: any, field?: any) {
 }
 
 function formatMany2one(value: DataPoint | [number, string]) {
-  value = value && (_.isArray(value) ? value[1] : value.data.display_name) || '';
+  value = value && (Array.isArray(value) ? value[1] : value.data.display_name) || '';
   return value
 }
 
@@ -84,7 +84,7 @@ function formatJsonb(value: any) {
 
 function parseNumber(value: string) {
   // 把千分位数字字符串转为number
-  // const escapedSep = _.escapeRegExp(',')
+  // const escapedSep = escapeRegExp(',')
   value = value.replace(new RegExp(',', 'g'), '')
   return Number(value)
 }
@@ -104,13 +104,13 @@ function parseDateTime(value: string) {
 }
 
 function parseMany2one(value: any) {
-  if (_.isArray(value)) {
+  if (Array.isArray(value)) {
       return {
           id: value[0],
           display_name: value[1],
       };
   }
-  if (_.isNumber(value) || _.isString(value)) {
+  if (isNumber(value) || isString(value)) {
       return {
           id: parseInt(value as string, 10),
       };
@@ -141,17 +141,17 @@ export default {
     jsonb: formatJsonb
   },
   parse: {
-    char: _.identity,
-    text: _.identity,
-    boolean: _.identity,
+    char: identity,
+    text: identity,
+    boolean: identity,
     date: parseDate,
     datetime: parseDateTime,
     integer: parseNumber, 
     float: parseNumber,    // TODO
-    selection: _.identity,
+    selection: identity,
     many2one: parseMany2one,
-    one2many: _.identity,
-    many2many: _.identity,
+    one2many: identity,
+    many2many: identity,
     reference: parseMany2one,
     jsonb: parseJsonb
   }

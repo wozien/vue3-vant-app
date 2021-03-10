@@ -1,4 +1,4 @@
-import _ from 'lodash'
+import { find } from 'lodash-es'
 import { defineComponent, PropType, ref, Ref }  from 'vue'
 import { useRoute } from 'vue-router'
 import { Item, Fields } from '@/assets/js/class'
@@ -41,7 +41,7 @@ const FormCanvas = defineComponent({
 
     const renderItem = (item: Item) => {
       const items = item.items
-      const field = _.find(props.fields as any, { key: item.fieldKey })
+      const field = find(props.fields as any, { key: item.fieldKey })
       const readonly = route.query.readonly as string === '1' ? true : false
 
       switch(item.widget) {

@@ -32,7 +32,7 @@
 </template>
 
 <script lang="ts">
-import _ from 'lodash'
+import { last, map, find } from 'lodash-es'
 import { defineComponent, ref, nextTick, watchEffect } from 'vue'
 import { useStore } from '@/store'
 import { useRouter, useRoute } from 'vue-router'
@@ -65,7 +65,7 @@ export default defineComponent({
     // 表体行点击
     const onCellClick: VxeTableEvents.CellClick = ({ row }) => {
       // if(props.readonly) return
-      const record = _.find((rawValue.value as any).data, { res_id: row.id })
+      const record = find((rawValue.value as any).data, { res_id: row.id })
       if(record) {
         // 把表体操作在session中
         storeX2ManyCommand('UPDATE')
@@ -90,7 +90,7 @@ export default defineComponent({
 
       nextTick(() => {
         // 获取最后一条表体记录的res_id
-        const lastRecord = _.last((rawValue.value as any).data || [])
+        const lastRecord = last((rawValue.value as any).data || [])
         if(lastRecord) {
           router.push({
             name: 'view',
@@ -161,7 +161,7 @@ function getData(list: DataPointState) {
         if(fieldName === 'id') {
           row[fieldName] = value
         } else if(field.type === 'many2many' || field.type === 'one2many') {
-          value = _.map((value as any).data, 'data')
+          value = map((value as any).data, 'data')
           row[fieldName] = value
         } else {
           row[fieldName] = (fieldUtils.format as any)[field.type](value, field)

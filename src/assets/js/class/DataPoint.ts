@@ -5,7 +5,10 @@
  * like odoo basic_model
  */
 
-import _ from 'lodash'
+import { 
+  each, without, pick, find, reject, map, uniq, flatten, values, groupBy,
+  uniqueId, difference, intersection, isEmpty, filter, defaults
+} from 'lodash-es'
 import { ViewType } from './index'
 import { FieldsInfo } from '@/assets/js/class'
 import fieldUtils from '@/assets/js/utils/field-utils'
@@ -13,7 +16,6 @@ import { str2Date, formatDate } from '@/assets/js/utils/date'
 import { fetchRecord, saveRecord, fetchDefaultValues, fetchNameGet, fetchOnChange } from '@/api/record'
 import { sessionStorageKeys } from '@/assets/js/constant'
 import Domain from '../odoo/Domain'
-import { values } from 'xe-utils'
 
 export type DataPointId = string
 export type DataPointType = 'record' | 'list'
@@ -131,10 +133,10 @@ const _addX2ManyDefaultRecord = async (list: DataPoint, options: any) => {
  * @param list 
  */
 const _applyX2ManyOperations = (list: DataPoint) => {
-  list = _.extend({}, list)
+  list = Object.assign({}, list)
   list.res_ids = list.res_ids.slice(0)
   const changes = list._changes || []
-  _.each(changes, (change: any) => {
+  each(changes, (change: any) => {
     let relRecord
     if(change.id) {
       relRecord = localData[change.id]
@@ -153,7 +155,7 @@ const _applyX2ManyOperations = (list: DataPoint) => {
       case 'FORGET':
       case 'DELETE': 
         const deletedResID = relRecord ? relRecord.res_id : change.id
-        list.res_ids = _.without(list.res_ids, deletedResID) as string[]
+        list.res_ids = without(list.res_ids, deletedResID) as string[]
         break
       case 'UPDATE':
         break
@@ -202,10 +204,10 @@ const _applyChange = (recordID: DataPointId, changes: DataPointData): Promise<an
     return new Promise((resolve) => {
       if(onChangeFields.length) {
         _performOnChange(record, onChangeFields).then((result: any) => {
-          resolve(_.keys(changes).concat(Object.keys(result && result.value || {})))
+          resolve(Object.keys(changes).concat(Object.keys(result && result.value || {})))
         })
       } else {
-        resolve(_.keys(changes))
+        resolve(Object.keys(changes))
       }
     })
   })
@@ -220,7 +222,7 @@ const _applyOnChange = (values: any, record: DataPoint) => {
   const defs = [] as any[]
   let rec
   record._changes = record._changes || {}
-  _.each(values, (val: any, name: string) => {
+  each(values, (val: any, name: string) => {
     const field = record.fieldsInfo[name]
     if(!field) return
 
@@ -230,7 +232,7 @@ const _applyOnChange = (values: any, record: DataPoint) => {
     if(field.type === 'many2one') {
       id = false;
       if (val) {
-        var data = _.isArray(val) ?
+        var data = Array.isArray(val) ?
             {id: val[0], display_name: val[1]} :
             {id: val};
         if (!oldValue || (localData[oldValue].res_id !== data.id)) {
@@ -315,7 +317,7 @@ const _applyX2OneChange = (record: DataPoint, fieldName: string, data: any) => {
     return
   }
 
-  const relData = _.pick(data, 'id', 'display_name');
+  const relData = pick(data, 'id', 'display_name');
   const field = record.fieldsInfo[fieldName]
   const coModel = field.type === 'reference' ? data.model : field.relation
   // TODO fetch name_get
@@ -349,7 +351,7 @@ const _applyX2ManyChange = (record: DataPoint, fieldName: string, command: any) 
       defs.push(_addX2ManyDefaultRecord(list, { position: command.position }))
       break
     case 'UPDATE':
-      !_.find(list._changes as any[], {operation: 'UPDATE', id: command.id}) && 
+      !find(list._changes as any[], {operation: 'UPDATE', id: command.id}) && 
       (list._changes as any[]).push({operation: 'UPDATE', id: command.id})
       if(command.data) {
         defs.push(_applyChange(command.id, command.data))
@@ -360,14 +362,14 @@ const _applyX2ManyChange = (record: DataPoint, fieldName: string, command: any) 
     // no-fallthrough
     case 'DELETE':
       let idsToRemove = command.ids
-      list._changes = _.reject(list._changes, function (change: any) {
+      list._changes = reject(list._changes, function (change: any) {
         var idInCommands = command.ids.includes(change.id);
         if (idInCommands && change.operation === 'ADD') {
-            idsToRemove = _.without(idsToRemove, change.id);
+            idsToRemove = without(idsToRemove, change.id);
         }
         return idInCommands;
       });
-      _.each(idsToRemove, function (id: string) {
+      each(idsToRemove, function (id: string) {
         var operation = list._forceM2MUnlink ? 'FORGET': 'DELETE';
         list._changes.push({operation: operation, id: id});
       });
@@ -377,8 +379,8 @@ const _applyX2ManyChange = (record: DataPoint, fieldName: string, command: any) 
       break
     case 'ADD_M2M':
       list._forceM2MLink = true
-      const data = _.isArray(command.ids) ? command.ids : [command.ids]
-      _.each(data, (d: any) => {
+      const data = Array.isArray(command.ids) ? command.ids : [command.ids]
+      each(data, (d: any) => {
         const rec = _makeDataPoint({
           modelName: list.model,
           fieldsInfo: {
@@ -412,7 +414,7 @@ const _buildOnchangeSpecs = (record: DataPoint) => {
 
   function generateSpecs (fieldsInfo: FieldsInfo, prefix?: string) {
       prefix = prefix || '';
-      _.each(Object.keys(fieldsInfo), function (name) {
+      each(Object.keys(fieldsInfo), function (name) {
           const field = fieldsInfo[name]
           const key = prefix + name;
           specs[key] = field.onChange ? '1' : ''
@@ -445,7 +447,7 @@ const _copyX2ManyRecord = async (recordID: DataPointId, defaultTemplate: any) =>
 
   await _getX2ManyDefaultData(list, defaultTemplate)
   // TODO o2m in list fields default values
-  await Promise.all(_.map(listState.data, async (record: DataPoint) => {
+  await Promise.all(map(listState.data, async (record: DataPoint) => {
     list._changes.push({operation: 'ADD', id: record.id, isNew: true})
     await copyRecord(record.id, defaultTemplate)
     const { res_id, id } = localData[record.id]
@@ -453,7 +455,7 @@ const _copyX2ManyRecord = async (recordID: DataPointId, defaultTemplate: any) =>
     record._isDirty = true
   }))
 
-  _.each(list._changes, ({ id }: any) => {
+  each(list._changes, ({ id }: any) => {
     const res_id = resIdMap[id]
     res_id && (list._cache[res_id] = id)
   })
@@ -503,13 +505,13 @@ const _fetchRecord = async (record: DataPoint) => {
   if(res.ret === 0) {
     const recordData = res.data
     if(recordData.odoo_data.length) {
-      _.extend(record, { 
+      Object.assign(record, { 
         data: recordData.odoo_data[0],
         creator:{
           ...recordData.create_user,
           date: str2Date(res.data.create_date || '')
         },
-        ..._.pick(recordData, ['state', 'state_name'])
+        ...pick(recordData, ['state', 'state_name'])
       })
       _parseServerData(record)
       await Promise.all([
@@ -524,11 +526,11 @@ const _fetchRecord = async (record: DataPoint) => {
  * @param group 
  */
 const _fetchMany2OneGroup = async (group: any[]) => {
-  const ids = _.uniq(_.map(_.map(group, 'record'), 'res_id'))
+  const ids = uniq(map(map(group, 'record'), 'res_id'))
   const res = await fetchNameGet(group[0].record.model, ids)
   if(res.ret === 0) {
-    _.each(group, (obj: any) => {
-      const nameGet = _.find(res.data, function (n) { return n[0] === obj.record.res_id;});
+    each(group, (obj: any) => {
+      const nameGet = find(res.data, function (n) { return n[0] === obj.record.res_id;});
       obj.record.data.display_name = nameGet[1];
     })
   }
@@ -557,7 +559,7 @@ const _fetchNameGets = async (list: DataPoint, fieldName: string) => {
   const ids = [] as any[]
   list = _applyX2ManyOperations(list)
 
-  _.each(list.data, (localId: string) => {
+  each(list.data, (localId: string) => {
     const record = localData[localId]
     const data = record._changes || record.data
     const m2oId = data[fieldName]
@@ -573,8 +575,8 @@ const _fetchNameGets = async (list: DataPoint, fieldName: string) => {
 
   const res = await fetchNameGet(model as string, ids)
   if(res.ret === 0) {
-    _.each(records, (record: DataPoint) => {
-      const nameGet = _.find(res.data, (n: any) => n[0] === record.data.id)
+    each(records, (record: DataPoint) => {
+      const nameGet = find(res.data, (n: any) => n[0] === record.data.id)
       record.data.display_name = nameGet[1]
     })
   }
@@ -587,7 +589,7 @@ const _fetchNameGets = async (list: DataPoint, fieldName: string) => {
 const _fetchX2Manys = (record: DataPoint) => {
   const fieldsInfo = record.fieldsInfo
   const defs = [] as any[]
-  _.each(fieldsInfo, (field: any, fieldName: string) => {
+  each(fieldsInfo, (field: any, fieldName: string) => {
     if(field.type === 'one2many' || field.type === 'many2many') {
       const ids = record.data[fieldName] || []
       const fieldInfo = record.fieldsInfo[fieldName]
@@ -626,8 +628,8 @@ const _fetchX2ManysData = async (list: DataPoint) => {
     const res = await fetchRecord(model, res_ids as number[], fieldNames)
     if(res.ret === 0) {
       const records = res.data
-      _.each(res_ids, (id: any) => {
-        const data = _.find(records, { id })
+      each(res_ids, (id: any) => {
+        const data = find(records, { id })
         if(data) {
           const dataPoint = _makeDataPoint({
             viewType: list.viewType,
@@ -683,7 +685,7 @@ const _fetchReference = async (record: DataPoint, fieldName: string): Promise<Da
 const _fetchReferences = async (record: DataPoint) => {
   const fieldsInfo = record.fieldsInfo
   const defs = [] as any[]
-  _.each(fieldsInfo, (field: any, fieldName: string) => {
+  each(fieldsInfo, (field: any, fieldName: string) => {
     if(field.type === 'reference') {
       const def = _fetchReference(record, fieldName).then((dataPoint?: DataPoint) => {
         dataPoint && (record.data[fieldName] = dataPoint.id)
@@ -700,12 +702,12 @@ const _fetchReferences = async (record: DataPoint) => {
  * @param fieldName 
  */
 const _fetchReferenceData = async (datapoints: Record<string, DataPointId[]>, model: string, fieldName: string) => {
-  const ids = _.map(Object.keys(datapoints), (id: string) => parseInt(id))
+  const ids = map(Object.keys(datapoints), (id: string) => parseInt(id))
   const res = await fetchNameGet(model, ids)
   if(res.ret === 0) {
-    _.each(res.data, (value: any) => {
+    each(res.data, (value: any) => {
       const recordIds = datapoints[value[0]]
-      _.each(recordIds, (recordId: string) => {
+      each(recordIds, (recordId: string) => {
         const record = localData[recordId]
         const referenceDp = _makeDataPoint({
           data: {
@@ -737,7 +739,7 @@ const _fetchReferenceBatched = (list: DataPoint, fieldName: string) => {
   const toFetch = _getDataToFetchByModel(list, fieldName);
   const defs = [] as any
   // one name_get by model
-  _.each(toFetch, (datapoints, model) => {
+  each(toFetch, (datapoints, model) => {
       defs.push(_fetchReferenceData(datapoints, model, fieldName));
   })
 
@@ -776,7 +778,7 @@ const _fetchRelatedData = async (list: DataPoint, toFetch: Record<number, DataPo
   // TODO 这里暂时只考虑m2m字段， 所以只查询display_name
   const res = await fetchRecord(field.relation as string, ids, ['display_name'])
   if(res.ret === 0) {
-    const records = _.uniq(_.flatten(_.values(toFetch)))
+    const records = uniq(flatten(values(toFetch)))
     _updateRecordsData(records, fieldName, res.data)
   }
   return res
@@ -789,7 +791,7 @@ const _fetchRelatedData = async (list: DataPoint, toFetch: Record<number, DataPo
 const _fetchRelationalData = (record: DataPoint) => {
   const toBeFetched: any = []
 
-  _.each(_getFieldsName(record), (fieldName: string) => {
+  each(_getFieldsName(record), (fieldName: string) => {
     const field = record.fieldsInfo[fieldName]
     if(field && field.type === 'many2one' && !field.__no_fetch) {
       const localId = (record._changes && record._changes[fieldName]) || record.data[fieldName]
@@ -805,8 +807,8 @@ const _fetchRelationalData = (record: DataPoint) => {
     }
   })
 
-  const groups = _.groupBy(toBeFetched, (elem: any) => [elem.record.model, JSON.stringify(elem.context)].join())
-  return Promise.all(_.map(groups, _fetchMany2OneGroup))
+  const groups = groupBy(toBeFetched, (elem: any) => [elem.record.model, JSON.stringify(elem.context)].join())
+  return Promise.all(map(groups, _fetchMany2OneGroup))
 } 
 
 /**
@@ -851,7 +853,7 @@ const _makeDataPoint = <T extends LoadParams>(params: T): DataPoint => {
     if(res_id) {
       (data as any).id = res_id
     } else {
-      res_id = _.uniqueId('virtual_')
+      res_id = uniqueId('virtual_')
     }
   }
 
@@ -859,7 +861,7 @@ const _makeDataPoint = <T extends LoadParams>(params: T): DataPoint => {
     _cache: type === 'list' ? {} : undefined,
     _changes: null,
     _domains: {},
-    id: _.uniqueId(params.modelName + '_'),
+    id: uniqueId(params.modelName + '_'),
     model: params.modelName,
     viewType: params.viewType,
     fieldsInfo: params.fieldsInfo,
@@ -894,7 +896,7 @@ const _makeDefaultRecord = async (modelName: string, params: LoadParams) => {
   const res = await fetchDefaultValues(modelName, fieldNames)
   if(res.ret === 0) {
     await applyDefaultValues(record.id, res.data, { fieldNames })
-    await _performOnChange(record, _.without(fieldNames, '__last_update'))
+    await _performOnChange(record, without(fieldNames, '__last_update'))
     await _fetchRelationalData(record)
   }
 
@@ -940,7 +942,7 @@ const _getDataToFetch = (list: DataPoint, fieldName: string) => {
     const record = localData[recordId]
     if(typeof record.data[fieldName] === 'string') return
 
-    _.each(record.data[fieldName], (id: number) => {
+     each(record.data[fieldName], (id: number) => {
       toFetch[id] = toFetch[id] || []
       toFetch[id].push(record)
     })
@@ -965,7 +967,7 @@ const _getDataToFetch = (list: DataPoint, fieldName: string) => {
  */
 const _getDataToFetchByModel = (list: DataPoint, fieldName: string) => {
   const toFetch = {} as any
-  _.each(list.data, (recordId: DataPointId) => {
+  each(list.data, (recordId: DataPointId) => {
     const record = localData[recordId]
     const value = record.data[fieldName]
     // 过滤已经获取数据的ref字段
@@ -1021,9 +1023,9 @@ const _generateChanges = (record: DataPoint, options: any) => {
   // let viewType = options.viewType || record.
   let changes: any
   if('changesOnly' in options && !options.changesOnly) {
-    changes = _.extend({}, record.data, record._changes)
+    changes = Object.assign({}, record.data, record._changes)
   } else {
-    changes = _.extend({}, record._changes)
+    changes = Object.assign({}, record._changes)
   }
 
   // TODO get x2many commands
@@ -1070,9 +1072,9 @@ const _generateChanges = (record: DataPoint, options: any) => {
  * @param option 
  */
 const _generateOnChangeData = (record: DataPoint, options?: any) => {
-  options = _.extend({}, options || {}, {withReadonly: true})
+  options = Object.assign({}, options || {}, {withReadonly: true})
   const commands = _generateX2ManyCommands(record, options)
-  const data = _.extend(get(record.id, {raw: true}).data, commands)
+  const data = Object.assign(get(record.id, {raw: true}).data, commands)
   for(let fieldName in data) {
     const field = record.fieldsInfo[fieldName]
     if(field && ['date', 'datetime'].includes(field.type) && data[fieldName]) {
@@ -1092,7 +1094,7 @@ const _generateOnChangeData = (record: DataPoint, options?: any) => {
 const _generateX2ManyCommands = (record: DataPoint, options: any) => {
   options = options || {}
   const commands = {} as any
-  const data = _.extend({}, record.data, record._changes)
+  const data = Object.assign({}, record.data, record._changes)
   for(let fieldName in record.fieldsInfo) {
     const type = record.fieldsInfo[fieldName].type
 
@@ -1107,7 +1109,7 @@ const _generateX2ManyCommands = (record: DataPoint, options: any) => {
       const oldResIDs = list.res_ids.slice(0)
       const relRecordAdded = [] as any[]
       const relRecordUpdated = [] as any[]
-      _.each(list._changes, function (change: any) {
+      each(list._changes, function (change: any) {
           if (change.operation === 'ADD' && change.id) {
               relRecordAdded.push(localData[change.id])
           } else if (change.operation === 'UPDATE' && !isNew(change.id)) {
@@ -1119,39 +1121,39 @@ const _generateX2ManyCommands = (record: DataPoint, options: any) => {
       // sort list?
 
       if(type === 'many2many' || list._forceM2MLink) {
-        const relRecordCreated = _.filter(relRecordAdded, function (rec) {
+        const relRecordCreated = filter(relRecordAdded, function (rec) {
           return typeof rec.res_id === 'string';
         })
-        const realIDs = _.difference(list.res_ids, _.map(relRecordCreated, 'res_id'));
+        const realIDs = difference(list.res_ids, map(relRecordCreated, 'res_id'));
         // replace command
         commands[fieldName].push(x2ManyCommands.replace_with(realIDs));
 
-        _.each(relRecordCreated,  (relRecord) => {
+        each(relRecordCreated,  (relRecord) => {
           const changes = _generateChanges(relRecord, options);
           commands[fieldName].push(x2ManyCommands.create(relRecord.ref, changes));
         });
 
-        _.each(relRecordUpdated, (relRecord) => {
+        each(relRecordUpdated, (relRecord) => {
           const changes = _generateChanges(relRecord, options);
-          if (!_.isEmpty(changes)) {
+          if (isEmpty(changes)) {
             const command = x2ManyCommands.update(relRecord.res_id, changes);
             commands[fieldName].push(command);
           }
         });
 
       } else if(type === 'one2many') {
-        const removedIds = _.difference(oldResIDs, list.res_ids);
-        const addedIds = _.difference(list.res_ids, oldResIDs);
-        const keptIds = _.intersection(oldResIDs, list.res_ids);
+        const removedIds = difference(oldResIDs, list.res_ids);
+        const addedIds = difference(list.res_ids, oldResIDs);
+        const keptIds = intersection(oldResIDs, list.res_ids);
 
         let didChange = false
         let changes, command, relRecord
         for (var i = 0; i < list.res_ids.length; i++) {
           // update command
           if (keptIds.includes(list.res_ids[i])) {
-            relRecord = _.find(relRecordUpdated, {res_id: list.res_ids[i]})
+            relRecord = find(relRecordUpdated, {res_id: list.res_ids[i]})
             changes = relRecord ? _generateChanges(relRecord, options) : {}
-            if(!_.isEmpty(changes)) {
+            if(isEmpty(changes)) {
               command = x2ManyCommands.update(relRecord.res_id, changes)
               didChange = true
             } else {
@@ -1160,16 +1162,16 @@ const _generateX2ManyCommands = (record: DataPoint, options: any) => {
             commands[fieldName].push(command)
           } else if(addedIds.includes(list.res_ids[i])) {
             // add command
-            relRecord = _.find(relRecordAdded, {res_id: list.res_ids[i]})
+            relRecord = find(relRecordAdded, {res_id: list.res_ids[i]})
             if(!relRecord) {
               commands[fieldName].push(x2ManyCommands.link_to(list.res_ids[i]));
               continue;
             }
-            changes = _generateChanges(relRecord, _.extend({}, options, {changesOnly: true}))
+            changes = _generateChanges(relRecord, Object.assign({}, options, {changesOnly: true}))
             if(!isNew(relRecord.id)) {
               commands[fieldName].push(x2ManyCommands.link_to(relRecord.res_id))
               delete changes.id
-              if (!_.isEmpty(changes)) {
+              if (isEmpty(changes)) {
                 commands[fieldName].push(x2ManyCommands.update(relRecord.res_id, changes))
               }
             } else {
@@ -1212,7 +1214,7 @@ const _getEvalContext = (element: DataPoint, forDomain = false) => {
   }
 
   // TODO union session_context .ext
-  return _.extend({}, {
+  return Object.assign({}, {
     active_id: evalContext.id || false,
     active_ids: evalContext.id ? [evalContext.id] : [],
     active_model: element.model,
@@ -1227,7 +1229,7 @@ const _getEvalContext = (element: DataPoint, forDomain = false) => {
  * @param forDomain 
  */
 const _getRecordEvalContext = (record: DataPoint, forDomain = false) => {
-  const context = _.extend({}, record.data, record._changes)
+  const context = Object.assign({}, record.data, record._changes)
   let relDataPoint: any
 
   function generateX2ManyCommands(fieldName: string) {
@@ -1259,7 +1261,7 @@ const _getRecordEvalContext = (record: DataPoint, forDomain = false) => {
 
     if (field.type === 'one2many' || field.type === 'many2many') {
       var ids;
-      if (!context[fieldName] || _.isArray(context[fieldName])) { // no dataPoint created yet
+      if (!context[fieldName] || Array.isArray(context[fieldName])) { // no dataPoint created yet
           ids = context[fieldName] ? context[fieldName].slice(0) : [];
       } else {
           relDataPoint = _applyX2ManyOperations(localData[context[fieldName]]);
@@ -1268,7 +1270,7 @@ const _getRecordEvalContext = (record: DataPoint, forDomain = false) => {
       if (!forDomain) {
           ids.toJSON = generateX2ManyCommands.bind(null, fieldName);
       } else if (field.type === 'one2many') { // Ids are evaluated as a list of ids
-          ids = _.filter(ids, function (id) {
+          ids = filter(ids, function (id) {
               return typeof id !== 'string';
           });
       }
@@ -1329,7 +1331,7 @@ const _parseServerValue = (field: any, value: any) => {
 const _parseServerData = (record: DataPoint) => {
   const data = record.data
   const fieldsInfo = record.fieldsInfo
-  _.each(fieldsInfo, (field: any, fieldName: string) => {
+  each(fieldsInfo, (field: any, fieldName: string) => {
     const val = data[fieldName]
     if(field.type === 'many2one') {
       if(val !== false) {
@@ -1416,12 +1418,12 @@ const _processX2ManyCommands = (record: DataPoint, fieldName: string, commands: 
   list._changes = []
   commands = commands || []
 
-  const isCommandList = commands.length && _.isArray(commands[0]);
+  const isCommandList = commands.length && Array.isArray(commands[0]);
   if (!isCommandList) {
       commands = [[6, false, commands]];
   }
 
-  _.each(commands, (value: any) => {
+  each(commands, (value: any) => {
     if(value[0] === 0) {
       r = _makeDataPoint({
         viewType,
@@ -1432,11 +1434,11 @@ const _processX2ManyCommands = (record: DataPoint, fieldName: string, commands: 
 
       list._changes.push({operation: 'ADD', id: r.id})
 
-      _.each(_getFieldsName(r), (fieldName) => {
+      each(_getFieldsName(r), (fieldName) => {
         r.data[fieldName] = null
       })
 
-      r._changes = _.defaults(value[2], r.data)
+      r._changes = defaults(value[2], r.data)
       for(let fieldName in r._changes) {
         if(!(fieldName in r._changes)) continue
 
@@ -1483,7 +1485,7 @@ const _processX2ManyCommands = (record: DataPoint, fieldName: string, commands: 
 
     if(value[0] === 6) {
       // REPLACE_WITH
-      _.each(value[2], function (res_id) {
+      each(value[2], function (res_id) {
         list._changes.push({operation: 'ADD', resID: res_id})
       })
 
@@ -1497,7 +1499,7 @@ const _processX2ManyCommands = (record: DataPoint, fieldName: string, commands: 
   })
 
   // fetch m2o display_name
-  _.each(_.keys(many2ones), (name: string) => {
+  each(Object.keys(many2ones), (name: string) => {
     defs.push(_fetchNameGets(list, name))
   })
 
@@ -1510,7 +1512,7 @@ const _processX2ManyCommands = (record: DataPoint, fieldName: string, commands: 
  */
 const _setDataInRange = (list: DataPoint) => {
   list.data = []
-  _.each(list.res_ids, (id: any) => {
+  each(list.res_ids, (id: any) => {
     if(list._cache[id]) {
       list.data.push(list._cache[id])
     }
@@ -1526,17 +1528,17 @@ const _setDataInRange = (list: DataPoint) => {
 const _updateRecordsData = (records: DataPoint[], fieldName: string, values: any[]) => {
   if(!records.length || !values) return
 
-  _.each(records, (record: DataPoint) => {
+  each(records, (record: DataPoint) => {
     const x2mList = localData[record.data[fieldName]]
     x2mList.data = []
-    _.each(x2mList.res_ids, (id: any) => {
+    each(x2mList.res_ids, (id: any) => {
       const rec = _makeDataPoint({
         viewType: 'form',
         modelName: x2mList.model,
         fieldsInfo: _getFieldsInfo(),
         parentId: x2mList.id,
         res_id: id,
-        data: _.find(values, { id })
+        data: find(values, { id })
       })
       x2mList.data.push(rec.id)
       x2mList._cache[id] = rec.id
@@ -1567,7 +1569,7 @@ const _visitChildren = (element: DataPoint, fn: (el: DataPoint) => void) => {
 
   if(element.type === 'list') {
     element = _applyX2ManyOperations(element)
-    _.each(element.data, (id: DataPointId) => {
+    each(element.data, (id: DataPointId) => {
       const elem = localData[id]
       _visitChildren(elem, fn)
     })
@@ -1596,7 +1598,7 @@ export const applyDefaultValues = (recordID: DataPointId, values: any, options: 
   let fieldName, field
   record._changes = record._changes || {}
 
-  values = _.pick(values, fieldNames)
+  values = pick(values, fieldNames)
 
   // 空值
   for (var i = 0; i < fieldNames.length; i++) {
@@ -1673,10 +1675,10 @@ export const copyRecord = async (recordID: DataPointId, defaultTemplate?: any) =
 
   defaultTemplate = defaultTemplate || {}
   const defaultData = defaultTemplate[record.model] = defaultTemplate[record.model] || (await _getDefaultData(record))._changes
-  record.res_id =  _.uniqueId('virtual_')
+  record.res_id =  uniqueId('virtual_')
   recordMap && recordMap.set(`${record.model}_${record.res_id}`, recordID)
 
-  _.each(data, (value, fieldName) => {
+  each(data, (value, fieldName) => {
     const field = fieldsInfo[fieldName]
     if(fieldName === 'id' || fieldName === 'state' || fieldName === 'number') {
       // TODO 判断不允许复制的字段
@@ -1707,9 +1709,9 @@ export const copyLine = async (list: DataPoint, id: DataPointId) => {
   const localRecordID = await _addX2ManyDefaultRecord(list, {})
   const localRecord = localData[localRecordID]
 
-  const changes = _.extend({}, record.data, record._changes)
+  const changes = Object.assign({}, record.data, record._changes)
 
-  _.each(changes, (value: any, fieldName: string) => {
+  each(changes, (value: any, fieldName: string) => {
     const field = fieldsInfo[fieldName]
     // TODO judge field copy option to continue
 
@@ -1807,7 +1809,7 @@ export const get = (id: DataPointId, options?: any) => {
 
   let element = localData[id]
   if(element.type === 'record') {
-    const data = _.extend({}, element.data, element._changes || {})
+    const data = Object.assign({}, element.data, element._changes || {})
     for(let fieldName in data) {
       const field = element.fieldsInfo[fieldName]
       let relDataPoint
@@ -1857,7 +1859,7 @@ export const get = (id: DataPointId, options?: any) => {
 
   const list = {
     ...element,
-    data: _.map(element.data, (id: DataPointId) => get(id))
+    data: map(element.data, (id: DataPointId) => get(id))
   } as any
 
   return list
@@ -1948,7 +1950,7 @@ export const findDataPoint = (props: DataPointId | any) => {
   if(typeof props === 'string') {
     return localData[props]
   } else {
-    return _.find(_.values(localData), props)
+    return find(values(localData), props)
   }
 }
 
@@ -1996,7 +1998,7 @@ export const reload = async (record?: DataPoint) => {
 
   const recordId = record.id || rootID
   // 移除其他DataPoint
-  _.each(_.keys(localData), (key: string) => {
+  each(Object.keys(localData), (key: string) => {
     key !== recordId && (delete localData[key])
   })
 
@@ -2004,7 +2006,7 @@ export const reload = async (record?: DataPoint) => {
 }
 
 export const clean = () => {
-  _.each(_.keys(localData), (key: string) => {
+  each(Object.keys(localData), (key: string) => {
     delete localData[key]
   })
   recordMap = new Map<string, DataPointId>()

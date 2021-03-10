@@ -12,7 +12,7 @@
 </template>
 
 <script lang="ts">
-import _ from 'lodash'
+import { debounce } from 'lodash-es'
 import { computed, defineComponent, PropType, ref, watch } from 'vue'
 import { getDomain, SearchItem } from './search-helper'
 
@@ -31,7 +31,7 @@ export default defineComponent({
   setup(props, { emit }) {
     const searchValue = ref('')
     const searchItems = computed(() => props.searchFields.map((name: string) => ({name, type: 'input'})))
-    const valueChange = _.debounce((val) => {
+    const valueChange = debounce((val) => {
       const domain = getSearchDomain(val)
       // console.log(domain)
       emit('search', domain)

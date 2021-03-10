@@ -37,7 +37,7 @@
 <script lang="ts">
 import { defineComponent, computed, toRefs, reactive } from 'vue'
 import { useStore } from '@/store'
-import _ from 'lodash'
+import { find, map, pick } from 'lodash-es'
 import useFieldCommon, { fieldCommonProps } from '@/assets/js/hooks/field-common'
 import { getDomain } from '@/assets/js/class/DataPoint'
 import { fetchMany2OneData } from '@/api/record'
@@ -58,7 +58,7 @@ export default defineComponent({
     const { type, string, placeholder, rawValue, curRecord, isReadonly, isRequired, setValue } = useFieldCommon(props, store)
     const items = computed(() => {
       if(rawValue.value) {
-        return _.map((rawValue.value as any).data, 'data')
+        return map((rawValue.value as any).data, 'data')
       }
       return []
     })
@@ -72,7 +72,7 @@ export default defineComponent({
     })
 
     const onTagClose = (id: number) => {
-      const record = _.find((rawValue.value as any).data, {res_id: id})
+      const record = find((rawValue.value as any).data, {res_id: id})
       if(record) {
         setValue({
           operation: 'FORGET',
@@ -90,7 +90,7 @@ export default defineComponent({
     const onConfirm = (item: any) => {
       setValue({
         operation: 'ADD_M2M',
-        ids: _.pick(item, ['id', 'display_name'])
+        ids: pick(item, ['id', 'display_name'])
       })
       state.showPicker = false
     }

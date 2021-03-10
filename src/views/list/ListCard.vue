@@ -18,7 +18,7 @@
 </template>
 
 <script lang="ts">
-import _ from 'lodash'
+import { each } from 'lodash-es'
 import { defineComponent, PropType } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { Record, FieldsInfo, FieldInfo } from '@/assets/js/class'
@@ -102,7 +102,7 @@ function useCard(record: Record | ListCard, fieldsInfo: FieldsInfo, appName?:str
     fields: []
   }
   
-  _.each(fieldsInfo, (field: FieldInfo) => {
+  each(fieldsInfo, (field: FieldInfo) => {
     if(field.modifiers?.invisible) return;
     const fieldItem: ListCardField = {
       name: field.name,

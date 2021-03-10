@@ -3,7 +3,7 @@
  */
 
 import urlKit from 'url'
-import _ from 'lodash'
+import { omit } from 'lodash-es'
 import qs from 'qs'
 
 interface QueryParms  {
@@ -41,7 +41,7 @@ const _getQueryString = (urlOrQueryStringObj: string | Object, keysToBeStripped:
     query = urlKit.parse(urlOrQueryStringObj, true).query
   }
 
-  return qs.stringify(_.omit(query, keysToBeStripped))
+  return qs.stringify(omit(query, keysToBeStripped))
 }
 
 // 给 URL 增加 _t 时间参数

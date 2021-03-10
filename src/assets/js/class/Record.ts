@@ -2,7 +2,7 @@
  * 列表记录处理
  */
 
-import _ from 'lodash'
+import { each, map } from 'lodash-es'
 import { getApp } from './App'
 import { str2Date } from '@/assets/js/utils/date'
 import { FieldsInfo } from './Field'
@@ -115,17 +115,17 @@ export const fetchReferencesBatch = async (raws: RecordRaw[], fieldsInfo?: Field
   const toFetchs = _getTofetch(raws.map((raw: RecordRaw) => raw.odoo_data), ['reference'], fieldsInfo)
 
   const result = {} as any
-  await Promise.all(_.map(toFetchs, async (ids: number[], model: string) => {
+  await Promise.all( map(toFetchs, async (ids: number[], model: string) => {
     const res = await fetchNameGet(model, ids)
     if(res.ret === 0) {
-      _.each(res.data, (value: any) => {
+      each(res.data, (value: any) => {
         result[`${model},${value[0]}`] = value
       })
     }
   }))
 
   raws.forEach((raw: RecordRaw) => {
-    _.each(raw.odoo_data, (value: any, fieldName: string) => {
+    each(raw.odoo_data, (value: any, fieldName: string) => {
       const field = fieldsInfo[fieldName]
       if(field && field.type === 'reference') {
         raw.odoo_data[fieldName] = result[value]
@@ -145,7 +145,7 @@ export const fetchX2ManysBatch = async (raws: RecordRaw[], fieldsInfo?: FieldsIn
   const toFetchs = _getTofetch(raws.map((raw: RecordRaw) => raw.odoo_data), fieldTypes, fieldsInfo)
 
   const result = {} as any
-  await Promise.all(_.map(toFetchs, async (ids: number[], model: string) => {
+  await Promise.all( map(toFetchs, async (ids: number[], model: string) => {
     ids = Array.from(new Set(ids))
     const res = await fetchRecord(model, ids, ['display_name'])
     if(res.ret === 0) {
@@ -154,7 +154,7 @@ export const fetchX2ManysBatch = async (raws: RecordRaw[], fieldsInfo?: FieldsIn
   }))
 
   raws.forEach((raw: RecordRaw) => {
-    _.each(raw.odoo_data, (value: any, fieldName: string) => {
+    each(raw.odoo_data, (value: any, fieldName: string) => {
       const field = fieldsInfo[fieldName]
       if(!field) return
       const model = field.relation
