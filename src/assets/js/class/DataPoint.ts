@@ -1,5 +1,3 @@
-/* eslint-disable */
-
 /**
  * 表单记录的相关操作 
  * like odoo basic_model

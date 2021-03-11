@@ -1,6 +1,8 @@
 <template>
+  <Loading v-model:show="loading" v-if="loading"/>
+  <van-empty v-else-if="ctx && !ctx.curView" :description="`移动${viewName}视图不存在`"/>
   <ListView 
-    v-if="viewType === 'list'" 
+    v-else-if="viewType === 'list'" 
     :app-name="ctx && ctx.appName"
     :fields-info="ctx && ctx.fieldsInfo"
     :fields="ctx && ctx.fields"
@@ -18,6 +20,7 @@
 import { defineComponent, ref, onBeforeMount, computed, watchEffect } from 'vue'
 import { App, getAppAsync, Model, View, ViewType, Fields, FieldsInfo, Action } from '@/assets/js/class'
 import { useRoute } from 'vue-router'
+import { Toast } from 'vant'
 import useTitle from '@/assets/js/hooks/use-title'
 import ListView from '../list/List.vue'
 import FormView from '../form/Form.vue'
@@ -43,8 +46,12 @@ export default defineComponent({
     
     const curApp = ref<App>(new App('', '', 0))
     const ctx = ref<ViewContext>()
+    const loading = ref(true)
     const title = computed(() => {
       return curApp.value.name || '应用'
+    })
+    const viewName = computed(() => {
+      return route.query.viewType === 'form' ? '表单' : '列表'
     })
     useTitle(title)
 
@@ -53,6 +60,7 @@ export default defineComponent({
       let { menuId, actionId } = loadParams
       const res = await getAppAsync(route.query.model as string , menuId as string, actionId as string)
       curApp.value = res
+      loading.value = false
     })
 
     watchEffect(() => {
@@ -60,12 +68,17 @@ export default defineComponent({
         let { model, viewType } = route.query
         model = route.query.subModel || model
         ctx.value = getContext(curApp.value as App, model as string, viewType as ViewType)
+        if(!ctx.value.curView) {
+          Toast(`移动${viewName.value}视图不存在，请前往设计器同步发布移动视图`)
+        }
       }
     })
 
     return {
+      loading,
       curApp,
       viewType: computed(() => route.query.viewType),
+      viewName,
       ctx
     }
   }
