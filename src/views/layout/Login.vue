@@ -2,14 +2,16 @@
   <Page name="login">
     <h2 class="title">欢迎使用 inSuite</h2>
     <div class="info">
-      <div class="row">
-        <Icon name="account"/>
-        <input class="input" type="tel" v-model="account.phone" placeholder="手机号" />
-      </div>
-      <div class="row">
-        <Icon name="password"/>
-        <input class="input" type="password" v-model="account.password" placeholder="密码" />
-      </div>
+      <MyInput type="tel" placeholder="手机号" v-model="account.phone" clearable>
+        <template #icon>
+          <Icon name="account"/>
+        </template>
+      </MyInput>
+      <MyInput type="password" placeholder="密码" v-model="account.password">
+        <template #icon>
+          <Icon name="password"/>
+        </template>
+      </MyInput>
     </div>
     <van-button type="primary" round block @click="login" :loading="loading">登录</van-button>
     <div class="footer">
@@ -76,23 +78,6 @@ export default defineComponent({
     font-size: 28px;
     font-weight: 600;
     margin-bottom: 20px;
-  }
-  .row {
-    border-bottom: @border;
-    padding: 8px 0px;
-    margin-bottom: 20px;
-    display: flex;
-    align-items: center;
-    .input {
-      outline: none;
-      border: none;
-      color: @text-color;
-      font-size: 14px;
-      width: 220px;
-    }
-    &:last-child {
-      margin-bottom: 40px;
-    }
   }
   .footer {
     text-align: center;
