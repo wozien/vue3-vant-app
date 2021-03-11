@@ -4,9 +4,9 @@
       :data="tableData" 
       max-height="500"
       empty-text="暂无数据"
-       @cell-click="onCellClick"
+      @cell-click="onCellClick"
     >
-      <vxe-table-column type="seq" title="#" width="50" fixed="left"></vxe-table-column>
+      <vxe-table-column type="seq" title="序号" width="50" fixed="left"></vxe-table-column>
       <vxe-table-column 
         v-for="col in columns" 
         :key="col.field"

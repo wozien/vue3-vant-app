@@ -33,13 +33,18 @@ module.exports = {
           transpileOnly: true,
           getCustomTransformers: () => ({
             before: [
-              tsImportPluginFactory({
-                libraryName: 'vant',
-                libraryDirectory: 'es',
-                // style: true
-                // 指定样式路径
-                style: (name) => `${name}/style/less`
-              })
+              tsImportPluginFactory([
+                {
+                  libraryName: 'vant',
+                  libraryDirectory: 'es',
+                  // 指定样式路径
+                  style: (name) => `${name}/style/less`
+                },
+                {
+                  libraryName: 'vxe-table',
+                  style: true
+                }
+              ])
             ]
           }),
           compilerOptions: {

@@ -119,6 +119,8 @@ export default defineComponent({
     }
 
     const toProcessView = () => {
+      const { type } = route.query
+      if(!type) return;
       router.push({
         name: 'flow-process',
         query: Object.assign({}, route.query)

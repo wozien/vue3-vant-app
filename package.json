@@ -11,7 +11,6 @@
   },
   "dependencies": {
     "@vant/use": "^1.0.2",
-    "@vueuse/core": "^4.0.0-rc.5",
     "axios": "^0.21.0",
     "bpmn-js": "^7.5.0",
     "core-js": "^3.6.5",
@@ -23,7 +22,7 @@
     "vue": "^3.0.2",
     "vue-router": "^4.0.2",
     "vuex": "^4.0.0",
-    "vxe-table": "^4.0.0-beta.5",
+    "vxe-table": "^4.0.1",
     "xe-utils": "^3.0.3"
   },
   "devDependencies": {
