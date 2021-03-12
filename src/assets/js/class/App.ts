@@ -7,6 +7,7 @@ import { fetchAction, fetchAppModel, fetchAppView } from '@/api/app'
 import { fetchFlowView } from '@/api/workflow'
 import { findTree } from '@/assets/js/utils/tools'
 import { sessionStorageKeys } from '@/assets/js/constant'
+import store from '@/store'
  
 // TODO 限制缓存个数
 const appCaches: {[key: string]: App} = {}
@@ -232,6 +233,16 @@ export const getApp = (appKey?: string) => {
   appKey = appKey || activeAppKey
   return appCaches[appKey]
 } 
+
+/**
+ * 获取应用的context，用户 odoo rpc 调用参数
+ * @param appKey 
+ * @returns 
+ */
+export const getContext = (appKey?: string) => {
+  const app = getApp(appKey)
+  return app ? Object.assign({}, app.action?.context || {}, store.state.user.context) : {}
+}
 
 
 export default App

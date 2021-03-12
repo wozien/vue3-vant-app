@@ -15,6 +15,7 @@ export interface User {
   nickname: string;
   phone: string;
   company: Company;
+  context: Recordable
 }
 
 // define your typings for the store state
@@ -37,6 +38,9 @@ const state: State = {
     company: {
       dbName: '',
       name: ''
+    },
+    context: {
+      lang: 'zh_CN'
     }
   },
   orgs: [],

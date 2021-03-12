@@ -13,7 +13,8 @@ const mutations: MutationTree<State> = {
       company: {
         dbName: company?.db_name,
         name: company?.company_name
-      }
+      },
+      context: data.context
     }
     state.user = user
   },

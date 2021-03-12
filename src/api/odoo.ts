@@ -5,10 +5,11 @@
 import http, { HttpRes } from './http'
 import { AxiosResponse } from 'axios'
 import { DomainArr } from '@/assets/js/class'
+import { getContext } from '@/assets/js/class/App'
 
 interface OdooRpcParams {
   args: any[];
-  kwargs: Object;
+  kwargs: Recordable;
   model: string;
   method: string;
 } 
@@ -29,6 +30,18 @@ export interface OdooSearchRead {
 }
 
 /**
+ * 模拟 odoo rpc 请求
+ * @param url 
+ * @param params 
+ * @returns 
+ */
+function _odooRpcRequest(url: string, params: OdooRpcParams) {
+  const context = getContext()
+  params.kwargs.context = Object.assign({}, params.kwargs.context || {}, context)
+  return http.post(url, { ...params })
+}
+
+/**
  * odoo /web/dataset/call_kw 请求
  * @param model 
  * @param method 
@@ -43,7 +56,7 @@ export const callKw: OdooCallKwFunc = (model, method, args = [], kwargs = {}) =>
     kwargs
   }
 
-  return http.post(url, { ...params })
+  return _odooRpcRequest(url, params)
 }
 
 /**
@@ -54,6 +67,8 @@ export const callKw: OdooCallKwFunc = (model, method, args = [], kwargs = {}) =>
  */
 export const mobileCallKw: OdooCallKwFunc = (model, method, args = [], kwargs = {}) => {
   const url = `/meta/mobile/call_kw/${model}/${method}`
+  const context = getContext()
+  kwargs.context = Object.assign({}, kwargs.context || {}, context)
   const params: OdooRpcParams = {
     model,
     method,
@@ -61,7 +76,7 @@ export const mobileCallKw: OdooCallKwFunc = (model, method, args = [], kwargs = 
     kwargs
   }
 
-  return http.post(url, { ...params })
+  return _odooRpcRequest(url, params)
 }
 
 /**
@@ -78,7 +93,7 @@ export const callButton: (
   kwargs?: any
 ) => Promise<HttpRes> = async (model, method, args = [], kwargs = {}) => {
   const url = '/meta/web/dataset/call_button'
-  const res = await http.post(url, { model, method, args, kwargs })
+  const res = await _odooRpcRequest(url, { model, method, args, kwargs })
   return res.data
 }
 
@@ -93,7 +108,7 @@ export const searchRead: OdooSearchRead = (options) => {
     domain: []
   }, options)
   
-  return http.post('/meta/mobile/search_read', { ...params })
+  return http.post('/meta/mobile/search_read', { ...params, context: getContext() })
 }
 
 /**

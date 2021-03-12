@@ -37,14 +37,12 @@ interface DataPointProps {
 export interface DataPoint extends DataPointProps {
   data: DataPointData
 }
-
 export interface DataPointState extends DataPointProps {
   data: DataPoint | DataPoint[] | { 
     id?: number
     [key: string]: any
   }
 }
-
 export interface LoadParams {
   viewType: ViewType
   modelName: string

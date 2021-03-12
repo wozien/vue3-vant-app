@@ -20,7 +20,7 @@ class Action {
   name: string
   domain: any
   modelKey: string
-  context?: any
+  context?: Recordable
   views: ActionView[]
 
   constructor(action: ActionRaw) {
@@ -30,9 +30,7 @@ class Action {
     this.modelKey = action.res_model
 
     if(action.context) {
-      // TODO handler user context
-      const userContext = {}
-      const context = new Context(userContext, action.context)
+      const context = new Context(action.context)
       this.context = pyUtils.eval('context', context)
     }
 
