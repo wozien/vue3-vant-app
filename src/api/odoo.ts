@@ -14,11 +14,11 @@ interface OdooRpcParams {
   method: string;
 } 
 
-export interface OdooCallKwFunc {
+interface OdooCallKwFunc {
   (model: string, method: string, args?: any[], kwargs?: any): Promise<AxiosResponse>;
 }
 
-export interface OdooSearchRead {
+interface OdooSearchRead {
   (options: {
     model: string,
     domain?: DomainArr,
