@@ -1,5 +1,5 @@
 <template>
-  <div class="form-item-field" :data-dbname="field && field.name" :data-type="type">
+  <div v-if="widget === 'many2many_tags'" class="form-item-field" :data-dbname="field && field.name" :data-type="type">
     <van-field
       :label="string" 
       :required="isRequired"
@@ -32,6 +32,8 @@
       />
     </van-popup>
   </div>
+
+  <One2Many v-else v-bind="{field, item, readonly}"/>
 </template>
 
 <script lang="ts">
@@ -41,8 +43,13 @@ import { find, map, pick } from 'lodash-es'
 import useFieldCommon, { fieldCommonProps } from '@/assets/js/hooks/field-common'
 import { getDomain } from '@/assets/js/class/DataPoint'
 import { fetchMany2OneData } from '@/api/record'
+import One2Many from './One2Many.vue'
 
 export default defineComponent({
+  components: {
+    One2Many
+  },
+
   props: {
     ...fieldCommonProps
   },
@@ -56,6 +63,7 @@ export default defineComponent({
       loading: false
     })
     const { type, string, placeholder, rawValue, curRecord, isReadonly, isRequired, setValue } = useFieldCommon(props, store)
+    const widget = computed(() => props.item?.widget)
     const items = computed(() => {
       if(rawValue.value) {
         return map((rawValue.value as any).data, 'data')
@@ -116,6 +124,7 @@ export default defineComponent({
       type,
       string,
       placeholder,
+      widget,
       rawValue,
       curRecord,
       isReadonly,

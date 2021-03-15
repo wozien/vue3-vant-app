@@ -12,6 +12,7 @@ export interface StudioView {
   mobileItems: StudioItem[] | null
   buttons: any[]
   isSubView?: boolean
+  isLinkView?: boolean
   options?: any
 }
 
@@ -39,6 +40,7 @@ class View {
   type: ViewType
   items: Item[]
   isSubView: boolean
+  isLinkView: boolean
   buttons: ViewButton[]
   options?: any
 
@@ -47,6 +49,7 @@ class View {
     this.name = viewObj.name
     this.type = viewObj.type
     this.isSubView = viewObj.isSubView || false
+    this.isLinkView = viewObj.isLinkView || false
     this.options = viewObj.options || {}
     this.buttons = this._initButtons(viewObj.buttons)
     this.items = viewObj.mobileItems ? viewObj.mobileItems.map(i => new Item(i)) : []
@@ -87,12 +90,14 @@ class View {
   }
 
   _initButtons(options: any) {
+    let viewButtons: ViewButton[]  = [];
     // 目前设计器的按钮配置只存这两个位置
-    if(!options.singleButton && !options.batchBodyButton) return []
-    const { custom: buttons } = this.isSubView ? options.batchBodyButton : options.singleButton 
-    const viewButtons = this._formatButtons(buttons)
+    if(options.singleButton || options.batchBodyButton) {
+      const { custom: buttons } = this.isSubView ? options.batchBodyButton : options.singleButton 
+      viewButtons = this._formatButtons(buttons)
+    }
 
-    if(this.isSubView) {
+    if(this.isSubView || this.isLinkView) {
       viewButtons.unshift(this._makePresetButton('back', 'Back', 'readonly'))
       viewButtons.unshift(this._makePresetButton('saveLine', 'Save Line'))
       viewButtons.unshift(this._makePresetButton('newLine', 'New Line', 'edit', {highlight: true}))

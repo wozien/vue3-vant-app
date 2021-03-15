@@ -6,7 +6,7 @@
       empty-text="暂无数据"
       @cell-click="onCellClick"
     >
-      <vxe-table-column type="seq" title="序号" width="50" fixed="left"></vxe-table-column>
+      <vxe-table-column type="seq" title="#" width="50" fixed="left"></vxe-table-column>
       <vxe-table-column 
         v-for="col in columns" 
         :key="col.field"
@@ -25,7 +25,7 @@
       </vxe-table-column>
     </vxe-table>
 
-    <div class="add-row" v-if="!readonly">
+    <div class="add-row" v-if="!readonly && !isMany2Many">
       <van-button size="small" icon="plus" round block @click="onAddRow">添加明细行</van-button>
     </div> 
   </div>
@@ -33,7 +33,7 @@
 
 <script lang="ts">
 import { last, map, find } from 'lodash-es'
-import { defineComponent, ref, nextTick, watchEffect } from 'vue'
+import { defineComponent, ref, computed, nextTick, watchEffect } from 'vue'
 import { useStore } from '@/store'
 import { useRouter, useRoute } from 'vue-router'
 import useFieldCommon, { fieldCommonProps } from '@/assets/js/hooks/field-common'
@@ -61,10 +61,13 @@ export default defineComponent({
     const { type, rawValue, curRecord } = useFieldCommon(props, store)
     const columns = ref<Column[]>([])
     const tableData = ref<any[]>([])
+    const isMany2Many = computed(() => props.item?.widget === 'many2many')
 
     // 表体行点击
     const onCellClick: VxeTableEvents.CellClick = ({ row }) => {
-      // if(props.readonly) return
+      // m2m 字段暂时只给查看
+      if(!props.readonly && isMany2Many.value) return;   
+
       const record = find((rawValue.value as any).data, { res_id: row.id })
       if(record) {
         // 把表体操作在session中
@@ -119,6 +122,7 @@ export default defineComponent({
 
     return {
       type,
+      isMany2Many,
       rawValue,
       columns,
       tableData,

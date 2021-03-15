@@ -1,7 +1,7 @@
 import { find } from 'lodash-es'
 import { defineComponent, PropType, ref, Ref }  from 'vue'
 import { useRoute } from 'vue-router'
-import { Item, Fields } from '@/assets/js/class'
+import { Item, Fields, Field } from '@/assets/js/class'
 import FormGroup from './FormGroup.vue'
 import FormField from './FormField.vue'
 import FormNotebook from './FormNotebook'
@@ -41,7 +41,9 @@ const FormCanvas = defineComponent({
 
     const renderItem = (item: Item) => {
       const items = item.items
-      const field = find(props.fields as any, { key: item.fieldKey })
+      const field = find(props.fields as any, (field: Field) => {
+        return field.key === item.fieldKey || field.name === item.fieldKey
+      })
       const readonly = route.query.readonly as string === '1' ? true : false
 
       switch(item.widget) {
