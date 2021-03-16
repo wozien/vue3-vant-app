@@ -44,7 +44,7 @@ const FormCanvas = defineComponent({
       const field = find(props.fields as any, (field: Field) => {
         return field.key === item.fieldKey || field.name === item.fieldKey
       })
-      const readonly = route.query.readonly as string === '1' ? true : false
+      const mode = route.query.readonly as string === '1' ? 'readonly' : 'edit'
 
       switch(item.widget) {
         case 'statusbar': 
@@ -64,13 +64,13 @@ const FormCanvas = defineComponent({
           )
         case 'flex_dropdown':
           return (
-            <FlexDrop item={item} field={field} readonly={readonly} />
+            <FlexDrop item={item} field={field} mode={mode} />
           )
         default:
           const compRef = ref(null)
           FieldCompRefs.push(compRef)
           return (
-            <FormField item={item} field={field} readonly={readonly} ref={compRef}/>
+            <FormField item={item} field={field} mode={mode} ref={compRef}/>
           )
       }
     }

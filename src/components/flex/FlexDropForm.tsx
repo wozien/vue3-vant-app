@@ -95,7 +95,7 @@ export default defineComponent({
           const compRef = ref(null)
           FieldCompRefs.push(compRef)
           templates.push(
-            <FormField item={item} field={field} readonly={false} ref={compRef}/>
+            <FormField item={item} field={field} mode="edit" ref={compRef}/>
           )
         }
       })

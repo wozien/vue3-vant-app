@@ -1,6 +1,6 @@
 <template>
   <!-- group -->
-  <div class="form-item-grop" v-if="type === 'group'">
+  <div class="form-item-group" v-if="type === 'group'">
     <h2 class="group-header" v-if="renderItem.string" @click="toggle">
       <span class="string">{{ renderItem.string }}</span>
       <van-icon v-if="canfold" name="arrow" :class="['fold-icon', !expanded && 'rotate-fold-icon']" />
@@ -94,7 +94,7 @@ export default defineComponent({
 </script>
 
 <style lang="less" scoped>
-.form-item-grop {
+.form-item-group {
   .group-header {
     display: flex;
     align-items: center;

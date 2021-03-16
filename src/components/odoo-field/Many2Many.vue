@@ -33,7 +33,7 @@
     </van-popup>
   </div>
 
-  <One2Many v-else v-bind="{field, item, readonly}"/>
+  <One2Many v-else v-bind="{field, item, mode}"/>
 </template>
 
 <script lang="ts">

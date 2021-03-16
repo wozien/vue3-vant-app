@@ -45,7 +45,7 @@
 </template>
 
 <script lang="tsx">
-import { defineComponent, PropType, computed, ref, watchEffect, reactive, toRaw, inject } from 'vue'
+import { defineComponent, PropType, computed, ref, reactive, toRaw, inject, watchEffect } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { find, findIndex, last } from 'lodash-es'
 import store, { useStore } from '@/store'
@@ -350,12 +350,12 @@ export default defineComponent({
       }
     }
 
+    // flush = post 可以防止表体和表体切换 button 数据更新滞后，造成按钮 domain 计算报错问题
     watchEffect(() => {
       if(curRecord.value) {
-        const res = calcButtons(props.buttons, route.query.readonly as string, curRecord.value.id)
-        renderButtons.value = res
+        renderButtons.value = calcButtons(props.buttons, route.query.readonly as string, curRecord.value.id)
       }
-    })
+    }, { flush: 'post' })
 
     return {
       showPopover,

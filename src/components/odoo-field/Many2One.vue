@@ -90,7 +90,7 @@ function useModal(props: any, curRecord: Ref<any>) {
   })
 
   const onOpenModal = async () => {
-    if(props.readonly) return;
+    if(props.mode === 'readonly') return;
     await loadData()
     state.showModal = true
   }

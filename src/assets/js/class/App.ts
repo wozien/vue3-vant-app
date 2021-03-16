@@ -3,8 +3,8 @@
  */
 import { pick, find, isEmpty } from 'lodash-es'
 import { Action, Model, View, ViewType, Item, Field, FieldsInfo, FieldInfo } from './index' 
-import { fetchAction, fetchAppModel, fetchAppView } from '@/api/app'
-import { fetchFlowView } from '@/api/workflow'
+import { fetchAction, fetchAppDetail } from '@/api/app'
+import { fetchFlowDetail } from '@/api/workflow'
 import { findTree } from '@/assets/js/utils/tools'
 import { sessionStorageKeys } from '@/assets/js/constant'
 import store from '@/store'
@@ -43,8 +43,7 @@ class App {
   async load() {
     await Promise.all([
       this.loadAction(),
-      this.loadModels(),
-      this.loadViews()
+      this.loadDetail()
     ])
     // TODO 暂不处理加载异常
     this._is_load = true
@@ -65,42 +64,41 @@ class App {
     return true
   }
 
-  async loadModels() {
-    const res = await fetchAppModel(this.modelKey)
-    if(res.ret === 0) {
-      const models = res.data
-      for(let modelKey in models) {
-        const model = new Model(models[modelKey])
-        this.models[modelKey] = model
-        if(!this.actionId && model.key === this.modelKey) {
-          this.name = model.name
-        }
-      }
-    }
-    return true
-  }
-
-  async loadViews() {
-    const defs = []
+  async loadDetail() {
     let res
-
     if(this.actionId) {
-      res = await fetchAppView(this.actionId)
+      res = await fetchAppDetail(this.modelKey, this.actionId)
     } else {
       const flowParams = JSON.parse(sessionStorage.getItem(sessionStorageKeys.flowParams) || '{}')
-      res = await fetchFlowView(this.modelKey, pick(flowParams, ['type', 'bill_number', 'task_id', 'process_id']))
+      res = await fetchFlowDetail(this.modelKey, pick(flowParams, ['type', 'bill_number', 'task_id', 'process_id']))
     }
 
-    if(res.ret === 0) {
-      const views = res.data
-      for(let type in views) {
-        const view = new View(views[type])
-        // 按钮权限
-        if(!view.isSubView) {
-          defs.push(view.checkButtonsAccess())
-        }
-        this.views[type as ViewType] = view
+    if(res.ret === 0 && res.data) {
+      const { models, views } = res.data
+      this.loadModels(models)
+      await this.loadViews(views)
+    }
+  }
+
+  loadModels(models: Recordable) {
+    for(let modelKey in models) {
+      const model = new Model(models[modelKey])
+      this.models[modelKey] = model
+      if(!this.actionId && model.key === this.modelKey) {
+        this.name = model.name
       }
+    }
+  }
+
+  async loadViews(views: Recordable) {
+    const defs = [] as any[]
+    for(let type in views) {
+      const view = new View(views[type])
+      // 按钮权限
+      if(!view.isSubView) {
+        defs.push(view.checkButtonsAccess())
+      }
+      this.views[type as ViewType] = view
     }
     return await Promise.all(defs)
   }

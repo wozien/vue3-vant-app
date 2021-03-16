@@ -24,7 +24,7 @@ export const fetchFlowList = async (type: string, user: string, offset: number):
 }
 
 // 获取工作流的穿透的视图
-export const fetchFlowView: (
+export const fetchFlowDetail: (
   modelKey: string,
   flowParams: {
     type: string,
@@ -34,7 +34,7 @@ export const fetchFlowView: (
   }
 ) => Promise<HttpRes> = async (modelKey, flowParams) => {
   const { type, bill_number, task_id, process_id } = flowParams
-  const res = await http.post('/flowable/mobile/workflow_app_view', {
+  const res = await http.post('/flowable/mobile/workflow_app_detail', {
     ...{
       model_key: modelKey, 
       type,

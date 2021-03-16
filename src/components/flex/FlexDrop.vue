@@ -46,7 +46,7 @@ export default defineComponent({
     let oldDependId: any
 
     const onClickFlex = async () => {
-      if(props.readonly) return;
+      if(isReadonly.value) return;
       const attrs = props.item?.attrs || {}
       if(attrs.depend_field) {
         const domain = [...getDependDomain(attrs.depend_field, curRecord.value.id), curRecord.value.model]

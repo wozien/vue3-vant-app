@@ -6,14 +6,18 @@ import { DataPoint } from '@/assets/js/class/DataPoint'
 import fieldUtils from '@/assets/js/utils/field-utils'
 import { notifyChanges, evalModifiers } from '@/assets/js/class/DataPoint'
 
+type WidgetMode = 'readonly' | 'edit'
+type FieldValue = string | number | boolean | Date
+type RawFieldValue = FieldValue | DataPoint
+
 export const fieldCommonProps = {
   item: Object as PropType<Item>,
   field: Object as PropType<Field>,
-  readonly: Boolean
+  mode: {
+    type: String as PropType<WidgetMode>,
+    default: 'readonly'
+  }
 }
-
-export type FieldValue = string | number | boolean | Date
-export type RawFieldValue = FieldValue | DataPoint
 
 export default function(props: any, store: VuexStore) {
   const string = computed(() => props.field?.string || props.item?.string)
@@ -28,7 +32,7 @@ export default function(props: any, store: VuexStore) {
   const rawValue = ref<RawFieldValue>('')  // parse value
   const modifiers = ref()
   const curRecord = computed<DataPointState>(() => store.getters.curRecord)
-  const isReadonly = computed(() => (modifiers.value && modifiers.value.readonly) || props.readonly)
+  const isReadonly = computed(() => (modifiers.value && modifiers.value.readonly) || props.mode === 'readonly')
   const isRequired = computed(() => !isReadonly.value && modifiers.value && modifiers.value.required)
   const invisible = computed(() => modifiers.value && modifiers.value.invisible)
 

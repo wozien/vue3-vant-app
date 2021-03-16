@@ -136,7 +136,7 @@ function useModal(props: any) {
   })
 
   const onOpenModal = async () => {
-    if(props.readonly) return
+    if(props.mode === 'readonly') return
     state.showModal = true
   }
 

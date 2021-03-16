@@ -85,3 +85,28 @@ div { box-sizing: border-box}
     }
   }
 }
+
+.form-item-notebook {
+  padding-top: 10px;
+  .van-tab {
+    padding: 0 20px;
+    flex: 0 0 auto !important;
+  }
+}
+
+.form-item-field {
+  position: relative;
+  &::after {
+    position: absolute;
+    box-sizing: border-box;
+    content: ' ';
+    pointer-events: none;
+    right: 16px;
+    bottom: 0;
+    left: 16px;
+    border-bottom: 1px solid #ebedf0;
+    -webkit-transform: scaleY(0.5);
+    transform: scaleY(0.5);
+  }
+}
+

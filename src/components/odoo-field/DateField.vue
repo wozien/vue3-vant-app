@@ -43,7 +43,7 @@ export default defineComponent({
     })
 
     const onOpen = () => {
-      if(props.readonly) return
+      if(isReadonly.value) return
       state.showPicker = true
     }
 

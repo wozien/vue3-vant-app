@@ -19,24 +19,20 @@ export const fetchUsuallyApp = async (): Promise<HttpRes> => {
   return res.data
 }
 
-// 获取应用的模型
-export const fetchAppModel = async (modelKey: string): Promise<HttpRes> => {
-  const res = await http.get('/meta/mobile/app_model', {
+/**
+ * 获取应用模型和视图
+ * @param modelKey 
+ * @param actionId 
+ * @returns 
+ */
+export const fetchAppDetail = async(modelKey: string, actionId: number): Promise<HttpRes> => {
+  const res = await http.get('/meta/mobile/app_detail', {
     params: {
-      model_key: modelKey
-    }
-  })
-
-  return res.data
-}
-
-// 获取应用的视图
-export const fetchAppView = async (actionId: number): Promise<HttpRes> => {
-  const res = await http.get('/meta/mobile/app_view', {
-    params: {
+      model_key: modelKey,
       action_id: actionId
     }
   })
+
   return res.data
 }
 
