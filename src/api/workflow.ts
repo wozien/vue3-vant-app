@@ -17,7 +17,8 @@ export const fetchFlowList = async (type: string, user: string, offset: number):
       user,
       offset,
       limit: 10,
-      order: 'desc'
+      order: 'desc',
+      is_mobile: true
     }]
   })
   return res.data

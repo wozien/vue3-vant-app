@@ -41,7 +41,7 @@ class Model {
   }
 
   getField(key: string) {
-    return this.fields.find(f => f.key === key|| f.name === key)
+    return this.fields.find(f => f.key === key || f.name === key)
   }
 
   getFields(): Fields {
