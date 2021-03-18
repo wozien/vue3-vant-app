@@ -40,7 +40,7 @@ import useFieldCommon, { fieldCommonProps } from '@/assets/js/hooks/field-common
 import fieldUtils from '@/assets/js/utils/field-utils'
 import { VxeTableEvents } from 'vxe-table'
 import { sessionStorageKeys } from '@/assets/js/constant'
-import { notifyChanges, DataPointState } from '@/assets/js/class/DataPoint'
+import { notifyChanges, DataPointState, evalModifiers } from '@/assets/js/class/DataPoint'
 
 interface Column {
   field: string
@@ -138,16 +138,20 @@ function getColumns(list: DataPointState) {
 
   for(let fieldName in fieldsInfo) {
     const field = fieldsInfo[fieldName]
-    // TODO 暂时不考虑需要computed的invisible
-    if(!field || field.modifiers?.invisible) {
-      continue
+    if(field) {
+      let modifiers
+      if(field.modifiers) {
+        modifiers = evalModifiers(list.id, field.modifiers)
+      }
+
+      if(!modifiers || (!modifiers.column_invisible && !modifiers.invisible)) {
+        res.push({
+          field: field.name,
+          title: field.string,
+          fieldType: field.type
+        } as Column)
+      }
     }
-    
-    res.push({
-      field: field.name,
-      title: field.string,
-      fieldType: field.type
-    } as Column)
   }
   return res
 }

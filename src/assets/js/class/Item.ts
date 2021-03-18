@@ -68,7 +68,7 @@ class Item {
   }
 
   _isModifierKey(key: string) {
-    return ['readonly', 'required', 'invisible', 'column_invisible'].includes(key)
+    return ['readonly', 'required', 'invisible', 'columnInvisible'].includes(key)
   }
 
   _formatModifier() {

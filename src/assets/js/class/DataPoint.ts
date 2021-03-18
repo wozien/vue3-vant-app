@@ -478,8 +478,8 @@ const _evalModifiers = (element: DataPoint, modifiers: any) => {
   if ('invisible' in modifiers) {
       result.invisible = evalModifier(modifiers.invisible);
   }
-  if ('column_invisible' in modifiers) {
-      result.column_invisible = evalModifier(modifiers.column_invisible);
+  if ('columnInvisible' in modifiers) {
+      result.column_invisible = evalModifier(modifiers.columnInvisible);
   }
   if ('readonly' in modifiers) {
       result.readonly = evalModifier(modifiers.readonly);

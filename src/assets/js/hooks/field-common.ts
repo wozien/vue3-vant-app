@@ -34,7 +34,7 @@ export default function(props: any, store: VuexStore) {
   const curRecord = computed<DataPointState>(() => store.getters.curRecord)
   const isReadonly = computed(() => (modifiers.value && modifiers.value.readonly) || props.mode === 'readonly')
   const isRequired = computed(() => !isReadonly.value && modifiers.value && modifiers.value.required)
-  const invisible = computed(() => modifiers.value && modifiers.value.invisible)
+  const invisible = computed(() => modifiers.value && (modifiers.value.invisible || modifiers.value.column_invisible))
 
   let lastValue: any
   const setValue = async (val: any) => {
@@ -79,7 +79,7 @@ export default function(props: any, store: VuexStore) {
       // 计算modifiers
       if(item && field && (!modifiers.value || !isEmpty(modifiers.value))) {
         let evalutedModifiers = {} as any;
-        ['readonly', 'required', 'invisible'].forEach((key: string) => {
+        ['readonly', 'required', 'invisible', 'columnInvisible'].forEach((key: string) => {
           if(key in item.modifiers) {
             evalutedModifiers[key] = item.modifiers[key as ModifierKey]
           } else if(key in field.modifiers) {
