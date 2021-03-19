@@ -52,7 +52,7 @@ export default defineComponent({
         const domain = [...getDependDomain(attrs.depend_field, curRecord.value.id), curRecord.value.model]
         
         if(domain[1] && domain[1] !== oldDependId) {
-          const toast = Toast.loading()
+          const toast = Toast.loading({ forbidClick: true })
           const res = await fetchFlexFields(domain)
           if(res.ret === 0) {
             flexFields.value = res.data

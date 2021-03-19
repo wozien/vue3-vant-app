@@ -32,7 +32,7 @@
 </template>
 
 <script lang="ts">
-import { last, map, find } from 'lodash-es'
+import { last, map, find, pick, isEmpty } from 'lodash-es'
 import { defineComponent, ref, computed, nextTick, watchEffect } from 'vue'
 import { useStore } from '@/store'
 import { useRouter, useRoute } from 'vue-router'
@@ -139,9 +139,9 @@ function getColumns(list: DataPointState) {
   for(let fieldName in fieldsInfo) {
     const field = fieldsInfo[fieldName]
     if(field) {
-      let modifiers
-      if(field.modifiers) {
-        modifiers = evalModifiers(list.id, field.modifiers)
+      let modifiers = field.modifiers ? pick(field.modifiers, ['invisible', 'columnInvisible']) : {}
+      if(!isEmpty(modifiers)) {
+        modifiers = evalModifiers(list.id, modifiers)
       }
 
       if(!modifiers || (!modifiers.column_invisible && !modifiers.invisible)) {
