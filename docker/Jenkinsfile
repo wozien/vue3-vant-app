@@ -4,7 +4,6 @@ pipeline {
     environment {
         // 注意根据需要修改配置
         branch_name = "prod"
-        docker_remote = "tcp://172.18.0.1:2375"
         docker_host = "res.insuite.net"
         docker_file_path = "./docker/Dockerfile"
         docker_repository_name = "framework/insuite-mobile"
@@ -38,18 +37,21 @@ pipeline {
                     sh "yarn"
                     sh "yarn build"
                 }
-                sh "docker -H ${docker_remote} build -f ${docker_file_path} -t ${docker_img_name}:${build_tag} ."
+                sh "docker build -f ${docker_file_path} -t ${docker_img_name}:${build_tag} ."
             }
         }
         stage('Push') {
             steps {
                 echo "3.Deploy jar and Push Docker Image Stage"
                 withCredentials([usernamePassword(credentialsId: 'harbor', passwordVariable: 'dockerPassword', usernameVariable: 'dockerUser')]) {
-                    sh 'docker -H $docker_remote login -u $dockerUser -p $dockerPassword ${docker_host}'
+                    sh 'docker login -u $dockerUser -p $dockerPassword ${docker_host}'
                 }
-                sh "docker -H $docker_remote push $docker_img_name:$build_tag"
-                sh "docker -H $docker_remote tag $docker_img_name:$build_tag $docker_img_name:$branch_name"
-                sh "docker -H $docker_remote push $docker_img_name:$branch_name"
+                sh "docker push $docker_img_name:$build_tag"
+                sh "docker tag $docker_img_name:$build_tag $docker_img_name:$branch_name"
+                sh "docker push $docker_img_name:$branch_name"
+
+                // 删除镜像
+                sh "docker rmi -f $docker_img_name:$build_tag $docker_img_name:$branch_name"
             }
         }
     }
