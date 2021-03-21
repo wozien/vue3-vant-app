@@ -18,6 +18,7 @@ module.exports = {
     // 别名
     config.resolve.alias
       .set('@', resolve('src'))
+      .set('#', resolve('types'))
       .set('@components', resolve('src/components'))
       .set('@views', resolve('src/views'))
       .set('@assets', resolve('src/assets'))
