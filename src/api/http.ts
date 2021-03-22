@@ -2,13 +2,13 @@ import axios, { AxiosRequestConfig, AxiosResponse, AxiosError} from 'axios'
 import { Notify } from 'vant'
 import router from '@/router'
 import { LocalStorageKeys } from '@/logics/enums/cache'
-import config from './config'
+import { wrapperEnv } from '@/utils/tools'
 
-const BASE_URL = config['BASE_URL']
+const { BASE_API } = wrapperEnv(process.env)
 const TOKEN_KEY = LocalStorageKeys.token
 
 const instance = axios.create({
-  baseURL: BASE_URL,
+  baseURL: BASE_API,
   timeout: 30000
 })
 

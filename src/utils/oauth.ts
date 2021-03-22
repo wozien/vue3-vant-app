@@ -4,10 +4,13 @@
 
 import urlKit from '@/utils/url'
 import url from 'url'
-import config from '@/api/config'
 import qs from 'qs'
 import { getWxOpenId } from '@/api/user'
 import { LocalStorageKeys } from '@/logics/enums/cache'
+import { wrapperEnv } from '@/utils/tools'
+
+const { WX_APP_ID, WX_OPEN_ID, NODE_ENV } = wrapperEnv(process.env)
+const isDev = NODE_ENV === 'development'
 
 // 授权类型 
 const enum Scope {
@@ -34,7 +37,7 @@ const _buildRedirectUrl = (host: string, sourceUrl: string) => {
 const _getWxOauthUrl = (redirectUri: string, scope: string, state: string) => {
   const url = 'https://open.weixin.qq.com/connect/oauth2/authorize'
   const info = {
-    appid: config['WX_APP_ID'],
+    appid: WX_APP_ID,
     redirect_uri: redirectUri,
     response_type: 'code',
     scope: scope || 'snsapi_base',
@@ -89,10 +92,10 @@ export const baseOauth = async () => {
   const ok = await _redirectFromWx(currentUrl)
   if(ok) return
 
-  // TODO 开发环境写死openid
-  if(config['IS_PROD'] === false && config['WX_OPEN_ID']) {
-    localStorage.setItem(LocalStorageKeys.wxOpenId, config['WX_OPEN_ID'])
-    return config['WX_OPEN_ID']
+  // 开发环境写死openid
+  if(isDev && WX_OPEN_ID) {
+    localStorage.setItem(LocalStorageKeys.wxOpenId, WX_OPEN_ID)
+    return WX_OPEN_ID
   }
 
   _redirectToWx(Scope.BASE)

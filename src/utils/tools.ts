@@ -69,3 +69,22 @@ export const insertThousandSeps = (num: number | string) => {
   const exp = /\d{1,3}(?=(\d{3})+?)/g
   return num.replace(exp, '$&,')
 }
+
+/**
+ * 对 process.env 处理
+ * @param envConf 
+ * @returns 
+ */
+export const wrapperEnv = (envConf: Recordable<string>): Recordable => {
+  const ret: any = {}
+
+  for(const envName in envConf) {
+    let realValue: any = envConf[envName].replace(/\\n/g, '\n')
+    realValue = realValue === 'true' ? true : realValue === 'false' ?  false : realValue
+
+    // TODO handler number or array type
+    ret[envName.replace(/^VUE_APP_/, '')] = realValue
+  } 
+
+  return ret
+}

@@ -9,7 +9,7 @@ const resolve = dir => {
 
 module.exports = {
   // 静态资源根路径
-  publicPath: process.env.NODE_ENV === 'production' ? '/' : '/',
+  publicPath: '/',
   // 生产不打包sourcemap文件
   productionSourceMap: false,
   parallel: false,
