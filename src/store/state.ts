@@ -1,5 +1,6 @@
-import { DataPoint, DataPointId, localData } from '@/assets/js/class'
-import { uuid } from '@/assets/js/utils/tools'
+import type { DataPoint, DataPointId } from '@/logics/types/dataPoint'
+import { localData } from '@/logics/core/dataPoint'
+import { uuid } from '@/utils/tools'
 interface Company {
   dbName: string;
   name: string;

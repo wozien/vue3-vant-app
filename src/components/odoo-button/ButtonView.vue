@@ -50,7 +50,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { find, findIndex, last } from 'lodash-es'
 import store, { useStore } from '@/store'
 import { Toast, Dialog } from 'vant'
-import { ViewButton } from '@/assets/js/class'
+import { ViewButton } from '@/logics/types'
 import { callButton } from '@/api/odoo'
 import { createModal } from '@/components/modal'
 import { flowAgreen, flowReturn, flowSign, flowCirculate } from '@/api/workflow'
@@ -59,9 +59,9 @@ import FlowSign from '@/views/flow/FlowSign.vue'
 import UserSelect from '@/components/user-picker/UserSelect.vue'
 import { 
   save, isDirty, isNew, discardChanges, rootID, notifyChanges, 
-  findDataPoint, DataPoint,DataPointId, copyRecord, get, reload, evalModifiers
-} from '@/assets/js/class/DataPoint'
-import { sessionStorageKeys } from '@/assets/js/constant'
+  findDataPoint, DataPoint, DataPointId, copyRecord, get, reload, evalModifiers
+} from '@/logics/core/dataPoint'
+import { sessionStorageKeys } from '@/logics/enums/cache'
 import { deleteRecord } from '@/api/record'
 
 export default defineComponent({

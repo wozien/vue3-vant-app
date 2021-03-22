@@ -1,11 +1,10 @@
 
-import { ViewType } from './View'
-import Context from '@/assets/js/odoo/Context'
-import pyUtils from '@/assets/js/odoo/py_utils'
+import type { ViewType } from './View'
+import Context from '@/logics/odoo/Context'
+import pyUtils from '@/logics/odoo/py_utils'
 
 type ActionView = [number, ViewType]
-
-export interface ActionRaw {
+interface ActionRaw {
   id: number
   name: string
   domain: string

@@ -20,7 +20,7 @@
 
 <script lang="ts">
 import { defineComponent, PropType, ref, computed, watch, nextTick } from 'vue'
-import { Item } from '@/assets/js/class'
+import { Item } from '@/logics/types'
 import { doubleRaf, raf } from '@vant/use'
 
 export default defineComponent({

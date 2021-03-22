@@ -1,7 +1,7 @@
 import { MutationTree } from 'vuex'
 import { State, User } from './state'
-import { uuid } from '@/assets/js/utils/tools'
-import { rootID } from '@/assets/js/class/DataPoint'
+import { uuid } from '@/utils/tools'
+import { rootID } from '@/logics/core/dataPoint'
 
 const mutations: MutationTree<State> = {
   'SET_USER' (state, data) {

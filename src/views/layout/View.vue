@@ -18,13 +18,14 @@
 
 <script lang="ts">
 import { defineComponent, ref, onBeforeMount, computed, watchEffect } from 'vue'
-import { App, getAppAsync, Model, View, ViewType, Fields, FieldsInfo, Action } from '@/assets/js/class'
+import { Model, View, ViewType, Fields, FieldsInfo, Action } from '@/logics/types'
+import App, { getAppAsync } from '@/logics/class/App'
 import { useRoute } from 'vue-router'
 import { Toast } from 'vant'
-import useTitle from '@/assets/js/hooks/use-title'
+import useTitle from '@/hooks/web/useTitle'
 import ListView from '../list/List.vue'
 import FormView from '../form/Form.vue'
-import { sessionStorageKeys } from '@/assets/js/constant'
+import { sessionStorageKeys } from '@/logics/enums/cache'
 
 interface ViewContext {
   appName: string

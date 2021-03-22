@@ -36,11 +36,11 @@ import { last, map, find, pick, isEmpty } from 'lodash-es'
 import { defineComponent, ref, computed, nextTick, watchEffect } from 'vue'
 import { useStore } from '@/store'
 import { useRouter, useRoute } from 'vue-router'
-import useFieldCommon, { fieldCommonProps } from '@/assets/js/hooks/field-common'
-import fieldUtils from '@/assets/js/utils/field-utils'
+import useFieldCommon, { fieldCommonProps } from '@/hooks/component/useField'
+import fieldUtils from '@/utils/field-utils'
 import { VxeTableEvents } from 'vxe-table'
-import { sessionStorageKeys } from '@/assets/js/constant'
-import { notifyChanges, DataPointState, evalModifiers } from '@/assets/js/class/DataPoint'
+import { sessionStorageKeys } from '@/logics/enums/cache'
+import { notifyChanges, DataPointState, evalModifiers } from '@/logics/core/dataPoint'
 
 interface Column {
   field: string

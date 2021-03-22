@@ -53,7 +53,7 @@
 <script lang="ts">
 import { defineComponent, reactive, onMounted, toRefs, PropType, watchEffect, watch } from 'vue'
 import { fetchCompanyUsers } from '@/api/workflow'
-import { sessionStorageKeys } from '@/assets/js/constant'
+import { sessionStorageKeys } from '@/logics/enums/cache'
 
 interface ListItem {
   id: string

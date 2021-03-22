@@ -1,15 +1,14 @@
 import { find } from 'lodash-es'
 import { defineComponent, ref, watchEffect, computed, Ref } from 'vue'
 import { useStore } from '@/store'
-import { getApp } from '@/assets/js/class/App'
-import { Item, Fields } from '@/assets/js/class'
-import { uuid } from '@/assets/js/utils/tools'
-import { findDataPoint, getEvalContext } from '@/assets/js/class/DataPoint'
-// import Domain from '@/assets/js/odoo/Domain.js'
+import { getApp } from '@/logics/class/App'
+import { Fields } from '@/logics/types'
+import ViewItem from '@/logics/class/ViewItem'
+import { uuid } from '@/utils/tools'
+import { findDataPoint, getEvalContext } from '@/logics/core/dataPoint'
 import FormField from '@/views/form/FormField.vue'
-import useExpose from '@/assets/js/hooks/use-expose'
+import useExpose from '@/hooks/core/useExpose'
 
-// const stringToArray = Domain.prototype.stringToArray
 
 export default defineComponent({
   components: {
@@ -25,7 +24,7 @@ export default defineComponent({
 
   setup(props) {
     const store = useStore()
-    const items = ref<(Item | null)[]>([])
+    const items = ref<(ViewItem | null)[]>([])
     const curRecord = computed(() => store.getters.curRecord)
     const fields = getFields(curRecord.value.model as string) as Fields
     let FieldCompRefs: Ref<any>[] = []
@@ -44,7 +43,7 @@ export default defineComponent({
               items: []
             } as any
             item.widget = item.placeholder = ''
-            return new Item(item)
+            return new ViewItem(item)
           }
           return null
         })
@@ -89,7 +88,7 @@ export default defineComponent({
     const renderItems = () => {
       const templates = [] as any
       FieldCompRefs = []
-      items.value.forEach((item: Item|null) => {
+      items.value.forEach((item: ViewItem|null) => {
         if(item) {
           const field = find(fields, (f: any) => f.key === item.fieldKey)
           const compRef = ref(null)

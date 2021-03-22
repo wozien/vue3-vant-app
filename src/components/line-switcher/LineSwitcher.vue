@@ -11,7 +11,7 @@
 <script lang="ts">
 import { defineComponent, reactive, toRefs, computed, watchEffect, watch } from 'vue'
 import { useStore } from '@/store'
-import { get } from '@/assets/js/class/DataPoint'
+import { get } from '@/logics/core/dataPoint'
 
 export default defineComponent({
   setup() {

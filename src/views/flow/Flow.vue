@@ -32,8 +32,8 @@ import { defineComponent, computed, reactive, toRefs, watch, Ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useStore, User } from '@/store'
 import { fetchFlowList } from '@/api/workflow'
-import { formatDate, str2Date } from '@/assets/js/utils/date'
-import { setDocumentTitle } from '@/assets/js/hooks/use-title'
+import { formatDate, str2Date } from '@/utils/date'
+import { setDocumentTitle } from '@/hooks/web/useTitle'
 import ListCard from '../list/ListCard.vue'
 
 const FLOW_TYPES = {

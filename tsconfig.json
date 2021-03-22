@@ -27,11 +27,8 @@
     "src/**/*.ts",
     "src/**/*.tsx",
     "src/**/*.vue",
-    "src/**/*.d.ts",
     "types/**/*.d.ts",
-    "tests/**/*.ts",
-    "tests/**/*.tsx",
-    "src/assets/js/odoo/*.js"
+    "src/logics/odoo/*.js"
   ],
   "exclude": [
     "node_modules",

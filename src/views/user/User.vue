@@ -33,7 +33,7 @@ import { useRouter, Router } from 'vue-router'
 import { useStore, VuexStore } from '@/store'
 import { Dialog } from 'vant'
 import { userLogout } from '@/api/user'
-import { LocalStorageKeys } from '@/assets/js/constant'
+import { LocalStorageKeys } from '@/logics/enums/cache'
 import UserSetting from './UserSetting.vue'
 
 function useOrgs(store: VuexStore) {

@@ -1,7 +1,7 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
 import routes from './routes'
-import { LocalStorageKeys } from '@/assets/js/constant'
-import { baseOauth } from '@/assets/js/utils/oauth'
+import { LocalStorageKeys } from '@/logics/enums/cache'
+import { baseOauth } from '@/utils/oauth'
 import { getToken } from '@/api/user'
 
 const router = createRouter({

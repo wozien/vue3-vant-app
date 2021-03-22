@@ -40,8 +40,8 @@
 import { defineComponent, computed, toRefs, reactive } from 'vue'
 import { useStore } from '@/store'
 import { find, map, pick } from 'lodash-es'
-import useFieldCommon, { fieldCommonProps } from '@/assets/js/hooks/field-common'
-import { getDomain } from '@/assets/js/class/DataPoint'
+import useFieldCommon, { fieldCommonProps } from '@/hooks/component/useField'
+import { getDomain } from '@/logics/core/dataPoint'
 import { fetchMany2OneData } from '@/api/record'
 import One2Many from './One2Many.vue'
 

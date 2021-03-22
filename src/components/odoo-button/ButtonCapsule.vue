@@ -16,7 +16,7 @@
 
 <script lang="ts">
 import { defineComponent, PropType, ref } from 'vue'
-import { ViewButton } from '@/assets/js/class'
+import { ViewButton } from '@/logics/types'
 import Button from './Button.vue'
 
 export default defineComponent({

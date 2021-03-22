@@ -1,7 +1,7 @@
 import axios, { AxiosRequestConfig, AxiosResponse, AxiosError} from 'axios'
 import { Notify } from 'vant'
 import router from '@/router'
-import { LocalStorageKeys } from '@/assets/js/constant'
+import { LocalStorageKeys } from '@/logics/enums/cache'
 import config from './config'
 
 const BASE_URL = config['BASE_URL']

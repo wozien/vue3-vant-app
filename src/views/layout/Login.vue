@@ -26,7 +26,7 @@ import { defineComponent, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { Toast } from 'vant'
 import { userLogin } from '@/api/user'
-import { LocalStorageKeys } from '@/assets/js/constant'
+import { LocalStorageKeys } from '@/logics/enums/cache'
 
 function useLogin() {
   const loading = ref(false)

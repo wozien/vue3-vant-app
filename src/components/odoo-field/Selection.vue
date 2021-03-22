@@ -25,7 +25,7 @@
 <script lang="ts">
 import { defineComponent, reactive, toRefs, watchEffect } from 'vue'
 import { useStore } from '@/store'
-import useFieldCommon, { fieldCommonProps } from '@/assets/js/hooks/field-common'
+import useFieldCommon, { fieldCommonProps } from '@/hooks/component/useField'
 
 export default defineComponent({
   props: {

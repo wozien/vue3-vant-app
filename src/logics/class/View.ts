@@ -1,6 +1,7 @@
 
-import { Item, StudioItem } from './index'
-import { findTree, uuid } from '@/assets/js/utils/tools' 
+import ViewItem from './ViewItem'
+import type { StudioItem } from '../types'
+import { findTree, uuid } from '@/utils/tools' 
 import { chekcButtonAccess } from '@/api/app'
 
 export type ViewType = 'form' | 'list'
@@ -38,7 +39,7 @@ class View {
   model: string
   name: string
   type: ViewType
-  items: Item[]
+  items: ViewItem[]
   isSubView: boolean
   isLinkView: boolean
   buttons: ViewButton[]
@@ -52,7 +53,7 @@ class View {
     this.isLinkView = viewObj.isLinkView || false
     this.options = viewObj.options || {}
     this.buttons = this._initButtons(viewObj.buttons)
-    this.items = viewObj.mobileItems ? viewObj.mobileItems.map(i => new Item(i)) : []
+    this.items = viewObj.mobileItems ? viewObj.mobileItems.map(i => new ViewItem(i)) : []
   }
 
   _formatOneButton(button: any) {
@@ -196,7 +197,7 @@ class View {
   getSubViews () {
     let views: View[] = []
 
-    findTree(this.items, (item: Item) => {
+    findTree(this.items, (item: ViewItem) => {
       if (item.fieldType === 'one2many' || item.fieldType === 'many2many') {
         views = views.concat(item.subView as View[])
       }

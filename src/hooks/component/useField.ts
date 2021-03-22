@@ -1,10 +1,10 @@
 import { isEmpty } from 'lodash-es'
 import { computed, ref, PropType, watchEffect } from 'vue'
 import { VuexStore } from '@/store'
-import { Field, Item, DataPointState, DataPointData, ModifierKey } from '@/assets/js/class'
-import { DataPoint } from '@/assets/js/class/DataPoint'
-import fieldUtils from '@/assets/js/utils/field-utils'
-import { notifyChanges, evalModifiers } from '@/assets/js/class/DataPoint'
+import { Field, Item, ModifierKey } from '@/logics/types'
+import { DataPoint, DataPointState, DataPointData } from '@/logics/types/dataPoint'
+import fieldUtils from '@/utils/field-utils'
+import { notifyChanges, evalModifiers } from '@/logics/core/dataPoint'
 
 type WidgetMode = 'readonly' | 'edit'
 type FieldValue = string | number | boolean | Date

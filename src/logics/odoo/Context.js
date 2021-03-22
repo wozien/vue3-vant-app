@@ -1,4 +1,4 @@
-import pyUtils from './py_utils.js'
+import pyUtils from '@/logics/odoo/py_utils'
 
 const _ = window.udjs
 

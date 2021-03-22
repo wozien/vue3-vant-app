@@ -31,10 +31,10 @@
 <script lang="ts">
 import { defineComponent, reactive, toRefs, Ref, computed, watch } from 'vue'
 import { useStore } from '@/store'
-import useFieldCommon, { fieldCommonProps } from '@/assets/js/hooks/field-common'
+import useFieldCommon, { fieldCommonProps } from '@/hooks/component/useField'
 import { fetchMany2OneData } from '@/api/record'
 import { Toast } from 'vant'
-import { getDomain } from '@/assets/js/class/DataPoint'
+import { getDomain } from '@/logics/core/dataPoint'
 
 export default defineComponent({
   props: {

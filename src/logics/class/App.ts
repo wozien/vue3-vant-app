@@ -2,11 +2,15 @@
  * 应用类
  */
 import { pick, find, isEmpty } from 'lodash-es'
-import { Action, Model, View, ViewType, Item, Field, FieldsInfo, FieldInfo } from './index' 
+import type { ViewType, Field, FieldsInfo, FieldInfo } from '../types' 
+import Action from './Action'
+import Model from './Model'
+import View from './View'
+import ViewItem from './ViewItem'
 import { fetchAction, fetchAppDetail } from '@/api/app'
 import { fetchFlowDetail } from '@/api/workflow'
-import { findTree } from '@/assets/js/utils/tools'
-import { sessionStorageKeys } from '@/assets/js/constant'
+import { findTree } from '@/utils/tools'
+import { sessionStorageKeys } from '@/logics/enums/cache'
 import store from '@/store'
  
 // TODO 限制缓存个数
@@ -133,7 +137,7 @@ class App {
 
       if(model) {
         const fieldsInfo = {} as FieldsInfo
-        findTree(view.items, (item: Item) => {
+        findTree(view.items, (item: ViewItem) => {
           if(item.fieldKey) {
             const field = model.getField(item.fieldKey)
             if(!field) return
@@ -154,7 +158,7 @@ class App {
     }
   }
 
-  _getFieldInfo(field: Field, item?: Item) {
+  _getFieldInfo(field: Field, item?: ViewItem) {
     const info: FieldInfo = {
       type: field.type,
       name: field.name,

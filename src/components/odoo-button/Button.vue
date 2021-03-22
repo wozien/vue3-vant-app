@@ -12,7 +12,7 @@
 
 <script lang="ts">
 import { defineComponent, PropType, computed } from 'vue'
-import { ViewButton } from '@/assets/js/class'
+import { ViewButton } from '@/logics/types'
 
 export default defineComponent({
   props: {

@@ -1,6 +1,6 @@
 import { FieldType } from './Field'
 import View, { StudioView } from './View'
-import { Modifiers, ModifierKey } from './index'
+import { Modifiers, ModifierKey } from '../types'
 export interface StudioItem {
   key: string
   string: string
@@ -16,14 +16,14 @@ export interface StudioItem {
   [key: string]: any
 }
 
-class Item {
+class ViewItem {
   key: string
   string: string
   widget: string
   fieldType: FieldType
   fieldKey: string
   placeholder: string
-  items: Item[]
+  items: ViewItem[]
   modifiers: Modifiers
   domain: string
   attrs?: any
@@ -40,7 +40,7 @@ class Item {
     this.domain = itemObj.domain
     this.attrs = itemObj.attrs || {}
     this.options = itemObj.options || {}
-    this.items = itemObj.items.map(i => new Item(i))
+    this.items = itemObj.items.map(i => new ViewItem(i))
     this.modifiers = {}
 
     if(itemObj.subView?.length) {
@@ -83,4 +83,4 @@ class Item {
   }
 }
 
-export default Item
+export default ViewItem

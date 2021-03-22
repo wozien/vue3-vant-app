@@ -38,11 +38,11 @@ import { useStore } from '@/store'
 import FormCanvas from './FormCanvas'
 import ButtonView from '@/components/odoo-button/ButtonView.vue'
 import LineSwitcher from '@/components/line-switcher/LineSwitcher.vue'
-import { formatDate } from '@/assets/js/utils/date'
-import { viewCommonProps } from '@/assets/js/hooks/view-common'
-import { getRecordId } from '@/assets/js/class/DataPoint'
-import { sessionStorageKeys } from '@/assets/js/constant'
-import { load as loadDataPoint, clean as cleanRecord, isDirty } from '@/assets/js/class/DataPoint'
+import { formatDate } from '@/utils/date'
+import { viewCommonProps } from '@/hooks/component/useView'
+import { getRecordId } from '@/logics/core/dataPoint'
+import { sessionStorageKeys } from '@/logics/enums/cache'
+import { load as loadDataPoint, clean as cleanRecord, isDirty } from '@/logics/core/dataPoint'
 
 export default defineComponent({
   components: {

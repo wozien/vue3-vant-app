@@ -2,12 +2,12 @@
  * 微信授权相关
  */
 
-import urlKit from './url'
+import urlKit from '@/utils/url'
 import url from 'url'
 import config from '@/api/config'
 import qs from 'qs'
 import { getWxOpenId } from '@/api/user'
-import { LocalStorageKeys } from '@/assets/js/constant'
+import { LocalStorageKeys } from '@/logics/enums/cache'
 
 // 授权类型 
 const enum Scope {

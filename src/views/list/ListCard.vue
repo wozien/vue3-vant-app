@@ -21,10 +21,11 @@
 import { each } from 'lodash-es'
 import { defineComponent, PropType } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { Record, FieldsInfo, FieldInfo } from '@/assets/js/class'
-import { formatDate } from '@/assets/js/utils/date'
-import { sessionStorageKeys } from '@/assets/js/constant'
-import fieldUtils from '@/assets/js/utils/field-utils'
+import type { FieldsInfo, FieldInfo } from '@/logics/types'
+import Record from '@/logics/class/Record'
+import { formatDate } from '@/utils/date'
+import { sessionStorageKeys } from '@/logics/enums/cache'
+import fieldUtils from '@/utils/field-utils'
 
 interface ListCardField {
   name: string

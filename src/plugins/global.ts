@@ -4,7 +4,7 @@ import Icon from '@components/icon/Icon.vue'
 import Modal from '@components/modal/Modal.vue'
 import Loading from '@components/loading/Loading.vue'
 import Input from '@components/input/Input.vue'
-import vTitle from '@/assets/js/directives/v-title'
+import vTitle from '@/logics/directives/v-title'
 
 export default function(app: App) {
   app.component('Page', Page)

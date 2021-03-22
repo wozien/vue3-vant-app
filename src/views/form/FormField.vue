@@ -57,7 +57,7 @@
 <script lang="ts">
 import { defineComponent, computed } from 'vue'
 import { useStore } from '@/store'
-import useFieldCommon, { fieldCommonProps } from '@/assets/js/hooks/field-common'
+import useFieldCommon, { fieldCommonProps } from '@/hooks/component/useField'
 import { Many2One, One2Many, Selection, DateField, Reference, Many2Many } from '@/components/odoo-field'
 
 export default defineComponent({

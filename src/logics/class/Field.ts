@@ -1,4 +1,4 @@
-import { Modifiers, ModifierKey } from './index'
+import { Modifiers, ModifierKey } from '../types/index'
 
 export type FieldType = 'char'|'text'|'integer'|'float'|'date'|'datetime'|'boolean'|
   'selection'|'one2many'|'many2one'|'many2many'|'related'|'reference'

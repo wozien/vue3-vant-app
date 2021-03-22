@@ -22,7 +22,6 @@ module.exports = {
       .set('@components', resolve('src/components'))
       .set('@views', resolve('src/views'))
       .set('@assets', resolve('src/assets'))
-      .set('@scripts', resolve('src/assets/js'))
 
     // vant 按需引入
     config.module

@@ -54,8 +54,8 @@
 <script lang="ts">
 import { defineComponent, reactive, PropType, toRefs } from 'vue'
 import { searchItems, getDefaultValues, getDomain } from './search-helper'
-import { Fields } from '@/assets/js/class'
-import { formatDate } from '@/assets/js/utils/date'
+import { Fields } from '@/logics/types'
+import { formatDate } from '@/utils/date'
 
 export default defineComponent({
   props: {

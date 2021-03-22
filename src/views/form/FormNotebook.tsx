@@ -1,8 +1,8 @@
 
 import { defineComponent, PropType, computed } from 'vue'
 import { useStore } from '@/store'
-import { Item } from '@/assets/js/class'
-import { evalModifiers } from '@/assets/js/class/DataPoint'
+import { Item } from '@/logics/types'
+import { evalModifiers } from '@/logics/core/dataPoint'
 
 export default defineComponent({
   props: {

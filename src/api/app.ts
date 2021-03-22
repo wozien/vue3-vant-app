@@ -4,8 +4,8 @@
 
 import http, { HttpRes } from './http'
 import { callKw, loadAction, searchRead } from './odoo'
-import Domain from '@/assets/js/odoo/Domain'
-import pyUtils from '@/assets/js/odoo/py_utils'
+import Domain from '@/logics/odoo/Domain'
+import pyUtils from '@/logics/odoo/py_utils'
 
 // 获取应用市场数据
 export const fetchAppData = async (): Promise<HttpRes> => {

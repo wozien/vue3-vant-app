@@ -14,8 +14,8 @@ import { defineComponent, PropType } from 'vue'
 import { useRouter } from 'vue-router'
 import { Toast } from 'vant'
 import { addAppCount } from '@/api/app'
-import { sessionStorageKeys } from '@/assets/js/constant'
-import { getAppAsync } from '@/assets/js/class/App'
+import { sessionStorageKeys } from '@/logics/enums/cache'
+import { getAppAsync } from '@/logics/class/App'
 
 interface AppRaw {
   id: number;

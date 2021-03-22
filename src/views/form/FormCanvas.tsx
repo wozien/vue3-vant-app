@@ -1,12 +1,12 @@
 import { find } from 'lodash-es'
 import { defineComponent, PropType, ref, Ref }  from 'vue'
 import { useRoute } from 'vue-router'
-import { Item, Fields, Field } from '@/assets/js/class'
+import { Item, Fields, Field } from '@/logics/types'
 import FormGroup from './FormGroup.vue'
 import FormField from './FormField.vue'
 import FormNotebook from './FormNotebook'
 import FlexDrop from '@/components/flex/FlexDrop.vue'
-import useExpose from '@/assets/js/hooks/use-expose'
+import useExpose from '@/hooks/core/useExpose'
 
 const FormCanvas = defineComponent({
   components: {

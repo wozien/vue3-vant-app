@@ -4,9 +4,8 @@
 
 import http, { HttpRes } from './http'
 import { AxiosResponse } from 'axios'
-import { DomainArr } from '@/assets/js/class'
-import { getContext } from '@/assets/js/class/App'
-
+import { DomainArr } from '@/logics/types'
+import { getContext } from '@/logics/class/App'
 interface OdooRpcParams {
   args: any[];
   kwargs: Recordable;
@@ -20,11 +19,11 @@ interface OdooCallKwFunc {
 
 interface OdooSearchRead {
   (options: {
-    model: string,
-    domain?: DomainArr,
-    fields: string[],
-    limit?: number,
-    sort?: string,
+    model: string
+    domain?: DomainArr
+    fields: string[]
+    limit?: number
+    sort?: string
     context?: Record<string, any>
   }): Promise<AxiosResponse>;
 }

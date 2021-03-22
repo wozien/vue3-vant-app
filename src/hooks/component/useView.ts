@@ -1,5 +1,5 @@
 import { PropType } from 'vue'
-import { FieldsInfo, Fields, View } from '@/assets/js/class'
+import { FieldsInfo, Fields, View } from '@/logics/types'
 
 export const viewCommonProps = {
   fieldsInfo: Object as PropType<FieldsInfo>,

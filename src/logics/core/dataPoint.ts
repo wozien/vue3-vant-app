@@ -7,60 +7,13 @@ import {
   each, without, pick, find, reject, map, uniq, flatten, values, groupBy,
   uniqueId, difference, intersection, isEmpty, filter, defaults
 } from 'lodash-es'
-import { ViewType } from './index'
-import { FieldsInfo } from '@/assets/js/class'
-import fieldUtils from '@/assets/js/utils/field-utils'
-import { str2Date, formatDate } from '@/assets/js/utils/date'
+import { FieldsInfo } from '@/logics/types'
+import { LoadParams, LocalData, DataPointId, DataPoint, DataPointData, DataPointState } from '@/logics/types/dataPoint'
+import fieldUtils from '@/utils/field-utils'
+import { str2Date, formatDate } from '@/utils/date'
 import { fetchRecord, saveRecord, fetchDefaultValues, fetchNameGet, fetchOnChange } from '@/api/record'
-import { sessionStorageKeys } from '@/assets/js/constant'
-import Domain from '../odoo/Domain'
-
-export type DataPointId = string
-export type DataPointType = 'record' | 'list'
-export type DataPointData = {
-  id?: number
-  [key: string]: any
-}
-
-interface DataPointProps {
-  _changes: any
-  id: DataPointId
-  type: DataPointType
-  viewType: ViewType
-  model: string
-  res_id: number | string | undefined
-  res_ids: (number | string)[]
-  fieldsInfo: FieldsInfo
-  parentId?: DataPointId
-  [key: string]: any
-}
-export interface DataPoint extends DataPointProps {
-  data: DataPointData
-}
-export interface DataPointState extends DataPointProps {
-  data: DataPoint | DataPoint[] | { 
-    id?: number
-    [key: string]: any
-  }
-}
-export interface LoadParams {
-  viewType: ViewType
-  modelName: string
-  fieldsInfo: FieldsInfo
-  res_id?: number | string
-  res_ids?: (number | string)[]
-  type?: DataPointType
-  parentId?: DataPointId
-  data?: { 
-    id?: number
-    [key: string]: any
-  },
-  domain?: any[]
-}
-
-type LocalData = {
-  [key: string]: DataPoint
-}
+import { sessionStorageKeys } from '@/logics/enums/cache'
+import Domain from '@/logics/odoo/Domain'
 
 // -----  private methods  ----------
 
@@ -1574,10 +1527,12 @@ const _visitChildren = (element: DataPoint, fn: (el: DataPoint) => void) => {
 
 
 // ------  public  ------------
-
 export let localData: LocalData = {}
 export let recordMap: Map<string, DataPointId> | null
 export let rootID: DataPointId
+export type {
+  DataPointId, DataPoint, DataPointData, DataPointState
+}
 
 /**
  * 默认值处理
