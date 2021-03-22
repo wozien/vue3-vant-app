@@ -2,7 +2,6 @@
  * 表单记录
  */
 
-import { HttpRes } from './http'
 import { mobileCallKw, callKw, callButton } from './odoo'
 
 /**

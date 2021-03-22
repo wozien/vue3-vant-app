@@ -5,3 +5,12 @@
 
 // { string: any }
 declare type Recordable = Record<string, any>
+
+// http responese
+interface HttpRes {
+  ret: number;
+  msg: string;
+  time: number;
+  data?: any;
+  error?: Object;
+}

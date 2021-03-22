@@ -2,7 +2,7 @@
  * 用户相关接口
  */
 
-import http, { HttpRes } from './http'
+import http from './http'
 import { callKw } from './odoo'
 
 // 用户登录

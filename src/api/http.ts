@@ -99,13 +99,4 @@ instance.interceptors.response.use(
   }
 )
 
-// 接口响应类型
-export interface HttpRes {
-  ret: number;
-  msg: string;
-  time: number;
-  data?: any;
-  error?: Object;
-}
-
 export default instance

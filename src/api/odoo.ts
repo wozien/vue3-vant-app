@@ -2,7 +2,7 @@
  * odoo 请求接口封装
  */
 
-import http, { HttpRes } from './http'
+import http from './http'
 import { AxiosResponse } from 'axios'
 import { DomainArr } from '@/logics/types'
 import { getContext } from '@/logics/class/App'

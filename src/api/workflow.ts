@@ -1,6 +1,6 @@
 // 工作流请求相关
 
-import http, { HttpRes } from './http'
+import http from './http'
 import { callKw, callButton } from './odoo'
 
 // 获取首页流程数量

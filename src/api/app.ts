@@ -2,7 +2,7 @@
  * 应用类
  */
 
-import http, { HttpRes } from './http'
+import http from './http'
 import { callKw, loadAction, searchRead } from './odoo'
 import Domain from '@/logics/odoo/Domain'
 import pyUtils from '@/logics/odoo/py_utils'
