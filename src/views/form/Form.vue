@@ -1,5 +1,5 @@
 <template>
-  <Page name="form-view">
+  <div class="form-view">
     <div class="header van-hairline--bottom" v-show="showHeader">
       <van-image :src="creator.avatar" width="40" height="40" round/>
       <div class="info">
@@ -24,7 +24,7 @@
     </div>
     <LineSwitcher v-show="showLineSwitcher"/>
     <ButtonView :buttons="curView && curView.buttons"/>
-  </Page>
+  </div>
 </template>
 
 <script lang="ts">
@@ -206,7 +206,8 @@ export default defineComponent({
 </script>
 
 <style lang="less" scoped>
-.ins-form-view-page {
+.form-view {
+  height: 100%;
   .header {
     height: 70px;
     background: #fff;

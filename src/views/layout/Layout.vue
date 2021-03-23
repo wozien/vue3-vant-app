@@ -1,12 +1,16 @@
 <template>
-  <Page>
-    <router-view v-title="$route.meta.title" :style="{height: height + 'px'}"> </router-view>
+  <div class="layout-page">
+    <router-view v-title="$route.meta.title" :style="{height: height + 'px'}" v-slot="{ Component }"> 
+      <keep-alive :exclude="['View']">
+        <component :is="Component" />
+      </keep-alive>
+    </router-view>
     <van-tabbar v-model="active" v-if="hasTab">
       <van-tabbar-item name="dashboard" icon="home-o" to="/dashboard">首页</van-tabbar-item>
       <van-tabbar-item name="market" icon="apps-o" to="/market">应用</van-tabbar-item>
       <van-tabbar-item name="user" icon="user-o" to="/user">我的</van-tabbar-item>
     </van-tabbar>
-  </Page>
+  </div>
 </template>
 
 <script lang="ts">
@@ -22,6 +26,7 @@ export default defineComponent({
     const active = ref('')
     const hasTab = computed(() => !!route.meta.tab)
     const height = computed(() => {
+      console.log(document.body.clientHeight)
       let res = document.body.clientHeight
       if(hasTab.value) {
         res = res - 50
@@ -39,8 +44,15 @@ export default defineComponent({
 
     return {
       active,
-      hasTab,height
+      hasTab,
+      height
     }
   }
 })
 </script>
+
+<style lang="less" scoped>
+.layout-page {
+  .app-page;
+}
+</style>

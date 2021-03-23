@@ -1,22 +1,22 @@
 <template>
   <div class="market">
     <van-search v-model="searchValue" shape="round" placeholder="搜索应用"></van-search>
-    <Loading v-model:show="loading"/>
     <div class="market-wrapper" v-if="filterList.length">
       <div v-for="item in filterList" :key="item.key" class="market-item van-hairline--top">
         <span class="label">{{ item.name }}</span>
         <AppList :app-data="item.apps" />
       </div>
     </div>
-    <van-empty v-else-if="!loading" :description="description" :image="emptyImage"></van-empty>
+    <van-empty v-if="showEmpty" :description="description" :image="emptyImage"></van-empty>
   </div>
 </template>
 
 <script lang="ts">
 import { defaults } from 'lodash-es'
-import { defineComponent, computed, onBeforeMount, watchEffect, reactive, toRefs } from 'vue'
+import { defineComponent, computed, watchEffect, reactive, toRefs, onMounted, onActivated } from 'vue'
 import AppList from '@/components/app-list/AppList.vue'
 import { fetchAppData } from '@/api/app'
+import useToast from '@/hooks/component/useToast'
 
 export default defineComponent({
   components: {
@@ -28,8 +28,9 @@ export default defineComponent({
       searchValue: '',
       list: [] as any[],
       filterList: [] as any[],
-      loading: true
     })
+    const { loading } = useToast(true)
+    const showEmpty = computed(() => state.list.length === 0 && loading.value === false)
 
     const description = computed(() => {
       return state.searchValue ? '暂无搜索结果' : '暂无应用数据'
@@ -38,13 +39,12 @@ export default defineComponent({
       return state.searchValue ? 'search' : 'default'
     })
 
-    onBeforeMount(async () => {
+    const loadData = async () => {
       const res = await fetchAppData()
-      state.loading = false
       if(res.ret === 0) {
         state.list = res.data.filter((item:any) => item.apps.length)
       }
-    })
+    }
 
     watchEffect(() => {
       if(state.list.length) {
@@ -64,10 +64,22 @@ export default defineComponent({
       }
     })
 
+    onMounted(async () => {
+      loading.value = true
+      await loadData()
+      loading.value = false
+    })
+
+    onActivated(() => {
+      if(!loading.value) loadData()
+    })
+
     return {
       ...toRefs(state),
+      loading,
+      showEmpty,
       description,
-      emptyImage,
+      emptyImage
     }
   }
 })
@@ -77,7 +89,7 @@ export default defineComponent({
 .market {
   background: #fff;
   .market-wrapper {
-    height: calc(100vh - 104px);
+    height: calc(100% - 54px);
     overflow: auto;
     .market-item {
       padding: 10px 20px;

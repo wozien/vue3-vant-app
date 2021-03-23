@@ -1,5 +1,5 @@
 <template>
-  <div class="card list-card" @click="onClickCard">
+  <div class="list-card" @click="onClickCard">
     <header class="van-hairline--bottom">
       <span class="name">{{ name }}</span>
       <span :class="['state', stateType && `state-${stateType}`]">{{ state }}</span>
@@ -133,6 +133,7 @@ function useCard(record: Record | ListCard, fieldsInfo: FieldsInfo, appName?:str
 
 <style lang="less" scoped>
 .list-card {
+  .card;
   min-height: 60px;
   margin: 10px;
   font-size: 13px;

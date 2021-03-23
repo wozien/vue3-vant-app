@@ -1,31 +1,29 @@
 <template>
-  <Page name="company-list">
-    <p class="title">
-      您的账号加入了 {{ companyList.length }} 个企业
-    </p>
-    <div class="list">
-      <div 
-        v-for="item in companyList" 
-        :key="item.dbName"
-        :class="['list-item', active === item.dbName && 'list-item-active']"
-        @click="active=item.dbName"
-      >
-        <Icon name="company" />
-        <span class="name">{{ item.name }}</span>
-      </div>
+  <p class="title">
+    您的账号加入了 {{ companyList.length }} 个企业
+  </p>
+  <div class="list">
+    <div 
+      v-for="item in companyList" 
+      :key="item.dbName"
+      :class="['list-item', active === item.dbName && 'list-item-active']"
+      @click="active=item.dbName"
+    >
+      <Icon name="company" />
+      <span class="name">{{ item.name }}</span>
     </div>
-    <div class="footer">
-      <van-button type="primary" block round @click="onSwitchCompany">进入企业</van-button>
-    </div>
-  </Page>
+  </div>
+  <div class="footer">
+    <van-button type="primary" block round @click="onSwitchCompany">进入企业</van-button>
+  </div>
 </template>
 
 <script lang="ts">
 import { defineComponent, ref, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useStore } from '@/store'
-import { Toast } from 'vant'
 import { fetchCompanyList, switchCompany } from '@/api/user'
+import useToast from '@/hooks/component/useToast'
 
 interface Company {
   name: string;
@@ -41,6 +39,7 @@ export default defineComponent({
     const router = useRouter()
     const route = useRoute()
     const store = useStore()
+    const { toast } = useToast()
 
     onMounted(async () => {
       const res = await fetchCompanyList()
@@ -65,23 +64,19 @@ export default defineComponent({
 
     const onSwitchCompany = async () => {
       if(!companyList.value.length) {
-        Toast('暂无企业列表数据'); return
+        toast.show('暂无企业列表数据'); return
       } else if(!active.value) {
-        Toast('请先选择一个企业'); return
+        toast.show('请先选择一个企业'); return
       }
 
-      Toast.loading({
-        duration: 0,
-        forbidClick: true,
-        message: '载入企业数据'
-      })
+      toast.loading('载入企业数据')
       const activeCompany = companyList.value.find(item => item.dbName === active.value)
       if(activeCompany) {
         const res = await switchCompany(activeCompany.dbName, activeCompany.oauthUrl)
         if(res.ret === 0) {
           router.push('/dashboard')
         }
-        Toast.clear()
+        toast.clear()
       }
     }
 
@@ -95,7 +90,6 @@ export default defineComponent({
 </script>
 
 <style lang="less" scoped>
-.ins-company-list-page {
   .title {
     color: @text-color-light-1;
     padding: 16px 20px;
@@ -148,5 +142,4 @@ export default defineComponent({
     bottom: 0;
     padding: 10px 20px;
   }
-}
 </style>

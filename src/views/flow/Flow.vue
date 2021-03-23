@@ -1,5 +1,5 @@
 <template>
-  <Page name="workflow-view">
+  <div name="workflow-view">
     <van-tabs v-model:active="active">
       <van-tab v-for="item in group.types" 
         :key="item.type" 
@@ -23,7 +23,7 @@
         <van-empty v-show="showEmpty" description="暂无数据"/>
       </van-pull-refresh>
     </div>
-  </Page>
+  </div>
 </template>
 
 <script lang="ts">
@@ -215,8 +215,11 @@ function useList(searchType: Ref<string>, user: Ref<User>) {
 </script>
 
 <style lang="less" scoped>
-.list-container {
-  height: calc(100vh - 44px);
-  overflow: auto;
+.workflow-view {
+  height: 100%;
+  .list-container {
+    height: calc(100% - 44px);
+    overflow: auto;
+  }
 }
 </style>

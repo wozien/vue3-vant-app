@@ -37,6 +37,7 @@ interface ViewContext {
 }
 
 export default defineComponent({
+  name: 'View',
   components: {
     ListView,
     FormView
@@ -100,5 +101,3 @@ function getContext(curApp: App, modelKey: string, viewType: ViewType): ViewCont
   }
 }
 </script>
-
-<style lang="less" scoped></style>

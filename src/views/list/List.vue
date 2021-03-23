@@ -1,5 +1,5 @@
 <template>
-  <Page name="list-view">
+  <div class="list-view">
     <SearchBar 
       placeholder="请输入编号或者创建人搜索" 
       :show-action="true" 
@@ -40,7 +40,7 @@
     >
       <SearchView :fields="fields" @search="onSearch"></SearchView>
     </van-popup>
-  </Page>
+  </div>
 </template>
 
 <script lang="ts">
@@ -178,9 +178,10 @@ export default defineComponent({
 </script>
 
 <style lang="less" scoped>
-.ins-list-view-page {
+.list-view {
+  height: 100%;
   .list-container {
-    height: calc(100vh - 56px);
+    height: calc(100% - 56px);
     overflow: auto;
   }
 

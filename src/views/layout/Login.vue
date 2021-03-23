@@ -1,24 +1,24 @@
 <template>
-  <Page name="login">
+  <div class="login-page">
     <h2 class="title">欢迎使用 inSuite</h2>
     <div class="info">
-      <MyInput type="tel" placeholder="手机号" v-model="account.phone" clearable>
+      <LoginInput type="tel" placeholder="手机号" v-model="account.phone" clearable>
         <template #icon>
           <Icon name="account"/>
         </template>
-      </MyInput>
-      <MyInput type="password" placeholder="密码" v-model="account.password">
+      </LoginInput>
+      <LoginInput type="password" placeholder="密码" v-model="account.password">
         <template #icon>
           <Icon name="password"/>
         </template>
-      </MyInput>
+      </LoginInput>
     </div>
     <van-button type="primary" round block @click="login" :loading="loading">登录</van-button>
     <div class="footer">
       <span class="forget" @click="forget">忘记密码</span>
       <span class="register" @click="register">立即注册</span>
     </div>
-  </Page>
+  </div>
 </template>
 
 <script lang="ts">
@@ -27,6 +27,7 @@ import { useRouter } from 'vue-router'
 import { Toast } from 'vant'
 import { userLogin } from '@/api/user'
 import { LocalStorageKeys } from '@/logics/enums/cache'
+import LoginInput from '@/components/input/Input.vue'
 
 function useLogin() {
   const loading = ref(false)
@@ -58,6 +59,10 @@ function useLogin() {
 }
 
 export default defineComponent({
+  components: {
+    LoginInput
+  },
+
   setup() {
     return {
       ...useLogin(),
@@ -70,7 +75,8 @@ export default defineComponent({
 </script>
 
 <style lang="less" scoped>
-.ins-login-page {
+.login-page {
+  .app-page;
   background: white;
   padding: 60px 36px;
   .title {

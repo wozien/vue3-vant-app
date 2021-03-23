@@ -1,6 +1,6 @@
 <template>
   <div class="dashboard-page">
-    <div class="card header">
+    <div class="header">
       <van-image :src="user.avatar" width="60" height="60" fit="cover" round/>
       <div class="info">
         <p class="name">{{ greet.greeting }}, {{ user.nickname }}</p>
@@ -12,32 +12,31 @@
       </div>
     </div>
     <div class="flow">
-      <div class="card approval" @click="onGotoFlow('willApproval')">
+      <div class="flow-item approval" @click="onGotoFlow('willApproval')">
         <img src="@assets/img/will-approval.png">
         <span class="text">待我审批</span>
         <span class="num">{{ willApproval }}</span>
       </div>
-      <div class="card consult" @click="onGotoFlow('willConsult')">
+      <div class="flow-item consult" @click="onGotoFlow('willConsult')">
         <img src="@assets/img/will-consult.png">
         <span class="text">待我查阅</span>
         <span class="num">{{ willConsult }}</span>
       </div>
     </div>
-    <div class="card usually">
+    <div class="usually">
       <div class="title">
         <span class="label">常用</span>
         <span class="more" @click="$router.push('/market')">全部应用</span>
         <van-icon name="arrow" color="#c8c9cc"/>
       </div>
-      <Loading v-model:show="loading"/>
       <AppList :app-data="appData" v-if="appData.length"/>
-      <p v-else-if="!loading" class="no-data">暂无数据</p>
+      <p v-else class="no-data">暂无数据</p>
     </div>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, reactive, toRefs, computed, onMounted, onActivated } from 'vue'
+import { defineComponent, ref, reactive, toRefs, computed, onActivated } from 'vue'
 import { useStore } from '@/store'
 import { useRouter } from 'vue-router'
 import { fetchFlowNum } from '@/api/workflow'
@@ -57,7 +56,7 @@ export default defineComponent({
       willApproval: 0
     })
     const greet = useGreet()
-    const { appData, loading } = useUsually()
+    const { appData } = useUsually()
     
     const onGotoFlow = (type: string) => {
       router.push({
@@ -68,7 +67,7 @@ export default defineComponent({
       })
     }
 
-    onMounted(async () => {
+    onActivated(async () => {
       const res = await fetchFlowNum()
       if(res.ret === 0) {
         state.willConsult = res.data.willConsult
@@ -81,7 +80,6 @@ export default defineComponent({
       user: computed(() => store.state.user),
       greet,
       appData,
-      loading,
       onGotoFlow
     }
   }
@@ -116,20 +114,16 @@ function useGreet() {
 
 function useUsually() {
   const appData = ref([])
-  const loading = ref(true)
   const fetch = async () => {
     const res = await fetchUsuallyApp()
-    loading.value = false
     if(res.ret === 0) {
       appData.value = res.data
     }
   }
-  onMounted(() => fetch())
   onActivated(() => fetch())
 
   return {
-    appData,
-    loading
+    appData
   }
 }
 
@@ -139,6 +133,7 @@ function useUsually() {
 .dashboard-page {
   padding: 10px;
   .header {
+    .card;
     display: flex;
     align-items: center;
     font-size: 13px;
@@ -167,7 +162,8 @@ function useUsually() {
   }
   .flow {
     display: flex;
-    .card {
+    .flow-item {
+      .card;
       flex: 1;
       display: flex;
       flex-direction: column;
@@ -195,6 +191,7 @@ function useUsually() {
     }
   }
   .usually {
+    .card;
     margin-top: 10px;
     .title {
       display: flex;
