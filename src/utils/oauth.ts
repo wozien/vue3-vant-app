@@ -7,7 +7,7 @@ import url from 'url'
 import qs from 'qs'
 import { getWxOpenId } from '@/api/user'
 import { LocalStorageKeys } from '@/logics/enums/cache'
-import { wrapperEnv } from '@/utils/tools'
+import { wrapperEnv } from '@/utils/helper'
 
 const { WX_APP_ID, WX_OPEN_ID, NODE_ENV } = wrapperEnv(process.env)
 const isDev = NODE_ENV === 'development'

@@ -45,7 +45,7 @@ function useLogin() {
     }
 
     loading.value = true
-    const wxOpenId = localStorage.getItem(LocalStorageKeys.wxOpenId) as string
+    const wxOpenId = localStorage.getItem(LocalStorageKeys.wxOpenId)
     const res = await userLogin(phone, password, wxOpenId)
     loading.value = false
     if(res.ret === 0) {

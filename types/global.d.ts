@@ -10,9 +10,9 @@ declare type Nullable<T> = T | null
 
 // http responese
 interface HttpRes {
-  ret: number;
-  msg: string;
-  time: number;
-  data?: any;
-  error?: Object;
+  ret: number
+  msg: string
+  time: number
+  data?: any
+  error?: Object
 }

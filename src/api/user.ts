@@ -6,7 +6,7 @@ import http from './http'
 import { callKw } from './odoo'
 
 // 用户登录
-export const userLogin = async (account: string, password: string, wxOpenId: string): Promise<HttpRes> => {
+export const userLogin = async (account: string, password: string, wxOpenId: Nullable<string>): Promise<HttpRes> => {
   const res = await http.post('/system/login', {
     account,
     wxOpenId,

@@ -2,6 +2,7 @@ import { createRouter, createWebHashHistory } from 'vue-router'
 import routes from './routes'
 import { LocalStorageKeys } from '@/logics/enums/cache'
 import { baseOauth } from '@/utils/oauth'
+import { isWechatAgent } from '@/utils/helper'
 import { getToken } from '@/api/user'
 
 const router = createRouter({
@@ -16,7 +17,7 @@ router.beforeEach(async (to) => {
   if(to.path !== '/login' && !token) {
     let openid = localStorage.getItem(LocalStorageKeys.wxOpenId)
     // 通过微信静默授权获取open_id
-    if(!openid) {
+    if(!openid && isWechatAgent()) {
       const data = await baseOauth()
       data && (openid = data)
     }

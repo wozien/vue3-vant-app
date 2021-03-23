@@ -88,3 +88,12 @@ export const wrapperEnv = (envConf: Recordable<string>): Recordable => {
 
   return ret
 }
+
+/**
+ * 判断是否在微信浏览器
+ * @returns 
+ */
+export const isWechatAgent = () => {
+  const ua = navigator.userAgent.toLowerCase()
+  return ua.search('micromessenger') !== -1
+}
