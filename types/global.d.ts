@@ -6,10 +6,20 @@
 // Record
 declare type Recordable<T = any> = Record<string, T>
 
+declare type ReadonlyRecordable<T = any> = {
+  readonly [key: string]: T
+}
+
 declare type Nullable<T> = T | null
 
+declare type NonNullable<T> = T extends null | undefined ? never : T
+
+declare interface Fn<T = any, R = T> {
+  (...args: T[]): R
+}
+
 // http responese
-interface HttpRes {
+declare interface HttpRes {
   ret: number
   msg: string
   time: number
