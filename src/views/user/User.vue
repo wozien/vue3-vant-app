@@ -30,18 +30,24 @@
 <script lang="ts">
 import { defineComponent, computed, ref } from 'vue'
 import { useRouter, Router } from 'vue-router'
-import { useStore, VuexStore } from '@/store'
+import { useStore } from '@/store'
 import { Dialog } from 'vant'
-import { userLogout } from '@/api/user'
+import { userLogout, switchUserOrg } from '@/api/user'
 import { LocalStorageKeys } from '@/logics/enums/cache'
 import UserSetting from './UserSetting.vue'
 
-function useOrgs(store: VuexStore) {
+function useOrgs() {
+  const store = useStore()
   const orgs = computed(() => store.state.orgs.map(org => org.name))
   const curOrg = computed(() => store.state.curOrg?.name)
-  const setCurOrg = (orgName: string) => {
+  const setCurOrg = async (orgName: string) => {
     const org = store.state.orgs.find(org => org.name === orgName)
-    store.state.curOrg = org
+    if(org) {
+      const res = await switchUserOrg(org.id)
+      if(res.ret === 0) {
+        store.state.curOrg = org
+      }
+    }
   }
 
   return {
@@ -78,11 +84,9 @@ export default defineComponent({
   setup() {
     const store = useStore()
     const router = useRouter()
-
     const { onLogout } = useLogout(router)
-
     const showPicker  = ref(false)
-    const { orgs, curOrg, setCurOrg } = useOrgs(store)
+    const { orgs, curOrg, setCurOrg } = useOrgs()
     const onSelectOrg = (value: string) => {
       if(value !== curOrg.value) {
         setCurOrg(value)

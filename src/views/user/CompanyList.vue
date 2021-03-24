@@ -1,20 +1,22 @@
 <template>
-  <p class="title">
-    您的账号加入了 {{ companyList.length }} 个企业
-  </p>
-  <div class="list">
-    <div 
-      v-for="item in companyList" 
-      :key="item.dbName"
-      :class="['list-item', active === item.dbName && 'list-item-active']"
-      @click="active=item.dbName"
-    >
-      <Icon name="company" />
-      <span class="name">{{ item.name }}</span>
+  <div class="company-list-page">
+    <p class="title">
+      您的账号加入了 {{ companyList.length }} 个企业
+    </p>
+    <div class="list">
+      <div 
+        v-for="item in companyList" 
+        :key="item.dbName"
+        :class="['list-item', active === item.dbName && 'list-item-active']"
+        @click="active=item.dbName"
+      >
+        <Icon name="company" />
+        <span class="name">{{ item.name }}</span>
+      </div>
     </div>
-  </div>
-  <div class="footer">
-    <van-button type="primary" block round @click="onSwitchCompany">进入企业</van-button>
+    <div class="footer">
+      <van-button type="primary" block round @click="onSwitchCompany">进入企业</van-button>
+    </div>
   </div>
 </template>
 
@@ -90,6 +92,7 @@ export default defineComponent({
 </script>
 
 <style lang="less" scoped>
+.company-list-page {
   .title {
     color: @text-color-light-1;
     padding: 16px 20px;
@@ -142,4 +145,5 @@ export default defineComponent({
     bottom: 0;
     padding: 10px 20px;
   }
+}
 </style>

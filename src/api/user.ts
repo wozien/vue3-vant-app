@@ -49,6 +49,12 @@ export const fetchUserOrgs = async (): Promise<HttpRes> => {
   return res.data
 }
 
+// 设置用户当前组织
+export const switchUserOrg = async (orgId: number): Promise<HttpRes> => {
+  const res = await callKw('res.users', 'set_org_id', [orgId])
+  return res.data
+}
+
 // 用户上传头像 
 export const uploadUserAvatar = async (avatar: File, phone: string): Promise<HttpRes> => {
   const formData = new FormData()
