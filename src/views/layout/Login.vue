@@ -85,6 +85,10 @@ export default defineComponent({
     font-weight: 600;
     margin-bottom: 20px;
   }
+  .info {
+    overflow: hidden;
+    margin-bottom: 20px;
+  }
   .footer {
     text-align: center;
     font-size: 13px;

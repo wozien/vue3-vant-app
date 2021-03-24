@@ -93,7 +93,13 @@ export const wrapperEnv = (envConf: Recordable<string>): Recordable => {
  * 判断是否在微信浏览器
  * @returns 
  */
-export const isWechatAgent = () => {
+export const isWechatAgent = ({ iphone, android }: { iphone?: boolean; android?: boolean } = {}) => {
   const ua = navigator.userAgent.toLowerCase()
-  return ua.search('micromessenger') !== -1
+  let addition = true
+  if(iphone) {
+    addition = ua.search('iphone') !== -1
+  } else if(android) {
+    addition = ua.search('android') !== -1
+  }
+  return ua.search('micromessenger') !== -1 && addition
 }
