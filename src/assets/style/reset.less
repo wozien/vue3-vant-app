@@ -108,5 +108,15 @@ div { box-sizing: border-box}
     -webkit-transform: scaleY(0.5);
     transform: scaleY(0.5);
   }
+  &.form-item-one2many::after {
+    display: none;
+  }
+  &.form-item-readonly {
+    .van-field {
+      &__control {
+        color: #a2a2a5;
+      }
+    }
+  }
 }
 

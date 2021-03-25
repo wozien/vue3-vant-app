@@ -1,18 +1,5 @@
 <template>
-  <!-- selection -->
-  <Selection v-if="type === 'selection'" v-bind="{field, item, mode}" v-show="!invisible"/>
-  <!-- many2one -->
-  <Many2One v-else-if="type === 'many2one'" v-bind="{field, item, mode}" v-show="!invisible"/>
-  <!-- reference -->
-  <Reference v-else-if="type === 'reference'" v-bind="{field, item, mode}" v-show="!invisible"/>
-  <!-- one2many -->
-  <One2Many v-else-if="type === 'one2many'" v-bind="{field, item, mode}" v-show="!invisible"/>
-  <!-- many2many -->
-  <Many2Many v-else-if="type === 'many2many'" v-bind="{field, item, mode}" v-show="!invisible"/>
-  <!-- date -->
-  <DateField v-else-if="type ==='date' || type === 'datetime'" v-bind="{field, item, mode}" v-show="!invisible"/>
-  <!-- normal -->
-  <div v-else v-show="!invisible" class="form-item-field" :data-dbname="field && field.name" :data-type="type">
+  <div v-show="!invisible" :class="itemClass" :data-field-name="field && field.name" :data-field-type="type">
     <!-- boolean -->
     <van-field v-if="type === 'boolean'" :label="string" :required="isRequired">
       <template #input>
@@ -21,12 +8,24 @@
     </van-field>
     <!-- readonly -->
     <van-field 
-      v-else-if="isReadonly"
+      v-else-if="isReadonly && !isX2Many"
       :readonly="true"
       :label="string"
       v-model="value"
       center
     />
+    <!-- selection -->
+    <Selection v-else-if="type === 'selection'" v-bind="{field, item, mode}" />
+    <!-- many2one -->
+    <Many2One v-else-if="type === 'many2one'" v-bind="{field, item, mode}" />
+    <!-- reference -->
+    <Reference v-else-if="type === 'reference'" v-bind="{field, item, mode}" />
+    <!-- one2many -->
+    <One2Many v-else-if="type === 'one2many'" v-bind="{field, item, mode}"/>
+    <!-- many2many -->
+    <Many2Many v-else-if="type === 'many2many'" v-bind="{field, item, mode}" />
+    <!-- date -->
+    <DateField v-else-if="type ==='date' || type === 'datetime'" v-bind="{field, item, mode}"/>
     <!-- integer, float -->
     <van-field 
       v-else-if="type === 'integer' || type === 'float'"
@@ -56,7 +55,6 @@
 
 <script lang="ts">
 import { defineComponent, computed } from 'vue'
-import { useStore } from '@/store'
 import useFieldCommon, { fieldCommonProps } from '@/hooks/component/useField'
 import { Many2One, One2Many, Selection, DateField, Reference, Many2Many } from '@/components/odoo-field'
 
@@ -77,7 +75,6 @@ export default defineComponent({
   },
 
   setup(props) {
-    const store = useStore()
     const {
       string,
       placeholder,
@@ -90,11 +87,19 @@ export default defineComponent({
       isRequired,
       invisible,
       setValue
-    } = useFieldCommon(props, store)
+    } = useFieldCommon(props)
 
     const renderType = computed(() => {
       return getRenderType(type.value)
     })
+
+    const itemClass = computed(() => ({
+      'form-item-field': true,
+      [`form-item-${type.value}`]: type.value === 'one2many',
+      'form-item-readonly': props.mode === 'edit' && isReadonly.value
+    }))
+
+    const isX2Many = computed(() => props.field?.isX2Many())
 
     const isSet = () => {
       return !modifiers.value?.required || !!value.value || type.value === 'boolean'
@@ -112,7 +117,9 @@ export default defineComponent({
       isRequired,
       invisible,
       renderType,
+      itemClass,
       isSet,
+      isX2Many,
       setValue
     }
   }
@@ -121,7 +128,7 @@ export default defineComponent({
 /**
  * 获取字段的渲染vant类型
  */
-function getRenderType(type: string) {
+function getRenderType(type?: string) {
   let realType = 'text'
   switch(type) {
     case 'text': realType = 'textarea'; break

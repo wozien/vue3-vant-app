@@ -1,36 +1,33 @@
 <template>
-  <div class="form-item-field" :data-dbname="field && field.name" :data-type="type">
-    <van-field
-      :label="string" 
-      :placeholder="placeholder" 
-      v-model="value"
-      :required="isRequired"
-      :clickable="!isReadonly"
-      :is-link="!isReadonly"
-      readonly
-      center
-      @click="onOpenModal"
-    />
+  <van-field
+    :label="string" 
+    :placeholder="placeholder" 
+    v-model="value"
+    :required="isRequired"
+    :clickable="true"
+    :is-link="true"
+    readonly
+    center
+    @click="onOpenModal"
+  />
 
-    <Modal v-model:show="showModal" confirm-text="确定" @confirm="onConfirm">
-      <div class="m2o-selector">
-        <van-search v-model="searchValue" placeholder="输入名称搜索" shape="round"></van-search>
-        <div class="list-wrapper">
-          <van-tree-select 
-            v-model:active-id="activeId"
-            v-model:main-active-index="mainActiveId"
-            :items="items"
-            height="100%"
-          />
-        </div>
+  <Modal v-model:show="showModal" confirm-text="确定" @confirm="onConfirm">
+    <div class="m2o-selector">
+      <van-search v-model="searchValue" placeholder="输入名称搜索" shape="round"></van-search>
+      <div class="list-wrapper">
+        <van-tree-select 
+          v-model:active-id="activeId"
+          v-model:main-active-index="mainActiveId"
+          :items="items"
+          height="100%"
+        />
       </div>
-    </Modal>
-  </div>
+    </div>
+  </Modal>
 </template>
 
 <script lang="ts">
 import { defineComponent, reactive, toRefs, watch, watchEffect, computed } from 'vue'
-import { useStore } from '@/store'
 import useFieldCommon, { fieldCommonProps } from '@/hooks/component/useField'
 import { fetchMany2OneData } from '@/api/record'
 import { Toast } from 'vant'
@@ -42,8 +39,9 @@ export default defineComponent({
   },
 
   setup(props) {
-    const store = useStore()
-    const { string, placeholder, type, value, rawValue, isReadonly, isRequired, curRecord, setValue } = useFieldCommon(props, store)
+    const { 
+      string, placeholder, value, rawValue, isRequired, curRecord, setValue 
+    } = useFieldCommon(props)
     const { state, onOpenModal } = useModal(props)
 
     const domain = computed(() => {
@@ -113,10 +111,8 @@ export default defineComponent({
     return {
       string,
       placeholder,
-      type,
       value,
       rawValue,
-      isReadonly,
       isRequired,
       ...toRefs(state),
       onOpenModal,

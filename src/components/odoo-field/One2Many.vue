@@ -1,34 +1,32 @@
 <template>
-  <div class="form-item-field" :data-dbname="field && field.name" :data-type="type">
-    <vxe-table
-      :data="tableData" 
-      max-height="500"
-      empty-text="暂无数据"
-      @cell-click="onCellClick"
+  <vxe-table
+    :data="tableData" 
+    max-height="500"
+    empty-text="暂无数据"
+    @cell-click="onCellClick"
+  >
+    <vxe-table-column type="seq" title="#" width="50" fixed="left"></vxe-table-column>
+    <vxe-table-column 
+      v-for="col in columns" 
+      :key="col.field"
+      :field="col.field"
+      :title="col.title"
+      min-width="120"
     >
-      <vxe-table-column type="seq" title="#" width="50" fixed="left"></vxe-table-column>
-      <vxe-table-column 
-        v-for="col in columns" 
-        :key="col.field"
-        :field="col.field"
-        :title="col.title"
-        min-width="120"
-      >
-        <template v-if="col.fieldType === 'boolean'" #default="{ row }">
-          <van-checkbox v-model="row[col.field]" :disabled="true" shape="square" />
-        </template>
-        <template v-else-if="col.fieldType === 'many2many'" #default="{ row }">
-          <van-tag v-for="item in row[col.field]" :key="item.id" round plain style="margin-right: 6px">
-            {{ item.display_name }}
-          </van-tag>
-        </template>
-      </vxe-table-column>
-    </vxe-table>
+      <template v-if="col.fieldType === 'boolean'" #default="{ row }">
+        <van-checkbox v-model="row[col.field]" :disabled="true" shape="square" />
+      </template>
+      <template v-else-if="col.fieldType === 'many2many'" #default="{ row }">
+        <van-tag v-for="item in row[col.field]" :key="item.id" round plain style="margin-right: 6px">
+          {{ item.display_name }}
+        </van-tag>
+      </template>
+    </vxe-table-column>
+  </vxe-table>
 
-    <div class="add-row" v-if="mode === 'edit' && !isMany2Many">
-      <van-button size="small" icon="plus" round block @click="onAddRow">添加明细行</van-button>
-    </div> 
-  </div>
+  <div class="add-row" v-if="mode === 'edit' && !isMany2Many">
+    <van-button icon="plus" size="small" type="primary" round block plain @click="onAddRow">添加明细行</van-button>
+  </div> 
 </template>
 
 <script lang="ts">
@@ -58,7 +56,7 @@ export default defineComponent({
     const route = useRoute()
     const router = useRouter()
 
-    const { type, rawValue, curRecord } = useFieldCommon(props, store)
+    const { rawValue, curRecord } = useFieldCommon(props)
     const columns = ref<Column[]>([])
     const tableData = ref<any[]>([])
     const isMany2Many = computed(() => props.item?.widget === 'many2many')
@@ -121,7 +119,6 @@ export default defineComponent({
     })
 
     return {
-      type,
       isMany2Many,
       rawValue,
       columns,
@@ -188,6 +185,6 @@ function getData(list: DataPointState) {
 
 <style lang="less" scoped>
 .add-row {
-  padding: 30px 50px 10px;
+  padding: 15px 50px 10px;
 }
 </style>

@@ -1,6 +1,6 @@
 import { isEmpty } from 'lodash-es'
 import { computed, ref, PropType, watchEffect } from 'vue'
-import { VuexStore } from '@/store'
+import { useStore } from '@/store'
 import { Field, Item, ModifierKey } from '@/logics/types'
 import { DataPoint, DataPointState, DataPointData } from '@/logics/types/dataPoint'
 import fieldUtils from '@/utils/field-utils'
@@ -19,13 +19,19 @@ export const fieldCommonProps = {
   }
 }
 
-export default function(props: any, store: VuexStore) {
+type FieldCommonPropsType = Readonly<{
+  mode: WidgetMode
+  item?: Item
+  field?: Field
+}>
+
+export default function(props: FieldCommonPropsType) {
+  const store = useStore()
   const string = computed(() => props.field?.string || props.item?.string)
   const type = computed(() => props.field && props.field.type)
   const placeholder = computed(() => { 
     const text = (props.field && props.field.isComplexField()) ? '选择' : '输入'
-    const res = props.item && props.item.placeholder || `请${text}${string.value}`
-    return props.readonly ? '' : res
+    return props.item && props.item.placeholder || `请${text}${string.value}`
   })
 
   const value = ref<FieldValue> ('')   // format value

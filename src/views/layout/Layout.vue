@@ -6,7 +6,7 @@
       </keep-alive>
     </router-view>
     <van-tabbar v-model="active" v-if="hasTab">
-      <van-tabbar-item name="dashboard" icon="home-o" to="/dashboard">首页</van-tabbar-item>
+      <van-tabbar-item name="dashboard" icon="wap-home-o" to="/dashboard">首页</van-tabbar-item>
       <van-tabbar-item name="market" icon="apps-o" to="/market">应用</van-tabbar-item>
       <van-tabbar-item name="user" icon="user-o" to="/user">我的</van-tabbar-item>
     </van-tabbar>
@@ -43,7 +43,9 @@ export default defineComponent({
     })
 
     watchEffect(() => {
-      if(hasTab.value)  // nothing todo, just help to trigger effect 
+      if(hasTab.value)  {
+        // nothing todo, just help to trigger effect 
+      }
       if(isWechatAgent({ iphone: true })) {
         // ios 微信客户端需要延时计算高度
         setTimeout(() => {

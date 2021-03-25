@@ -1,6 +1,6 @@
 <template>
   <van-icon 
-    class-prefix="ins-icon" 
+    class-prefix="ins-icon"
     :size="size"
     :name="name"
     :color="color || '#646566'"

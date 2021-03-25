@@ -125,7 +125,7 @@ export default defineComponent({
   .search-form {
     padding: 10px 0px;
     .form-item {
-      padding: 6px 10px;
+      padding: 6px 16px 6px 10px;
       color: @text-color;
       font-size: 13px;
       &__label {
@@ -138,6 +138,8 @@ export default defineComponent({
       &__input {
         padding: 5px 10px;
         > input {
+          box-sizing: border-box;
+          margin: 0;
           border: none;
           outline: none;
           width: 100%;
@@ -152,7 +154,7 @@ export default defineComponent({
           padding: 6px 12px;
           color: @text-color-light-1;
           border: @border;
-          margin-right: 10px;
+          margin-right: 9px;
           margin-bottom: 6px;
           border-radius: 20px;
           &.active {

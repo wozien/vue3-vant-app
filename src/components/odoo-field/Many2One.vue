@@ -1,36 +1,33 @@
 <template>
-  <div class="form-item-field'" :data-dbname="field && field.name" :data-type="type">
-    <van-field
-      :label="string" 
-      :placeholder="placeholder" 
-      v-model="value"
-      :required="isRequired"
-      :clickable="!isReadonly"
-      :is-link="!isReadonly"
-      readonly
-      center
-      @click="onOpenModal"
-    />
+  <van-field
+    :label="string" 
+    :placeholder="placeholder" 
+    v-model="value"
+    :required="isRequired"
+    :clickable="true"
+    :is-link="true"
+    readonly
+    center
+    @click="onOpenModal"
+  />
 
-    <Modal v-model:show="showModal" confirm-text="确定" @confirm="onConfirm">
-      <div class="refer-selector">
-        <van-search v-model="searchValue" placeholder="输入名称搜索" shape="round"></van-search>
-        <div class="list-wrapper">
-          <van-cell v-for="item in list" :key="item.id" :title="item.display_name" @click="active=item.id">
-            <template #right-icon>
-              <van-icon v-if="active === item.id" name="success"></van-icon>
-            </template>
-          </van-cell>
-          <van-empty v-if="!list.length" description="暂无数据"></van-empty>
-        </div>
+  <Modal v-model:show="showModal" confirm-text="确定" @confirm="onConfirm">
+    <div class="refer-selector">
+      <van-search v-model="searchValue" placeholder="输入名称搜索" shape="round"></van-search>
+      <div class="list-wrapper">
+        <van-cell v-for="item in list" :key="item.id" :title="item.display_name" @click="active=item.id">
+          <template #right-icon>
+            <van-icon v-if="active === item.id" name="success"></van-icon>
+          </template>
+        </van-cell>
+        <van-empty v-if="!list.length" description="暂无数据"></van-empty>
       </div>
-    </Modal>
-  </div>
+    </div>
+  </Modal>
 </template>
 
 <script lang="ts">
 import { defineComponent, reactive, toRefs, Ref, computed, watch } from 'vue'
-import { useStore } from '@/store'
 import useFieldCommon, { fieldCommonProps } from '@/hooks/component/useField'
 import { fetchMany2OneData } from '@/api/record'
 import { Toast } from 'vant'
@@ -42,8 +39,7 @@ export default defineComponent({
   },
 
   setup(props) {
-    const store = useStore()
-    const { string, placeholder, type, value, isReadonly, isRequired, curRecord, setValue } = useFieldCommon(props, store)
+    const { string, placeholder, value, isRequired, curRecord, setValue } = useFieldCommon(props)
     const { state, onOpenModal } = useModal(props, curRecord)
 
     const onConfirm = (cb: Function) => {
@@ -66,9 +62,7 @@ export default defineComponent({
     return {
       string,
       placeholder,
-      type,
       value,
-      isReadonly,
       isRequired,
       ...toRefs(state),
       onOpenModal,
@@ -90,7 +84,6 @@ function useModal(props: any, curRecord: Ref<any>) {
   })
 
   const onOpenModal = async () => {
-    if(props.mode === 'readonly') return;
     await loadData()
     state.showModal = true
   }

@@ -1,5 +1,5 @@
 <template>
-  <div v-if="widget === 'many2many_tags'" class="form-item-field" :data-dbname="field && field.name" :data-type="type">
+  <div v-if="widget === 'many2many_tags'">
     <van-field
       :label="string" 
       :required="isRequired"
@@ -38,7 +38,6 @@
 
 <script lang="ts">
 import { defineComponent, computed, toRefs, reactive } from 'vue'
-import { useStore } from '@/store'
 import { find, map, pick } from 'lodash-es'
 import useFieldCommon, { fieldCommonProps } from '@/hooks/component/useField'
 import { getDomain } from '@/logics/core/dataPoint'
@@ -55,14 +54,12 @@ export default defineComponent({
   },
 
   setup(props) {
-    const store = useStore()
-
     const state = reactive({
       showPicker: false,
       columns: [] as string[],
       loading: false
     })
-    const { type, string, placeholder, rawValue, curRecord, isReadonly, isRequired, setValue } = useFieldCommon(props, store)
+    const { string, placeholder, rawValue, curRecord, isReadonly, isRequired, setValue } = useFieldCommon(props)
     const widget = computed(() => props.item?.widget)
     const items = computed(() => {
       if(rawValue.value) {
@@ -121,7 +118,6 @@ export default defineComponent({
 
     return {
       ...toRefs(state),
-      type,
       string,
       placeholder,
       widget,

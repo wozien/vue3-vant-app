@@ -6,7 +6,7 @@
         <p class="name">{{ user.nickname }}</p>
         <p>{{ user.phone }}</p>
       </div>
-      <Icon  name="set" size="24"/>
+      <van-icon name="arrow" color="#646566"></van-icon>
     </div>
     <van-cell-group>
       <van-cell :title="user.company.name" icon-prefix="ins-icon" icon="company" to="/companyList?keepSwitch=1" is-link />
@@ -15,7 +15,7 @@
       <van-cell title="联系我们" icon-prefix="ins-icon" icon="contact" @click="onClickContract"/>
     </van-cell-group>
     <div class="footer">
-      <van-button round block @click="onLogout">退出登录</van-button>
+      <van-button round block hairline size="small" type="primary" @click="onLogout">退出登录</van-button>
     </div>
 
     <van-popup v-model:show="showPicker" position="bottom" round>
@@ -123,7 +123,7 @@ export default defineComponent({
     background: white;
     display: flex;
     align-items: center;
-    padding: 20px 24px;
+    padding: 20px;
     margin-bottom: 10px;
     .info {
       flex: 1 1 auto;
@@ -145,8 +145,11 @@ export default defineComponent({
     position: absolute;
     left: 0;
     right: 0;
-    bottom: 0;
-    padding: 10px 16px;
+    bottom: 20px;
+    &::v-deep(.van-button) {
+      width: 50%;
+      margin: 0 auto;
+    }
   }
 }
 </style>

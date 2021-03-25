@@ -76,6 +76,11 @@ class View {
       buttonItem.funcType = button.func_type
     }
 
+    // 强制把行插入和行复制的 mode 设置为 edit
+    if(buttonItem.funcName && ['insertLine', 'copyLine'].includes(buttonItem.funcName)) {
+      buttonItem.mode = 'edit'
+    }
+
     return buttonItem
   }
 

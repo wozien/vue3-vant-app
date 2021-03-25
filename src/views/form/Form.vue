@@ -19,8 +19,7 @@
       </div>
     </div>
     <div class="form-canvas" :style="{'height': height + 'px'}">
-      <Loading v-model:show="loading" />
-      <FormCanvas v-if="!loading" :items="curView && curView.items" :fields="fields" ref="formRef"/>
+      <FormCanvas :items="curView && curView.items" :fields="fields" ref="formRef"/>
     </div>
     <LineSwitcher v-show="showLineSwitcher"/>
     <ButtonView :buttons="curView && curView.buttons"/>
@@ -43,6 +42,7 @@ import { viewCommonProps } from '@/hooks/component/useView'
 import { getRecordId } from '@/logics/core/dataPoint'
 import { sessionStorageKeys } from '@/logics/enums/cache'
 import { load as loadDataPoint, clean as cleanRecord, isDirty } from '@/logics/core/dataPoint'
+import useToast from '@/hooks/component/useToast'
 
 export default defineComponent({
   components: {
@@ -59,6 +59,7 @@ export default defineComponent({
     const route = useRoute()
     const router = useRouter()
     const store = useStore()
+    const { toast } =  useToast()
     const data = reactive({
       creator: {
         name: '',
@@ -69,7 +70,6 @@ export default defineComponent({
       state_name: ''
     })
     const formRef = ref()
-    const loading = ref(true)
     const searchFields = computed(() => {
       return props.fieldsInfo ? Object.keys(props.fieldsInfo) : []
     })
@@ -88,6 +88,7 @@ export default defineComponent({
     const loadRecord = async (routeQuery?: Record<string, any>) => {
       let { model, id } = routeQuery || route.query
       if(searchFields.value.length && props.fieldsInfo) {
+        toast.loading('数据加载中...')
         // datapoint load
         await loadDataPoint({
           type: 'record',
@@ -97,7 +98,7 @@ export default defineComponent({
           fieldsInfo: toRaw(props.fieldsInfo)
         })
         setCurRecord()
-        if(loading.value) loading.value = false
+        toast.clear()
       }
     }
 
@@ -189,7 +190,6 @@ export default defineComponent({
     return {
       ...toRefs(data),
       formRef,
-      loading,
       showHeader,
       showLineSwitcher,
       height,

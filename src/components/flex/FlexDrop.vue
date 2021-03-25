@@ -1,5 +1,5 @@
 <template>
-  <div class="form-item-field" :data-dbname="field && field.name" :data-type="type">
+  <div class="form-item-field" :data-field-name="field && field.name" :data-field-type="type">
     <van-field
       :label="string" 
       :placeholder="placeholder" 
@@ -39,7 +39,7 @@ export default defineComponent({
 
   setup(props) {
     const store = useStore()
-    const { string, placeholder, type, value, isReadonly, isRequired, curRecord, setValue } = useFieldCommon(props, store)
+    const { string, placeholder, type, value, isReadonly, isRequired, curRecord, setValue } = useFieldCommon(props)
     const showModal = ref(false)
     const flexFields = ref<any[]>([])
     const flexFormRef = ref()

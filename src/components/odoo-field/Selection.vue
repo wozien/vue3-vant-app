@@ -1,30 +1,27 @@
 <template>
-  <div class="form-item-field" :data-dbname="field && field.name" :data-type="type">
-    <van-field
-      :label="string" 
-      :placeholder="placeholder" 
-      v-model="value"
-      :required="isRequired"
-      :clickable="!isReadonly"
-      :is-link="!isReadonly"
-      readonly
-      center
-      @click="onOpen"
-    />
+  <van-field
+    :label="string" 
+    :placeholder="placeholder" 
+    v-model="value"
+    :required="isRequired"
+    :clickable="true"
+    :is-link="true"
+    readonly
+    center
+    @click="onOpen"
+  />
 
-    <van-popup v-model:show="showPicker" position="bottom" teleport="body" round>
-      <van-picker
-        :columns="columns"
-        @confirm="onConfirm"
-        @cancel="showPicker = false"
-      />
-    </van-popup>
-  </div>
+  <van-popup v-model:show="showPicker" position="bottom" teleport="body" round>
+    <van-picker
+      :columns="columns"
+      @confirm="onConfirm"
+      @cancel="showPicker = false"
+    />
+  </van-popup>
 </template>
 
 <script lang="ts">
 import { defineComponent, reactive, toRefs, watchEffect } from 'vue'
-import { useStore } from '@/store'
 import useFieldCommon, { fieldCommonProps } from '@/hooks/component/useField'
 
 export default defineComponent({
@@ -33,15 +30,13 @@ export default defineComponent({
   },
 
   setup(props) {
-    const store = useStore()
-    const { string, placeholder, type, value, isReadonly, isRequired, setValue } = useFieldCommon(props, store)
+    const { string, placeholder, value, isRequired, setValue } = useFieldCommon(props)
     const state = reactive({
       showPicker: false,
       columns: [] as string[]
     })
 
     const onOpen = () => {
-      if(isReadonly.value) return
       state.showPicker = true
     }
 
@@ -60,9 +55,7 @@ export default defineComponent({
     return {
       string,
       placeholder,
-      type,
       value,
-      isReadonly,
       isRequired,
       ...toRefs(state),
       onOpen,

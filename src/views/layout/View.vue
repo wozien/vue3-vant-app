@@ -1,6 +1,5 @@
 <template>
-  <Loading v-model:show="loading" v-if="loading"/>
-  <van-empty v-else-if="ctx && !ctx.curView" :description="`移动${viewName}视图不存在`"/>
+  <van-empty v-if="ctx && !ctx.curView" :description="`移动${viewName}视图不存在`"/>
   <ListView 
     v-else-if="viewType === 'list'" 
     :app-name="ctx && ctx.appName"
@@ -48,7 +47,6 @@ export default defineComponent({
     
     const curApp = ref<App>(new App('', '', 0))
     const ctx = ref<ViewContext>()
-    const loading = ref(true)
     const title = computed(() => {
       return curApp.value.name || '应用'
     })
@@ -62,7 +60,6 @@ export default defineComponent({
       let { menuId, actionId } = loadParams
       const res = await getAppAsync(route.query.model as string , menuId as string, actionId as string)
       curApp.value = res
-      loading.value = false
     })
 
     watchEffect(() => {
@@ -77,7 +74,6 @@ export default defineComponent({
     })
 
     return {
-      loading,
       curApp,
       viewType: computed(() => route.query.viewType),
       viewName,

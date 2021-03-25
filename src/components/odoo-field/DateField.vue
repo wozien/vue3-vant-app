@@ -1,31 +1,28 @@
 <template>
-  <div class="form-item-field" :data-dbname="field && field.name" :data-type="type">
-    <van-field
-      :label="string" 
-      :placeholder="placeholder" 
-      v-model="value"
-      :required="isRequired"
-      :clickable="!isReadonly"
-      :right-icon="!isReadonly ? 'notes-o' : ''"
-      readonly
-      center
-      @click="onOpen"
-    />
+  <van-field
+    :label="string" 
+    :placeholder="placeholder" 
+    v-model="value"
+    :required="isRequired"
+    :clickable="true"
+    right-icon="notes-o"
+    readonly
+    center
+    @click="onOpen"
+  />
 
-    <van-popup v-model:show="showPicker" position="bottom" teleport="body" round>
-      <van-datetime-picker 
-        v-model="dateValue" 
-        :type="type" 
-        :formatter="formatter"
-        @cancel="showPicker = false" 
-        @confirm="onConfirm"/>
-    </van-popup>
-  </div>
+  <van-popup v-model:show="showPicker" position="bottom" teleport="body" round>
+    <van-datetime-picker 
+      v-model="dateValue" 
+      :type="type" 
+      :formatter="formatter"
+      @cancel="showPicker = false" 
+      @confirm="onConfirm"/>
+  </van-popup>
 </template>
 
 <script lang="ts">
 import { defineComponent, reactive, toRefs, watchEffect } from 'vue'
-import { useStore } from '@/store'
 import useFieldCommon, { fieldCommonProps } from '@/hooks/component/useField'
 
 export default defineComponent({
@@ -34,8 +31,7 @@ export default defineComponent({
   },
 
   setup(props) {
-    const store = useStore()
-    const { string, placeholder, type, value, rawValue, isReadonly, isRequired, setValue } = useFieldCommon(props, store)
+    const { string, placeholder, type, value, rawValue, isRequired, setValue } = useFieldCommon(props)
     const state = reactive({
       showPicker: false,
       columns: [] as string[],
@@ -43,7 +39,6 @@ export default defineComponent({
     })
 
     const onOpen = () => {
-      if(isReadonly.value) return
       state.showPicker = true
     }
 
@@ -72,10 +67,8 @@ export default defineComponent({
     return {
       string,
       placeholder,
-      type,
       value,
       rawValue,
-      isReadonly,
       isRequired,
       ...toRefs(state),
       formatter,

@@ -1,8 +1,8 @@
 <template>
   <div class="app-list">
     <div v-for="item in list" :key="item.id" class="app" @click="onClickApp(item)">
-      <div class="img">
-        <img :src="item.icon">
+      <div class="img-wrapper">
+        <img class="img" :src="item.icon">
       </div>
       <span class="name van-multi-ellipsis--l2">{{ item.name }}</span>
     </div>
@@ -81,13 +81,15 @@ export default defineComponent({
     width: 80px;
     margin-bottom: 20px;
     .column-flex;
-    .img {
-      width: 45px;
-      height: 45px;
+    .img-wrapper {
+      width: 42px;
+      height: 42px;
       border-radius: 10px;
       overflow: hidden;
-      margin-bottom: 4px;
-      img {
+      margin-bottom: 8px;
+      .img {
+        transform-origin: center center;
+        transform: scale(1.2);
         width: 100%;
         height: 100%;
       }
