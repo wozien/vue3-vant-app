@@ -87,7 +87,7 @@ class View {
   _formatButtons(buttons: any[] = []) {
     const viewButtons: ViewButton[] = []
     for(let button of buttons) {
-      if(button && !button.forbidden) {
+      if(button && !button.forbidden && !Array.isArray(button.func_name)) {
         const buttomItem = this._formatOneButton(button)
         viewButtons.push(buttomItem)
       }
