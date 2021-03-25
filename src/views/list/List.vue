@@ -49,10 +49,10 @@ import { useRoute, useRouter } from 'vue-router'
 import { useStore } from '@/store'
 import ListCard from './ListCard.vue'
 import type { Action } from '@/logics/types'
-import Record from '@/logics/class/Record'
+import ListRecord from '@/logics/class/ListRecord'
 import { viewCommonProps } from '@/hooks/component/useView'
 import { fetchListData } from '@/api/app'
-import { fetchReferencesBatch, fetchX2ManysBatch } from '@/logics/class/Record'
+import { fetchReferencesBatch, fetchX2ManysBatch } from '@/logics/class/ListRecord'
 import SearchView from '@views/search/SearchView.vue'
 import SearchBar from '@views/search/SearchBar.vue'
 
@@ -79,7 +79,7 @@ export default defineComponent({
       loading: false,
       finished: false,
       refreshing: false,
-      list: [] as Record[],
+      list: [] as ListRecord[],
       showSearchView: false,
       domain: [] as any[]
     })
@@ -114,7 +114,7 @@ export default defineComponent({
             ])
             state.loading = false  // loading的状态需要放在所有后面
             res.data.forEach((raw: any, index: number) => {
-              const record = new Record(raw)
+              const record = new ListRecord(raw)
               state.list.push(record)
               if(index === res.data.length - 1) lastId = record.id
             })

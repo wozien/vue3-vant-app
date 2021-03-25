@@ -22,7 +22,7 @@ import { each } from 'lodash-es'
 import { defineComponent, PropType } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import type { FieldsInfo, FieldInfo } from '@/logics/types'
-import Record from '@/logics/class/Record'
+import ListRecord from '@/logics/class/ListRecord'
 import { formatDate } from '@/utils/date'
 import { sessionStorageKeys } from '@/logics/enums/cache'
 import fieldUtils from '@/utils/field-utils'
@@ -49,7 +49,7 @@ export default defineComponent({
   props: {
     appName: String,
     record: {
-      type: Object as PropType<Record | ListCard>,
+      type: Object as PropType<ListRecord | ListCard>,
       required: true
     },
     fieldsInfo: {
@@ -90,8 +90,8 @@ export default defineComponent({
   }
 })
 
-function useCard(record: Record | ListCard, fieldsInfo: FieldsInfo, appName?:string) {
-  if(!(record instanceof Record)) return record
+function useCard(record: ListRecord | ListCard, fieldsInfo: FieldsInfo, appName?:string) {
+  if(!(record instanceof ListRecord)) return record
   const res: ListCard = {
     id: record.id,
     name: appName || '',

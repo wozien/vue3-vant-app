@@ -1,5 +1,5 @@
 import Action from '../class/Action'
-import Record from '../class/Record'
+import ListRecord from '../class/ListRecord'
 import App from '../class/App'
 import { default as Model, Fields } from '../class/Model'
 import { default as View, ViewType, ViewButton } from '../class/View'
@@ -27,7 +27,7 @@ export type {
   StudioItem,
   Action,
   App,
-  Record,
+  ListRecord,
   Model,
   View,
   Field,
