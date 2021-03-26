@@ -48,7 +48,7 @@ export default defineComponent({
     return  curRecord && getDomain(curRecord.value.id, { fieldName: props.field?.name })
   })
 
-    const onConfirm = (cb: Function) => {
+    const onConfirm = (cb: Fn) => {
       if(state.activeId === -1) {
         Toast('请选择数据')
         cb(true); return

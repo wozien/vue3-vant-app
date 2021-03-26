@@ -65,6 +65,7 @@ export default defineComponent({
     })
 
     return {
+      type,
       string,
       placeholder,
       value,

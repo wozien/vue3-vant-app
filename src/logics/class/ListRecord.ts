@@ -85,11 +85,12 @@ const _getTofetch = (data: any[], fieldTypes: string[], fieldsInfo: FieldsInfo) 
   data.forEach((row: any) => {
     for(let fieldName in row) {
       const field = fieldsInfo[fieldName]
-      if(!field || !fieldTypes.includes(field.type)) continue
+      const value = row[fieldName]
+      if(!field || !fieldTypes.includes(field.type) || value === false) continue
 
       switch(field.type) {
         case 'reference':
-          const [model, resID] = row[fieldName].split(',')
+          const [model, resID] = value.split(',')
           res[model] = [...res[model] || [], +resID]
           break
 
@@ -97,7 +98,7 @@ const _getTofetch = (data: any[], fieldTypes: string[], fieldsInfo: FieldsInfo) 
         case 'one2many':
           const relation = field.relation
           if(relation) 
-            res[relation] = (res[relation] || []).concat(row[fieldName])
+            res[relation] = (res[relation] || []).concat(value)
       }
     }
   })

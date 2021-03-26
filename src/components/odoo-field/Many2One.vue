@@ -11,11 +11,11 @@
     @click="onOpenModal"
   />
 
-  <Modal v-model:show="showModal" confirm-text="确定" @confirm="onConfirm">
-    <div class="refer-selector">
+  <Modal v-model:show="showModal" confirm-text="确定" @confirm="onConfirm" @cancel="onCancel">
+    <div class="m2o-selector">
       <van-search v-model="searchValue" placeholder="输入名称搜索" shape="round"></van-search>
       <div class="list-wrapper">
-        <van-cell v-for="item in list" :key="item.id" :title="item.display_name" @click="active=item.id">
+        <van-cell v-for="item in list" :key="item.id" :title="item.display_name" @click="onClickItem(item.id)">
           <template #right-icon>
             <van-icon v-if="active === item.id" name="success"></van-icon>
           </template>
@@ -30,8 +30,8 @@
 import { defineComponent, reactive, toRefs, Ref, computed, watch } from 'vue'
 import useFieldCommon, { fieldCommonProps } from '@/hooks/component/useField'
 import { fetchMany2OneData } from '@/api/record'
-import { Toast } from 'vant'
 import { getDomain } from '@/logics/core/dataPoint'
+import useToast from '@/hooks/component/useToast'
 
 export default defineComponent({
   props: {
@@ -39,25 +39,35 @@ export default defineComponent({
   },
 
   setup(props) {
-    const { string, placeholder, value, isRequired, curRecord, setValue } = useFieldCommon(props)
+    const { string, placeholder, value, rawValue, isRequired, curRecord, setValue } = useFieldCommon(props)
     const { state, onOpenModal } = useModal(props, curRecord)
 
-    const onConfirm = (cb: Function) => {
-      if(!state.active) {
-        Toast('请选择数据')
-        cb(true)
-        return
-      }
+    const onClickItem = (id: number) => {
+      state.active = state.active === id ? 0 : id
+    }
+
+    const onConfirm = async (cb: Fn) => {
       const item = state.list.find(item => item.id == state.active)
       if(item) {
-        value.value = item.display_name
-        state.active = 0
-        cb()
-
         // notify change
-        setValue(item)
+        await setValue(item)
+      } else {
+        await setValue(false)
+      }
+      cb()
+    }
+
+    const onCancel = () => {
+      if(rawValue.value) {
+        state.active = (rawValue.value as any).res_id
       }
     }
+
+    watch(rawValue, (val: any) => {
+      if(val) {
+        state.active = val.res_id
+      }
+    }, { immediate: true })
 
     return {
       string,
@@ -66,12 +76,15 @@ export default defineComponent({
       isRequired,
       ...toRefs(state),
       onOpenModal,
-      onConfirm
+      onClickItem,
+      onConfirm,
+      onCancel
     }
   }
 })
 
 function useModal(props: any, curRecord: Ref<any>) {
+  const { toast } = useToast()
   const state = reactive({
     showModal: false,
     searchValue: '',
@@ -84,11 +97,12 @@ function useModal(props: any, curRecord: Ref<any>) {
   })
 
   const onOpenModal = async () => {
-    await loadData()
     state.showModal = true
+    await loadData()
   }
 
   const loadData = async () => {
+    toast.loading()
     const res = await fetchMany2OneData(props.field?.relation, state.searchValue, domain.value)
     if(res.ret === 0) {
       state.list = res.data.map((item: any) => {
@@ -98,6 +112,7 @@ function useModal(props: any, curRecord: Ref<any>) {
         }
       })
     }
+    toast.clear()
   }
 
   watch(() => state.searchValue, () => {
@@ -112,7 +127,7 @@ function useModal(props: any, curRecord: Ref<any>) {
 </script>
 
 <style lang="less" scoped>
-.refer-selector {
+.m2o-selector {
   height: 100%;
   .list-wrapper {
     height: calc(100% - 54px);

@@ -279,6 +279,10 @@ export default defineComponent({
     }
     // 保存并新增
     const onNewLine = async (rowIndex?: number) => {
+      const canSaved = canBeSaved && canBeSaved(); 
+      if(!canSaved) {
+        Toast('存在必录项未填'); return;
+      }
       const field = getX2MField()
       if(field) {
         const command: any = {

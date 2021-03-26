@@ -24,7 +24,7 @@
     </vxe-table-column>
   </vxe-table>
 
-  <div class="add-row" v-if="mode === 'edit' && !isMany2Many">
+  <div class="add-row" v-if="!isReadonly && !isMany2Many">
     <van-button icon="plus" size="small" type="primary" round block plain @click="onAddRow">添加明细行</van-button>
   </div> 
 </template>
@@ -56,7 +56,7 @@ export default defineComponent({
     const route = useRoute()
     const router = useRouter()
 
-    const { rawValue, curRecord } = useFieldCommon(props)
+    const { rawValue, curRecord, isReadonly } = useFieldCommon(props)
     const columns = ref<Column[]>([])
     const tableData = ref<any[]>([])
     const isMany2Many = computed(() => props.item?.widget === 'many2many')
@@ -64,7 +64,7 @@ export default defineComponent({
     // 表体行点击
     const onCellClick: VxeTableEvents.CellClick = ({ row }) => {
       // m2m 字段暂时只给查看
-      if(props.mode === 'edit' && isMany2Many.value) return;   
+      if(isReadonly.value || isMany2Many.value) return;   
 
       const record = find((rawValue.value as any).data, { res_id: row.id })
       if(record) {
@@ -120,6 +120,7 @@ export default defineComponent({
 
     return {
       isMany2Many,
+      isReadonly,
       rawValue,
       columns,
       tableData,

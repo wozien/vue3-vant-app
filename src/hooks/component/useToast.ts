@@ -8,7 +8,7 @@ export default function(bindRef?: boolean) {
     Toast.loading({
       duration: 0,
       forbidClick: true,
-      message: msg || ''
+      message: msg || '加载中...'
     })
   }
   const toastClear = () => Toast.clear()
