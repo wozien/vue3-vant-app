@@ -9,7 +9,7 @@ import View from './View'
 import ViewItem from './ViewItem'
 import { fetchAction, fetchAppDetail } from '@/api/app'
 import { fetchFlowDetail } from '@/api/workflow'
-import { findTree } from '@/utils/helper'
+import { findTree } from '@/helpers/utils'
 import { sessionStorageKeys } from '@/logics/enums/cache'
 import store from '@/store'
  

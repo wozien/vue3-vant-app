@@ -1,7 +1,7 @@
 import { find, isNumber, isString, identity } from 'lodash-es'
-import { str2Date, formatDate as date2Str } from '@/utils/date'
+import { str2Date, formatDate as date2Str } from '@/helpers/date'
 import { DataPoint } from '@/logics/types/dataPoint'
-import { insertThousandSeps } from '@/utils/helper'
+import { insertThousandSeps } from '@/helpers/utils'
 import sprintf from '@/logics/odoo/sprintf'
 
 // -------------- format --------------

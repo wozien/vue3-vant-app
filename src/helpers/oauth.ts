@@ -2,12 +2,12 @@
  * 微信授权相关
  */
 
-import urlKit from '@/utils/url'
+import urlKit from '@/helpers/url'
 import url from 'url'
 import qs from 'qs'
 import { getWxOpenId } from '@/api/user'
 import { LocalStorageKeys } from '@/logics/enums/cache'
-import { wrapperEnv } from '@/utils/helper'
+import { wrapperEnv } from '@/helpers/utils'
 
 const { WX_APP_ID, WX_OPEN_ID, NODE_ENV } = wrapperEnv(process.env)
 const isDev = NODE_ENV === 'development'

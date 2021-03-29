@@ -3,7 +3,7 @@ import { computed, ref, PropType, watchEffect } from 'vue'
 import { useStore } from '@/store'
 import { Field, Item, ModifierKey } from '@/logics/types'
 import { DataPoint, DataPointState, DataPointData } from '@/logics/types/dataPoint'
-import fieldUtils from '@/utils/field-utils'
+import fieldUtils from '@/logics/core/fieldUtils'
 import { notifyChanges, evalModifiers } from '@/logics/core/dataPoint'
 
 type WidgetMode = 'readonly' | 'edit'

@@ -5,9 +5,9 @@ import Vant from '@/plugins/vant'
 let instance: ComponentPublicInstance
 
 interface ModalOptions {
-  render: Function
-  confirm: (cb: Function) => void
-  cancel?: (cb: Function) => void
+  render: Fn
+  confirm: (cb: Fn) => void
+  cancel?: (cb: Fn) => void
   hideFooter?: boolean
 }
 

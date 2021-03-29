@@ -4,7 +4,7 @@
 
 import { each, map } from 'lodash-es'
 import { getApp } from './App'
-import { str2Date } from '@/utils/date'
+import { str2Date } from '@/helpers/date'
 import { FieldsInfo } from './Field'
 import { fetchNameGet, fetchRecord } from '@/api/record'
 

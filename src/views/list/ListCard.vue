@@ -25,7 +25,7 @@ import type { FieldsInfo, FieldInfo } from '@/logics/types'
 import ListRecord from '@/logics/class/ListRecord'
 import { formatDate } from '@/utils/date'
 import { sessionStorageKeys } from '@/logics/enums/cache'
-import fieldUtils from '@/utils/field-utils'
+import fieldUtils from '@/logics/core/fieldUtils'
 
 interface ListCardField {
   name: string

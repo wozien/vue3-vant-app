@@ -16,10 +16,12 @@
       <van-search v-model="searchValue" placeholder="输入名称搜索" shape="round"></van-search>
       <div class="list-wrapper">
         <van-tree-select 
-          v-model:active-id="activeId"
+          :active-id="activeId"
           v-model:main-active-index="mainActiveId"
           :items="items"
           height="100%"
+          @click-item="onClickItem"
+          @click-nav="onClickNav"
         />
       </div>
     </div>
@@ -30,8 +32,8 @@
 import { defineComponent, reactive, toRefs, watch, watchEffect, computed } from 'vue'
 import useFieldCommon, { fieldCommonProps } from '@/hooks/component/useField'
 import { fetchMany2OneData } from '@/api/record'
-import { Toast } from 'vant'
 import { getDomain } from '@/logics/core/dataPoint'
+import useToast from '@/hooks/component/useToast'
 
 export default defineComponent({
   props: {
@@ -43,42 +45,40 @@ export default defineComponent({
       string, placeholder, value, rawValue, isRequired, curRecord, setValue 
     } = useFieldCommon(props)
     const { state, onOpenModal } = useModal(props)
+    const { toast } = useToast()
 
     const domain = computed(() => {
-    return  curRecord && getDomain(curRecord.value.id, { fieldName: props.field?.name })
-  })
+      return  curRecord && getDomain(curRecord.value.id, { fieldName: props.field?.name })
+    })
 
-    const onConfirm = (cb: Fn) => {
-      if(state.activeId === -1) {
-        Toast('请选择数据')
-        cb(true); return
-      }
-
+    const onConfirm = async (cb: Fn) => {
       const curModel = state.models[state.mainActiveId]
       if(curModel) {
-        state.items.forEach((item: any) => {
-          if(item.text === curModel.name) {
-            const select = item.children.find((row: any) => row.id === state.activeId)
-            setValue({
-              model: curModel.model,
-              id: select.id,
-              display_name: select.text
-            })
-            return false
-          }
-        })
+        if(state.activeId !== -1) {
+          state.items.forEach(async (item: any) => {
+            if(item.model === curModel.model) {
+              const select = item.children.find((row: any) => row.id === state.activeId)
+              await setValue({
+                model: curModel.model,
+                id: select.id,
+                display_name: select.text
+              })
+              return false
+            }
+          })
+        } else {
+          await setValue(false)
+        }
       }
       cb()
     }
 
-    const loadData = async (model?: string) => {
-      if(!model) {
-        const activeModel = state.models[state.mainActiveId]
-        model = activeModel.model
-      }
-      const res = await fetchMany2OneData(model as string, state.searchValue, domain.value)
+    const loadData = async () => {
+      const activeModel = state.models[state.mainActiveId]
+      toast.loading()
+      const res = await fetchMany2OneData(activeModel.model as string, state.searchValue, domain.value)
       state.items.forEach((item: any) => {
-        if(item.model === model) {
+        if(item.model === activeModel.model) {
           item.children = res.data.map((row: any) => {
             const [id, name] = row
             return {
@@ -88,22 +88,33 @@ export default defineComponent({
           })
         }
       })
+      toast.clear()
     }
 
-    watch(rawValue, val => {
-      const { model } = val as any
-      if(model) {
-        const index = state.models.findIndex((item: any) => item.model === model)
-        state.mainActiveId = index
-      }
-    })
+    const onClickItem = (item: any) => {
+      state.activeId = state.activeId === item.id ? -1 : item.id
+    }
 
-    watch(() => state.mainActiveId, async (val) => {
-      const activeModel = state.models[val]
+    const onClickNav = () => {
       state.activeId = -1
-      if(activeModel) {
-        await loadData(activeModel.model)
+      loadData()
+    }
+
+    watch(() => state.showModal, (val) => {
+      if(!val) return
+      if(rawValue.value) {
+        const { model, res_id } = rawValue.value as any
+        state.activeId = res_id
+        if(model) {
+          const index = state.models.findIndex((item: any) => item.model === model)
+          state.mainActiveId = index === -1 ? 0 : index
+        } 
+      } else {
+        state.activeId = -1
+        state.mainActiveId = 0
       }
+
+      loadData()
     })
 
     watch(() => state.searchValue, () => loadData())
@@ -116,7 +127,9 @@ export default defineComponent({
       isRequired,
       ...toRefs(state),
       onOpenModal,
-      onConfirm
+      onConfirm,
+      onClickItem,
+      onClickNav
     }
   }
 })
@@ -127,7 +140,7 @@ function useModal(props: any) {
     searchValue: '',
     models: [] as any[],
     activeId: -1,
-    mainActiveId: -1,
+    mainActiveId: 0,
     items: [] as any[]
   })
 
@@ -138,8 +151,7 @@ function useModal(props: any) {
 
   watchEffect(() => {
     if(props.field?.selection?.length) {
-      props.field.selection.forEach((row: any) => {
-        const [model, name] = row
+      props.field.selection.forEach(([model, name]: [string, string]) => {
         if(model && name) {
           state.models.push({ model, name })
           state.items.push({ text: name, model, children: [] })
@@ -153,6 +165,7 @@ function useModal(props: any) {
     onOpenModal
   }
 }
+
 </script>
 
 <style lang="less" scoped>

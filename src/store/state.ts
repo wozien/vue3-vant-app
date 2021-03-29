@@ -1,6 +1,6 @@
 import type { DataPoint, DataPointId } from '@/logics/types/dataPoint'
 import { localData } from '@/logics/core/dataPoint'
-import { uuid } from '@/utils/helper'
+import { uuid } from '@/helpers/utils'
 interface Company {
   dbName: string;
   name: string;

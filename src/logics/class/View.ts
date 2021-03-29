@@ -1,7 +1,7 @@
 
 import ViewItem from './ViewItem'
 import type { StudioItem } from '../types'
-import { findTree, uuid } from '@/utils/helper' 
+import { findTree, uuid } from '@/helpers/utils' 
 import { chekcButtonAccess } from '@/api/app'
 
 export type ViewType = 'form' | 'list'
