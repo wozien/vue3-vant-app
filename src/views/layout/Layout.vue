@@ -17,7 +17,7 @@
 import { defineComponent, ref, computed, watchEffect } from 'vue'
 import { useStore } from '@/store'
 import { useRoute } from 'vue-router'
-import { isWechatAgent } from '@/utils/helper'
+import { isWechatAgent } from '@/helpers/utils'
 
 export default defineComponent({
   setup() {

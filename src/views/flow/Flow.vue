@@ -32,7 +32,7 @@ import { defineComponent, computed, reactive, toRefs, watch, Ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useStore, User } from '@/store'
 import { fetchFlowList } from '@/api/workflow'
-import { formatDate, str2Date } from '@/utils/date'
+import { formatDate, str2Date } from '@/helpers/date'
 import { setDocumentTitle } from '@/hooks/web/useTitle'
 import ListCard from '../list/ListCard.vue'
 

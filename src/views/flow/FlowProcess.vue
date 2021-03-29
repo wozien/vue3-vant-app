@@ -34,7 +34,7 @@
 import { defineComponent, watchEffect, onBeforeMount, reactive, ref, toRefs } from 'vue'
 import { useRoute } from 'vue-router'
 import BpmnJS from 'bpmn-js/lib/Modeler'
-import { formatDate } from '@/utils/date'
+import { formatDate } from '@/helpers/date'
 import { Dialog } from 'vant'
 import { callButton } from '@/api/odoo'
 import { sessionStorageKeys } from '@/logics/enums/cache'

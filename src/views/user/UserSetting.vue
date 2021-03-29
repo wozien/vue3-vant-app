@@ -17,7 +17,7 @@ import { defineComponent, computed, ref } from 'vue'
 import { useStore } from '@/store'
 import { Toast } from 'vant'
 import { uploadUserAvatar } from '@/api/user'
-import { setUrlQuery } from '@/utils/url'
+import { setUrlQuery } from '@/helpers/url'
 
 function useUploader() {
   const avatar = ref('')
