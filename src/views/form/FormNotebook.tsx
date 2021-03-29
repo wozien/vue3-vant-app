@@ -27,7 +27,7 @@ export default defineComponent({
       if(items.value.length && slotNodes.value?.length) {
         return items.value.map((item: Item, index) => {
           let invisible = false
-          if(item.modifiers.invisible) {
+          if(item.modifiers.invisible && curRecord.value) {
             const modifiers = evalModifiers(curRecord.value.id, item.modifiers)
             invisible = modifiers.invisible
           }

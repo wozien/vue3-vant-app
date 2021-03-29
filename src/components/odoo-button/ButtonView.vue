@@ -95,7 +95,6 @@ export default defineComponent({
 
     // 按钮点击入口
     const onButtonClick = async (button: string | ViewButton) => {
-
       if(typeof button === 'string') {
         button = renderButtons.value.find((btn: ViewButton) => btn.key === button) as ViewButton
       }
@@ -133,7 +132,8 @@ export default defineComponent({
             onDeleteLine(); break
           case 'copyLine':
             await onCopyLine(); break
-
+          default:
+            Toast('该按钮功能暂不支持')
         }
       } else if(button.type === 'object') {    
         // call_button
