@@ -98,7 +98,7 @@ export const deleteRecord = async (model: string, id: number, context = {}): Pro
  * @param context 
  */
 export const fetchOnChange = async (model: string, args: any[], context = {}): Promise<HttpRes> => {
-  let res = await callKw(model, 'onchange', args, { context })
+  let res = await callKw(model, 'flex_onchange_domain', args, { context })
   return res.data
 }
 

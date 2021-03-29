@@ -102,6 +102,8 @@ export default defineComponent({
       if(button.expand) return
       button.loading = true
 
+      console.log(button)
+
       if(button.funcName === 'workflow_view') {
         router.push({
           name: 'flow-process',
@@ -138,10 +140,10 @@ export default defineComponent({
       } else if(button.type === 'object') {    
         // call_button
         const { model, id } = route.query
-        if(button && model && id) {
-          const args = [[+id]]
+        if(button && model) {
+          const args = id ? [+id] : []
           const toast = Toast.loading('加载中...')
-          const res = await callButton(model as string, button.funcName as string, args, Object.assign({}, {context: getFlowParams()}))
+          const res = await callButton(model as string, button.funcName as string, [args], Object.assign({}, {context: getFlowParams()}))
           toast.clear()
           if(res.ret === 0) {
             const action = res.data

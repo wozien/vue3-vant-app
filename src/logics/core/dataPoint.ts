@@ -106,6 +106,9 @@ const _applyX2ManyOperations = (list: DataPoint) => {
         const deletedResID = relRecord ? relRecord.res_id : change.id
         list.res_ids = without(list.res_ids, deletedResID) as string[]
         break
+      case 'REMOVE_ALL':
+        list.res_ids = []
+        break
       case 'UPDATE':
         break
     }
@@ -226,10 +229,82 @@ const _applyOnChange = (values: any, record: DataPoint) => {
               record._changes[name] = id;
           }
       } else {
-          record._changes[name] = id;
+          record._changes[name] = false
       }
     } else if(field.type === 'one2many' || field.type === 'many2many') {
-      // TODO 表头联动表头暂时不考虑，太tm复杂了
+      let listId = record._changes[name] || record.data[name]
+      let list: DataPoint
+
+      if(listId) {
+        list = localData[listId]
+      } else {
+        list = _makeDataPoint({
+          type: 'list',
+          viewType: 'list',
+          modelName: field.relation as string,
+          parentId: record.id,
+          fieldsInfo: field.list || {}
+        })
+      }
+      record._changes[name] = list.id
+      list._changes = list._changes || []
+
+      let oldChanges = list._changes
+      each(val, (command: any[]) => {
+        let rec, recID
+        if(command[0] === 0 || command[0] === 1) {
+          // CREATE or UPDATE
+          if(command[0] === 0 && command[1]) {
+            const previousChange = find(oldChanges, (operation: any) => {
+              const child = localData[operation.id]
+              return child && child.res_id === command[1]
+            })
+            recID = previousChange && previousChange.id
+            rec = localData[recID]
+          } 
+          if(command[0] === 1 && command[1]) {
+            rec = localData[list._cache[command[1]]]
+          }
+          if(!rec) {
+            const params: LoadParams = {
+              type: 'record',
+              viewType: 'list',
+              fieldsInfo: list.fieldsInfo,
+              modelName: list.model,
+              parentId: list.id
+            }
+            if(command[0] === 1) {
+              params.res_id = command[1]
+            }
+            rec = _makeDataPoint(params)
+            rec.res_id && (list._cache[rec.res_id] = rec.id)
+          }
+          list._changes.push({operation: 'ADD', id: rec.id})
+          if (command[0] === 1) {
+            list._changes.push({operation: 'UPDATE', id: rec.id})
+          }
+          defs.push(_applyOnChange(command[2], rec))
+        } else if(command[0] === 4) {
+          // LINK TO
+          linkRecord(list, command[1])
+        } else if(command[0] === 5) {
+          // DELETE ALL
+          list._changes = [{operation: 'REMOVE_ALL'}]
+        } else if(command[0] === 6) {
+          list._changes = [{operation: 'REMOVE_ALL'}]
+          each(command[2], function (resID) {
+              linkRecord(list, resID)
+          })
+        }
+      })
+
+      list = _applyX2ManyOperations(list)
+      defs.push(_fetchX2ManysData(list).then(() => {
+        return Promise.all([
+          _fetchX2ManysBatched(list),
+          _fetchReferencesBatched(list)
+        ])
+      }))
     } else {
       const newValue = _parseServerValue(field, val);
       if (newValue !== oldValue) {
@@ -239,6 +314,19 @@ const _applyOnChange = (values: any, record: DataPoint) => {
   })
 
   return Promise.all(defs)
+
+  function linkRecord(list: DataPoint, resID: number) {
+    rec = localData[list._cache[resID]]
+    if(rec) {
+      discardChanges(rec.id)
+    }
+
+    list._changes.push({
+      operation: 'ADD',
+      id: rec ? rec.id : null,
+      resID: resID
+    })
+  }
 }
 
 /**
@@ -595,6 +683,7 @@ const _fetchX2ManysData = async (list: DataPoint) => {
       })
     }
   }
+  return list
 }
 
 /**
