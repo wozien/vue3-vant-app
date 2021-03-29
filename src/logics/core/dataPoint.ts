@@ -14,6 +14,7 @@ import { str2Date, formatDate } from '@/helpers/date'
 import { fetchRecord, saveRecord, fetchDefaultValues, fetchNameGet, fetchOnChange } from '@/api/record'
 import { sessionStorageKeys } from '@/logics/enums/cache'
 import Domain from '@/logics/odoo/Domain'
+import Context from '../odoo/Context'
 
 // -----  private methods  ----------
 
@@ -934,7 +935,7 @@ const _makeDefaultRecord = async (modelName: string, params: LoadParams) => {
   const res = await fetchDefaultValues(modelName, fieldNames)
   if(res.ret === 0) {
     await applyDefaultValues(record.id, res.data, { fieldNames })
-    await _performOnChange(record, without(fieldNames, '__last_update'))
+    await _performOnChange(record, without(fieldNames, '__last_update'), { from: 'create' })
     await _fetchRelationalData(record)
   }
 
@@ -947,6 +948,33 @@ const _makeDefaultRecord = async (modelName: string, params: LoadParams) => {
  */
 const _getFieldsName = (dataPoint: DataPoint) => {
   return Object.keys(dataPoint.fieldsInfo || {})
+}
+
+// onchange context
+const _getContext = (element: DataPoint, options?: any) => {
+  options = options || {}
+  const context = new Context({})
+  context.set_eval_context(_getEvalContext(element))
+
+  if(options.full || !(options.fieldName || options.additionalContext)) {
+    context.add(element.context || {})
+  }
+
+  if(options.fieldName) {
+    const fieldInfo = element.fieldsInfo[options.fieldName]
+    if('context' in fieldInfo) {
+      context.add((fieldInfo as any).context)
+    }
+  }
+  if(options.additionalContext) {
+    context.add(options.additionalContext)
+  }
+
+  if(element.rawContext) {
+    // TODO
+  }
+
+  return context.eval()
 }
 
 /**
@@ -1401,19 +1429,29 @@ const _parseServerData = (record: DataPoint) => {
  * @param record 
  * @param fields 
  */
-const _performOnChange = async (record: DataPoint, fields: string[] | string) => {
+const _performOnChange = async (record: DataPoint, fields: string[] | string, options?: any) => {
   const onchangeSpec = _buildOnchangeSpecs(record)
   if(!onchangeSpec) {
     return
   }
 
+  // 写死默认options
+  options = {
+    full: true,
+    additionalContext: defaults({
+      isModifierValue: true,
+      view_type: 'form'
+    }, options || {})
+  }
   const idList = record.data.id ? [record.data.id] : []
   if(fields.length === 1) {
     fields = fields[0]
+    options.fieldName = fields
   }
 
+  const context = _getContext(record, options)
   const currentData = _generateOnChangeData(record, {changesOnly: false})
-  const res = await fetchOnChange(record.model, [idList, currentData, fields, onchangeSpec])
+  const res = await fetchOnChange(record.model, [idList, currentData, fields, onchangeSpec], context)
   if(res.ret === 0) {
     await _applyOnChange(res.data.value, record)
   }

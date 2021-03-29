@@ -27,11 +27,12 @@ class Context {
     // converted to the server format before being sent. We call the toJSON
     // method, because it returns the date with the format required by the
     // server
-    // for (var key in evalContext) {
-    //     if (evalContext[key] instanceof moment) {
-    //         evalContext[key] = evalContext[key].toJSON();
-    //     }
-    // }
+    // todo 后台 Date 对象要转为dayjs 对象处理
+    for (var key in evalContext) {
+        if (evalContext[key] instanceof Date) {
+            evalContext[key] = evalContext[key].toJSON();
+        }
+    }
     this.__eval_context = evalContext;
     return this;
   }
