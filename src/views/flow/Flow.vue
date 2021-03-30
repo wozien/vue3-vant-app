@@ -52,6 +52,7 @@ const FLOW_TYPES = {
 type GROUP_TYPE = keyof typeof FLOW_TYPES
 
 export default defineComponent({
+  name: 'Flow',
   components: {
     ListCard
   },

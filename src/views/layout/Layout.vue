@@ -1,7 +1,7 @@
 <template>
   <div class="layout-page">
     <router-view v-title="$route.meta.title" :style="{height: contentHeight + 'px'}" v-slot="{ Component }"> 
-      <keep-alive :exclude="['View']">
+      <keep-alive :exclude="['View', 'Flow']">
         <component :is="Component" />
       </keep-alive>
     </router-view>

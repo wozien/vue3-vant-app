@@ -15,7 +15,7 @@
         </div>
         <p v-else class="no-data">暂无数据</p>
         <div class="list-container">
-          <van-index-bar :index-list="Object.keys(members)" highlight-color="#1989fa">
+          <van-index-bar :index-list="Object.keys(members)" highlight-color="#1989fa" :sticky="false">
             <template v-for="(list, letter) in members" :key="letter">
               <van-index-anchor :index="letter" />
               <van-cell v-for="item in list" :title="item.name" :key="item.key" @click="onClickMemberItem(item)"/>
@@ -38,7 +38,7 @@
         </div>
         <p v-else class="no-data">暂无数据</p>
         <div class="list-container">
-          <van-index-bar :index-list="Object.keys(roles)" highlight-color="#1989fa">
+          <van-index-bar :index-list="Object.keys(roles)" highlight-color="#1989fa" :sticky="false">
             <template v-for="(list, letter) in roles" :key="letter">
               <van-index-anchor :index="letter" />
               <van-cell v-for="item in list" :title="item.name" :key="item.key" @click="onClickRoleItem(item)"/>

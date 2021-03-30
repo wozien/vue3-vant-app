@@ -58,7 +58,7 @@ import ButtonCapsule from './ButtonCapsule.vue'
 import FlowSign from '@/views/flow/FlowSign.vue'
 import UserSelect from '@/components/user-picker/UserSelect.vue'
 import { 
-  save, isDirty, isNew, discardChanges, rootID, notifyChanges, 
+  save, isDirty, isNew, discardChanges, rootID, notifyChanges, generateChanges,
   findDataPoint, DataPoint, DataPointId, copyRecord, get, reload, evalModifiers
 } from '@/logics/core/dataPoint'
 import { sessionStorageKeys } from '@/logics/enums/cache'
@@ -99,7 +99,7 @@ export default defineComponent({
         button = renderButtons.value.find((btn: ViewButton) => btn.key === button) as ViewButton
       }
 
-      if(button.expand) return
+      if(!button || button.expand) return
       button.loading = true
 
       if(button.funcName === 'workflow_view') {
@@ -141,7 +141,8 @@ export default defineComponent({
         if(button && model) {
           const args = id ? [+id] : []
           const toast = Toast.loading('加载中...')
-          const res = await callButton(model as string, button.funcName as string, [args], Object.assign({}, {context: getFlowParams()}))
+          const context = getCallButtonContext(button, curRecord.value)
+          const res = await callButton(model as string, button.funcName as string, [args], { context })
           toast.clear()
           if(res.ret === 0) {
             const action = res.data
@@ -151,8 +152,7 @@ export default defineComponent({
               onDelete(action);
             } else {
               handleServiceAction(action, button)
-              await reload()
-              store.commit('SET_RECORD_TOKEN')
+              await reload() && store.commit('SET_RECORD_TOKEN')
             }
           }
         }
@@ -406,6 +406,17 @@ function calcButtons(buttons: ViewButton[], readonly: string, curRecordId: DataP
 }
 
 /**
+ * call_button context
+ */
+function getCallButtonContext(button: ViewButton, record: DataPoint): any {
+  const context = button.isFlow ? getFlowParams() : {}
+  if(button.mode === 'edit' && button.type === 'object') {
+    context.formData = generateChanges(record, { changesOnly: false })
+  }
+  return context
+}
+
+/**
  * 处理服务器返回的action
  */
 function handleServiceAction(action: any, button: ViewButton) {
@@ -631,8 +642,7 @@ async function postAction(action: any, needReload?: boolean) {
     Toast(action.notify_toast.message)
   }
   if(needReload) {
-    await reload()
-    store.commit('SET_RECORD_TOKEN')
+    await reload() && store.commit('SET_RECORD_TOKEN')
   }
 }
 

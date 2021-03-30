@@ -1453,9 +1453,14 @@ const _performOnChange = async (record: DataPoint, fields: string[] | string, op
   const currentData = _generateOnChangeData(record, {changesOnly: false})
 
   const res = await fetchOnChange(record.model, [idList, currentData, fields, onchangeSpec], context)
-  if(!record._changes) return
+  if(!record._changes) return // discard edit
   if(res.ret === 0) {
-    await _applyOnChange(res.data.value, record)
+    const result = res.data
+    if(result.domain) {
+      record._domains = Object.assign(result.domain || {}, record._domains)
+    }
+
+    await _applyOnChange(result.value, record)
   }
   return res
 }
@@ -1996,6 +2001,16 @@ export const getDomain = (id: DataPointId, options: any = {}) => {
 }
 
 /**
+ * 获取 record._changess
+ * @param record 
+ * @param options 
+ * @returns 
+ */
+export const generateChanges = (record: DataPoint, options?: any) => {
+  return _generateChanges(record, options)
+}
+
+/**
  * 值更新入口
  * @param recordID
  * @param changes 
@@ -2074,6 +2089,7 @@ export const save = async (recordID: DataPointId) => {
 export const reload = async (record?: DataPoint) => {
   if(!record) {
     record = localData[rootID]
+    if(!record || isNew(record.id)) return false
   }
 
   const recordId = record.id || rootID
@@ -2083,6 +2099,7 @@ export const reload = async (record?: DataPoint) => {
   })
 
   await _fetchRecord(record)
+  return true
 }
 
 export const clean = () => {

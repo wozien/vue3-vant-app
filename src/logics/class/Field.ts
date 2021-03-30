@@ -62,9 +62,13 @@ class Field {
     this.string = fieldObj.string
     this.relation =  fieldObj.relation || ''
     this.options = fieldObj.options
-    this.fields = fieldObj.fields.map(f => new Field(f))
+    this.fields = []
     this.modifiers = {}
     this._formatModifier()
+
+    if(Array.isArray(fieldObj.fields) && fieldObj.fields.length) {
+      this.fields = fieldObj.fields.map(f => new Field(f))
+    } 
   }
 
   isX2Many() {
