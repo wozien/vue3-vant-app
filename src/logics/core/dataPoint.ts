@@ -1430,28 +1430,30 @@ const _parseServerData = (record: DataPoint) => {
  * @param fields 
  */
 const _performOnChange = async (record: DataPoint, fields: string[] | string, options?: any) => {
-  const onchangeSpec = _buildOnchangeSpecs(record)
-  if(!onchangeSpec) {
-    return
-  }
-
-  // 写死默认options
-  options = {
+   // 写死默认options
+   options = {
     full: true,
     additionalContext: defaults({
       isModifierValue: true,
       view_type: 'form'
     }, options || {})
   }
+
+  const onchangeSpec = _buildOnchangeSpecs(record)
+  if(!onchangeSpec) {
+    return
+  }
+ 
   const idList = record.data.id ? [record.data.id] : []
   if(fields.length === 1) {
     fields = fields[0]
     options.fieldName = fields
   }
-
   const context = _getContext(record, options)
   const currentData = _generateOnChangeData(record, {changesOnly: false})
+
   const res = await fetchOnChange(record.model, [idList, currentData, fields, onchangeSpec], context)
+  if(!record._changes) return
   if(res.ret === 0) {
     await _applyOnChange(res.data.value, record)
   }

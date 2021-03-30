@@ -102,8 +102,6 @@ export default defineComponent({
       if(button.expand) return
       button.loading = true
 
-      console.log(button)
-
       if(button.funcName === 'workflow_view') {
         router.push({
           name: 'flow-process',
