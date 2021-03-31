@@ -55,6 +55,10 @@ import { fetchListData } from '@/api/app'
 import { fetchReferencesBatch, fetchX2ManysBatch } from '@/logics/class/ListRecord'
 import SearchView from '@views/search/SearchView.vue'
 import SearchBar from '@views/search/SearchBar.vue'
+import { wrapperEnv } from '@/helpers/utils'
+
+const { NODE_ENV } = wrapperEnv(process.env)
+const isDev = NODE_ENV === 'development'
 
 export default defineComponent({
   components: {
@@ -95,7 +99,7 @@ export default defineComponent({
       return res
     })
     const canCreate = computed(() => {
-      return props.curView && props.curView.buttons.findIndex((btn: any) => btn.funcName === 'create') > -1
+      return props.curView && props.curView.buttons.findIndex((btn: any) => btn.funcName === 'create') > -1 && isDev
     })
 
     let lastId = 0

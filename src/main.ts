@@ -13,8 +13,3 @@ app.use(router)
 app.use(store, key)
 app.use(plugins)
 app.mount('#app')
-
-const str = 'aaa'
-if (str) {
-  // do nothing
-}

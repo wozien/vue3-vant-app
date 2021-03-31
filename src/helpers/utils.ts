@@ -130,18 +130,18 @@ export const insertThousandSeps = (num: number | string) => {
  * @param envConf
  * @returns
  */
-export const wrapperEnv = (envConf: Recordable<string>): Recordable => {
-  const ret: any = {}
+let envConfig = Object.create(null)
+export const wrapperEnv = (envConf?: Recordable<string>): Recordable => {
+  if (envConf && isEmpty(envConfig)) {
+    for (const envName in envConf) {
+      let realValue: any = envConf[envName].replace(/\\n/g, '\n')
+      realValue = realValue === 'true' ? true : realValue === 'false' ? false : realValue
 
-  for (const envName in envConf) {
-    let realValue: any = envConf[envName].replace(/\\n/g, '\n')
-    realValue = realValue === 'true' ? true : realValue === 'false' ? false : realValue
-
-    // TODO handler number or array type
-    ret[envName.replace(/^VUE_APP_/, '')] = realValue
+      // TODO handler number or array type
+      envConfig[envName.replace(/^VUE_APP_/, '')] = realValue
+    }
   }
-
-  return ret
+  return envConfig
 }
 
 /**

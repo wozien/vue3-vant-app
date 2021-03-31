@@ -2,9 +2,9 @@ import ViewItem from './ViewItem'
 import type { StudioItem } from '../types'
 import { findTree, uuid } from '@/helpers/utils'
 import { chekcButtonAccess } from '@/api/app'
+import { wrapperEnv } from '@/helpers/utils'
 
 export type ViewType = 'form' | 'list'
-
 export interface StudioView {
   model: string
   name: string
@@ -33,6 +33,9 @@ export interface ViewButton {
   expand?: boolean
   children?: ViewButton[]
 }
+
+const { NODE_ENV } = wrapperEnv(process.env)
+const isDev = NODE_ENV === 'development'
 
 class View {
   model: string
@@ -84,12 +87,22 @@ class View {
   }
 
   _formatButtons(buttons: any[] = []) {
-    const viewButtons: ViewButton[] = []
+    let viewButtons: ViewButton[] = []
     for (let button of buttons) {
       if (button && !button.forbidden && !Array.isArray(button.func_name)) {
         const buttomItem = this._formatOneButton(button)
         viewButtons.push(buttomItem)
       }
+    }
+
+    // 生产环境暂时屏蔽编辑态按钮
+    if (!isDev) {
+      viewButtons = viewButtons.filter((btn) => {
+        return (
+          btn.mode !== 'edit' &&
+          (!btn.funcName || !['edit', 'create', 'copy'].includes(btn.funcName))
+        )
+      })
     }
     return viewButtons
   }

@@ -25,6 +25,7 @@ module.exports = {
   rules: {
     'no-console': isProd ?  'error' : 'off',
     'no-debugger': 'error',
+    'no-extra-semi': 'off',
     'no-unused-vars': 'off',
     '@typescript-eslint/no-unused-vars': ['error'],
     'no-restricted-syntax': [
