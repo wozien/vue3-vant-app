@@ -2,6 +2,7 @@
 node_modules
 dist
 src/logics/odoo
+scripts/
 
 # local env files
 .env.local
