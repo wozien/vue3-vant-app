@@ -41,7 +41,9 @@ module.exports = {
       'x-invalid-end-tag': false
     }],
     'no-case-declarations': 'off',
-    'semi': ['error', 'never'],
+    'semi': ['error', 'never', {
+      'beforeStatementContinuationChars': 'never'
+    }],
     'quotes': ['error', 'single', {
       'allowTemplateLiterals': true,
       'avoidEscape': true
