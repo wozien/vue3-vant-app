@@ -40,14 +40,14 @@ class ViewItem {
     this.domain = itemObj.domain
     this.attrs = itemObj.attrs || {}
     this.options = itemObj.options || {}
-    this.items = itemObj.items.map(i => new ViewItem(i))
+    this.items = itemObj.items.map((i) => new ViewItem(i))
     this.modifiers = {}
 
-    if(itemObj.subView?.length) {
-      this.subView = itemObj.subView.map(v => new View(v))
+    if (itemObj.subView?.length) {
+      this.subView = itemObj.subView.map((v) => new View(v))
     }
 
-    this._formatModifier();
+    this._formatModifier()
   }
 
   get isContainer() {
@@ -59,9 +59,9 @@ class ViewItem {
   }
 
   get fieldsToFetch() {
-    if(this.widget === 'many2many_tags') {
+    if (this.widget === 'many2many_tags') {
       return {
-        display_name: { type: 'char' }
+        display_name: { type: 'char' },
       }
     }
     return null
@@ -72,10 +72,10 @@ class ViewItem {
   }
 
   _formatModifier() {
-    for(let key in this.attrs) {
-      if(this._isModifierKey(key)) {
+    for (let key in this.attrs) {
+      if (this._isModifierKey(key)) {
         const value = this.attrs[key] as any
-        if(value.checked) {
+        if (value.checked) {
           this.modifiers[key as ModifierKey] = value.domain?.length ? value.domain : value.checked
         }
       }

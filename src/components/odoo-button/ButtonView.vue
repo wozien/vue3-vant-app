@@ -149,7 +149,7 @@ export default defineComponent({
             
             if(button.funcName === 'svc_std_pre_physical_delete' || button.funcName === 'svc_std_pre_delete') {
               // 删除特殊处理
-              onDelete(action);
+              onDelete(action)
             } else {
               handleServiceAction(action, button)
               await reload() && store.commit('SET_RECORD_TOKEN')
@@ -180,9 +180,9 @@ export default defineComponent({
     }
     // 保存
     const onSave = async () => {
-      const canSaved = canBeSaved && canBeSaved(); 
+      const canSaved = canBeSaved && canBeSaved() 
       if(!canSaved) {
-        Toast('存在必录项未填'); return;
+        Toast('存在必录项未填'); return
       }
       const res = await save(store.state.curRecordId)
       let query = Object.assign({}, route.query, { readonly: 1 })
@@ -200,9 +200,9 @@ export default defineComponent({
     }
     // 行保存
     const onSaveLine = () => {
-      const canSaved = canBeSaved && canBeSaved(); 
+      const canSaved = canBeSaved && canBeSaved() 
       if(!canSaved) {
-        Toast('存在必录项未填'); return;
+        Toast('存在必录项未填'); return
       }
       router.back()
     }
@@ -279,9 +279,9 @@ export default defineComponent({
     }
     // 保存并新增
     const onNewLine = async (rowIndex?: number) => {
-      const canSaved = canBeSaved && canBeSaved(); 
+      const canSaved = canBeSaved && canBeSaved() 
       if(!canSaved) {
-        Toast('存在必录项未填'); return;
+        Toast('存在必录项未填'); return
       }
       const field = getX2MField()
       if(field) {
@@ -578,7 +578,7 @@ function handleFlowSign(action: any) {
   const confirm = async (cb: Function) => {
     if(signRef.value) {
       const data = (signRef.value as any).getData()
-      let errorMsg = '';
+      let errorMsg = ''
       if(!data || !data.type) {
         errorMsg = '请选择加签方式'
       } else if(!data.receiver) {

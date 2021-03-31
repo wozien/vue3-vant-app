@@ -1,4 +1,4 @@
-import axios, { AxiosRequestConfig, AxiosResponse, AxiosError} from 'axios'
+import axios, { AxiosRequestConfig, AxiosResponse, AxiosError } from 'axios'
 import { Notify } from 'vant'
 import router from '@/router'
 import { LocalStorageKeys } from '@/logics/enums/cache'
@@ -9,14 +9,14 @@ const TOKEN_KEY = LocalStorageKeys.token
 
 const instance = axios.create({
   baseURL: BASE_API,
-  timeout: 30000
+  timeout: 30000,
 })
 
 // request pre-handler
 instance.interceptors.request.use(
   (config: AxiosRequestConfig) => {
     const token = localStorage.getItem(TOKEN_KEY)
-    if(token) {
+    if (token) {
       config.headers['Authorization'] = 'Bearer ' + token
     }
     return config
@@ -30,12 +30,12 @@ instance.interceptors.request.use(
 instance.interceptors.response.use(
   (response: AxiosResponse) => {
     const { data: res } = response
-    if(res.ret !== 0) {
+    if (res.ret !== 0) {
       Notify({
         type: 'danger',
-        message: res.msg || '接口错误'
+        message: res.msg || '接口错误',
       })
-      if(res.ret === 10000) {
+      if (res.ret === 10000) {
         // token 过期
         localStorage.removeItem(TOKEN_KEY)
         router.push('/login')
@@ -48,44 +48,44 @@ instance.interceptors.response.use(
     if (err && err.response?.status) {
       switch (err.response.status) {
         case 401:
-          errMsg = '客户端错误';
-          break;
+          errMsg = '客户端错误'
+          break
 
         case 403:
-          errMsg = '拒绝访问';
-          break;
+          errMsg = '拒绝访问'
+          break
 
         case 408:
-          errMsg = '请求超时';
-          break;
+          errMsg = '请求超时'
+          break
 
         case 500:
-          errMsg = '服务器内部错误';
-          break;
+          errMsg = '服务器内部错误'
+          break
 
         case 501:
-          errMsg = '服务未实现';
-          break;
+          errMsg = '服务未实现'
+          break
 
         case 502:
-          errMsg = '网关错误';
-          break;
+          errMsg = '网关错误'
+          break
 
         case 503:
-          errMsg = '服务不可用';
-          break;
+          errMsg = '服务不可用'
+          break
 
         case 504:
-          errMsg = '网关超时';
-          break;
+          errMsg = '网关超时'
+          break
 
         case 505:
-          errMsg = 'HTTP版本不受支持';
-          break;
+          errMsg = 'HTTP版本不受支持'
+          break
 
         default:
-          errMsg = err.response.data.msg;
-          break;
+          errMsg = err.response.data.msg
+          break
       }
     } else {
       errMsg = err.message
@@ -93,7 +93,7 @@ instance.interceptors.response.use(
 
     Notify({
       type: 'danger',
-      message: errMsg
+      message: errMsg,
     })
     return Promise.reject(errMsg)
   }

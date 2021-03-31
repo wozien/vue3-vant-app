@@ -4,7 +4,7 @@ export interface StudioModel {
   key: string
   name: string
   fields: StudioField[]
-  odoo_fields: {[key: string]: OdooField}
+  odoo_fields: { [key: string]: OdooField }
   [key: string]: any
 }
 
@@ -20,18 +20,18 @@ class Model {
   constructor(modelObj: StudioModel) {
     this.key = modelObj.key
     this.name = modelObj.name
-    this.fields = modelObj.fields.map(f => {
+    this.fields = modelObj.fields.map((f) => {
       const field = new Field(f)
       const odooField = modelObj.odoo_fields[f.name]
-      if(odooField) {
+      if (odooField) {
         // 翻译的处理
-        field.string = odooField.string;
-        odooField.flex && (field.flex = true);
+        field.string = odooField.string
+        odooField.flex && (field.flex = true)
         odooField.selection && (field.selection = odooField.selection)
         odooField.domain && (field.domain = odooField.domain)
 
         // 携带字段
-        if(field.type === 'related') {
+        if (field.type === 'related') {
           field.type = odooField.type
           field.relation = odooField.relation
         }
@@ -41,7 +41,7 @@ class Model {
   }
 
   getField(key: string) {
-    return this.fields.find(f => f.key === key || f.name === key)
+    return this.fields.find((f) => f.key === key || f.name === key)
   }
 
   getFields(): Fields {

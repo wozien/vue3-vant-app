@@ -87,7 +87,7 @@ export default defineComponent({
     }
 
     const onClick = async () => {
-      if(isReadonly.value) return;
+      if(isReadonly.value) return
       await loadData()
       state.showPicker = true
     }

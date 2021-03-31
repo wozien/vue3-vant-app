@@ -83,7 +83,7 @@ export default defineComponent({
     }
 
     const onReset = () => {
-      const defaultValue = getDefaultValues();
+      const defaultValue = getDefaultValues()
       for(let fieldName in defaultValue) {
         values[fieldName] = defaultValue[fieldName]
       }

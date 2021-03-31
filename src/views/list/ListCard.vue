@@ -104,7 +104,7 @@ function useCard(record: ListRecord | ListCard, fieldsInfo: FieldsInfo, appName?
   }
   
   each(fieldsInfo, (field: FieldInfo) => {
-    if(field.modifiers?.invisible) return;
+    if(field.modifiers?.invisible) return
     const fieldItem: ListCardField = {
       name: field.name,
       string: field.string || '',

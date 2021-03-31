@@ -12,7 +12,7 @@ function formatChar(value: string) {
 }
 
 function formatBoolean(value: boolean, field: any, options?: any) {
-  if(options?.format) {
+  if (options?.format) {
     return value ? '是' : '否'
   }
   return value
@@ -33,7 +33,7 @@ function formatDateTime(value: Date | boolean) {
 }
 
 function formatInteger(value: any) {
-  if(!value && value !== 0) {
+  if (!value && value !== 0) {
     return ''
   }
   // 千分位处理
@@ -41,7 +41,7 @@ function formatInteger(value: any) {
 }
 
 function formatFloat(value: any) {
-  if(value === false) {
+  if (value === false) {
     return ''
   }
   // TODO 查看配置的精度
@@ -53,7 +53,7 @@ function formatFloat(value: any) {
 
 function formatSelection(value: any, field?: any) {
   const val = find(field.selection, (option: any) => option[0] === value)
-  if(!val) {
+  if (!val) {
     return ''
   }
   value = val[1]
@@ -61,24 +61,24 @@ function formatSelection(value: any, field?: any) {
 }
 
 function formatMany2one(value: DataPoint | [number, string]) {
-  value = value && (Array.isArray(value) ? value[1] : value.data.display_name) || '';
+  value = (value && (Array.isArray(value) ? value[1] : value.data.display_name)) || ''
   return value
 }
 
 function formatX2Many(value: any) {
   if (value.data.length === 0) {
-      return 'No records'
+    return 'No records'
   } else if (value.data.length === 1) {
-      return '1 record'
+    return '1 record'
   } else {
-      return value.data.length + ' records'
+    return value.data.length + ' records'
   }
 }
 
 function formatJsonb(value: any) {
   value = typeof value === 'object' ? value : {}
   return JSON.stringify(value)
-} 
+}
 
 // --------------- parse --------------
 
@@ -91,31 +91,31 @@ function parseNumber(value: string) {
 
 function parseDate(value: string) {
   if (!value) {
-    return false;
+    return false
   }
   return str2Date(value)
 }
 
 function parseDateTime(value: string) {
   if (!value) {
-    return false;
+    return false
   }
   return parseDate(value)
 }
 
 function parseMany2one(value: any) {
   if (Array.isArray(value)) {
-      return {
-          id: value[0],
-          display_name: value[1],
-      };
+    return {
+      id: value[0],
+      display_name: value[1],
+    }
   }
   if (isNumber(value) || isString(value)) {
-      return {
-          id: parseInt(value as string, 10),
-      };
+    return {
+      id: parseInt(value as string, 10),
+    }
   }
-  return value;
+  return value
 }
 
 function parseJsonb(value: string) {
@@ -138,7 +138,7 @@ export default {
     one2many: formatX2Many,
     many2many: formatX2Many,
     reference: formatMany2one,
-    jsonb: formatJsonb
+    jsonb: formatJsonb,
   },
   parse: {
     char: identity,
@@ -146,13 +146,13 @@ export default {
     boolean: identity,
     date: parseDate,
     datetime: parseDateTime,
-    integer: parseNumber, 
-    float: parseNumber,    // TODO
+    integer: parseNumber,
+    float: parseNumber, // TODO
     selection: identity,
     many2one: parseMany2one,
     one2many: identity,
     many2many: identity,
     reference: parseMany2one,
-    jsonb: parseJsonb
-  }
+    jsonb: parseJsonb,
+  },
 }

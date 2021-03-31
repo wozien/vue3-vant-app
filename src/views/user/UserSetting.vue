@@ -21,7 +21,7 @@ import { setUrlQuery } from '@/helpers/url'
 
 function useUploader() {
   const avatar = ref('')
-  let curFile: File;
+  let curFile: File
   const onAfterRead = (file: any) => {
     curFile = file.file
     avatar.value = file.content

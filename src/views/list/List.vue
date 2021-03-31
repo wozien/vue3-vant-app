@@ -95,10 +95,10 @@ export default defineComponent({
       return res
     })
     const canCreate = computed(() => {
-      return props.curView && props.curView.buttons.findIndex((btn: any) => btn.funcName === 'create') > -1;
+      return props.curView && props.curView.buttons.findIndex((btn: any) => btn.funcName === 'create') > -1
     })
 
-    let lastId = 0;
+    let lastId = 0
     const onLoad = async () => {
       if(searchFields.value.length) {      
         const res = await fetchListData(route.query.model as string, lastId, searchFields.value, {

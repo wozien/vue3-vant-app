@@ -98,7 +98,7 @@ export default defineComponent({
  * 计算对应的流程组信息
  */
 function useGroup(type: string) {
-  let group;
+  let group
   for(let key in FLOW_TYPES) {
     const types = FLOW_TYPES[key as GROUP_TYPE]
     if(find(types, { type })) {

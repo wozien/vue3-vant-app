@@ -17,7 +17,7 @@ export interface RecordRaw {
     avatar: string
   }
   create_date: string
-  odoo_data: {[key: string]: any}
+  odoo_data: { [key: string]: any }
   [key: string]: any
 }
 
@@ -35,7 +35,7 @@ class Record {
   id: number
   creator: Creator
   state: string
-  raw: {[key: string]: any}
+  raw: { [key: string]: any }
 
   constructor(raw: RecordRaw) {
     this.id = raw.id
@@ -46,7 +46,7 @@ class Record {
 
   /**
    * 单据创建人处理
-   * @param raw 
+   * @param raw
    */
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   normalizeCreator(raw: RecordRaw): Creator {
@@ -55,7 +55,7 @@ class Record {
       id,
       name,
       avatar,
-      time: str2Date(raw.create_date)   // 后台返回是UCT时间
+      time: str2Date(raw.create_date), // 后台返回是UCT时间
     }
   }
 
@@ -66,12 +66,12 @@ class Record {
   normalizeState(state: string) {
     const curApp = getApp()
     const curModel = curApp.getModel()
-    if(curModel) {
-      for(let field of curModel.fields) {
-        if(field.name === 'state' && field.selection?.length) {
-          for(let [key, value] of field.selection) {
-            if(key === state) {
-              return value;
+    if (curModel) {
+      for (let field of curModel.fields) {
+        if (field.name === 'state' && field.selection?.length) {
+          for (let [key, value] of field.selection) {
+            if (key === state) {
+              return value
             }
           }
         }
@@ -83,22 +83,21 @@ class Record {
 const _getTofetch = (data: any[], fieldTypes: string[], fieldsInfo: FieldsInfo) => {
   const res = {} as any
   data.forEach((row: any) => {
-    for(let fieldName in row) {
+    for (let fieldName in row) {
       const field = fieldsInfo[fieldName]
       const value = row[fieldName]
-      if(!field || !fieldTypes.includes(field.type) || value === false) continue
+      if (!field || !fieldTypes.includes(field.type) || value === false) continue
 
-      switch(field.type) {
+      switch (field.type) {
         case 'reference':
           const [model, resID] = value.split(',')
-          res[model] = [...res[model] || [], +resID]
+          res[model] = [...(res[model] || []), +resID]
           break
 
         case 'many2many':
         case 'one2many':
           const relation = field.relation
-          if(relation) 
-            res[relation] = (res[relation] || []).concat(value)
+          if (relation) res[relation] = (res[relation] || []).concat(value)
       }
     }
   })
@@ -108,27 +107,33 @@ const _getTofetch = (data: any[], fieldTypes: string[], fieldsInfo: FieldsInfo) 
 
 /**
  * 批量获取列表的reference字段
- * @param raws 
- * @param fieldsInfo 
+ * @param raws
+ * @param fieldsInfo
  */
 export const fetchReferencesBatch = async (raws: RecordRaw[], fieldsInfo?: FieldsInfo) => {
-  if(!fieldsInfo) return;
-  const toFetchs = _getTofetch(raws.map((raw: RecordRaw) => raw.odoo_data), ['reference'], fieldsInfo)
+  if (!fieldsInfo) return
+  const toFetchs = _getTofetch(
+    raws.map((raw: RecordRaw) => raw.odoo_data),
+    ['reference'],
+    fieldsInfo
+  )
 
   const result = {} as any
-  await Promise.all( map(toFetchs, async (ids: number[], model: string) => {
-    const res = await fetchNameGet(model, ids)
-    if(res.ret === 0) {
-      each(res.data, (value: any) => {
-        result[`${model},${value[0]}`] = value
-      })
-    }
-  }))
+  await Promise.all(
+    map(toFetchs, async (ids: number[], model: string) => {
+      const res = await fetchNameGet(model, ids)
+      if (res.ret === 0) {
+        each(res.data, (value: any) => {
+          result[`${model},${value[0]}`] = value
+        })
+      }
+    })
+  )
 
   raws.forEach((raw: RecordRaw) => {
     each(raw.odoo_data, (value: any, fieldName: string) => {
       const field = fieldsInfo[fieldName]
-      if(field && field.type === 'reference') {
+      if (field && field.type === 'reference') {
         raw.odoo_data[fieldName] = result[value]
       }
     })
@@ -137,29 +142,35 @@ export const fetchReferencesBatch = async (raws: RecordRaw[], fieldsInfo?: Field
 
 /**
  * 批量获取列表的x2many字段
- * @param raws 
- * @param fieldsInfo 
+ * @param raws
+ * @param fieldsInfo
  */
 export const fetchX2ManysBatch = async (raws: RecordRaw[], fieldsInfo?: FieldsInfo) => {
-  if(!fieldsInfo) return
+  if (!fieldsInfo) return
   const fieldTypes = ['many2many', 'one2many']
-  const toFetchs = _getTofetch(raws.map((raw: RecordRaw) => raw.odoo_data), fieldTypes, fieldsInfo)
+  const toFetchs = _getTofetch(
+    raws.map((raw: RecordRaw) => raw.odoo_data),
+    fieldTypes,
+    fieldsInfo
+  )
 
   const result = {} as any
-  await Promise.all( map(toFetchs, async (ids: number[], model: string) => {
-    ids = Array.from(new Set(ids))
-    const res = await fetchRecord(model, ids, ['display_name'])
-    if(res.ret === 0) {
-      result[model] = res.data
-    }
-  }))
+  await Promise.all(
+    map(toFetchs, async (ids: number[], model: string) => {
+      ids = Array.from(new Set(ids))
+      const res = await fetchRecord(model, ids, ['display_name'])
+      if (res.ret === 0) {
+        result[model] = res.data
+      }
+    })
+  )
 
   raws.forEach((raw: RecordRaw) => {
     each(raw.odoo_data, (value: any, fieldName: string) => {
       const field = fieldsInfo[fieldName]
-      if(!field) return
+      if (!field) return
       const model = field.relation
-      if(fieldTypes.includes(field.type) && model && Array.isArray(result[model])) {
+      if (fieldTypes.includes(field.type) && model && Array.isArray(result[model])) {
         raw.odoo_data[fieldName] = result[model]
           .filter((item: any) => value.includes(item.id))
           .map((item: any) => item.display_name)

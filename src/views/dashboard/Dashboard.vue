@@ -89,21 +89,21 @@ function useGreet() {
   const date = new Date()
   const hours = date.getHours()
 
-  let greeting;
+  let greeting
   if(hours >= 5 && hours < 11) greeting = '早上好'
   else if(hours >= 11 && hours < 13) greeting = '中午好'
   else if(hours >= 13 && hours < 19) greeting = '下午好'
   else greeting = '晚上好'
 
-  let week;
+  let week
   switch(date.getDay()) {
-    case 0: week = '周日'; break;
-    case 1: week = '周一'; break; 
-    case 2: week = '周二'; break;
-    case 3: week = '周三'; break;
-    case 4: week = '周四'; break;
-    case 5: week = '周五'; break;
-    case 6: week = '周六'; break;
+    case 0: week = '周日'; break
+    case 1: week = '周一'; break 
+    case 2: week = '周二'; break
+    case 3: week = '周三'; break
+    case 4: week = '周四'; break
+    case 5: week = '周五'; break
+    case 6: week = '周六'; break
   }
 
   return {

@@ -182,7 +182,7 @@ function disabledEvent() {
     'connectionSegment.move.end',
     'connectionSegment.move.cleanup',
     'connectionSegment.move.cancel'
-  ];                   
+  ]                   
   eventBus.off(disableEvents, null)
 }
 
@@ -199,7 +199,7 @@ function showNodeInfo(nodeInfos: any) {
       message,
       messageAlign: 'left'
     })
-  }, 200);
+  }, 200)
 }
 
 function bindEvent(container: any, options: any) {

@@ -64,7 +64,7 @@ export default defineComponent({
     // 表体行点击
     const onCellClick: VxeTableEvents.CellClick = ({ row }) => {
       // m2m 字段暂时只给查看
-      if(isMany2Many.value) return;   
+      if(isMany2Many.value) return   
 
       const record = find((rawValue.value as any).data, { res_id: row.id })
       if(record) {

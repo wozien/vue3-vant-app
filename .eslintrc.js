@@ -3,7 +3,9 @@ const isProd = process.env.NODE_ENV === 'production';
 module.exports = {
   root: true,
   env: {
-    node: true
+    node: true,
+    browser: true,
+    es6: true
   },
   extends: [
     'plugin:vue/vue3-essential',
@@ -22,7 +24,7 @@ module.exports = {
   },
   rules: {
     'no-console': isProd ?  'error' : 'off',
-    'no-debugger': isProd ?  'error' : 'off',
+    'no-debugger': 'error',
     'no-unused-vars': 'off',
     '@typescript-eslint/no-unused-vars': ['error'],
     'no-restricted-syntax': [
@@ -38,6 +40,11 @@ module.exports = {
     'vue/no-parsing-error': [2, {
       'x-invalid-end-tag': false
     }],
-    'no-case-declarations': 'off'
+    'no-case-declarations': 'off',
+    'semi': ['error', 'never'],
+    'quotes': ['error', 'single', {
+      'allowTemplateLiterals': true,
+      'avoidEscape': true
+    }]
   }
 }

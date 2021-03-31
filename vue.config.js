@@ -50,7 +50,7 @@ module.exports = {
           compilerOptions: {
             module: 'es2015'
           }
-        });
+        })
         return options
       })
   },
