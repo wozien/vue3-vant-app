@@ -13,7 +13,7 @@ type RawFieldValue = FieldValue | DataPoint
 export const fieldCommonProps = {
   item: {
     type: Object as PropType<Item>,
-    default: () => {},
+    default: () => {}, // required 不能类型推断为必录 ???
   },
   field: {
     type: Object as PropType<Field>,
@@ -57,6 +57,10 @@ export default function (props: FieldCommonPropsType) {
 
   let lastValue: any
   const setValue = async (val: any) => {
+    if (lastValue !== undefined && (lastValue === val || lastValue === val.display_name)) {
+      return
+    }
+
     const field = props.field
     if (field) {
       const fieldType = field.type
@@ -64,7 +68,6 @@ export default function (props: FieldCommonPropsType) {
         // value is Date Object same as rawValue
         val = (fieldUtils.parse as any)[fieldType](val)
       }
-      if (lastValue !== undefined && lastValue === val) return
 
       await notifyChanges(curRecord.value.id, { [field.name]: val })
       store.commit('SET_RECORD_TOKEN')
@@ -88,12 +91,12 @@ export default function (props: FieldCommonPropsType) {
       } else {
         rawValue.value = (data as DataPointData)[fieldName]
       }
-      lastValue = rawValue.value
 
       if (!props.field.isX2Many()) {
         const fieldType = field.options?.relatedType || field.type
         value.value = (fieldUtils.format as any)[fieldType](rawValue.value, field)
       }
+      lastValue = value.value
 
       // 计算modifiers
       if (item && field && (!modifiers.value || !isEmpty(modifiers.value))) {
