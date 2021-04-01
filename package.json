@@ -7,8 +7,7 @@
     "build": "vue-cli-service build",
     "build:uat": "vue-cli-service build --mode uat",
     "build:dev": "vue-cli-service build --mode development",
-    "lint": "vue-cli-service lint --mode production",
-    "commit": "git-cz"
+    "lint": "vue-cli-service lint --mode production"
   },
   "gitHooks": {
     "pre-commit": "lint-staged",
@@ -16,7 +15,7 @@
   },
   "lint-staged": {
     "*.{ts, vue}": [
-      "vue-cli-service lint --mode production",
+      "yarn lint",
       "prettier --parser=typescript --write",
       "git add"
     ]
@@ -64,10 +63,5 @@
     "> 1%",
     "last 2 versions",
     "not dead"
-  ],
-  "config": {
-    "commitizen": {
-      "path": "./node_modules/cz-customizable"
-    }
-  }
+  ]
 }

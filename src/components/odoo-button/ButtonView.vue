@@ -95,6 +95,7 @@ export default defineComponent({
 
     // 按钮点击入口
     const onButtonClick = async (button: string | ViewButton) => {
+      console.log(button)
       if(typeof button === 'string') {
         button = renderButtons.value.find((btn: ViewButton) => btn.key === button) as ViewButton
       }

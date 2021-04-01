@@ -4,7 +4,7 @@
       <div class="popover-button__item van-hairline--bottom van-ellipsis"
         v-for="item in button.children" 
         :key="item.key" 
-        @click="onClick(item.key)"
+        @click="onClick(item)"
       >{{ item.string }}</div>
     </div>
     <template #reference>
@@ -32,8 +32,11 @@ export default defineComponent({
   setup(props, { emit }) {
     const showPopover = ref(false)
 
-    const onClick = (key: string) => {
+    const onClick = (key: string | ViewButton) => {
       emit('click', key)
+      if(showPopover.value) {
+        showPopover.value = false
+      }
     }
 
     return {
