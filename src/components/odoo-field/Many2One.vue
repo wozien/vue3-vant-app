@@ -1,7 +1,7 @@
 <template>
   <van-field
-    :label="string" 
-    :placeholder="placeholder" 
+    :label="string"
+    :placeholder="placeholder"
     v-model="value"
     :required="isRequired"
     :clickable="true"
@@ -15,7 +15,12 @@
     <div class="m2o-selector">
       <van-search v-model="searchValue" placeholder="输入名称搜索" shape="round"></van-search>
       <div class="list-wrapper">
-        <van-cell v-for="item in list" :key="item.id" :title="item.display_name" @click="onClickItem(item.id)">
+        <van-cell
+          v-for="item in list"
+          :key="item.id"
+          :title="item.display_name"
+          @click="onClickItem(item.id)"
+        >
           <template #right-icon>
             <van-icon v-if="active === item.id" name="success"></van-icon>
           </template>
@@ -28,18 +33,27 @@
 
 <script lang="ts">
 import { defineComponent, reactive, toRefs, Ref, computed, watch } from 'vue'
-import useFieldCommon, { fieldCommonProps } from '@/hooks/component/useField'
+import useFieldCommon, { fieldCommonProps, FieldCommonPropsType } from '@/hooks/component/useField'
 import { fetchMany2OneData } from '@/api/record'
-import { getDomain } from '@/logics/core/dataPoint'
+import { getDomain, DataPoint } from '@/logics/core/dataPoint'
 import useToast from '@/hooks/component/useToast'
 
 export default defineComponent({
   props: {
-    ...fieldCommonProps
+    ...fieldCommonProps,
   },
 
   setup(props) {
-    const { string, placeholder, value, rawValue, isRequired, curRecord, setValue } = useFieldCommon(props)
+    const {
+      string,
+      placeholder,
+      value,
+      rawValue,
+      isRequired,
+      curRecord,
+      setValue,
+      widget,
+    } = useFieldCommon(props)
     const { state, onOpenModal } = useModal(props, curRecord)
 
     const onClickItem = (id: number) => {
@@ -47,10 +61,10 @@ export default defineComponent({
     }
 
     const onConfirm = async (cb: Fn) => {
-      const item = state.list.find(item => item.id == state.active)
-      if(item) {
+      const item = state.list.find((item) => item.id == state.active)
+      if (item) {
         // notify change
-        await setValue(item)
+        await setValue(widget.value === 'pschar2one' ? item.display_name : item)
       } else {
         await setValue(false)
       }
@@ -58,16 +72,20 @@ export default defineComponent({
     }
 
     const onCancel = () => {
-      if(rawValue.value) {
+      if (rawValue.value) {
         state.active = (rawValue.value as any).res_id
       }
     }
 
-    watch(rawValue, (val: any) => {
-      if(val) {
-        state.active = val.res_id
-      }
-    }, { immediate: true })
+    watch(
+      rawValue,
+      (val: any) => {
+        if (val) {
+          state.active = typeof val === 'string' ? val : val.res_id
+        }
+      },
+      { immediate: true }
+    )
 
     return {
       string,
@@ -78,22 +96,22 @@ export default defineComponent({
       onOpenModal,
       onClickItem,
       onConfirm,
-      onCancel
+      onCancel,
     }
-  }
+  },
 })
 
-function useModal(props: any, curRecord: Ref<any>) {
+function useModal({ field, item }: FieldCommonPropsType, curRecord: Ref<any>) {
   const { toast } = useToast()
   const state = reactive({
     showModal: false,
     searchValue: '',
     active: 0,
-    list: [] as {id:number, display_name: string}[]
+    list: [] as { id: number; display_name: string }[],
   })
 
   const domain = computed(() => {
-    return curRecord && getDomain(curRecord.value.id, { fieldName: props.field?.name })
+    return curRecord && getDomain(curRecord.value.id, { fieldName: field.name })
   })
 
   const onOpenModal = async () => {
@@ -102,26 +120,48 @@ function useModal(props: any, curRecord: Ref<any>) {
   }
 
   const loadData = async () => {
+    let relation,
+      context = Object.create(null)
+    if (item.widget === 'pschar2one') {
+      relation = 'ps.char2one.model'
+      const depend_field = item.attrs.depend_field
+      if (depend_field) {
+        const dpField = (curRecord.value as DataPoint).fieldsInfo[depend_field]
+        if (dpField) {
+          context.depend_field_info = {
+            relation: dpField.relation,
+            type: dpField.type,
+          }
+          context.module = item.attrs.module
+        }
+      }
+    } else {
+      relation = field.relation as string
+    }
+
     toast.loading()
-    const res = await fetchMany2OneData(props.field?.relation, state.searchValue, domain.value)
-    if(res.ret === 0) {
+    const res = await fetchMany2OneData(relation, state.searchValue, domain.value, context)
+    if (res.ret === 0) {
       state.list = res.data.map((item: any) => {
         return {
           id: item[0],
-          display_name: item[1]
+          display_name: item[1],
         }
       })
     }
     toast.clear()
   }
 
-  watch(() => state.searchValue, () => {
-    loadData()
-  })
+  watch(
+    () => state.searchValue,
+    () => {
+      loadData()
+    }
+  )
 
   return {
     state,
-    onOpenModal
+    onOpenModal,
   }
 }
 </script>

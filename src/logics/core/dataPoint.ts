@@ -1138,7 +1138,6 @@ const _generateChanges = (record: DataPoint, options: any) => {
   } else {
     changes = Object.assign({}, record._changes)
   }
-
   // TODO get x2many commands
   const commands = _generateX2ManyCommands(record, {
     changesOnly: 'changesOnly' in options ? options.changesOnly : true,
@@ -1263,7 +1262,7 @@ const _generateX2ManyCommands = (record: DataPoint, options: any) => {
           if (keptIds.includes(list.res_ids[i])) {
             relRecord = find(relRecordUpdated, { res_id: list.res_ids[i] })
             changes = relRecord ? _generateChanges(relRecord, options) : {}
-            if (isEmpty(changes)) {
+            if (!isEmpty(changes)) {
               command = x2ManyCommands.update(relRecord.res_id, changes)
               didChange = true
             } else {
@@ -1281,7 +1280,7 @@ const _generateX2ManyCommands = (record: DataPoint, options: any) => {
             if (!isNew(relRecord.id)) {
               commands[fieldName].push(x2ManyCommands.link_to(relRecord.res_id))
               delete changes.id
-              if (isEmpty(changes)) {
+              if (!isEmpty(changes)) {
                 commands[fieldName].push(x2ManyCommands.update(relRecord.res_id, changes))
               }
             } else {

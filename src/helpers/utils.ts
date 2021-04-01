@@ -141,6 +141,7 @@ export const wrapperEnv = (envConf?: Recordable<string>): Recordable => {
       envConfig[envName.replace(/^VUE_APP_/, '')] = realValue
     }
   }
+  envConfig['IS_DEV'] = envConfig['NODE_ENV'] === 'developement'
   return envConfig
 }
 

@@ -32,7 +32,8 @@ export const fetchRecord: (
 export const fetchMany2OneData = async (
   model: string,
   searchValue = '',
-  domain: any = []
+  domain: any = [],
+  context?: Recordable
 ): Promise<HttpRes> => {
   const kw = {
     operator: 'ilike',
@@ -40,6 +41,7 @@ export const fetchMany2OneData = async (
     view_type: 'form',
     model,
     args: domain,
+    context: context || {},
   }
   const res = await callKw(model, 'ps_name_search', [], kw)
   return res.data

@@ -11,47 +11,60 @@ type FieldValue = string | number | boolean | Date
 type RawFieldValue = FieldValue | DataPoint
 
 export const fieldCommonProps = {
-  item: Object as PropType<Item>,
-  field: Object as PropType<Field>,
+  item: {
+    type: Object as PropType<Item>,
+    default: () => {},
+  },
+  field: {
+    type: Object as PropType<Field>,
+    default: () => {},
+  },
   mode: {
     type: String as PropType<WidgetMode>,
-    default: 'readonly'
-  }
+    default: 'readonly',
+  },
 }
 
-type FieldCommonPropsType = Readonly<{
+export type FieldCommonPropsType = Readonly<{
   mode: WidgetMode
-  item?: Item
-  field?: Field
+  item: Item
+  field: Field
 }>
 
-export default function(props: FieldCommonPropsType) {
+export default function (props: FieldCommonPropsType) {
   const store = useStore()
-  const string = computed(() => props.field?.string || props.item?.string)
-  const type = computed(() => props.field && props.field.type)
-  const placeholder = computed(() => { 
-    const text = (props.field && props.field.isComplexField()) ? '选择' : '输入'
-    return props.item && props.item.placeholder || `请${text}${string.value}`
+  const string = computed(() => props.field.string || props.item.string)
+  const type = computed(() => props.field.type)
+  const widget = computed(() => props.item.widget)
+  const placeholder = computed(() => {
+    const text = props.field.isComplexField() ? '选择' : '输入'
+    return props.item.placeholder || `请${text}${string.value}`
   })
 
-  const value = ref<FieldValue> ('')   // format value
-  const rawValue = ref<RawFieldValue>('')  // parse value
+  const value = ref<FieldValue>('') // format value
+  const rawValue = ref<RawFieldValue>('') // parse value
   const modifiers = ref()
   const curRecord = computed<DataPointState>(() => store.getters.curRecord)
-  const isReadonly = computed(() => (modifiers.value && modifiers.value.readonly) || props.mode === 'readonly')
-  const isRequired = computed(() => !isReadonly.value && modifiers.value && modifiers.value.required)
-  const invisible = computed(() => modifiers.value && (modifiers.value.invisible || modifiers.value.column_invisible))
+  const isReadonly = computed(
+    () => (modifiers.value && modifiers.value.readonly) || props.mode === 'readonly'
+  )
+  const isRequired = computed(
+    () => !isReadonly.value && modifiers.value && modifiers.value.required
+  )
+  const invisible = computed(
+    () => modifiers.value && (modifiers.value.invisible || modifiers.value.column_invisible)
+  )
 
   let lastValue: any
   const setValue = async (val: any) => {
     const field = props.field
-    if(field) {
+    if (field) {
       const fieldType = field.type
-      if(!['date', 'datetime'].includes(fieldType)) {
+      if (!['date', 'datetime'].includes(fieldType)) {
         // value is Date Object same as rawValue
         val = (fieldUtils.parse as any)[fieldType](val)
       }
-      if(lastValue !== undefined && lastValue === val) return
+      if (lastValue !== undefined && lastValue === val) return
 
       await notifyChanges(curRecord.value.id, { [field.name]: val })
       store.commit('SET_RECORD_TOKEN')
@@ -63,36 +76,36 @@ export default function(props: FieldCommonPropsType) {
   // 在表体视图行切换的时候需要重新执行effect
   let handleModel: any
   watchEffect(() => {
-    if(props.field && curRecord.value && (!handleModel || handleModel === curRecord.value.model)) {
-      if(!handleModel) handleModel = curRecord.value.model
+    if (props.field && curRecord.value && (!handleModel || handleModel === curRecord.value.model)) {
+      if (!handleModel) handleModel = curRecord.value.model
       const data = curRecord.value.data
       const field = props.field as Field
       const item = props.item as Item
       const fieldName = field.name
 
-      if(!data || !(fieldName in data)) {
+      if (!data || !(fieldName in data)) {
         rawValue.value = false
       } else {
         rawValue.value = (data as DataPointData)[fieldName]
       }
       lastValue = rawValue.value
 
-      if(!props.field.isX2Many()) {
+      if (!props.field.isX2Many()) {
         const fieldType = field.options?.relatedType || field.type
         value.value = (fieldUtils.format as any)[fieldType](rawValue.value, field)
       }
 
       // 计算modifiers
-      if(item && field && (!modifiers.value || !isEmpty(modifiers.value))) {
-        let evalutedModifiers = {} as any;
-        ['readonly', 'required', 'invisible', 'columnInvisible'].forEach((key: string) => {
-          if(key in item.modifiers) {
+      if (item && field && (!modifiers.value || !isEmpty(modifiers.value))) {
+        let evalutedModifiers = {} as any
+        ;['readonly', 'required', 'invisible', 'columnInvisible'].forEach((key: string) => {
+          if (key in item.modifiers) {
             evalutedModifiers[key] = item.modifiers[key as ModifierKey]
-          } else if(key in field.modifiers) {
+          } else if (key in field.modifiers) {
             evalutedModifiers[key] = field.modifiers[key as ModifierKey]
           }
         })
-        if(!isEmpty(evalutedModifiers)) {
+        if (!isEmpty(evalutedModifiers)) {
           modifiers.value = evalModifiers(curRecord.value.id, evalutedModifiers)
         } else {
           modifiers.value = {}
@@ -105,6 +118,7 @@ export default function(props: FieldCommonPropsType) {
     string,
     placeholder,
     type,
+    widget,
     value,
     rawValue,
     curRecord,
@@ -112,6 +126,6 @@ export default function(props: FieldCommonPropsType) {
     isReadonly,
     isRequired,
     invisible,
-    setValue
+    setValue,
   }
 }
