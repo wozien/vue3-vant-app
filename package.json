@@ -14,10 +14,12 @@
     "commit-msg": "node scripts/verifyCommit.js"
   },
   "lint-staged": {
-    "*.{ts, vue}": [
+    "*.ts?(x)": [
       "yarn lint",
-      "prettier --parser=typescript --write",
-      "git add"
+      "prettier --parser=typescript --write"
+    ],
+    "*.vue": [
+      "prettier --write"
     ]
   },
   "dependencies": {
