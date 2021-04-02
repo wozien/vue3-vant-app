@@ -1,14 +1,21 @@
 <template>
-  <van-popover v-model:show="showPopover" v-if="button.expand && button.children.length" placement="top-end">
+  <van-popover
+    v-model:show="showPopover"
+    v-if="button.isGroup && button.children.length"
+    placement="top-end"
+  >
     <div class="popover-button">
-      <div class="popover-button__item van-hairline--bottom van-ellipsis"
-        v-for="item in button.children" 
-        :key="item.key" 
+      <div
+        class="popover-button__item van-hairline--bottom van-ellipsis"
+        v-for="item in button.children"
+        :key="item.key"
         @click="onClick(item)"
-      >{{ item.string }}</div>
+      >
+        {{ item.string }}
+      </div>
     </div>
     <template #reference>
-      <Button :button="button"/>
+      <Button :button="button" />
     </template>
   </van-popover>
   <Button v-else :button="button" @click="onClick" />
@@ -21,11 +28,11 @@ import Button from './Button.vue'
 
 export default defineComponent({
   components: {
-    Button
+    Button,
   },
 
   props: {
-    button: Object as PropType<ViewButton>
+    button: Object as PropType<ViewButton>,
   },
   emits: ['click'],
 
@@ -34,16 +41,16 @@ export default defineComponent({
 
     const onClick = (key: string | ViewButton) => {
       emit('click', key)
-      if(showPopover.value) {
+      if (showPopover.value) {
         showPopover.value = false
       }
     }
 
     return {
       showPopover,
-      onClick
+      onClick,
     }
-  }
+  },
 })
 </script>
 

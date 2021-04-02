@@ -29,9 +29,9 @@ export interface ViewButton {
   loading: boolean
   funcName?: string
   funcType?: string
-  isFlow?: boolean
-  expand?: boolean
   children?: ViewButton[]
+  isFlow?: boolean
+  isGroup?: boolean
 }
 
 const { NODE_ENV } = wrapperEnv(process.env)
@@ -68,10 +68,10 @@ class View {
       invisible: button.invisible?.length ? button.invisible : '',
       loading: false,
       isFlow: this._isFlowButton(button),
-      expand: button.expand,
+      isGroup: !!button.children,
     }
 
-    if (buttonItem.expand) {
+    if (buttonItem.isGroup) {
       buttonItem.children = this._formatButtons(button.children)
     } else {
       buttonItem.funcName = button.func_name
@@ -187,7 +187,7 @@ class View {
     findTree(
       this.buttons,
       (button: ViewButton) => {
-        if (!button.expand) {
+        if (!button.isGroup) {
           args.push({
             attrs: {
               key: button.key,
@@ -208,7 +208,7 @@ class View {
       const authButtons = res.data
       const filterButtons = (buttons: ViewButton[]) => {
         return buttons.filter((button: ViewButton) => {
-          if (button.expand) {
+          if (button.isGroup) {
             button.children = filterButtons(button.children as ViewButton[])
             return true
           }

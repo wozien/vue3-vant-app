@@ -8,7 +8,7 @@
           :key="item.key"
           @click="onSelect(item)"
         >
-          <span v-if="!item.expand">{{ item.string }}</span>
+          <span v-if="!item.isGroup">{{ item.string }}</span>
           <van-popover
             v-else-if="item.children.length"
             placement="right-end"
@@ -115,7 +115,7 @@ export default defineComponent({
         button = renderButtons.value.find((btn: ViewButton) => btn.key === button) as ViewButton
       }
 
-      if (!button || button.expand) return
+      if (!button || button.isGroup) return
       button.loading = true
 
       if (button.funcName === 'workflow_view') {
@@ -194,7 +194,7 @@ export default defineComponent({
     }
 
     const onSelect = (item: ViewButton) => {
-      if (!item.expand) {
+      if (!item.isGroup) {
         onButtonClick(item)
         showPopover.value = false
         showSubPopover.value = false
