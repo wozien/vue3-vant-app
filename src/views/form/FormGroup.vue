@@ -29,7 +29,10 @@ import { doubleRaf, raf } from '@vant/use'
 
 export default defineComponent({
   props: {
-    renderItem: Object as PropType<Item>,
+    renderItem: {
+      type: Object as PropType<Item>,
+      required: true,
+    },
     type: String,
   },
 

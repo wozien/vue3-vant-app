@@ -1,8 +1,8 @@
 <template>
-  <van-button 
+  <van-button
     :type="highlight ? 'primary' : 'default'"
     :loading="button.loading"
-    size="small" 
+    size="small"
     round
     @click="onClickBtn"
   >
@@ -16,7 +16,10 @@ import { ViewButton } from '@/logics/types'
 
 export default defineComponent({
   props: {
-    button: Object as PropType<ViewButton>
+    button: {
+      type: Object as PropType<ViewButton>,
+      required: true,
+    },
   },
   emits: ['click'],
 
@@ -28,9 +31,9 @@ export default defineComponent({
 
     return {
       highlight,
-      onClickBtn
+      onClickBtn,
     }
-  }
+  },
 })
 </script>
 

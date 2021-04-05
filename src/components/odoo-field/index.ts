@@ -14,22 +14,20 @@ fieldResitrys.set('datetime', FieldDate)
 fieldResitrys.set('many2one', FieldMany2One)
 fieldResitrys.set('reference', FieldReference)
 fieldResitrys.set('many2many', FieldMany2Many)
+fieldResitrys.set('many2many_tags', FieldMany2Many)
 fieldResitrys.set('one2many', FieldOn2Many)
 fieldResitrys.set('flex_dropdown', FieldFlexDrop)
 fieldResitrys.set('pschar2one', FieldMany2One)
 
 export function getFieldComponent(fieldType: string, widget?: string): any {
-  let fieldComponent
-  if (widget) {
+  let fieldComponent = fieldResitrys.get(fieldType)
+  if (widget && widget !== fieldType && widget !== 'related') {
     fieldComponent = fieldResitrys.get(widget)
     if (!fieldComponent && import.meta.env.DEV) {
       // eslint-disable-next-line no-console
-      console.error(`widget no exit: ${widget}`)
+      console.error(`no exit widget: ${widget}`)
     }
   }
 
-  if (!fieldComponent) {
-    fieldComponent = fieldResitrys.get(fieldType)
-  }
   return fieldComponent
 }

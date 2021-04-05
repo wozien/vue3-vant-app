@@ -10,7 +10,7 @@
         >
           <span v-if="!item.isGroup">{{ item.string }}</span>
           <van-popover
-            v-else-if="item.children.length"
+            v-else-if="item.children && item.children.length"
             placement="right-end"
             v-model:show="showSubPopover"
             :offset="[0, 44]"

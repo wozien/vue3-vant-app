@@ -1,26 +1,20 @@
 <template>
   <div name="workflow-view">
     <van-tabs v-model:active="active">
-      <van-tab v-for="item in group.types" 
-        :key="item.type" 
-        :title="item.title"
-        :name="item.type"/>
+      <van-tab v-for="item in group.types" :key="item.type" :title="item.title" :name="item.type" />
     </van-tabs>
 
     <div class="list-container">
-      <van-pull-refresh v-model="refreshing" @refresh="onRefresh" >
+      <van-pull-refresh v-model="refreshing" @refresh="onRefresh">
         <van-list
           v-model:loading="loading"
           :finished="finished"
           :finished-text="showEmpty ? '' : '没有更多了'"
           @load="onLoad"
         >
-          <ListCard v-for="item in list"
-            :key="item.id"
-            :record="item"
-          />
+          <ListCard v-for="item in list" :key="item.id" :record="item" />
         </van-list>
-        <van-empty v-show="showEmpty" description="暂无数据"/>
+        <van-empty v-show="showEmpty" description="暂无数据" />
       </van-pull-refresh>
     </div>
   </div>
@@ -40,13 +34,13 @@ const FLOW_TYPES = {
   task: [
     { type: 'willApproval', title: '待审批' },
     { type: 'willConsult', title: '待查阅' },
-    { type: 'approvaled', title: '已审批' }
+    { type: 'approvaled', title: '已审批' },
   ],
   create: [
     { type: 'returned', title: '被退回' },
     { type: 'approvaling', title: '审批中' },
-    { type: 'completed', title: '已完成' }
-  ]
+    { type: 'completed', title: '已完成' },
+  ],
 }
 
 type GROUP_TYPE = keyof typeof FLOW_TYPES
@@ -54,7 +48,7 @@ type GROUP_TYPE = keyof typeof FLOW_TYPES
 export default defineComponent({
   name: 'Flow',
   components: {
-    ListCard
+    ListCard,
   },
 
   setup() {
@@ -69,15 +63,15 @@ export default defineComponent({
         return route.query.type as string
       },
       set(val: string) {
-        if(val && searchType.value && val !== searchType.value) {
+        if (val && searchType.value && val !== searchType.value) {
           router.replace({
             name: 'flow',
             query: {
-              type: val
-            }
+              type: val,
+            },
           })
         }
-      }
+      },
     })
     const group = useGroup(searchType.value)
     const { listState, showEmpty, onLoad, onRefresh } = useList(searchType, user)
@@ -89,9 +83,9 @@ export default defineComponent({
       ...toRefs(listState),
       showEmpty,
       onLoad,
-      onRefresh
+      onRefresh,
     }
-  }
+  },
 })
 
 /**
@@ -99,17 +93,17 @@ export default defineComponent({
  */
 function useGroup(type: string) {
   let group
-  for(let key in FLOW_TYPES) {
+  for (let key in FLOW_TYPES) {
     const types = FLOW_TYPES[key as GROUP_TYPE]
-    if(find(types, { type })) {
+    if (find(types, { type })) {
       group = {
         name: key,
-        types: types
+        types: types,
       }
     }
   }
   setDocumentTitle(group?.name === 'task' ? '我的任务' : '我的发起')
-  return group
+  return group as any
 }
 
 /**
@@ -118,34 +112,34 @@ function useGroup(type: string) {
 function useList(searchType: Ref<string>, user: Ref<User>) {
   const state = reactive({
     offset: 0,
-    list: [],
+    list: [] as any[],
     loading: true,
     finished: false,
-    refreshing: false
+    refreshing: false,
   })
   const showEmpty = computed(() => {
     return state.list.length === 0 && !state.loading
   })
 
   const onLoad = async () => {
-    if(user.value.phone && searchType.value) {
+    if (user.value.phone && searchType.value) {
       try {
         const res = await fetchFlowList(searchType.value, user.value.phone, state.offset)
         state.loading = false
-        if(res.ret === 0) {
+        if (res.ret === 0) {
           let rows = res.data?.auditList?.rows || []
-          if(rows.length) {
+          if (rows.length) {
             state.list = state.list.concat(toListCardData(rows))
             state.offset = state.list.length
-          } 
+          }
 
-          if(!rows.length || rows.length < 10) {
+          if (!rows.length || rows.length < 10) {
             state.finished = true
-          } 
+          }
         } else {
           state.finished = true
         }
-      } catch(e) {
+      } catch (e) {
         state.finished = true
       }
     }
@@ -177,15 +171,13 @@ function useList(searchType: Ref<string>, user: Ref<User>) {
         creator: row.submit_user,
         createDate: formatDate('M月d日 hh:mm', date),
         createImg: '',
-        fields: [
-          { name: 'bill_number', string: '单据编号', value: row.bill_number}
-        ],
+        fields: [{ name: 'bill_number', string: '单据编号', value: row.bill_number }],
         type: searchType.value,
         context: Object.assign({}, row, { type: searchType.value }),
-        isFlow: true
+        isFlow: true,
       }
 
-      if(res.type === 'returned') {
+      if (res.type === 'returned') {
         // 退回显示退回原因
         res.fields.push({ name: 'return_opinion', string: '退回原因', value: row.return_opinion })
         res.creator = res.createImg = ''
@@ -199,7 +191,7 @@ function useList(searchType: Ref<string>, user: Ref<User>) {
     })
   }
 
-  watch(searchType, val => {
+  watch(searchType, (val) => {
     val && onRefresh()
   })
   watch(user, onRefresh)
@@ -209,10 +201,9 @@ function useList(searchType: Ref<string>, user: Ref<User>) {
     listState: state,
     showEmpty,
     onLoad,
-    onRefresh
+    onRefresh,
   }
 }
-
 </script>
 
 <style lang="less" scoped>

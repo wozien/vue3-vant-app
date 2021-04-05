@@ -92,7 +92,7 @@ export const baseOauth = async () => {
 
   // 开发环境写死openid
   if (DEV && WX_OPEN_ID) {
-    localStorage.setItem(LocalStorageKeys.wxOpenId, WX_OPEN_ID)
+    localStorage.setItem(LocalStorageKeys.wxOpenId, WX_OPEN_ID as string)
     return WX_OPEN_ID
   }
 

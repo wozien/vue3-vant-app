@@ -1,17 +1,19 @@
 import { find } from 'lodash-es'
-import { defineComponent, ref, watchEffect, computed, Ref } from 'vue'
+import { defineComponent, defineAsyncComponent, ref, watchEffect, computed, Ref } from 'vue'
 import { useStore } from '@/store'
 import { getApp } from '@/logics/class/App'
 import { Fields } from '@/logics/types'
 import ViewItem from '@/logics/class/ViewItem'
 import { uuid } from '@/helpers/utils'
 import { findDataPoint, getEvalContext } from '@/logics/core/dataPoint'
-import FormField from '@/views/form/FormField.vue'
 import useExpose from '@/hooks/core/useExpose'
+
+const FormField = defineAsyncComponent(() => import('@/views/form/FormField.vue'))
 
 export default defineComponent({
   components: {
-    FormField: () => import('@/views/form/FormField.vue'),
+    // FormField: () => import('@/views/form/FormField.vue'),
+    FormField,
   },
 
   props: {

@@ -51,7 +51,7 @@ export default defineComponent({
     const route = useRoute()
     const state = reactive({
       options: {} as any,
-      list: [],
+      list: [] as any[],
       active: 'log',
     })
     const canvas = ref(null)

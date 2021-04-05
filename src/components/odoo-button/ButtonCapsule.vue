@@ -1,7 +1,7 @@
 <template>
   <van-popover
     v-model:show="showPopover"
-    v-if="button.isGroup && button.children.length"
+    v-if="button.isGroup && button.children && button.children.length"
     placement="top-end"
   >
     <div class="popover-button">
@@ -32,7 +32,10 @@ export default defineComponent({
   },
 
   props: {
-    button: Object as PropType<ViewButton>,
+    button: {
+      type: Object as PropType<ViewButton>,
+      required: true,
+    },
   },
   emits: ['click'],
 

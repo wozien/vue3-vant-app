@@ -7,33 +7,35 @@ import { getToken } from '@/api/user'
 
 const router = createRouter({
   history: createWebHashHistory(),
-  routes
+  routes,
 })
 
 // beforeEach hook
 router.beforeEach(async (to) => {
   let token = localStorage.getItem(LocalStorageKeys.token)
-  
-  if(to.path !== '/login' && !token) {
+
+  if (to.path !== '/login' && !token) {
     let openid = localStorage.getItem(LocalStorageKeys.wxOpenId)
     // 通过微信静默授权获取open_id
-    if(!openid && isWechatAgent()) {
+    if (!openid && isWechatAgent()) {
       const data = await baseOauth()
-      data && (openid = data)
+      if (typeof data === 'string') {
+        openid = data
+      }
     }
-    
+
     // 通过open_id 获取 token 信息
-    if(openid) {
+    if (openid) {
       const res = await getToken(openid)
-      if(res.ret === 0 && res.data) {
+      if (res.ret === 0 && res.data) {
         token = res.data.token
         token && localStorage.setItem(LocalStorageKeys.token, token)
       }
     }
 
-    if(!token) {
+    if (!token) {
       return { name: 'login' }
-    } 
+    }
   }
   return true
 })
