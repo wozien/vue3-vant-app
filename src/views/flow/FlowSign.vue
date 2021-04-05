@@ -1,11 +1,12 @@
 <template>
   <div class="flow-sign">
-    <van-field 
+    <van-field
       v-model="receiver"
-      label="接收人" 
-      placeholder="请选择接收人" 
-      readonly is-link
-      @click="showPicker=true"
+      label="接收人"
+      placeholder="请选择接收人"
+      readonly
+      is-link
+      @click="showPicker = true"
     />
     <van-field name="radio" label="加签方式">
       <template #input>
@@ -23,7 +24,7 @@
     </div>
   </div>
 
-  <UserPicker v-model:show="showPicker" @select="onUserSelected" ref="pickerRef"/>
+  <UserPicker v-model:show="showPicker" @select="onUserSelected" ref="pickerRef" />
 </template>
 
 <script lang="ts">
@@ -32,7 +33,7 @@ import UserPicker from '@/components/user-picker/UserPicker.vue'
 
 export default defineComponent({
   components: {
-    UserPicker
+    UserPicker,
   },
 
   setup() {
@@ -41,7 +42,7 @@ export default defineComponent({
       type: '1',
       receiver: '',
       showPicker: false,
-      selected: null
+      selected: null,
     })
 
     const onUserSelected = (data: any) => {
@@ -53,7 +54,7 @@ export default defineComponent({
       const data = {
         type: state.type === '1' ? 'before' : 'after',
         receiver: state.receiver,
-        selected: toRaw(state.selected)
+        selected: toRaw(state.selected),
       }
       return data
     }
@@ -62,8 +63,8 @@ export default defineComponent({
       state.type = '1'
       state.receiver = ''
       state.selected = null
-      if(pickerRef.value) {
-        (pickerRef.value as any).reset()
+      if (pickerRef.value) {
+        ;(pickerRef.value as any).reset()
       }
     }
 
@@ -72,9 +73,9 @@ export default defineComponent({
       ...toRefs(state),
       onUserSelected,
       reset,
-      getData
+      getData,
     }
-  }
+  },
 })
 
 function calcReceiver(data: any) {
@@ -92,7 +93,7 @@ function calcReceiver(data: any) {
   .tip {
     padding: 20px;
     font-size: 12px;
-    color: @text-color-light-2;
+    color: @ins-text-color-light-2;
     p {
       margin-bottom: 8px;
     }

@@ -1,14 +1,12 @@
 <template>
   <div class="company-list-page">
-    <p class="title">
-      您的账号加入了 {{ companyList.length }} 个企业
-    </p>
+    <p class="title">您的账号加入了 {{ companyList.length }} 个企业</p>
     <div class="list">
-      <div 
-        v-for="item in companyList" 
+      <div
+        v-for="item in companyList"
         :key="item.dbName"
         :class="['list-item', active === item.dbName && 'list-item-active']"
-        @click="active=item.dbName"
+        @click="active = item.dbName"
       >
         <Icon name="company" />
         <span class="name">{{ item.name }}</span>
@@ -28,13 +26,12 @@ import { fetchCompanyList, switchCompany } from '@/api/user'
 import useToast from '@/hooks/component/useToast'
 
 interface Company {
-  name: string;
-  dbName: string;
-  oauthUrl: string;
+  name: string
+  dbName: string
+  oauthUrl: string
 }
 
 export default defineComponent({
-
   setup() {
     const companyList = ref<Company[]>([])
     const active = ref('')
@@ -45,19 +42,19 @@ export default defineComponent({
 
     onMounted(async () => {
       const res = await fetchCompanyList()
-      if(res.ret === 0 && res.data?.length) {
+      if (res.ret === 0 && res.data?.length) {
         companyList.value = res.data.map((item: any) => {
           const { db_name, oauth2_login_url, company_name } = item
           return {
             name: company_name,
             dbName: db_name,
-            oauthUrl: oauth2_login_url
+            oauthUrl: oauth2_login_url,
           }
         })
-        const len = companyList.value.length 
-        if(len) {
+        const len = companyList.value.length
+        if (len) {
           active.value = store.state.user.company.dbName || companyList.value[0]?.dbName
-          if(len === 1 && !route.query.keepSwitch) {
+          if (len === 1 && !route.query.keepSwitch) {
             onSwitchCompany()
           }
         }
@@ -65,17 +62,19 @@ export default defineComponent({
     })
 
     const onSwitchCompany = async () => {
-      if(!companyList.value.length) {
-        toast.show('暂无企业列表数据'); return
-      } else if(!active.value) {
-        toast.show('请先选择一个企业'); return
+      if (!companyList.value.length) {
+        toast.show('暂无企业列表数据')
+        return
+      } else if (!active.value) {
+        toast.show('请先选择一个企业')
+        return
       }
 
       toast.loading('载入企业数据')
-      const activeCompany = companyList.value.find(item => item.dbName === active.value)
-      if(activeCompany) {
+      const activeCompany = companyList.value.find((item) => item.dbName === active.value)
+      if (activeCompany) {
         const res = await switchCompany(activeCompany.dbName, activeCompany.oauthUrl)
-        if(res.ret === 0) {
+        if (res.ret === 0) {
           router.push('/dashboard')
         }
         toast.clear()
@@ -85,16 +84,16 @@ export default defineComponent({
     return {
       companyList,
       active,
-      onSwitchCompany
+      onSwitchCompany,
     }
-  }
+  },
 })
 </script>
 
 <style lang="less" scoped>
 .company-list-page {
   .title {
-    color: @text-color-light-1;
+    color: @ins-text-color-light-1;
     padding: 16px 20px;
     font-size: 14px;
   }
@@ -112,12 +111,12 @@ export default defineComponent({
       position: relative;
       .name {
         font-size: 14px;
-        color: @text-color-light-1;
+        color: @ins-text-color-light-1;
       }
       &-active {
         border-color: @primary-color;
         &::before {
-          content: "";
+          content: '';
           display: block;
           position: absolute;
           width: 12px;
@@ -127,7 +126,7 @@ export default defineComponent({
           background: @primary-color;
         }
         &::after {
-          content: "";
+          content: '';
           position: absolute;
           display: block;
           width: 0px;

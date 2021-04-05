@@ -2,7 +2,6 @@ import ViewItem from './ViewItem'
 import type { StudioItem } from '../types'
 import { findTree, uuid } from '@/helpers/utils'
 import { chekcButtonAccess } from '@/api/app'
-import { wrapperEnv } from '@/helpers/utils'
 
 export type ViewType = 'form' | 'list'
 export interface StudioView {
@@ -34,8 +33,7 @@ export interface ViewButton {
   isGroup?: boolean
 }
 
-const { NODE_ENV } = wrapperEnv(process.env)
-const isDev = NODE_ENV === 'development'
+const { DEV } = import.meta.env
 
 class View {
   model: string
@@ -96,7 +94,7 @@ class View {
     }
 
     // 生产环境暂时屏蔽编辑态按钮
-    if (!isDev) {
+    if (!DEV) {
       viewButtons = viewButtons.filter((btn) => {
         return (
           btn.mode !== 'edit' &&

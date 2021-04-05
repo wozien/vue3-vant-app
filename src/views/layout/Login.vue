@@ -4,12 +4,12 @@
     <div class="info">
       <LoginInput type="tel" placeholder="手机号" v-model="account.phone" clearable>
         <template #icon>
-          <Icon name="account"/>
+          <Icon name="account" />
         </template>
       </LoginInput>
       <LoginInput type="password" placeholder="密码" v-model="account.password">
         <template #icon>
-          <Icon name="password"/>
+          <Icon name="password" />
         </template>
       </LoginInput>
     </div>
@@ -33,23 +33,25 @@ function useLogin() {
   const loading = ref(false)
   const account = reactive({
     phone: '',
-    password: ''
+    password: '',
   })
   const router = useRouter()
 
   const login = async () => {
-    const { phone, password } = account 
-    if(!phone || !password) {
-      Toast('手机号或者密码不能为空'); return
-    } else if(!/^\d{11}$/.test(phone)) {
-      Toast('手机号格式不正确'); return
+    const { phone, password } = account
+    if (!phone || !password) {
+      Toast('手机号或者密码不能为空')
+      return
+    } else if (!/^\d{11}$/.test(phone)) {
+      Toast('手机号格式不正确')
+      return
     }
 
     loading.value = true
     const wxOpenId = localStorage.getItem(LocalStorageKeys.wxOpenId)
     const res = await userLogin(phone, password, wxOpenId)
     loading.value = false
-    if(res.ret === 0) {
+    if (res.ret === 0) {
       const { access_token } = res.data
       localStorage.setItem(LocalStorageKeys.token, access_token)
       router.push('/companyList')
@@ -60,7 +62,7 @@ function useLogin() {
 
 export default defineComponent({
   components: {
-    LoginInput
+    LoginInput,
   },
 
   setup() {
@@ -69,9 +71,8 @@ export default defineComponent({
       forget: () => Toast('暂不支持'),
       register: () => Toast('暂不支持'),
     }
-  }
+  },
 })
-
 </script>
 
 <style lang="less" scoped>
@@ -98,8 +99,8 @@ export default defineComponent({
       display: inline-block;
       cursor: pointer;
       &.forget {
-        color: @text-color-light-1;
-        border-right: @border;
+        color: @ins-text-color-light-1;
+        border-right: @ins-border;
       }
       &.register {
         color: @primary-color;

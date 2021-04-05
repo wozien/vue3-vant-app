@@ -1,6 +1,6 @@
 <template>
   <div class="user-center">
-    <div class="header" @click="showUserSetting=true">
+    <div class="header" @click="showUserSetting = true">
       <van-image :src="user.avatar" width="50" height="50" fit="cover" round />
       <div class="info">
         <p class="name">{{ user.nickname }}</p>
@@ -9,17 +9,36 @@
       <van-icon name="arrow" color="#646566"></van-icon>
     </div>
     <van-cell-group>
-      <van-cell :title="user.company.name" icon-prefix="ins-icon" icon="company" to="/companyList?keepSwitch=1" is-link />
-      <van-cell :title="curOrg" icon-prefix="ins-icon" icon="org" is-link @click="showPicker=true"/>
-      <van-cell title="帮助中心" icon-prefix="ins-icon" icon="help" url="https://wiki.insuite.cn/zh/home" />
-      <van-cell title="联系我们" icon-prefix="ins-icon" icon="contact" @click="onClickContract"/>
+      <van-cell
+        :title="user.company.name"
+        icon-prefix="ins-icon"
+        icon="company"
+        to="/companyList?keepSwitch=1"
+        is-link
+      />
+      <van-cell
+        :title="curOrg"
+        icon-prefix="ins-icon"
+        icon="org"
+        is-link
+        @click="showPicker = true"
+      />
+      <van-cell
+        title="帮助中心"
+        icon-prefix="ins-icon"
+        icon="help"
+        url="https://wiki.insuite.cn/zh/home"
+      />
+      <van-cell title="联系我们" icon-prefix="ins-icon" icon="contact" @click="onClickContract" />
     </van-cell-group>
     <div class="footer">
-      <van-button round block hairline size="small" type="primary" @click="onLogout">退出登录</van-button>
+      <van-button round block hairline size="small" type="primary" @click="onLogout"
+        >退出登录</van-button
+      >
     </div>
 
     <van-popup v-model:show="showPicker" position="bottom" round>
-      <van-picker :columns="orgs" @confirm="onSelectOrg" @cancel="showPicker=false"/>
+      <van-picker :columns="orgs" @confirm="onSelectOrg" @cancel="showPicker = false" />
     </van-popup>
 
     <!-- 个人信息编辑页 -->
@@ -38,13 +57,13 @@ import UserSetting from './UserSetting.vue'
 
 function useOrgs() {
   const store = useStore()
-  const orgs = computed(() => store.state.orgs.map(org => org.name))
+  const orgs = computed(() => store.state.orgs.map((org) => org.name))
   const curOrg = computed(() => store.state.curOrg?.name)
   const setCurOrg = async (orgName: string) => {
-    const org = store.state.orgs.find(org => org.name === orgName)
-    if(org) {
+    const org = store.state.orgs.find((org) => org.name === orgName)
+    if (org) {
       const res = await switchUserOrg(org.id)
-      if(res.ret === 0) {
+      if (res.ret === 0) {
         store.state.curOrg = org
       }
     }
@@ -53,15 +72,15 @@ function useOrgs() {
   return {
     orgs,
     curOrg,
-    setCurOrg
+    setCurOrg,
   }
 }
 
 function useLogout(router: Router) {
   const beforeClose = async (action: string) => {
-    if(action === 'confirm') {
+    if (action === 'confirm') {
       const res = await userLogout()
-      if(res.ret === 0) {
+      if (res.ret === 0) {
         localStorage.removeItem(LocalStorageKeys.token)
         router.push('/login')
       }
@@ -72,7 +91,7 @@ function useLogout(router: Router) {
   const onLogout = () => {
     Dialog.confirm({
       message: '确定退出当前用户?',
-      beforeClose
+      beforeClose,
     }).catch(() => {})
   }
 
@@ -85,10 +104,10 @@ export default defineComponent({
     const store = useStore()
     const router = useRouter()
     const { onLogout } = useLogout(router)
-    const showPicker  = ref(false)
+    const showPicker = ref(false)
     const { orgs, curOrg, setCurOrg } = useOrgs()
     const onSelectOrg = (value: string) => {
-      if(value !== curOrg.value) {
+      if (value !== curOrg.value) {
         setCurOrg(value)
       }
       showPicker.value = false
@@ -98,10 +117,11 @@ export default defineComponent({
       Dialog.alert({
         title: '联系信息',
         messageAlign: 'left',
-        message: '客服电话: 400-018-7701\n办公邮箱: insuiteservice@inspur.com\n办公地址: 山东省济南市历城区东八区企业公馆A7-1'
+        message:
+          '客服电话: 400-018-7701\n办公邮箱: insuiteservice@inspur.com\n办公地址: 山东省济南市历城区东八区企业公馆A7-1',
       })
     }
- 
+
     return {
       user: computed(() => store.state.user),
       orgs,
@@ -112,7 +132,7 @@ export default defineComponent({
       onLogout,
       onSelectOrg,
     }
-  }
+  },
 })
 </script>
 
@@ -127,18 +147,18 @@ export default defineComponent({
     margin-bottom: 10px;
     .info {
       flex: 1 1 auto;
-      color: @text-color-light-1;
+      color: @ins-text-color-light-1;
       font-size: 13px;
       margin-left: 14px;
       .name {
         font-size: 16px;
         margin-bottom: 6px;
-        color: @text-color;
+        color: @ins-text-color;
       }
     }
   }
   &::v-deep(.van-cell) {
-    color: @text-color-light-1;
+    color: @ins-text-color-light-1;
   }
 
   .footer {

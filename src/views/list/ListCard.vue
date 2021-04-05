@@ -41,7 +41,7 @@ interface ListCard {
   fields: ListCardField[]
   creator: string
   createDate: string
-  createImg: string,
+  createImg: string
   [key: string]: any
 }
 
@@ -50,12 +50,12 @@ export default defineComponent({
     appName: String,
     record: {
       type: Object as PropType<ListRecord | ListCard>,
-      required: true
+      required: true,
     },
     fieldsInfo: {
       type: Object as PropType<FieldsInfo>,
-      default: () => {}
-    } 
+      default: () => {},
+    },
   },
 
   setup(props) {
@@ -67,31 +67,31 @@ export default defineComponent({
       const query = {
         id: cardData.id,
         readonly: 1,
-        viewType: 'form'
+        viewType: 'form',
       } as any
 
-      if(cardData.isFlow) {
+      if (cardData.isFlow) {
         // 工作流
         sessionStorage.setItem(sessionStorageKeys.flowParams, JSON.stringify(cardData.context))
         sessionStorage.removeItem(sessionStorageKeys.loadParams)
         query.model = cardData.model
-      } 
-      
+      }
+
       router.push({
         name: 'view',
-        query: Object.assign({}, route.query, query)
+        query: Object.assign({}, route.query, query),
       })
     }
 
     return {
       ...cardData,
-      onClickCard
+      onClickCard,
     }
-  }
+  },
 })
 
-function useCard(record: ListRecord | ListCard, fieldsInfo: FieldsInfo, appName?:string) {
-  if(!(record instanceof ListRecord)) return record
+function useCard(record: ListRecord | ListCard, fieldsInfo: FieldsInfo, appName?: string) {
+  if (!(record instanceof ListRecord)) return record
   const res: ListCard = {
     id: record.id,
     name: appName || '',
@@ -100,35 +100,36 @@ function useCard(record: ListRecord | ListCard, fieldsInfo: FieldsInfo, appName?
     creator: record.creator.name,
     createImg: record.creator.avatar || '/img/avatar.png',
     createDate: formatDate('M月d日 hh:mm', record.creator.time),
-    fields: []
+    fields: [],
   }
-  
+
   each(fieldsInfo, (field: FieldInfo) => {
-    if(field.modifiers?.invisible) return
+    if (field.modifiers?.invisible) return
     const fieldItem: ListCardField = {
       name: field.name,
       string: field.string || '',
-      value: ''
+      value: '',
     }
     res.fields.push(fieldItem)
 
     const fieldType = field.type
     let fieldValue = record.raw[field.name]
-    if(fieldType === 'date' || fieldType === 'datetime') {
+    if (fieldType === 'date' || fieldType === 'datetime') {
       // to Date Obj
       fieldValue = (fieldUtils.parse as any)[fieldType](fieldValue, field)
     }
 
-    if(fieldType === 'many2many' || fieldType === 'one2many') {
+    if (fieldType === 'many2many' || fieldType === 'one2many') {
       fieldItem.value = Array.isArray(fieldValue) ? fieldValue.join(',') : ''
     } else {
-      fieldItem.value = (fieldUtils.format as any)[fieldType](fieldValue, field, { format: fieldType === 'boolean' })
+      fieldItem.value = (fieldUtils.format as any)[fieldType](fieldValue, field, {
+        format: fieldType === 'boolean',
+      })
     }
   })
 
   return res
 }
-
 </script>
 
 <style lang="less" scoped>
@@ -154,7 +155,7 @@ function useCard(record: ListRecord | ListCard, fieldsInfo: FieldsInfo, appName?
   }
   .content {
     padding: 8px 4px;
-    color: @text-color-light-1;
+    color: @ins-text-color-light-1;
     font-size: 13px;
     .field {
       display: flex;
@@ -172,7 +173,7 @@ function useCard(record: ListRecord | ListCard, fieldsInfo: FieldsInfo, appName?
     display: flex;
     align-items: center;
     font-size: 12px;
-    color: @text-color-light-2;
+    color: @ins-text-color-light-2;
     .create {
       margin-left: 6px;
     }

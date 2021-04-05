@@ -1,35 +1,52 @@
 <template>
   <div class="form-view">
     <div class="header van-hairline--bottom" v-show="showHeader">
-      <van-image :src="creator.avatar" width="40" height="40" round/>
+      <van-image :src="creator.avatar" width="40" height="40" round />
       <div class="info">
         <p class="name">{{ creator.name }}</p>
-        <p class="time">{{ `${creator.date} 发起` }}</p> 
+        <p class="time">{{ `${creator.date} 发起` }}</p>
       </div>
       <div class="right">
-        <van-image v-if="state === 'audit'"  @click="toProcessView"
-          :src="require('@/assets/img/audit.png')" width="45" height="45" round/>
+        <van-image
+          v-if="state === 'audit'"
+          @click="toProcessView"
+          :src="imgUrl"
+          width="45"
+          height="45"
+          round
+        />
         <div class="icons">
           <div class="icon">
-            <Icon name="file" @click="onClickFile"/>
-            <Icon name="message" @click="onClickMessage"/>
+            <Icon name="file" @click="onClickFile" />
+            <Icon name="message" @click="onClickMessage" />
           </div>
-          <span v-if="state !== 'audit'" class="status" @click="toProcessView">{{ state_name }}</span>
+          <span v-if="state !== 'audit'" class="status" @click="toProcessView">{{
+            state_name
+          }}</span>
         </div>
       </div>
     </div>
-    <div class="form-canvas" :style="{'height': height + 'px'}">
-      <FormCanvas :items="curView && curView.items" :fields="fields" ref="formRef"/>
+    <div class="form-canvas" :style="{ height: height + 'px' }">
+      <FormCanvas :items="curView && curView.items" :fields="fields" ref="formRef" />
     </div>
-    <LineSwitcher v-show="showLineSwitcher"/>
-    <ButtonView :buttons="curView && curView.buttons"/>
+    <LineSwitcher v-show="showLineSwitcher" />
+    <ButtonView :buttons="curView && curView.buttons" />
   </div>
 </template>
 
 <script lang="ts">
-import { 
-  defineComponent, reactive, computed, watch, toRaw,
-  toRefs, watchEffect, onMounted, onBeforeUnmount, provide, ref
+import {
+  defineComponent,
+  reactive,
+  computed,
+  watch,
+  toRaw,
+  toRefs,
+  watchEffect,
+  onMounted,
+  onBeforeUnmount,
+  provide,
+  ref,
 } from 'vue'
 import { useRoute, useRouter, onBeforeRouteUpdate } from 'vue-router'
 import { Toast, Dialog } from 'vant'
@@ -43,31 +60,32 @@ import { getRecordId } from '@/logics/core/dataPoint'
 import { sessionStorageKeys } from '@/logics/enums/cache'
 import { load as loadDataPoint, clean as cleanRecord, isDirty } from '@/logics/core/dataPoint'
 import useToast from '@/hooks/component/useToast'
+import imgUrl from '@/assets/img/audit.png'
 
 export default defineComponent({
   components: {
     FormCanvas,
     ButtonView,
-    LineSwitcher
+    LineSwitcher,
   },
 
   props: {
-    ...viewCommonProps
+    ...viewCommonProps,
   },
 
   setup(props) {
     const route = useRoute()
     const router = useRouter()
     const store = useStore()
-    const { toast } =  useToast()
+    const { toast } = useToast()
     const data = reactive({
       creator: {
         name: '',
         avatar: '',
-        date: ''
+        date: '',
       },
       state: '',
-      state_name: ''
+      state_name: '',
     })
     const formRef = ref()
     const searchFields = computed(() => {
@@ -81,21 +99,26 @@ export default defineComponent({
       return !!route.query.subModel
     })
     const height = computed(() => {
-      return document.body.clientHeight - 50 - +(showHeader.value && 70) - +(showLineSwitcher.value && 50)
+      return (
+        document.body.clientHeight -
+        50 -
+        +(showHeader.value && 70) -
+        +(showLineSwitcher.value && 50)
+      )
     })
     const curRecord = computed(() => store.getters.curRecord)
 
     const loadRecord = async (routeQuery?: Record<string, any>) => {
       let { model, id } = routeQuery || route.query
-      if(searchFields.value.length && props.fieldsInfo) {
+      if (searchFields.value.length && props.fieldsInfo) {
         toast.loading('数据加载中...')
         // datapoint load
         await loadDataPoint({
           type: 'record',
           modelName: model as string,
-          res_id: id ? +id: undefined,
+          res_id: id ? +id : undefined,
           viewType: 'form',
-          fieldsInfo: toRaw(props.fieldsInfo)
+          fieldsInfo: toRaw(props.fieldsInfo),
         })
         setCurRecord()
         toast.clear()
@@ -104,15 +127,14 @@ export default defineComponent({
 
     const setCurRecord = () => {
       const { subModel, subId } = route.query
-      if(subModel) {
+      if (subModel) {
         const recordId = getRecordId(subModel as string, subId as string)
-        if(recordId) {
+        if (recordId) {
           store.commit('SET_CUR_RECORD', recordId)
-        } else if(subId && (subId as string).startsWith('virtual_')){
+        } else if (subId && (subId as string).startsWith('virtual_')) {
           // 添加明细行后直接刷新，返回表头
           router.back()
         }
-        
       } else {
         store.commit('RESET_CUR_RECORD')
         sessionStorage.removeItem(sessionStorageKeys.x2manyCommand)
@@ -121,10 +143,10 @@ export default defineComponent({
 
     const toProcessView = () => {
       const { type } = route.query
-      if(!type) return
+      if (!type) return
       router.push({
         name: 'flow-process',
-        query: Object.assign({}, route.query)
+        query: Object.assign({}, route.query),
       })
     }
 
@@ -134,18 +156,18 @@ export default defineComponent({
     // 表体行表单返回主表单
     watchEffect(() => {
       setCurRecord()
-    }) 
+    })
 
-    watch(searchFields, val => {
-      if(val.length) loadRecord()
+    watch(searchFields, (val) => {
+      if (val.length) loadRecord()
     })
 
     watch(curRecord, (val) => {
-      if(val && val.creator) {
+      if (val && val.creator) {
         data.creator = {
           name: val.creator.name,
           avatar: val.creator.avatar || '/img/avatar.png',
-          date: formatDate('M月d日 hh:mm', val.creator.date)
+          date: formatDate('M月d日 hh:mm', val.creator.date),
         }
         data.state = val.state
         data.state_name = val.state_name
@@ -159,20 +181,22 @@ export default defineComponent({
     onBeforeRouteUpdate(async (to, from) => {
       const { viewType: fromViewType, subId: fromSubId } = from.query
       const { viewType, id, subId } = to.query
-      if(fromViewType === 'form') {
-        if(viewType === 'list' && route.query.readonly === '0') {
+      if (fromViewType === 'form') {
+        if (viewType === 'list' && route.query.readonly === '0') {
           // 表单回到列表,校验是否又未保存操作
           const dirty = isDirty(curRecord.value.id)
-          if(dirty) {
+          if (dirty) {
             const bool = await Dialog.confirm({
               message: '是否确定放弃表单修改？',
-              closeOnPopstate: false
-            }).then(() => true).catch(() => false)
+              closeOnPopstate: false,
+            })
+              .then(() => true)
+              .catch(() => false)
             return bool
           }
         }
 
-        if(viewType === 'form' && !id && !subId && !fromSubId) {
+        if (viewType === 'form' && !id && !subId && !fromSubId) {
           // 点击创建
           loadRecord(to.query)
         }
@@ -196,13 +220,13 @@ export default defineComponent({
       localData: computed(() => store.state.localData),
       curRecordId: computed(() => store.state.curRecordId),
       curRecord,
+      imgUrl,
       toProcessView,
       onClickFile,
-      onClickMessage
+      onClickMessage,
     }
-  }
+  },
 })
-
 </script>
 
 <style lang="less" scoped>
@@ -219,12 +243,12 @@ export default defineComponent({
       padding: 0px 10px;
       .name {
         font-size: 14px;
-        color: @text-color-light-1;
+        color: @ins-text-color-light-1;
         margin-bottom: 2px;
       }
       .time {
         font-size: 12px;
-        color: @text-color-light-2;
+        color: @ins-text-color-light-2;
       }
     }
     .right {

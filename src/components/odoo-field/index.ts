@@ -5,9 +5,6 @@ import FieldReference from './Reference.vue'
 import FieldMany2Many from './Many2Many.vue'
 import FieldOn2Many from './One2Many.vue'
 import FieldFlexDrop from '../flex/FlexDrop.vue'
-import { wrapperEnv } from '@/helpers/utils'
-
-const { IS_DEV } = wrapperEnv()
 
 const fieldResitrys = new Map<string, any>()
 
@@ -25,7 +22,7 @@ export function getFieldComponent(fieldType: string, widget?: string): any {
   let fieldComponent
   if (widget) {
     fieldComponent = fieldResitrys.get(widget)
-    if (!fieldComponent && IS_DEV) {
+    if (!fieldComponent && import.meta.env.DEV) {
       // eslint-disable-next-line no-console
       console.error(`widget no exit: ${widget}`)
     }

@@ -1,38 +1,43 @@
 <template>
   <div class="search-view">
     <div class="search-form">
-      <div class="form-item"
-        v-for="item in searchItems"
-        :key="item.name"
-      >
+      <div class="form-item" v-for="item in searchItems" :key="item.name">
         <label class="form-item__label">{{ item.label }}</label>
         <!-- input -->
         <div v-if="item.type === 'input'" class="form-item__input form-item--border">
-          <input type="text" v-model="values[item.name]" :placeholder="item.placeholder">
+          <input type="text" v-model="values[item.name]" :placeholder="item.placeholder" />
         </div>
         <!-- date-range -->
         <div v-else-if="item.type === 'date_range'" class="form-item__range">
           <div class="date-node form-item--border">
-            <span :class="[!values[item.name].start && 'phld']" @click="onClickDateNode('start', item.name)">
-              {{ values[item.name].start  || '选择时间' }}
+            <span
+              :class="[!values[item.name].start && 'phld']"
+              @click="onClickDateNode('start', item.name)"
+            >
+              {{ values[item.name].start || '选择时间' }}
             </span>
             <van-icon name="arrow-down"></van-icon>
           </div>
           <span class="spec"> - </span>
           <div class="date-node form-item--border">
-            <span :class="[!values[item.name].end && 'phld']"  @click="onClickDateNode('end', item.name)">
+            <span
+              :class="[!values[item.name].end && 'phld']"
+              @click="onClickDateNode('end', item.name)"
+            >
               {{ values[item.name].end || '选择时间' }}
             </span>
             <van-icon name="arrow-down"></van-icon>
           </div>
         </div>
         <div v-else-if="item.type === 'selection'" class="form-item__selection">
-          <span v-for="btn in item.options" 
-          :key="btn.key"
-          :class="['btn', values[item.name] === btn.key && 'active']"
-          @click="values[item.name] = btn.key"
-          >{{ btn.string }}</span>
-        </div> 
+          <span
+            v-for="btn in item.options"
+            :key="btn.key"
+            :class="['btn', values[item.name] === btn.key && 'active']"
+            @click="values[item.name] = btn.key"
+            >{{ btn.string }}</span
+          >
+        </div>
       </div>
     </div>
     <div class="search-footer">
@@ -42,11 +47,12 @@
 
     <!-- datepicker -->
     <van-popup v-model:show="showPicker" position="bottom" teleport="body" round>
-      <van-datetime-picker 
+      <van-datetime-picker
         type="date"
-        v-model="dateValue" 
-        @cancel="showPicker = false" 
-        @confirm="onConfirm"/>
+        v-model="dateValue"
+        @cancel="showPicker = false"
+        @confirm="onConfirm"
+      />
     </van-popup>
   </div>
 </template>
@@ -59,7 +65,7 @@ import { formatDate } from '@/helpers/date'
 
 export default defineComponent({
   props: {
-    fields: Object as PropType<Fields>
+    fields: Object as PropType<Fields>,
   },
 
   emits: ['search'],
@@ -69,12 +75,12 @@ export default defineComponent({
     const dateState = reactive({
       showPicker: false,
       dateValue: new Date(),
-      currentNode: {} as any
+      currentNode: {} as any,
     })
 
     const onSearch = () => {
       const searchValues: any = {}
-      for(let fieldName in values) {
+      for (let fieldName in values) {
         const field = props.fields?.[fieldName]
         field && (searchValues[fieldName] = values[fieldName])
       }
@@ -84,7 +90,7 @@ export default defineComponent({
 
     const onReset = () => {
       const defaultValue = getDefaultValues()
-      for(let fieldName in defaultValue) {
+      for (let fieldName in defaultValue) {
         values[fieldName] = defaultValue[fieldName]
       }
     }
@@ -110,12 +116,10 @@ export default defineComponent({
       onSearch,
       onReset,
       onClickDateNode,
-      onConfirm
+      onConfirm,
     }
-  }
+  },
 })
-
-
 </script>
 
 <style lang="less" scoped>
@@ -126,13 +130,13 @@ export default defineComponent({
     padding: 10px 0px;
     .form-item {
       padding: 6px 16px 6px 10px;
-      color: @text-color;
+      color: @ins-text-color;
       font-size: 13px;
       &__label {
         display: inline-block;
         margin-bottom: 8px;
         padding-left: 6px;
-        color: @text-color-light-1;
+        color: @ins-text-color-light-1;
         font-size: 14px;
       }
       &__input {
@@ -144,7 +148,7 @@ export default defineComponent({
           outline: none;
           width: 100%;
           &::placeholder {
-            color: @text-color-light-2;
+            color: @ins-text-color-light-2;
           }
         }
       }
@@ -152,8 +156,8 @@ export default defineComponent({
         > span {
           display: inline-block;
           padding: 6px 12px;
-          color: @text-color-light-1;
-          border: @border;
+          color: @ins-text-color-light-1;
+          border: @ins-border;
           margin-right: 9px;
           margin-bottom: 6px;
           border-radius: 20px;
@@ -167,16 +171,16 @@ export default defineComponent({
       &__range {
         display: flex;
         align-items: center;
-        > .date-node { 
+        > .date-node {
           flex: 1;
           padding: 4px 10px;
           display: flex;
           align-items: center;
           min-height: 30px;
-          > span { 
-            flex: 1; 
+          > span {
+            flex: 1;
             &.phld {
-              color: @text-color-light-2;
+              color: @ins-text-color-light-2;
             }
           }
         }
@@ -186,7 +190,7 @@ export default defineComponent({
       }
       &--border {
         border-radius: 20px;
-        border: @border;
+        border: @ins-border;
       }
     }
   }

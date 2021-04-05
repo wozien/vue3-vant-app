@@ -20,25 +20,25 @@ export default defineComponent({
     const state = reactive({
       recordIds: [] as any[],
       current: 0,
-      total: 0
+      total: 0,
     })
     const curRecord = computed(() => store.getters.curRecord)
 
     const onLeft = () => {
       state.current -= 1
-      if(state.current < 0) state.current = state.recordIds.length - 1
+      if (state.current < 0) state.current = state.recordIds.length - 1
     }
 
     const onRight = () => {
       state.current += 1
-      if(state.current === state.recordIds.length) state.current = 0
+      if (state.current === state.recordIds.length) state.current = 0
     }
 
     watchEffect(() => {
-      if(curRecord.value) {
+      if (curRecord.value) {
         const recordID = curRecord.value.parentId
         const list = recordID && get(recordID)
-        if(list) {
+        if (list) {
           state.recordIds = list.data.map((record: any) => record.id)
           state.total = state.recordIds?.length || 0
           state.current = state.recordIds.findIndex((id: string) => id === curRecord.value.id)
@@ -46,17 +46,20 @@ export default defineComponent({
       }
     })
 
-    watch(() => state.current, (val) => {
-      const curRecordId = state.recordIds[val]
-      curRecordId && store.commit('SET_CUR_RECORD', curRecordId)
-    })
+    watch(
+      () => state.current,
+      (val) => {
+        const curRecordId = state.recordIds[val]
+        curRecordId && store.commit('SET_CUR_RECORD', curRecordId)
+      }
+    )
 
     return {
       ...toRefs(state),
       onLeft,
-      onRight
+      onRight,
     }
-  }
+  },
 })
 </script>
 
@@ -74,7 +77,7 @@ export default defineComponent({
     width: 120px;
     font-size: 13px;
     box-shadow: 0px 2px 8px 0px #ededed;
-    color: @text-color-light-1;
+    color: @ins-text-color-light-1;
     margin-top: 8px;
 
     > span {

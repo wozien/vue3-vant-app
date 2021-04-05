@@ -1,5 +1,5 @@
 import { App } from 'vue'
-import { 
+import {
   Button,
   Field,
   Checkbox,
@@ -28,12 +28,10 @@ import {
   DatetimePicker,
   TreeSelect,
   Empty,
-  Loading
+  Loading,
 } from 'vant'
 
-const loadingImg = require('../../public/img/avatar.png')
-
-export default function(app: App){
+export default function (app: App) {
   app.use(Button)
   app.use(Field)
   app.use(Checkbox)
@@ -62,7 +60,5 @@ export default function(app: App){
   app.use(TreeSelect)
   app.use(Empty)
   app.use(Loading)
-  app.use(Lazyload, {
-    loading: loadingImg
-  })
+  app.use(Lazyload)
 }
