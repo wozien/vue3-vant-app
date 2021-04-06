@@ -1,6 +1,6 @@
 import { RouteRecordRaw } from 'vue-router'
 
-const Login = () => import('@/views/layout/Login.vue')
+const Login = () => import('@/views/login/Login.vue')
 const Layout = () => import('@/views/layout/Layout.vue')
 const Dashboard = () => import('@/views/dashboard/Dashboard.vue')
 const Market = () => import('@/views/market/Market.vue')
@@ -13,13 +13,13 @@ const FlowProcess = () => import('@/views/flow/FlowProcess.vue')
 const routes: RouteRecordRaw[] = [
   {
     path: '/',
-    redirect: '/dashboard',
+    redirect: '/dashboard'
   },
   {
     path: '/login',
     name: 'login',
     component: Login,
-    meta: { title: '用户登录' },
+    meta: { title: '用户登录' }
   },
   {
     path: '/layout',
@@ -29,43 +29,43 @@ const routes: RouteRecordRaw[] = [
       {
         path: '/dashboard',
         component: Dashboard,
-        meta: { title: '首页', tab: true },
+        meta: { title: '首页' }
       },
       {
         path: '/market',
         component: Market,
-        meta: { title: '应用', tab: true },
+        meta: { title: '应用' }
       },
       {
         path: '/user',
         component: User,
-        meta: { title: '我的', tab: true },
+        meta: { title: '我的' }
       },
       {
         path: '/view',
         name: 'view',
         component: View,
-        meta: { pageIndex: 1 },
+        meta: { index: 2 }
       },
       {
         path: '/workflow',
         name: 'flow',
         component: Flow,
-        meta: { pageIndex: 1 },
+        meta: { index: 1 }
       },
       {
         path: '/workflowProcess',
         name: 'flow-process',
         component: FlowProcess,
-        meta: { pageIndex: 2 },
-      },
-    ],
+        meta: { index: 3 }
+      }
+    ]
   },
   {
     path: '/companyList',
     component: CompanyList,
-    meta: { title: '我的企业' },
-  },
+    meta: { title: '我的企业' }
+  }
 ]
 
 export default routes

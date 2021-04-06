@@ -33,7 +33,7 @@ function useLogin() {
   const loading = ref(false)
   const account = reactive({
     phone: '',
-    password: '',
+    password: ''
   })
   const router = useRouter()
 
@@ -62,16 +62,16 @@ function useLogin() {
 
 export default defineComponent({
   components: {
-    LoginInput,
+    LoginInput
   },
 
   setup() {
     return {
       ...useLogin(),
       forget: () => Toast('暂不支持'),
-      register: () => Toast('暂不支持'),
+      register: () => Toast('暂不支持')
     }
-  },
+  }
 })
 </script>
 
@@ -81,7 +81,7 @@ export default defineComponent({
   background: white;
   padding: 60px 36px;
   .title {
-    color: @primary-color;
+    color: @ins-primary-color;
     font-size: 28px;
     font-weight: 600;
     margin-bottom: 20px;
@@ -103,7 +103,7 @@ export default defineComponent({
         border-right: @ins-border;
       }
       &.register {
-        color: @primary-color;
+        color: @ins-primary-color;
       }
     }
   }

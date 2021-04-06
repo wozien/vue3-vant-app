@@ -46,7 +46,7 @@ import {
   onMounted,
   onBeforeUnmount,
   provide,
-  ref,
+  ref
 } from 'vue'
 import { useRoute, useRouter, onBeforeRouteUpdate } from 'vue-router'
 import { Toast, Dialog } from 'vant'
@@ -66,11 +66,11 @@ export default defineComponent({
   components: {
     FormCanvas,
     ButtonView,
-    LineSwitcher,
+    LineSwitcher
   },
 
   props: {
-    ...viewCommonProps,
+    ...viewCommonProps
   },
 
   setup(props) {
@@ -82,10 +82,10 @@ export default defineComponent({
       creator: {
         name: '',
         avatar: '',
-        date: '',
+        date: ''
       },
       state: '',
-      state_name: '',
+      state_name: ''
     })
     const formRef = ref()
     const searchFields = computed(() => {
@@ -118,7 +118,7 @@ export default defineComponent({
           modelName: model as string,
           res_id: id ? +id : undefined,
           viewType: 'form',
-          fieldsInfo: toRaw(props.fieldsInfo),
+          fieldsInfo: toRaw(props.fieldsInfo)
         })
         setCurRecord()
         toast.clear()
@@ -146,7 +146,7 @@ export default defineComponent({
       if (!type) return
       router.push({
         name: 'flow-process',
-        query: Object.assign({}, route.query),
+        query: Object.assign({}, route.query)
       })
     }
 
@@ -158,16 +158,16 @@ export default defineComponent({
       setCurRecord()
     })
 
-    watch(searchFields, (val) => {
+    watch(searchFields, val => {
       if (val.length) loadRecord()
     })
 
-    watch(curRecord, (val) => {
+    watch(curRecord, val => {
       if (val && val.creator) {
         data.creator = {
           name: val.creator.name,
           avatar: val.creator.avatar || '/img/avatar.png',
-          date: formatDate('M月d日 hh:mm', val.creator.date),
+          date: formatDate('M月d日 hh:mm', val.creator.date)
         }
         data.state = val.state
         data.state_name = val.state_name
@@ -188,7 +188,7 @@ export default defineComponent({
           if (dirty) {
             const bool = await Dialog.confirm({
               message: '是否确定放弃表单修改？',
-              closeOnPopstate: false,
+              closeOnPopstate: false
             })
               .then(() => true)
               .catch(() => false)
@@ -223,9 +223,9 @@ export default defineComponent({
       imgUrl,
       toProcessView,
       onClickFile,
-      onClickMessage,
+      onClickMessage
     }
-  },
+  }
 })
 </script>
 
@@ -260,7 +260,7 @@ export default defineComponent({
           text-align: right;
         }
         .status {
-          color: @info-color;
+          color: @ins-info-color;
           font-size: 13px;
         }
       }

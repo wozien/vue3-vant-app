@@ -48,7 +48,7 @@ export default defineComponent({
           return {
             name: company_name,
             dbName: db_name,
-            oauthUrl: oauth2_login_url,
+            oauthUrl: oauth2_login_url
           }
         })
         const len = companyList.value.length
@@ -71,7 +71,7 @@ export default defineComponent({
       }
 
       toast.loading('载入企业数据')
-      const activeCompany = companyList.value.find((item) => item.dbName === active.value)
+      const activeCompany = companyList.value.find(item => item.dbName === active.value)
       if (activeCompany) {
         const res = await switchCompany(activeCompany.dbName, activeCompany.oauthUrl)
         if (res.ret === 0) {
@@ -84,9 +84,9 @@ export default defineComponent({
     return {
       companyList,
       active,
-      onSwitchCompany,
+      onSwitchCompany
     }
-  },
+  }
 })
 </script>
 
@@ -114,7 +114,7 @@ export default defineComponent({
         color: @ins-text-color-light-1;
       }
       &-active {
-        border-color: @primary-color;
+        border-color: @ins-primary-color;
         &::before {
           content: '';
           display: block;
@@ -123,7 +123,7 @@ export default defineComponent({
           height: 12px;
           top: 0;
           right: 10px;
-          background: @primary-color;
+          background: @ins-primary-color;
         }
         &::after {
           content: '';
@@ -131,7 +131,7 @@ export default defineComponent({
           display: block;
           width: 0px;
           border: 6px solid transparent;
-          border-top-color: @primary-color;
+          border-top-color: @ins-primary-color;
           top: 12px;
           right: 10px;
         }

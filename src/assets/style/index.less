@@ -1,0 +1,82 @@
+@import './reset.less';
+@import './iconfont.less';
+
+html, body {
+  height: 100%;
+}
+
+body {
+  background-color: #f7f8fa;
+  font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Helvetica, Segoe UI,Arial, Roboto,
+  'PingFang SC', 'Hiragino Sans GB', 'Microsoft Yahei', sans-serif
+}
+
+.form-item-notebook {
+  padding-top: 10px;
+  .van-tab {
+    padding: 0 20px;
+    flex: 0 0 auto !important;
+  }
+}
+
+.form-item-field {
+  position: relative;
+  &::after {
+    position: absolute;
+    box-sizing: border-box;
+    content: ' ';
+    pointer-events: none;
+    right: 16px;
+    bottom: 0;
+    left: 16px;
+    border-bottom: 1px solid #ebedf0;
+    -webkit-transform: scaleY(0.5);
+    transform: scaleY(0.5);
+  }
+  &.form-item-one2many::after {
+    display: none;
+  }
+  &.form-item-readonly {
+    .van-field {
+      &__control {
+        color: #a2a2a5;
+      }
+    }
+  }
+  
+  > .van-cell::after {
+    display: none;
+  }
+}
+
+// vant 
+.van-popover__action {
+  line-height: 44px !important;
+}
+
+.van-pull-refresh {
+  .van-pull-refresh__track {
+    min-height: calc(100vh - 70px);
+  }
+}
+
+.popover-button {
+  .popover-button__item {
+    width: 100px;
+    line-height: 44px;
+    text-align: center;
+    font-size: 14px;
+    color: #323233;
+    margin: 0px 16px;
+    position: relative;
+    &:last-child::after {
+      border-bottom-width: 0px !important;
+    }
+
+    .group-icon {
+      position: absolute;
+      top: 14px;
+      right: -2px;
+    }
+  }
+}

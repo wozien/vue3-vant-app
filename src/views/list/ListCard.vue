@@ -50,12 +50,12 @@ export default defineComponent({
     appName: String,
     record: {
       type: Object as PropType<ListRecord | ListCard>,
-      required: true,
+      required: true
     },
     fieldsInfo: {
       type: Object as PropType<FieldsInfo>,
-      default: () => {},
-    },
+      default: () => {}
+    }
   },
 
   setup(props) {
@@ -67,7 +67,7 @@ export default defineComponent({
       const query = {
         id: cardData.id,
         readonly: 1,
-        viewType: 'form',
+        viewType: 'form'
       } as any
 
       if (cardData.isFlow) {
@@ -79,15 +79,15 @@ export default defineComponent({
 
       router.push({
         name: 'view',
-        query: Object.assign({}, route.query, query),
+        query: Object.assign({}, route.query, query)
       })
     }
 
     return {
       ...cardData,
-      onClickCard,
+      onClickCard
     }
-  },
+  }
 })
 
 function useCard(record: ListRecord | ListCard, fieldsInfo: FieldsInfo, appName?: string) {
@@ -100,7 +100,7 @@ function useCard(record: ListRecord | ListCard, fieldsInfo: FieldsInfo, appName?
     creator: record.creator.name,
     createImg: record.creator.avatar || '/img/avatar.png',
     createDate: formatDate('M月d日 hh:mm', record.creator.time),
-    fields: [],
+    fields: []
   }
 
   each(fieldsInfo, (field: FieldInfo) => {
@@ -108,7 +108,7 @@ function useCard(record: ListRecord | ListCard, fieldsInfo: FieldsInfo, appName?
     const fieldItem: ListCardField = {
       name: field.name,
       string: field.string || '',
-      value: '',
+      value: ''
     }
     res.fields.push(fieldItem)
 
@@ -123,7 +123,7 @@ function useCard(record: ListRecord | ListCard, fieldsInfo: FieldsInfo, appName?
       fieldItem.value = Array.isArray(fieldValue) ? fieldValue.join(',') : ''
     } else {
       fieldItem.value = (fieldUtils.format as any)[fieldType](fieldValue, field, {
-        format: fieldType === 'boolean',
+        format: fieldType === 'boolean'
       })
     }
   })
@@ -147,9 +147,9 @@ function useCard(record: ListRecord | ListCard, fieldsInfo: FieldsInfo, appName?
       font-weight: 500;
     }
     .state {
-      color: @info-color;
+      color: @ins-info-color;
       &-error {
-        color: @error-color;
+        color: @ins-error-color;
       }
     }
   }

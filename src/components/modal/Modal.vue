@@ -1,6 +1,5 @@
-
 <script lang="tsx">
-import { computed, defineComponent, ref } from 'vue'
+import { computed, defineComponent, ref, Transition } from 'vue'
 
 export default defineComponent({
   props: {
@@ -22,13 +21,13 @@ export default defineComponent({
 
     const height = computed(() => {
       const res = document.body.clientHeight
-      return !props.hideFooter ? res - 64: res
+      return !props.hideFooter ? res - 64 : res
     })
 
     const onCancel = () => {
       emit('update:show', false)
       emit('cancel')
-      if(props.cancel) {
+      if (props.cancel) {
         props.cancel()
       }
     }
@@ -37,49 +36,51 @@ export default defineComponent({
       loading.value = true
       const cb = (keepModal?: Boolean) => {
         loading.value = false
-        if(!keepModal) {
+        if (!keepModal) {
           emit('update:show', false)
         }
       }
       emit('confirm', cb)
-      if(props.confirm) {
+      if (props.confirm) {
         props.confirm(cb)
       }
     }
 
     const renderContent = () => {
-      if(slots && slots.default) {
+      if (slots && slots.default) {
         return slots.default()
-      } else if(props.render) {
+      } else if (props.render) {
         return props.render()
       }
     }
 
     const renderFooter = () => {
-      const defaultButtons = () =>(
+      const defaultButtons = () => (
         <div class="footer">
-          <van-button onClick={onCancel} round block>返回</van-button>
+          <van-button onClick={onCancel} round block>
+            返回
+          </van-button>
           <van-button type="primary" round block onClick={onConfirm} loading={loading.value}>
-            { props.confirmText || '确定' }
+            {props.confirmText || '确定'}
           </van-button>
         </div>
       )
 
-      if(!props.hideFooter) {
-        return slots.footer ? (
-          <div>{ slots.footer() }</div>
-        ) : defaultButtons()
+      if (!props.hideFooter) {
+        return slots.footer ? <div>{slots.footer()}</div> : defaultButtons()
       }
     }
 
     return () => {
       return (
-        <div class="ins-modal" v-show={props.show}>
-          <div class="main" style={{'height': height.value + 'px'}}>
-            { renderContent() }
+        <Transition name="slide">
+          <div class="ins-modal" v-show={props.show}>
+            <div class="main" style={{ height: height.value + 'px' }}>
+              {renderContent()}
+            </div>
+            {renderFooter()}
           </div>
-          { renderFooter() }
-        </div>
+        </Transition>
       )
     }
   }
@@ -114,5 +115,15 @@ export default defineComponent({
       }
     }
   }
+}
+
+.slide-enter-active,
+.slide-leave-active {
+  transition: transform 0.4s ease;
+}
+
+.slide-enter-from,
+.slide-leave-to {
+  transform: translateX(100%);
 }
 </style>

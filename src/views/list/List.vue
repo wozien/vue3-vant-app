@@ -63,13 +63,13 @@ export default defineComponent({
   components: {
     ListCard,
     SearchView,
-    SearchBar,
+    SearchBar
   },
 
   props: {
     ...viewCommonProps,
     appName: String,
-    action: Object as PropType<Action>,
+    action: Object as PropType<Action>
   },
 
   setup(props) {
@@ -84,7 +84,7 @@ export default defineComponent({
       refreshing: false,
       list: [] as ListRecord[],
       showSearchView: false,
-      domain: [] as any[],
+      domain: [] as any[]
     })
     const searchFields = computed(() => {
       return props.fieldsInfo ? Object.keys(props.fieldsInfo) : []
@@ -114,7 +114,7 @@ export default defineComponent({
           searchFields.value,
           {
             search: state.domain,
-            action: props.action?.domain,
+            action: props.action?.domain
           },
           props.action?.context
         )
@@ -123,7 +123,7 @@ export default defineComponent({
           if (length) {
             await Promise.all([
               fetchReferencesBatch(res.data, props.fieldsInfo),
-              fetchX2ManysBatch(res.data, props.fieldsInfo),
+              fetchX2ManysBatch(res.data, props.fieldsInfo)
             ])
             state.loading = false // loading的状态需要放在所有后面
             res.data.forEach((raw: any, index: number) => {
@@ -158,8 +158,8 @@ export default defineComponent({
         query: {
           model: route.query.model,
           viewType: 'form',
-          id: '',
-        },
+          id: ''
+        }
       })
     }
 
@@ -184,9 +184,9 @@ export default defineComponent({
       onLoad,
       onRefresh,
       onAddBtn,
-      onSearch,
+      onSearch
     }
-  },
+  }
 })
 </script>
 
@@ -205,7 +205,7 @@ export default defineComponent({
     width: 40px;
     height: 40px;
     border-radius: 50%;
-    background: @primary-color;
+    background: @ins-primary-color;
     display: flex;
     justify-content: center;
     align-items: center;

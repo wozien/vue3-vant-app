@@ -52,7 +52,7 @@ export default defineComponent({
     const state = reactive({
       options: {} as any,
       list: [] as any[],
-      active: 'log',
+      active: 'log'
     })
     const canvas = ref(null)
 
@@ -61,7 +61,7 @@ export default defineComponent({
       if (model && id) {
         const flowParams = JSON.parse(sessionStorage.getItem(sessionStorageKeys.flowParams) || '{}')
         const res = await callButton(model as string, 'workflow_view', [[+id]], {
-          context: flowParams,
+          context: flowParams
         })
         if (res.ret === 0 && res.data?.args?.length) {
           state.options = res.data.args[0] || {}
@@ -83,7 +83,7 @@ export default defineComponent({
           return {
             ...item,
             state,
-            time: formatDate('M-d hh:mm', date),
+            time: formatDate('M-d hh:mm', date)
           }
         })
       }
@@ -91,9 +91,9 @@ export default defineComponent({
 
     return {
       canvas,
-      ...toRefs(state),
+      ...toRefs(state)
     }
-  },
+  }
 })
 
 //  bpmn logic
@@ -119,7 +119,7 @@ function setColor(options: any) {
   const colors = {
     default: '#c8c9cc',
     done: '#07c160',
-    current: '#1989fa',
+    current: '#1989fa'
   }
   setDefaultColor(colors.default)
   options.oldNodeId && setNodeColor(options.oldNodeId, colors.done)
@@ -189,7 +189,7 @@ function disabledEvent() {
     'connectionSegment.move.hove',
     'connectionSegment.move.end',
     'connectionSegment.move.cleanup',
-    'connectionSegment.move.cancel',
+    'connectionSegment.move.cancel'
   ]
   eventBus.off(disableEvents, null)
 }
@@ -209,7 +209,7 @@ function showNodeInfo(nodeInfos: any) {
   setTimeout(() => {
     Dialog({
       message,
-      messageAlign: 'left',
+      messageAlign: 'left'
     })
   }, 200)
 }
@@ -311,18 +311,18 @@ function bindEvent(container: any, options: any) {
 
         &.list-item-done {
           .title::before {
-            background: @success-color;
+            background: @ins-success-color;
           }
           .content .state {
-            color: @success-color;
+            color: @ins-success-color;
           }
         }
         &.list-item-returned {
           .title::before {
-            background: @error-color;
+            background: @ins-error-color;
           }
           .content .state {
-            color: @error-color;
+            color: @ins-error-color;
           }
         }
       }

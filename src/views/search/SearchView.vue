@@ -65,7 +65,7 @@ import { formatDate } from '@/helpers/date'
 
 export default defineComponent({
   props: {
-    fields: Object as PropType<Fields>,
+    fields: Object as PropType<Fields>
   },
 
   emits: ['search'],
@@ -75,7 +75,7 @@ export default defineComponent({
     const dateState = reactive({
       showPicker: false,
       dateValue: new Date(),
-      currentNode: {} as any,
+      currentNode: {} as any
     })
 
     const onSearch = () => {
@@ -116,9 +116,9 @@ export default defineComponent({
       onSearch,
       onReset,
       onClickDateNode,
-      onConfirm,
+      onConfirm
     }
-  },
+  }
 })
 </script>
 
@@ -163,8 +163,8 @@ export default defineComponent({
           border-radius: 20px;
           &.active {
             color: #fff;
-            background: @primary-color;
-            border-color: @primary-color;
+            background: @ins-primary-color;
+            border-color: @ins-primary-color;
           }
         }
       }

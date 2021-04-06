@@ -21,30 +21,30 @@ export default ({ command, mode }: ConfigEnv): UserConfig => {
       alias: [
         {
           find: /^@\//,
-          replacement: pathResolve('src') + '/',
+          replacement: pathResolve('src') + '/'
         },
         {
           find: /^#\//,
-          replacement: pathResolve('types') + '/',
+          replacement: pathResolve('types') + '/'
         },
         // 由于vite暂时不支持less的~导入, 需要替换成空字符串
         {
           find: /^~/,
-          replacement: '',
-        },
-      ],
+          replacement: ''
+        }
+      ]
     },
 
     build: {
       terserOptions: {
         compress: {
           keep_infinity: true,
-          drop_console: true,
-        },
+          drop_console: true
+        }
       },
       // Turning off brotliSize display can slightly reduce packaging time
       brotliSize: false,
-      chunkSizeWarningLimit: 1200,
+      chunkSizeWarningLimit: 1200
     },
 
     css: {
@@ -52,12 +52,12 @@ export default ({ command, mode }: ConfigEnv): UserConfig => {
         less: {
           modifyVars: {
             // 导入变量和mixin样式，避免在每个组件@import
-            hack: `true; @import (reference) "${pathResolve('src/assets/style/config.less')}";`,
+            hack: `true; @import (reference) "${pathResolve('src/assets/style/config.less')}";`
             // 'blue': '#a0dfa0',
           },
-          javascriptEnabled: true,
-        },
-      },
+          javascriptEnabled: true
+        }
+      }
     },
 
     plugins: createVitePlugins(viteEnv, isBuild),
@@ -65,8 +65,8 @@ export default ({ command, mode }: ConfigEnv): UserConfig => {
     server: {
       port: 8080,
       hmr: {
-        overlay: false,
-      },
-    },
+        overlay: false
+      }
+    }
   }
 }
