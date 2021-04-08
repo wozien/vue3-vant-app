@@ -74,7 +74,7 @@ class App {
       res = await fetchAppDetail(this.modelKey, this.actionId)
     } else {
       const flowParams = JSON.parse(sessionStorage.getItem(sessionStorageKeys.flowParams) || '{}')
-      res = await fetchFlowDetail(this.modelKey, pick(flowParams, ['type', 'bill_number', 'task_id', 'process_id']))
+      res = await fetchFlowDetail(this.modelKey, pick(flowParams, ['type', 'bill_number', 'task_id', 'process_id', 'bill_id']))
     }
 
     if(res.ret === 0 && res.data) {

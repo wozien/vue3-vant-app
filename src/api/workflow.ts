@@ -31,17 +31,19 @@ export const fetchFlowDetail: (
     type: string,
     bill_number: string,
     task_id: string,
-    process_id: string
+    process_id: string,
+    bill_id: number
   }
 ) => Promise<HttpRes> = async (modelKey, flowParams) => {
-  const { type, bill_number, task_id, process_id } = flowParams
+  const { type, bill_number, task_id, process_id, bill_id } = flowParams
   const res = await http.post('/flowable/mobile/workflow_app_detail', {
     ...{
       model_key: modelKey, 
       type,
       bill_number,
       task_id,
-      process_id
+      process_id,
+      bill_id
     }
   })
   return res.data
