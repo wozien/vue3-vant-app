@@ -113,7 +113,7 @@ function useList(searchType: Ref<string>, user: Ref<User>) {
   const state = reactive({
     offset: 0,
     list: [],
-    loading: true,
+    loading: false,
     finished: false,
     refreshing: false,
   })
@@ -123,26 +123,22 @@ function useList(searchType: Ref<string>, user: Ref<User>) {
 
   const onLoad = async () => {
     if (user.value.phone && searchType.value) {
-      try {
-        const res = await fetchFlowList(searchType.value, user.value.phone, state.offset)
-        state.loading = false
-        if (res.ret === 0) {
-          let rows = res.data?.auditList?.rows || []
-          if (rows.length) {
-            state.list = state.list.concat(toListCardData(rows))
-            state.offset = state.list.length
-          }
+      const res = await fetchFlowList(searchType.value, user.value.phone, state.offset)
+      if (res.ret === 0) {
+        let rows = res.data?.auditList?.rows || []
+        if (rows.length) {
+          state.list = state.list.concat(toListCardData(rows))
+          state.offset = state.list.length
+        }
 
-          if (!rows.length || rows.length < 10) {
-            state.finished = true
-          }
-        } else {
+        if (!rows.length || rows.length < 10) {
           state.finished = true
         }
-      } catch (e) {
+      } else {
         state.finished = true
       }
     }
+    state.loading = false
   }
 
   const onRefresh = () => {
