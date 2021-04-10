@@ -1,10 +1,10 @@
 <template>
   <div class="list-view">
-    <SearchBar 
-      placeholder="请输入编号或者创建人搜索" 
-      :show-action="true" 
+    <SearchBar
+      placeholder="请输入编号或者创建人搜索"
+      :show-action="true"
       :search-fields="searchBarFields"
-      @click-action="showSearchView=true"
+      @click-action="showSearchView = true"
       @search="onSearch"
     />
 
@@ -16,27 +16,28 @@
           :finished-text="showEmpty ? '' : '没有更多了'"
           @load="onLoad"
         >
-          <ListCard v-for="item in list"
-            :key="item.id" 
-            :app-name="appName" 
-            :record="item" 
+          <ListCard
+            v-for="item in list"
+            :key="item.id"
+            :app-name="appName"
+            :record="item"
             :fields-info="fieldsInfo"
           />
         </van-list>
 
-        <van-empty v-show="showEmpty" description="暂无数据"/>
+        <van-empty v-show="showEmpty" description="暂无数据" />
       </van-pull-refresh>
     </div>
 
     <div class="add-btn" @click="onAddBtn" v-if="canCreate">
       <i class="ins-icon ins-icon-plus" />
-    </div> 
+    </div>
 
-    <van-popup 
-      v-model:show="showSearchView" 
-      position="right" 
+    <van-popup
+      v-model:show="showSearchView"
+      position="right"
       :safe-area-inset-bottom="true"
-      :style="{height: '100%', width: '80%'}"
+      :style="{ height: '100%', width: '80%' }"
     >
       <SearchView :fields="fields" @search="onSearch"></SearchView>
     </van-popup>
@@ -64,13 +65,13 @@ export default defineComponent({
   components: {
     ListCard,
     SearchView,
-    SearchBar
+    SearchBar,
   },
 
   props: {
     ...viewCommonProps,
     appName: String,
-    action: Object as PropType<Action>
+    action: Object as PropType<Action>,
   },
 
   setup(props) {
@@ -85,7 +86,7 @@ export default defineComponent({
       refreshing: false,
       list: [] as ListRecord[],
       showSearchView: false,
-      domain: [] as any[]
+      domain: [] as any[],
     })
     const searchFields = computed(() => {
       return props.fieldsInfo ? Object.keys(props.fieldsInfo) : []
@@ -95,46 +96,54 @@ export default defineComponent({
     })
     const searchBarFields = computed(() => {
       const res = ['create_uid']
-      if(props.fields && 'bill_number' in props.fields) res.push('bill_number')
+      if (props.fields && 'bill_number' in props.fields) res.push('bill_number')
       return res
     })
     const canCreate = computed(() => {
-      return props.curView && props.curView.buttons.findIndex((btn: any) => btn.funcName === 'create') > -1 && isDev
+      return (
+        props.curView &&
+        props.curView.buttons.findIndex((btn: any) => btn.funcName === 'create') > -1 &&
+        isDev
+      )
     })
 
     let lastId = 0
     const onLoad = async () => {
-      if(searchFields.value.length) {      
-        const res = await fetchListData(route.query.model as string, lastId, searchFields.value, {
-          search: state.domain,
-          action: props.action?.domain
-        }, props.action?.context)
-        if(res.ret === 0) {
+      if (searchFields.value.length) {
+        const res = await fetchListData(
+          route.query.model as string,
+          lastId,
+          searchFields.value,
+          {
+            search: state.domain,
+            action: props.action?.domain,
+          },
+          props.action?.context
+        )
+        if (res.ret === 0) {
           const length = res.data.length
-          if(length) {
+          if (length) {
             await Promise.all([
               fetchReferencesBatch(res.data, props.fieldsInfo),
-              fetchX2ManysBatch(res.data, props.fieldsInfo)
+              fetchX2ManysBatch(res.data, props.fieldsInfo),
             ])
-            state.loading = false  // loading的状态需要放在所有后面
             res.data.forEach((raw: any, index: number) => {
               const record = new ListRecord(raw)
               state.list.push(record)
-              if(index === res.data.length - 1) lastId = record.id
+              if (index === res.data.length - 1) lastId = record.id
             })
-          } 
-          if(!length || length < 6) {
-            state.finished = true
-            state.loading = false 
           }
-        } 
-      } else {
-        state.loading = false
+          if (!length || length < 6) {
+            state.finished = true
+          }
+        }
       }
+      state.loading = false
     }
 
     const onRefresh = () => {
       state.refreshing = false
+      if (state.loading) return
       state.finished = false
       state.list = []
       lastId = 0
@@ -149,8 +158,8 @@ export default defineComponent({
         query: {
           model: route.query.model,
           viewType: 'form',
-          id: ''
-        }
+          id: '',
+        },
       })
     }
 
@@ -175,9 +184,9 @@ export default defineComponent({
       onLoad,
       onRefresh,
       onAddBtn,
-      onSearch
+      onSearch,
     }
-  }
+  },
 })
 </script>
 
