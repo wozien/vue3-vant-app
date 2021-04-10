@@ -1,7 +1,11 @@
 <template>
   <div class="layout-page">
-    <router-view v-title="$route.meta.title" :style="{height: contentHeight + 'px'}" v-slot="{ Component }"> 
-      <keep-alive :exclude="['View', 'Flow']">
+    <router-view
+      v-title="$route.meta.title"
+      :style="{ height: contentHeight + 'px' }"
+      v-slot="{ Component }"
+    >
+      <keep-alive :exclude="['View', 'Flow', 'FlowProcess']">
         <component :is="Component" />
       </keep-alive>
     </router-view>
@@ -37,16 +41,16 @@ export default defineComponent({
     // 加载用户信息
     store.dispatch('setUserInfo')
     store.dispatch('setOrgs')
-    
+
     watchEffect(() => {
       active.value = route.path.substr(1)
     })
 
     watchEffect(() => {
-      if(hasTab.value)  {
-        // nothing todo, just help to trigger effect 
+      if (hasTab.value) {
+        // nothing todo, just help to trigger effect
       }
-      if(isWechatAgent({ iphone: true })) {
+      if (isWechatAgent({ iphone: true })) {
         // ios 微信客户端需要延时计算高度
         setTimeout(() => {
           calcHeight()
@@ -57,9 +61,9 @@ export default defineComponent({
     return {
       active,
       hasTab,
-      contentHeight
+      contentHeight,
     }
-  }
+  },
 })
 </script>
 

@@ -26,7 +26,7 @@
         </div>
       </div>
     </div>
-    <div class="form-canvas" :style="{ height: height + 'px' }">
+    <div class="form-canvas" :style="{ height: formContentHeight + 'px' }">
       <FormCanvas :items="curView && curView.items" :fields="fields" ref="formRef" />
     </div>
     <LineSwitcher v-show="showLineSwitcher" />
@@ -60,6 +60,7 @@ import { getRecordId } from '@/logics/core/dataPoint'
 import { sessionStorageKeys } from '@/logics/enums/cache'
 import { load as loadDataPoint, clean as cleanRecord, isDirty } from '@/logics/core/dataPoint'
 import useToast from '@/hooks/component/useToast'
+import { isWechatAgent } from '@/helpers/utils'
 
 export default defineComponent({
   components: {
@@ -77,6 +78,7 @@ export default defineComponent({
     const router = useRouter()
     const store = useStore()
     const { toast } = useToast()
+
     const data = reactive({
       creator: {
         name: '',
@@ -87,6 +89,7 @@ export default defineComponent({
       state_name: '',
     })
     const formRef = ref()
+    const formContentHeight = ref(0)
     const searchFields = computed(() => {
       return props.fieldsInfo ? Object.keys(props.fieldsInfo) : []
     })
@@ -97,15 +100,15 @@ export default defineComponent({
     const showLineSwitcher = computed(() => {
       return !!route.query.subModel
     })
-    const height = computed(() => {
-      return (
-        document.body.clientHeight -
-        50 -
-        +(showHeader.value && 70) -
-        +(showLineSwitcher.value && 50)
-      )
-    })
     const curRecord = computed(() => store.getters.curRecord)
+
+    const calcHeight = () => {
+      const headerHeight = showHeader.value ? 70 : 0
+      const switchLineHeight = showLineSwitcher.value ? 50 : 0
+      const buttonHeight = 50
+      formContentHeight.value =
+        document.body.clientHeight - headerHeight - switchLineHeight - buttonHeight
+    }
 
     const loadRecord = async (routeQuery?: Record<string, any>) => {
       let { model, id } = routeQuery || route.query
@@ -155,6 +158,14 @@ export default defineComponent({
     // 表体行表单返回主表单
     watchEffect(() => {
       setCurRecord()
+    })
+
+    watchEffect(() => {
+      if (isWechatAgent({ iphone: true })) {
+        setTimeout(() => {
+          calcHeight()
+        }, 0)
+      } else calcHeight()
     })
 
     watch(searchFields, (val) => {
@@ -215,7 +226,7 @@ export default defineComponent({
       formRef,
       showHeader,
       showLineSwitcher,
-      height,
+      formContentHeight,
       localData: computed(() => store.state.localData),
       curRecordId: computed(() => store.state.curRecordId),
       curRecord,

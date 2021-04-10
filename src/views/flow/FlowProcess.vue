@@ -1,8 +1,8 @@
 <template>
   <div class="flow-process">
     <van-tabs v-model:active="active">
-      <van-tab title="流程日志" name="log"/>
-      <van-tab title="流程图" name="diagram"/>
+      <van-tab title="流程日志" name="log" />
+      <van-tab title="流程图" name="diagram" />
     </van-tabs>
     <!-- van-tab lazy render effect hack -->
     <div class="flow-diagram" v-if="active === 'diagram'">
@@ -15,11 +15,18 @@
     </div>
     <div class="flow-log" v-else-if="active === 'log' && list.length">
       <div class="list">
-        <div v-for="item in list" :key="item.nodeId" :class="['list-item', item.state && `list-item-${item.state}`]">
+        <div
+          v-for="item in list"
+          :key="item.nodeId"
+          :class="['list-item', item.state && `list-item-${item.state}`]"
+        >
           <h2 class="title">{{ item.nodeName }}</h2>
           <div class="content">
-            <p> {{ item.time }} {{ item.person }}
-              <span class="state">{{ item.state === 'done' ? '审批通过' : (item.state === 'returned' ? '审批驳回' : '') }}</span>
+            <p>
+              {{ item.time }} {{ item.person }}
+              <span class="state">{{
+                item.state === 'done' ? '审批通过' : item.state === 'returned' ? '审批驳回' : ''
+              }}</span>
             </p>
             <p class="opinion" v-if="item.options">{{ item.options }}</p>
           </div>
@@ -40,42 +47,44 @@ import { callButton } from '@/api/odoo'
 import { sessionStorageKeys } from '@/logics/enums/cache'
 
 export default defineComponent({
-
+  name: 'FlowProcess',
   setup() {
     const route = useRoute()
     const state = reactive({
       options: {} as any,
       list: [],
-      active: 'log'
+      active: 'log',
     })
     const canvas = ref(null)
 
     onBeforeMount(async () => {
       const { model, id } = route.query
-      if(model && id) {
+      if (model && id) {
         const flowParams = JSON.parse(sessionStorage.getItem(sessionStorageKeys.flowParams) || '{}')
-        const res = await callButton(model as string, 'workflow_view', [[+id]], {context: flowParams})
-        if(res.ret === 0 && res.data?.args?.length) {
+        const res = await callButton(model as string, 'workflow_view', [[+id]], {
+          context: flowParams,
+        })
+        if (res.ret === 0 && res.data?.args?.length) {
           state.options = res.data.args[0] || {}
         }
       }
     })
 
     watchEffect(() => {
-      if(canvas.value && state.options?.xml) {
+      if (canvas.value && state.options?.xml) {
         initBpmn(canvas.value, state.options)
       }
     })
 
     watchEffect(() => {
-      if(state.options?.nodelist) {
+      if (state.options?.nodelist) {
         state.list = state.options.nodelist.map((item: any) => {
           const date = new Date(item.time.replace(/-/g, '/'))
-          const state = item.state == undefined ? '' : (item.state ? 'done' : 'returned')
+          const state = item.state == undefined ? '' : item.state ? 'done' : 'returned'
           return {
             ...item,
             state,
-            time: formatDate('M-d hh:mm', date)
+            time: formatDate('M-d hh:mm', date),
           }
         })
       }
@@ -83,9 +92,9 @@ export default defineComponent({
 
     return {
       canvas,
-      ...toRefs(state)
+      ...toRefs(state),
     }
-  }
+  },
 })
 
 //  bpmn logic
@@ -101,7 +110,7 @@ async function initBpmn(container: any, options: any) {
     setColor(options)
     disabledEvent()
     bindEvent(container, options)
-  } catch(err) {
+  } catch (err) {
     // const { warnings, message } = err
     // console.warn('something went wrong:', warnings, message)
   }
@@ -111,7 +120,7 @@ function setColor(options: any) {
   const colors = {
     default: '#c8c9cc',
     done: '#07c160',
-    current: '#1989fa'
+    current: '#1989fa',
   }
   setDefaultColor(colors.default)
   options.oldNodeId && setNodeColor(options.oldNodeId, colors.done)
@@ -121,7 +130,7 @@ function setColor(options: any) {
 function setDefaultColor(color: any) {
   const elements = viewer.get('elementRegistry')._elements
   const nodeObj = { shape: [] }
-  for(let key in elements) {
+  for (let key in elements) {
     const element = elements[key].element
     classifyNode(nodeObj, element)
   }
@@ -139,9 +148,9 @@ function setNodeColor(nodeIds: any, color: any) {
 }
 
 function classifyNode(nodeObj: any, element: any) {
-  if(element.type === 'bpmn:EndEvent') {
+  if (element.type === 'bpmn:EndEvent') {
     nodeObj.end = element
-  } else if(element.type === 'bpmn:StartEvent') {
+  } else if (element.type === 'bpmn:StartEvent') {
     nodeObj.start = element
   } else {
     nodeObj.shape.push(element)
@@ -157,11 +166,11 @@ function changeColor(nodeObj: any, color: any) {
 
 function disabledEvent() {
   const eventBus = viewer.get('eventBus')
-  const disableEvents = [ 
+  const disableEvents = [
     'element.click',
-    'element.dblclick', 
-    'shape.move.end', 
-    'shape.move', 
+    'element.dblclick',
+    'shape.move.end',
+    'shape.move',
     'shape.move.start',
     'shape.move.hover',
     'shape.move.move',
@@ -181,42 +190,46 @@ function disabledEvent() {
     'connectionSegment.move.hove',
     'connectionSegment.move.end',
     'connectionSegment.move.cleanup',
-    'connectionSegment.move.cancel'
-  ]                   
+    'connectionSegment.move.cancel',
+  ]
   eventBus.off(disableEvents, null)
 }
 
 function showNodeInfo(nodeInfos: any) {
   const getMessage = (nodeInfo: any) => {
     return `    审核人: ${nodeInfo.person}
-    ${nodeInfo.time ? (`审核时间: ${nodeInfo.time}
-    审核状态: ${nodeInfo.state ? '审核通过': '审核驳回'}`) : ''}
+    ${
+      nodeInfo.time
+        ? `审核时间: ${nodeInfo.time}
+    审核状态: ${nodeInfo.state ? '审核通过' : '审核驳回'}`
+        : ''
+    }
     `
   }
   const message = nodeInfos.map(getMessage).join('\n')
   setTimeout(() => {
     Dialog({
       message,
-      messageAlign: 'left'
+      messageAlign: 'left',
     })
   }, 200)
 }
 
 function bindEvent(container: any, options: any) {
-  if(options.nodes) {
+  if (options.nodes) {
     options.nodes.forEach((node: any) => {
       const elem = container.querySelector(`[data-element-id=${node.nodeId}]`)
-      elem && elem.addEventListener('touchstart', () => {
-        showNodeInfo(node.nodeinfo)
-      })
+      elem &&
+        elem.addEventListener('touchstart', () => {
+          showNodeInfo(node.nodeinfo)
+        })
     })
   }
 }
-
 </script>
 
 <style lang="less">
-.flow-process{
+.flow-process {
   height: 100%;
   // todo 为啥tab_line定位不对
   .van-tabs .van-tabs__line {
@@ -253,7 +266,7 @@ function bindEvent(container: any, options: any) {
     .canvas {
       height: calc(100vh - 84px);
 
-      .bjs-powered-by{
+      .bjs-powered-by {
         display: none;
       }
     }
@@ -283,7 +296,7 @@ function bindEvent(container: any, options: any) {
             background: @text-color-light-2;
           }
         }
-           
+
         .content {
           padding: 10px;
           .opinion {
