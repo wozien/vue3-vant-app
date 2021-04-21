@@ -47,6 +47,7 @@ import { callButton } from '@/api/odoo'
 import { sessionStorageKeys } from '@/logics/enums/cache'
 
 export default defineComponent({
+  name: 'FlowProcess',
   setup() {
     const route = useRoute()
     const state = reactive({

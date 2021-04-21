@@ -1,7 +1,7 @@
 <template>
   <router-view v-title="$route.meta.title" v-slot="{ Component }">
     <transition :name="transitionName">
-      <keep-alive :exclude="['View', 'Flow']">
+      <keep-alive :exclude="['View', 'Flow', 'FlowProcess']">
         <component :is="Component" />
       </keep-alive>
     </transition>
@@ -54,13 +54,13 @@ export default defineComponent({
 
 .forward-enter-from,
 .back-leave-to {
-  opacity: 0.5;
+  opacity: 0.8;
   transform: translate(100%);
 }
 
 .forward-leave-to,
 .back-enter-from {
-  opacity: 0.5;
+  opacity: 0;
   transform: translateX(-100%);
 }
 </style>

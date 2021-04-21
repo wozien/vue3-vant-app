@@ -10,16 +10,22 @@ export const fetchFlowNum = async (): Promise<HttpRes> => {
 }
 
 // 获取流程列表数据
-export const fetchFlowList = async (type: string, user: string, offset: number): Promise<HttpRes> => {
+export const fetchFlowList = async (
+  type: string,
+  user: string,
+  offset: number
+): Promise<HttpRes> => {
   const res = await http.post('/flowable/auditList', {
-    args: [{
-      type,
-      user,
-      offset,
-      limit: 10,
-      order: 'desc',
-      is_mobile: true
-    }]
+    args: [
+      {
+        type,
+        user,
+        offset,
+        limit: 10,
+        order: 'desc',
+        is_mobile: true
+      }
+    ]
   })
   return res.data
 }
@@ -28,20 +34,22 @@ export const fetchFlowList = async (type: string, user: string, offset: number):
 export const fetchFlowDetail: (
   modelKey: string,
   flowParams: {
-    type: string,
-    bill_number: string,
-    task_id: string,
+    type: string
+    bill_number: string
+    task_id: string
     process_id: string
+    bill_id: number
   }
 ) => Promise<HttpRes> = async (modelKey, flowParams) => {
-  const { type, bill_number, task_id, process_id } = flowParams
+  const { type, bill_number, task_id, process_id, bill_id } = flowParams
   const res = await http.post('/flowable/mobile/workflow_app_detail', {
     ...{
-      model_key: modelKey, 
+      model_key: modelKey,
       type,
       bill_number,
       task_id,
-      process_id
+      process_id,
+      bill_id
     }
   })
   return res.data
@@ -52,27 +60,37 @@ export const flowAgreen = async (opinion: string, context: any): Promise<HttpRes
   const approve_type = context.approve_type || '1'
   const args = [{ approve_type, opinion }]
   let res = await callKw('workflow.approve.wizard', 'create', args, { context })
-  if(res.data) {
+  if (res.data) {
     res = res.data
-    if((res as any).ret === 0) {
-      return await callButton('workflow.approve.wizard', 'button_confirm', [[res.data]], { context })
+    if ((res as any).ret === 0) {
+      return await callButton('workflow.approve.wizard', 'button_confirm', [[res.data]], {
+        context
+      })
     }
   }
   return res.data
 }
 
 // 审批打回
-export const flowReturn = async (backNode: string, opinion: string, context: any): Promise<HttpRes> => {
-  const args = [{
-    opinion,
-    back_node: backNode,
-    process_id: context.process_id
-  }]
+export const flowReturn = async (
+  backNode: string,
+  opinion: string,
+  context: any
+): Promise<HttpRes> => {
+  const args = [
+    {
+      opinion,
+      back_node: backNode,
+      process_id: context.process_id
+    }
+  ]
   let res = await callKw('workflow.back.wizard', 'create', args, { context })
-  if(res.data) {
+  if (res.data) {
     res = res.data
-    if((res as any).ret === 0) {
-      return await callButton('workflow.back.wizard', 'button_back_confirm', [[res.data]], { context })
+    if ((res as any).ret === 0) {
+      return await callButton('workflow.back.wizard', 'button_back_confirm', [[res.data]], {
+        context
+      })
     }
   }
   return res.data
@@ -110,7 +128,6 @@ export const flowCirculate = async (selected: any, context: any): Promise<HttpRe
   const res = await http.post('/flowable/circulate', { ...params })
   return res.data
 }
-
 
 // 获取公司用户数据，用户user-picker
 export const fetchCompanyUsers = async (context: any): Promise<HttpRes> => {

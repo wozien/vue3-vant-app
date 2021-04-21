@@ -125,7 +125,6 @@ export default defineComponent({
               fetchReferencesBatch(res.data, props.fieldsInfo),
               fetchX2ManysBatch(res.data, props.fieldsInfo)
             ])
-            state.loading = false // loading的状态需要放在所有后面
             res.data.forEach((raw: any, index: number) => {
               const record = new ListRecord(raw)
               state.list.push(record)
@@ -134,16 +133,15 @@ export default defineComponent({
           }
           if (!length || length < 6) {
             state.finished = true
-            state.loading = false
           }
         }
-      } else {
-        state.loading = false
       }
+      state.loading = false
     }
 
     const onRefresh = () => {
       state.refreshing = false
+      if (state.loading) return
       state.finished = false
       state.list = []
       lastId = 0

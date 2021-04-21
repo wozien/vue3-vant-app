@@ -8,10 +8,13 @@ import { getToken } from '@/api/user'
 const router = createRouter({
   history: createWebHashHistory(),
   routes,
+  scrollBehavior() {
+    return { top: 0 }
+  }
 })
 
 // beforeEach hook
-router.beforeEach(async (to) => {
+router.beforeEach(async to => {
   let token = localStorage.getItem(LocalStorageKeys.token)
 
   if (to.path !== '/login' && !token) {

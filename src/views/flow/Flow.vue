@@ -34,13 +34,13 @@ const FLOW_TYPES = {
   task: [
     { type: 'willApproval', title: '待审批' },
     { type: 'willConsult', title: '待查阅' },
-    { type: 'approvaled', title: '已审批' },
+    { type: 'approvaled', title: '已审批' }
   ],
   create: [
     { type: 'returned', title: '被退回' },
     { type: 'approvaling', title: '审批中' },
-    { type: 'completed', title: '已完成' },
-  ],
+    { type: 'completed', title: '已完成' }
+  ]
 }
 
 type GROUP_TYPE = keyof typeof FLOW_TYPES
@@ -48,7 +48,7 @@ type GROUP_TYPE = keyof typeof FLOW_TYPES
 export default defineComponent({
   name: 'Flow',
   components: {
-    ListCard,
+    ListCard
   },
 
   setup() {
@@ -67,11 +67,11 @@ export default defineComponent({
           router.replace({
             name: 'flow',
             query: {
-              type: val,
-            },
+              type: val
+            }
           })
         }
-      },
+      }
     })
     const group = useGroup(searchType.value)
     const { listState, showEmpty, onLoad, onRefresh } = useList(searchType, user)
@@ -83,9 +83,9 @@ export default defineComponent({
       ...toRefs(listState),
       showEmpty,
       onLoad,
-      onRefresh,
+      onRefresh
     }
-  },
+  }
 })
 
 /**
@@ -98,7 +98,7 @@ function useGroup(type: string) {
     if (find(types, { type })) {
       group = {
         name: key,
-        types: types,
+        types: types
       }
     }
   }
@@ -113,9 +113,9 @@ function useList(searchType: Ref<string>, user: Ref<User>) {
   const state = reactive({
     offset: 0,
     list: [] as any[],
-    loading: true,
+    loading: false,
     finished: false,
-    refreshing: false,
+    refreshing: false
   })
   const showEmpty = computed(() => {
     return state.list.length === 0 && !state.loading
@@ -123,32 +123,27 @@ function useList(searchType: Ref<string>, user: Ref<User>) {
 
   const onLoad = async () => {
     if (user.value.phone && searchType.value) {
-      try {
-        const res = await fetchFlowList(searchType.value, user.value.phone, state.offset)
-        state.loading = false
-        if (res.ret === 0) {
-          let rows = res.data?.auditList?.rows || []
-          if (rows.length) {
-            state.list = state.list.concat(toListCardData(rows))
-            state.offset = state.list.length
-          }
+      const res = await fetchFlowList(searchType.value, user.value.phone, state.offset)
+      if (res.ret === 0) {
+        let rows = res.data?.auditList?.rows || []
+        if (rows.length) {
+          state.list = state.list.concat(toListCardData(rows))
+          state.offset = state.list.length
+        }
 
-          if (!rows.length || rows.length < 10) {
-            state.finished = true
-          }
-        } else {
+        if (!rows.length || rows.length < 10) {
           state.finished = true
         }
-      } catch (e) {
+      } else {
         state.finished = true
       }
     }
+    state.loading = false
   }
 
   const onRefresh = () => {
-    // 下拉刷新会把refreshing设置为true， 会和列表同时出现两个加载中
     state.refreshing = false
-
+    if (state.loading) return
     // 清空数据
     state.finished = false
     state.list = []
@@ -174,7 +169,7 @@ function useList(searchType: Ref<string>, user: Ref<User>) {
         fields: [{ name: 'bill_number', string: '单据编号', value: row.bill_number }],
         type: searchType.value,
         context: Object.assign({}, row, { type: searchType.value }),
-        isFlow: true,
+        isFlow: true
       }
 
       if (res.type === 'returned') {
@@ -191,7 +186,7 @@ function useList(searchType: Ref<string>, user: Ref<User>) {
     })
   }
 
-  watch(searchType, (val) => {
+  watch(searchType, val => {
     val && onRefresh()
   })
   watch(user, onRefresh)
@@ -201,7 +196,7 @@ function useList(searchType: Ref<string>, user: Ref<User>) {
     listState: state,
     showEmpty,
     onLoad,
-    onRefresh,
+    onRefresh
   }
 }
 </script>

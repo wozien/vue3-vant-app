@@ -1,7 +1,7 @@
 <template>
   <div class="form-view">
     <div class="header van-hairline--bottom" v-show="showHeader">
-      <van-image :src="creator.avatar" width="40" height="40" round />
+      <van-image :src="creator.avatar" width="40" height="40" fit="cover" round />
       <div class="info">
         <p class="name">{{ creator.name }}</p>
         <p class="time">{{ `${creator.date} 发起` }}</p>
@@ -78,6 +78,7 @@ export default defineComponent({
     const router = useRouter()
     const store = useStore()
     const { toast } = useToast()
+
     const data = reactive({
       creator: {
         name: '',

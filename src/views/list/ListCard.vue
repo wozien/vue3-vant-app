@@ -11,7 +11,15 @@
       </li>
     </ul>
     <footer>
-      <van-image v-if="createImg" :src="createImg" width="25" height="25" round lazy-load />
+      <van-image
+        v-if="createImg"
+        :src="createImg"
+        width="25"
+        height="25"
+        fit="cover"
+        round
+        lazy-load
+      />
       <span v-if="creator" class="create">{{ `${creator} ${createDate} 发起` }}</span>
     </footer>
   </div>
