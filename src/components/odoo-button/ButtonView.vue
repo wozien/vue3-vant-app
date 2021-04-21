@@ -75,21 +75,21 @@ import {
   copyRecord,
   get,
   reload,
-  evalModifiers,
+  evalModifiers
 } from '@/logics/core/dataPoint'
 import { sessionStorageKeys } from '@/logics/enums/cache'
 import { deleteRecord } from '@/api/record'
 
 export default defineComponent({
   components: {
-    ButtonCapsule,
+    ButtonCapsule
   },
 
   props: {
     buttons: {
-      type: Object as PropType<ViewButton[]>,
-      default: () => [],
-    },
+      type: Array as PropType<ViewButton[]>,
+      default: () => []
+    }
   },
 
   setup(props) {
@@ -121,7 +121,7 @@ export default defineComponent({
       if (button.funcName === 'workflow_view') {
         router.push({
           name: 'flow-process',
-          query: Object.assign({}, route.query),
+          query: Object.assign({}, route.query)
         })
       } else if (button.type === 'event') {
         // 前端写死的按钮
@@ -170,7 +170,7 @@ export default defineComponent({
           const toast = Toast.loading('加载中...')
           const context = getCallButtonContext(button, curRecord.value)
           const res = await callButton(model as string, button.funcName as string, [args], {
-            context,
+            context
           })
           toast.clear()
           if (res.ret === 0) {
@@ -206,8 +206,8 @@ export default defineComponent({
       router.replace({
         name: 'view',
         query: Object.assign({}, route.query, {
-          readonly: 0,
-        }),
+          readonly: 0
+        })
       })
     }
     // 保存
@@ -231,7 +231,7 @@ export default defineComponent({
         }
         router.replace({
           name: 'view',
-          query,
+          query
         })
       }
     }
@@ -256,15 +256,15 @@ export default defineComponent({
           router.replace({
             name: 'view',
             query: Object.assign({}, route.query, {
-              readonly: 1,
-            }),
+              readonly: 1
+            })
           })
         }
       }
 
       if (dirty) {
         Dialog.confirm({
-          message: '是否确定放弃表单修改？',
+          message: '是否确定放弃表单修改？'
         })
           .then(() => {
             discardChanges(recordId)
@@ -282,15 +282,15 @@ export default defineComponent({
         name: 'view',
         query: Object.assign({}, route.query, {
           id: '',
-          readonly: 0,
-        }),
+          readonly: 0
+        })
       })
     }
     // 删除
     const onDelete = (action: any) => {
       const record = curRecord.value
       Dialog.confirm({
-        message: '确实是否删除该表单记录?',
+        message: '确实是否删除该表单记录?'
       })
         .then(async () => {
           const res = await deleteRecord(record.model, record.res_id, action.context || {})
@@ -309,8 +309,8 @@ export default defineComponent({
         name: 'view',
         query: Object.assign({}, route.query, {
           readonly: 0,
-          id: record.res_id,
-        }),
+          id: record.res_id
+        })
       })
     }
     // 行插入
@@ -332,7 +332,7 @@ export default defineComponent({
       const field = getX2MField()
       if (field) {
         const command: any = {
-          operation: 'CREATE',
+          operation: 'CREATE'
         }
         rowIndex !== undefined && (command.position = rowIndex)
         await notifyChanges(rootID, { [field.name]: command })
@@ -344,8 +344,8 @@ export default defineComponent({
             router.replace({
               name: 'view',
               query: Object.assign({}, route.query, {
-                subId: id,
-              }),
+                subId: id
+              })
             })
           }
         }
@@ -359,8 +359,8 @@ export default defineComponent({
         await notifyChanges(rootID, {
           [field.name]: {
             operation: 'DELETE',
-            ids: [curRecord.value.id],
-          },
+            ids: [curRecord.value.id]
+          }
         })
         router.back()
       }
@@ -372,8 +372,8 @@ export default defineComponent({
         await notifyChanges(rootID, {
           [field.name]: {
             operation: 'COPY_O2M',
-            id: curRecord.value.id,
-          },
+            id: curRecord.value.id
+          }
         })
         const list = get(curRecord.value.parentId)
         if (list) {
@@ -382,8 +382,8 @@ export default defineComponent({
             router.replace({
               name: 'view',
               query: Object.assign({}, route.query, {
-                subId: id,
-              }),
+                subId: id
+              })
             })
           }
         }
@@ -420,9 +420,9 @@ export default defineComponent({
       capsuleButtons,
       moreButtons,
       onButtonClick,
-      onSelect,
+      onSelect
     }
-  },
+  }
 })
 
 /**
@@ -535,7 +535,7 @@ function getFlowParams() {
  */
 function handleFlowAgree(action: any) {
   const state = reactive({
-    opinion: '',
+    opinion: ''
   })
   const render = () => (
     <van-field
@@ -568,7 +568,7 @@ function handleFlowAgree(action: any) {
  */
 function handleFlowVeto(action: any) {
   const state = reactive({
-    opinion: '',
+    opinion: ''
   })
   const render = () => (
     <van-field
@@ -606,7 +606,7 @@ function handleFlowReturn(action: any) {
     if (pairs.length) {
       return {
         key: pairs[0][0],
-        value: pairs[0][1],
+        value: pairs[0][1]
       }
     }
   })
@@ -615,7 +615,7 @@ function handleFlowReturn(action: any) {
     node: '',
     nodeKey: '',
     opinion: '',
-    showPicker: false,
+    showPicker: false
   })
   const onSelectNode = (val: string) => {
     const node = nodes.find((item: any) => item.value === val)
@@ -731,7 +731,7 @@ function handleFlowSign(action: any) {
  */
 function handleFlowConsult(action: any) {
   const state = reactive({
-    selected: { members: [], roles: [] },
+    selected: { members: [], roles: [] }
   })
   const render = () => {
     return <UserSelect v-model={[state.selected, 'selected']} />
