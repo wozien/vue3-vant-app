@@ -1,8 +1,8 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
 import routes from './routes'
 import { LocalStorageKeys } from '@/logics/enums/cache'
-import { baseOauth } from '@/helpers/oauth'
-import { isWechatAgent } from '@/helpers/utils'
+import { baseOauth } from '@/utils/oauth'
+import { isWechatAgent } from '@/utils'
 import { getToken } from '@/api/user'
 
 const router = createRouter({

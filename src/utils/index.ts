@@ -103,7 +103,7 @@ export const uuid = (len = 6) => {
     'w',
     'x',
     'y',
-    'z',
+    'z'
   ]
 
   let res = ''
@@ -151,7 +151,7 @@ export const wrapperEnv = (envConf?: any): any => {
  */
 export const isWechatAgent = ({
   iphone,
-  android,
+  android
 }: { iphone?: boolean; android?: boolean } = {}) => {
   const ua = navigator.userAgent.toLowerCase()
   let addition = true

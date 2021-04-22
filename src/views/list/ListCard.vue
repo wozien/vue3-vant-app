@@ -31,7 +31,7 @@ import { defineComponent, PropType } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import type { FieldsInfo, FieldInfo } from '@/logics/types'
 import ListRecord from '@/logics/class/ListRecord'
-import { formatDate } from '@/helpers/date'
+import { formatDate } from '@/utils/date'
 import { sessionStorageKeys } from '@/logics/enums/cache'
 import fieldUtils from '@/logics/core/fieldUtils'
 

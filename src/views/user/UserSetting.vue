@@ -2,7 +2,7 @@
   <Modal v-model:show="showModal" @confirm="onConfirm" @cancel="onCancel">
     <van-cell-group>
       <van-cell title="头像" is-link center>
-        <van-uploader :max-size="1024*1024" :after-read="onAfterRead" @oversize="onOversize">
+        <van-uploader :max-size="1024 * 1024" :after-read="onAfterRead" @oversize="onOversize">
           <van-image :src="avatar || user.avatar" width="50" height="50" fit="cover" round />
         </van-uploader>
       </van-cell>
@@ -11,13 +11,13 @@
     </van-cell-group>
   </Modal>
 </template>
- 
+
 <script lang="ts">
 import { defineComponent, computed, ref } from 'vue'
 import { useStore } from '@/store'
 import { Toast } from 'vant'
 import { uploadUserAvatar } from '@/api/user'
-import { setUrlQuery } from '@/helpers/url'
+import { setUrlQuery } from '@/utils/url'
 
 function useUploader() {
   const avatar = ref('')
@@ -47,7 +47,6 @@ function useUploader() {
 }
 
 export default defineComponent({
-
   props: {
     show: Boolean
   },
@@ -57,7 +56,7 @@ export default defineComponent({
 
     const showModal = computed({
       get: () => props.show,
-      set: (newVal) => {
+      set: newVal => {
         emit('update:show', newVal)
       }
     })
@@ -66,7 +65,7 @@ export default defineComponent({
     const onConfirm = async (cb: Function) => {
       try {
         const res = await uploader.onUpload(store.state.user.phone)
-        if(res.ret === 0) {
+        if (res.ret === 0) {
           // 重新获取下图像
           store.state.user.avatar = setUrlQuery(store.state.user.avatar, {
             t: new Date().getTime()
@@ -76,7 +75,7 @@ export default defineComponent({
         } else {
           cb(true)
         }
-      } catch(e) {
+      } catch (e) {
         cb(true)
       }
     }

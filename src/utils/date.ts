@@ -16,7 +16,7 @@ export const formatDate = (fmt: string, date: Date = new Date(), isUTC = false):
     'm+': minutes,
     's+': seconds,
     'q+': Math.floor((month + 3) / 3),
-    S: isUTC ? date.getUTCMilliseconds() : date.getMilliseconds(),
+    S: isUTC ? date.getUTCMilliseconds() : date.getMilliseconds()
   }
   if (/(y+)/.test(fmt)) {
     fmt = fmt.replace(RegExp.$1, (year + '').substr(4 - RegExp.$1.length))

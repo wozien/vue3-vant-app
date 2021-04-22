@@ -1,10 +1,10 @@
 import { MutationTree } from 'vuex'
 import { State, User } from './state'
-import { uuid } from '@/helpers/utils'
+import { uuid } from '@/utils'
 import { rootID } from '@/logics/core/dataPoint'
 
 const mutations: MutationTree<State> = {
-  'SET_USER' (state, data) {
+  SET_USER(state, data) {
     const { company } = data
     const user: User = {
       avatar: data.user_avatar,
@@ -19,22 +19,22 @@ const mutations: MutationTree<State> = {
     state.user = user
   },
 
-  'SET_ORGS' (state, data: {id: number; name: string;}[]) {
+  SET_ORGS(state, data: { id: number; name: string }[]) {
     state.orgs = data
-    if(data && data.length) {
+    if (data && data.length) {
       state.curOrg = data[0]
     }
   },
 
-  'SET_CUR_RECORD' (state, id: string) {
+  SET_CUR_RECORD(state, id: string) {
     state.curRecordId = id
   },
 
-  'RESET_CUR_RECORD' (state) {
+  RESET_CUR_RECORD(state) {
     rootID && (state.curRecordId = rootID)
   },
 
-  'SET_RECORD_TOKEN' (state) {
+  SET_RECORD_TOKEN(state) {
     state.recordToken = uuid(12)
   }
 }

@@ -4,7 +4,7 @@ import { useStore } from '@/store'
 import { getApp } from '@/logics/class/App'
 import { Fields } from '@/logics/types'
 import ViewItem from '@/logics/class/ViewItem'
-import { uuid } from '@/helpers/utils'
+import { uuid } from '@/utils'
 import { findDataPoint, getEvalContext } from '@/logics/core/dataPoint'
 import useExpose from '@/hooks/core/useExpose'
 
@@ -13,14 +13,14 @@ const FormField = defineAsyncComponent(() => import('@/views/form/FormField.vue'
 export default defineComponent({
   components: {
     // FormField: () => import('@/views/form/FormField.vue'),
-    FormField,
+    FormField
   },
 
   props: {
     flexFields: {
       type: Array,
-      default: () => [],
-    },
+      default: () => []
+    }
   },
 
   setup(props) {
@@ -41,7 +41,7 @@ export default defineComponent({
               fieldType: f.type,
               fieldKey: field.key,
               domain: [],
-              items: [],
+              items: []
             } as any
             item.widget = item.placeholder = ''
             return new ViewItem(item)
@@ -81,7 +81,7 @@ export default defineComponent({
       })
       return {
         flex,
-        names: names.join('/'),
+        names: names.join('/')
       }
     }
     useExpose({ getChanges })
@@ -101,7 +101,7 @@ export default defineComponent({
     }
 
     return () => <div class="flex-form">{renderItems()}</div>
-  },
+  }
 })
 
 function getFields(modelKey: string) {

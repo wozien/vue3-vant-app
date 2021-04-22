@@ -64,9 +64,8 @@ export default ({ command, mode }: ConfigEnv): UserConfig => {
 
     server: {
       port: 8080,
-      hmr: {
-        overlay: false
-      }
+      open: true,
+      cors: true
     }
   }
 }

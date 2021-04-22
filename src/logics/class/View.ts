@@ -1,6 +1,6 @@
 import ViewItem from './ViewItem'
 import type { StudioItem } from '../types'
-import { findTree, uuid } from '@/helpers/utils'
+import { findTree, uuid } from '@/utils'
 import { chekcButtonAccess } from '@/api/app'
 
 export type ViewType = 'form' | 'list'
@@ -53,7 +53,7 @@ class View {
     this.isLinkView = viewObj.isLinkView || false
     this.options = viewObj.options || {}
     this.buttons = this._initButtons(viewObj.buttons)
-    this.items = viewObj.mobileItems ? viewObj.mobileItems.map((i) => new ViewItem(i)) : []
+    this.items = viewObj.mobileItems ? viewObj.mobileItems.map(i => new ViewItem(i)) : []
   }
 
   _formatOneButton(button: any) {
@@ -66,7 +66,7 @@ class View {
       invisible: button.invisible?.length ? button.invisible : '',
       loading: false,
       isFlow: this._isFlowButton(button),
-      isGroup: !!button.children,
+      isGroup: !!button.children
     }
 
     if (buttonItem.isGroup) {
@@ -95,7 +95,7 @@ class View {
 
     // 生产环境暂时屏蔽编辑态按钮
     if (!DEV) {
-      viewButtons = viewButtons.filter((btn) => {
+      viewButtons = viewButtons.filter(btn => {
         return (
           btn.mode !== 'edit' &&
           (!btn.funcName || !['edit', 'create', 'copy'].includes(btn.funcName))
@@ -138,7 +138,7 @@ class View {
       'Copy Line': '行复制',
       'Delete Line': '行删除',
       'Save Line': '行保存',
-      'New Line': '保存并新增',
+      'New Line': '保存并新增'
     }
     return buttonMap[key as keyof typeof buttonMap] || key
   }
@@ -159,7 +159,7 @@ class View {
       highlight: false,
       isFlow: false,
       loading: false,
-      ...options,
+      ...options
     }
   }
 
@@ -191,10 +191,10 @@ class View {
               key: button.key,
               type: button.type,
               name: getName(button.funcName as string),
-              event: button.funcName === 'copy' && '_onCopyRecord',
+              event: button.funcName === 'copy' && '_onCopyRecord'
             },
             tag: 'button',
-            children: [],
+            children: []
           })
         }
       },

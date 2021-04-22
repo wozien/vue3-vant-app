@@ -2,7 +2,7 @@
  * 微信授权相关
  */
 
-import urlKit from '@/helpers/url'
+import urlKit from '@/utils/url'
 import url from 'url'
 import qs from 'qs'
 import { getWxOpenId } from '@/api/user'
@@ -13,7 +13,7 @@ const { DEV, VITE_WX_APP_ID: WX_APP_ID, VITE_WX_OPEN_ID: WX_OPEN_ID } = import.m
 // 授权类型
 const enum Scope {
   BASE = 'snsapi_base',
-  DETAIL = 'snsapi_userinfo',
+  DETAIL = 'snsapi_userinfo'
 }
 
 /**
@@ -39,7 +39,7 @@ const _getWxOauthUrl = (redirectUri: string, scope: string, state: string) => {
     redirect_uri: redirectUri,
     response_type: 'code',
     scope: scope || 'snsapi_base',
-    state: state || '',
+    state: state || ''
   }
 
   return url + '?' + qs.stringify(info) + '#wechat_redirect'
