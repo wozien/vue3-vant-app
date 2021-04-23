@@ -1,5 +1,5 @@
 /**
- * 全局类型声明 
+ * 全局类型声明
  * 注意： 不能用 export 关键字， 否则会当作 npm 包的声明
  */
 
@@ -26,3 +26,5 @@ declare interface HttpRes {
   data?: any
   error?: Object
 }
+
+declare type HttpResPromise = Promise<HttpRes>

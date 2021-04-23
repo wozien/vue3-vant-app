@@ -2,19 +2,19 @@
  * odoo 请求接口封装
  */
 
-import http from './http'
+import http from '../utils/http'
 import { AxiosResponse } from 'axios'
 import { DomainArr } from '@/logics/types'
 import { getContext } from '@/logics/class/App'
 interface OdooRpcParams {
-  args: any[];
-  kwargs: Recordable;
-  model: string;
-  method: string;
-} 
+  args: any[]
+  kwargs: Recordable
+  model: string
+  method: string
+}
 
 interface OdooCallKwFunc {
-  (model: string, method: string, args?: any[], kwargs?: any): Promise<AxiosResponse>;
+  (model: string, method: string, args?: any[], kwargs?: any): Promise<AxiosResponse>
 }
 
 interface OdooSearchRead {
@@ -25,14 +25,14 @@ interface OdooSearchRead {
     limit?: number
     sort?: string
     context?: Record<string, any>
-  }): Promise<AxiosResponse>;
+  }): Promise<AxiosResponse>
 }
 
 /**
  * 模拟 odoo rpc 请求
- * @param url 
- * @param params 
- * @returns 
+ * @param url
+ * @param params
+ * @returns
  */
 function _odooRpcRequest(url: string, params: OdooRpcParams) {
   const context = getContext()
@@ -42,9 +42,9 @@ function _odooRpcRequest(url: string, params: OdooRpcParams) {
 
 /**
  * odoo /web/dataset/call_kw 请求
- * @param model 
- * @param method 
- * @param args 
+ * @param model
+ * @param method
+ * @param args
  */
 export const callKw: OdooCallKwFunc = (model, method, args = [], kwargs = {}) => {
   const url = `/meta/web/dataset/call_kw/${model}/${method}`
@@ -60,9 +60,9 @@ export const callKw: OdooCallKwFunc = (model, method, args = [], kwargs = {}) =>
 
 /**
  * /meta/mobile/callkw
- * @param model 
- * @param method 
- * @param args 
+ * @param model
+ * @param method
+ * @param args
  */
 export const mobileCallKw: OdooCallKwFunc = (model, method, args = [], kwargs = {}) => {
   const url = `/meta/mobile/call_kw/${model}/${method}`
@@ -80,10 +80,10 @@ export const mobileCallKw: OdooCallKwFunc = (model, method, args = [], kwargs = 
 
 /**
  * odoo call_button
- * @param model 
- * @param method 
- * @param args 
- * @param kwargs 
+ * @param model
+ * @param method
+ * @param args
+ * @param kwargs
  */
 export const callButton: (
   model: string,
@@ -98,21 +98,24 @@ export const callButton: (
 
 /**
  * odoo  /web/dataset/search_read
- * @param options 
+ * @param options
  */
-export const searchRead: OdooSearchRead = (options) => {
-  const params = Object.assign({
-    limit: 10,
-    sort: 'id desc',
-    domain: []
-  }, options)
-  
+export const searchRead: OdooSearchRead = options => {
+  const params = Object.assign(
+    {
+      limit: 10,
+      sort: 'id desc',
+      domain: []
+    },
+    options
+  )
+
   return http.post('/meta/mobile/search_read', { ...params, context: getContext() })
 }
 
 /**
- * 获取odoo action 
- * @param actionId 
+ * 获取odoo action
+ * @param actionId
  */
 export const loadAction = (actionId: number) => {
   const params = {

@@ -2,11 +2,15 @@
  * 用户相关接口
  */
 
-import http from './http'
+import http from '../utils/http'
 import { callKw } from './odoo'
 
 // 用户登录
-export const userLogin = async (account: string, password: string, wxOpenId: Nullable<string>): Promise<HttpRes> => {
+export const userLogin = async (
+  account: string,
+  password: string,
+  wxOpenId: Nullable<string>
+): Promise<HttpRes> => {
   const res = await http.post('/system/login', {
     account,
     wxOpenId,
@@ -55,7 +59,7 @@ export const switchUserOrg = async (orgId: number): Promise<HttpRes> => {
   return res.data
 }
 
-// 用户上传头像 
+// 用户上传头像
 export const uploadUserAvatar = async (avatar: File, phone: string): Promise<HttpRes> => {
   const formData = new FormData()
   formData.append('avatar', avatar)
@@ -77,7 +81,7 @@ export const getWxOpenId = async (code: string): Promise<HttpRes> => {
 
 // 根据微信openid获取用户登录token
 export const getToken = async (wxOpenId: string): Promise<HttpRes> => {
-  const res = await http.get('/system/check_login_status', { 
+  const res = await http.get('/system/check_login_status', {
     params: { wxOpenId }
   })
 

@@ -1,13 +1,16 @@
 <template>
   <div class="login-page">
-    <h2 class="title">欢迎使用 inSuite</h2>
+    <h2 class="title">
+      <span>欢迎使用</span>
+      <img class="logo-img" src="@/assets/img/insuite-logo.png" />
+    </h2>
     <div class="info">
-      <LoginInput type="tel" placeholder="手机号" v-model="account.phone" clearable>
+      <LoginInput type="tel" placeholder="请输入手机号" v-model="account.phone" clearable>
         <template #icon>
           <Icon name="account" />
         </template>
       </LoginInput>
-      <LoginInput type="password" placeholder="密码" v-model="account.password">
+      <LoginInput type="password" placeholder="请输入密码" v-model="account.password">
         <template #icon>
           <Icon name="password" />
         </template>
@@ -27,22 +30,25 @@ import { useRouter } from 'vue-router'
 import { Toast } from 'vant'
 import { userLogin } from '@/api/user'
 import { LocalStorageKeys } from '@/logics/enums/cache'
-import LoginInput from '@/components/input/Input.vue'
+import LoginInput from '@/components/login-input/LoginInput.vue'
+import { isLegalPhone } from '@/utils'
+import { sessionStorageKeys } from '@/logics/enums/cache'
 
 function useLogin() {
+  const router = useRouter()
   const loading = ref(false)
   const account = reactive({
-    phone: '',
+    phone: sessionStorage.getItem(sessionStorageKeys.loginAccount) || '',
     password: ''
   })
-  const router = useRouter()
+  sessionStorage.removeItem(sessionStorageKeys.loginAccount)
 
   const login = async () => {
     const { phone, password } = account
     if (!phone || !password) {
       Toast('手机号或者密码不能为空')
       return
-    } else if (!/^\d{11}$/.test(phone)) {
+    } else if (!isLegalPhone(phone)) {
       Toast('手机号格式不正确')
       return
     }
@@ -66,10 +72,12 @@ export default defineComponent({
   },
 
   setup() {
+    const router = useRouter()
+
     return {
       ...useLogin(),
-      forget: () => Toast('暂不支持'),
-      register: () => Toast('暂不支持')
+      forget: () => router.push('/forget'),
+      register: () => router.push('/register')
     }
   }
 })
@@ -79,16 +87,22 @@ export default defineComponent({
 .login-page {
   .app-page;
   background: white;
-  padding: 60px 36px;
+  padding: 46px 30px;
   .title {
     color: @ins-primary-color;
-    font-size: 28px;
+    font-size: 22px;
     font-weight: 600;
     margin-bottom: 20px;
+    .logo-img {
+      vertical-align: middle;
+      width: 103px;
+      transform: translateY(-4px);
+      margin-left: 8px;
+    }
   }
   .info {
     overflow: hidden;
-    margin-bottom: 20px;
+    margin-bottom: 30px;
   }
   .footer {
     text-align: center;

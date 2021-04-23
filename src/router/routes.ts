@@ -1,6 +1,8 @@
 import { RouteRecordRaw } from 'vue-router'
 
 const Login = () => import('@/views/login/Login.vue')
+const Forget = () => import('@/views/login/Forget.vue')
+const Register = () => import('@/views/login/Register.vue')
 const Layout = () => import('@/views/layout/Layout.vue')
 const Dashboard = () => import('@/views/dashboard/Dashboard.vue')
 const Market = () => import('@/views/market/Market.vue')
@@ -14,12 +16,6 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/',
     redirect: '/dashboard'
-  },
-  {
-    path: '/login',
-    name: 'login',
-    component: Login,
-    meta: { title: '用户登录' }
   },
   {
     path: '/layout',
@@ -60,6 +56,24 @@ const routes: RouteRecordRaw[] = [
         meta: { index: 3 }
       }
     ]
+  },
+  {
+    path: '/login',
+    name: 'login',
+    component: Login,
+    meta: { title: '用户登录', skipAuth: true }
+  },
+  {
+    path: '/forget',
+    name: 'forget',
+    component: Forget,
+    meta: { title: '忘记密码', skipAuth: true }
+  },
+  {
+    path: '/register',
+    name: 'register',
+    component: Register,
+    meta: { title: '注册账号', skipAuth: true }
   },
   {
     path: '/companyList',

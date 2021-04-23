@@ -6,7 +6,7 @@
       class="ins-input__icon"
       v-if="inputValue && clearable"
       name="clear"
-      color="#666"
+      color="#B0B2BC"
       @click="onClearValue"
     />
     <van-icon
@@ -14,9 +14,10 @@
       v-if="type === 'password' && inputValue"
       :name="inputType === 'password' ? 'closed-eye' : 'eye-o'"
       size="20"
-      color="#646566"
+      color="#B0B2BC"
       @click="toggleEyeIcon"
     />
+    <slot name="suffix" class="ins-input__suffix"></slot>
   </div>
 </template>
 
@@ -29,10 +30,10 @@ export default defineComponent({
   props: {
     type: {
       type: String as PropType<InputType>,
-      default: 'text',
+      default: 'text'
     },
     clearable: Boolean,
-    modelValue: String,
+    modelValue: String
   },
 
   emits: ['update:modelValue'],
@@ -45,7 +46,7 @@ export default defineComponent({
       },
       set(val) {
         emit('update:modelValue', val)
-      },
+      }
     })
 
     const toggleEyeIcon = () => {
@@ -60,15 +61,15 @@ export default defineComponent({
       inputType,
       inputValue,
       toggleEyeIcon,
-      onClearValue,
+      onClearValue
     }
-  },
+  }
 })
 </script>
 
 <style lang="less" scoped>
 .ins-input-wrapper {
-  border-bottom: @ins-border;
+  border-bottom: 1px solid #eee;
   padding: 8px 0px;
   margin-bottom: 20px;
   display: flex;
@@ -79,8 +80,12 @@ export default defineComponent({
     border: none;
     color: @ins-text-color;
     font-size: 14px;
+    &::placeholder {
+      color: #828695;
+    }
   }
-  .ins-input__icon {
+  .ins-input__icon,
+  .ins-input__suffix {
     flex: 0 0 auto;
     margin-right: 8px;
   }

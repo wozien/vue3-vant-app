@@ -162,3 +162,12 @@ export const isWechatAgent = ({
   }
   return ua.search('micromessenger') !== -1 && addition
 }
+
+/**
+ * 判断是否合法的手机号码, 暂时只校验11位数字
+ * @param phoneNumber
+ * @returns
+ */
+export const isLegalPhone = (phoneNumber: string) => {
+  return /^\d{11}$/.test(phoneNumber)
+}
