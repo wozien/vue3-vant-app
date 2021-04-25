@@ -1,13 +1,13 @@
 import { RouteRecordRaw } from 'vue-router'
 
-const Login = () => import('@/views/login/Login.vue')
-const Forget = () => import('@/views/login/Forget.vue')
-const Register = () => import('@/views/login/Register.vue')
+const Login = () => import('@/views/system/Login.vue')
+const Forget = () => import('@/views/system/Forget.vue')
+const Register = () => import('@/views/system/Register.vue')
+const CompanyList = () => import('@/views/user/CompanyList.vue')
 const Layout = () => import('@/views/layout/Layout.vue')
 const Dashboard = () => import('@/views/dashboard/Dashboard.vue')
 const Market = () => import('@/views/market/Market.vue')
 const User = () => import('@/views/user/User.vue')
-const CompanyList = () => import('@/views/user/CompanyList.vue')
 const View = () => import('@/views/layout/View.vue')
 const Flow = () => import('@/views/flow/Flow.vue')
 const FlowProcess = () => import('@/views/flow/FlowProcess.vue')

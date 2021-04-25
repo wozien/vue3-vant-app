@@ -47,6 +47,22 @@ export const switchCompany = async (dbName: string, oauthUrl: string): Promise<H
   return res.data
 }
 
+// 创建公司
+export const createCompany = async (name: string, type: string, size: string): HttpResPromise => {
+  const res = await http.post(
+    '/system/create_company',
+    {
+      company_name: name,
+      company_size: size,
+      industry_type: type
+    },
+    {
+      timeout: 0
+    }
+  )
+  return res.data
+}
+
 // 获取用户组织
 export const fetchUserOrgs = async (): Promise<HttpRes> => {
   const res = await callKw('res.users', 'get_org_ids')

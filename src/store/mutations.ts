@@ -5,6 +5,7 @@ import { rootID } from '@/logics/core/dataPoint'
 
 const mutations: MutationTree<State> = {
   SET_USER(state, data) {
+    if (data == null) return
     const { company } = data
     const user: User = {
       avatar: data.user_avatar,

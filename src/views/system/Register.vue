@@ -6,9 +6,9 @@
     </h2>
     <AuthCode v-if="!codeValid" ref="authCodeRef" v-model:phone="account.phone" type="register" />
     <div v-else class="content">
-      <LoginInput placeholder="请输入姓名" v-model="account.name">
+      <LoginInput placeholder="请输入姓名" v-model="account.name" clearable>
         <template #icon>
-          <Icon name="account" />
+          <Icon name="username" />
         </template>
       </LoginInput>
       <LoginInput type="password" placeholder="请输入密码" v-model="account.password">
@@ -128,10 +128,9 @@ export default defineComponent({
     margin-bottom: 50px;
   }
   .skip {
+    .link-text;
     text-align: center;
-    color: @ins-primary-color;
     padding: 10px 0px;
-    font-size: 13px;
   }
 }
 </style>

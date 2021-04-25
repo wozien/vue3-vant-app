@@ -9,6 +9,7 @@
   overflow: hidden;
   .page {
     height: 100%;
+    position: relative;
   }
 }
 </style>
