@@ -33,8 +33,6 @@ export interface ViewButton {
   isGroup?: boolean
 }
 
-const { DEV } = import.meta.env
-
 class View {
   model: string
   name: string
@@ -93,15 +91,6 @@ class View {
       }
     }
 
-    // 生产环境暂时屏蔽编辑态按钮
-    if (!DEV) {
-      viewButtons = viewButtons.filter(btn => {
-        return (
-          btn.mode !== 'edit' &&
-          (!btn.funcName || !['edit', 'create', 'copy'].includes(btn.funcName))
-        )
-      })
-    }
     return viewButtons
   }
 

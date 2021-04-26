@@ -57,8 +57,6 @@ import { fetchReferencesBatch, fetchX2ManysBatch } from '@/logics/class/ListReco
 import SearchView from '@/views/search/SearchView.vue'
 import SearchBar from '@/views/search/SearchBar.vue'
 
-const { DEV } = import.meta.env
-
 export default defineComponent({
   components: {
     ListCard,
@@ -100,8 +98,7 @@ export default defineComponent({
     const canCreate = computed(() => {
       return (
         props.curView &&
-        props.curView.buttons.findIndex((btn: any) => btn.funcName === 'create') > -1 &&
-        DEV
+        props.curView.buttons.findIndex((btn: any) => btn.funcName === 'create') > -1
       )
     })
 
