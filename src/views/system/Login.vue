@@ -114,7 +114,7 @@ export default defineComponent({
       cursor: pointer;
       &.forget {
         color: @ins-text-color-light-1;
-        border-right: @ins-border;
+        border-right: 1px solid @ins-border-color;
       }
       &.register {
         color: @ins-primary-color;

@@ -76,13 +76,7 @@ export default defineComponent({
   align-items: center;
   .ins-input {
     flex: 1;
-    outline: none;
-    border: none;
-    color: @ins-text-color;
-    font-size: 14px;
-    &::placeholder {
-      color: #828695;
-    }
+    .reset-input;
   }
   .ins-input__icon,
   .ins-input__suffix {

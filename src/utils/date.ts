@@ -42,5 +42,5 @@ export const formatDate = (fmt: string, date: Date = new Date(), isUTC = false):
  */
 export const str2Date = (str: string, zone = 'UTC'): Date => {
   str = str.replace(/-/g, '/')
-  return new Date(`${str} ${zone}`)
+  return zone ? new Date(`${str} ${zone}`) : new Date(str)
 }

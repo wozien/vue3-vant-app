@@ -171,3 +171,12 @@ export const isWechatAgent = ({
 export const isLegalPhone = (phoneNumber: string) => {
   return /^\d{11}$/.test(phoneNumber)
 }
+
+/**
+ * 是否绝对地址
+ * @param url
+ * @returns
+ */
+export const isAbsoluteURL = (url: string): boolean => {
+  return /^([a-z][a-z\d+\-.]*:)?\/\//i.test(url)
+}

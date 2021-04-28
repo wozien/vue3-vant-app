@@ -18,7 +18,7 @@
         <div class="icons">
           <div class="icon">
             <Icon name="file" @click="onClickFile" />
-            <Icon name="message" @click="onClickMessage" />
+            <Icon name="message" @click="openPopup" />
           </div>
           <span v-if="state !== 'audit'" class="status" @click="toProcessView">{{
             state_name
@@ -31,6 +31,16 @@
     </div>
     <LineSwitcher v-show="showLineSwitcher" />
     <ButtonView :buttons="curView && curView.buttons" />
+
+    <van-popup
+      v-model:show="showPopup"
+      position="bottom"
+      :style="{ height: '90%' }"
+      :duration="0.2"
+      round
+    >
+      <FormChat :visible="showPopup"></FormChat>
+    </van-popup>
   </div>
 </template>
 
@@ -49,11 +59,12 @@ import {
   ref
 } from 'vue'
 import { useRoute, useRouter, onBeforeRouteUpdate } from 'vue-router'
-import { Toast, Dialog } from 'vant'
+import { Dialog } from 'vant'
 import { useStore } from '@/store'
 import FormCanvas from './FormCanvas'
 import ButtonView from '@/components/odoo-button/ButtonView.vue'
 import LineSwitcher from '@/components/line-switcher/LineSwitcher.vue'
+import FormChat from './FormChat.vue'
 import { formatDate } from '@/utils/date'
 import { viewCommonProps } from '@/hooks/component/useView'
 import { getRecordId } from '@/logics/core/dataPoint'
@@ -66,7 +77,8 @@ export default defineComponent({
   components: {
     FormCanvas,
     ButtonView,
-    LineSwitcher
+    LineSwitcher,
+    FormChat
   },
 
   props: {
@@ -78,6 +90,7 @@ export default defineComponent({
     const router = useRouter()
     const store = useStore()
     const { toast } = useToast()
+    const { showPopup, openPopup } = useFormPopup()
 
     const data = reactive({
       creator: {
@@ -151,9 +164,6 @@ export default defineComponent({
       })
     }
 
-    const onClickFile = () => Toast('暂不支持附件功能')
-    const onClickMessage = () => Toast('暂不支持沟通记录功能')
-
     // 表体行表单返回主表单
     watchEffect(() => {
       setCurRecord()
@@ -222,12 +232,26 @@ export default defineComponent({
       curRecordId: computed(() => store.state.curRecordId),
       curRecord,
       imgUrl,
+      showPopup,
       toProcessView,
-      onClickFile,
-      onClickMessage
+      openPopup,
+      onClickFile: () => toast.show('暂不支持附件功能')
     }
   }
 })
+
+function useFormPopup() {
+  const showPopup = ref(false)
+
+  const openPopup = () => {
+    showPopup.value = true
+  }
+
+  return {
+    showPopup,
+    openPopup
+  }
+}
 </script>
 
 <style lang="less" scoped>
@@ -237,21 +261,8 @@ export default defineComponent({
     height: 70px;
     background: #fff;
     padding: 0px 14px;
-    display: flex;
-    align-items: center;
-    .info {
-      flex: 1;
-      padding: 0px 10px;
-      .name {
-        font-size: 14px;
-        color: @ins-text-color-light-1;
-        margin-bottom: 2px;
-      }
-      .time {
-        font-size: 12px;
-        color: @ins-text-color-light-2;
-      }
-    }
+    .user-info;
+
     .right {
       display: flex;
       align-items: center;
