@@ -26,7 +26,7 @@
     <van-button type="primary" round block @click="confirm" :loading="loading">
       {{ codeValid ? '确定' : '下一步' }}
     </van-button>
-    <p class="skip" @click="$router.push('/login')">已有账号? 直接登录</p>
+    <p v-if="!codeValid" class="skip" @click="$router.push('/login')">已有账号? 直接登录</p>
   </div>
 </template>
 

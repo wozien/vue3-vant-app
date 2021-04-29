@@ -97,7 +97,7 @@ export default defineComponent({
 
       if (imageCode.expire) {
         loadImageCode()
-        imgCode.value = ''
+        imgCode.value = smsCode.value = ''
         toast.show('图形验证码已过期')
       } else {
         const res = await sendMessageCode({
