@@ -2712,10 +2712,10 @@ vite-plugin-style-import@^0.8.1:
     es-module-lexer "^0.4.1"
     magic-string "^0.25.7"
 
-vite@^2.0.5:
-  version "2.2.1"
-  resolved "https://registry.nlark.com/vite/download/vite-2.2.1.tgz#90c481f69371f32867d86a6a623bb064b876ad3d"
-  integrity sha1-kMSB9pNx8yhn2GpqYjuwZLh2rT0=
+vite@^2.2.3:
+  version "2.2.3"
+  resolved "https://registry.nlark.com/vite/download/vite-2.2.3.tgz#1acbdfa56ac00e00e7ccb6988f63f130c2f99dbb"
+  integrity sha1-GsvfpWrADgDnzLaYj2PxMML5nbs=
   dependencies:
     esbuild "^0.9.3"
     postcss "^8.2.1"

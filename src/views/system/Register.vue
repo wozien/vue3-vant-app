@@ -32,7 +32,7 @@
 
 <script lang="ts">
 import { defineComponent, reactive, ref } from 'vue'
-import AuthCode from './AuthCode.vue'
+import AuthCode from '@/views/system/AuthCode.vue'
 import LoginInput from '@/components/login-input/LoginInput.vue'
 import useToast from '@/hooks/component/useToast'
 import { register } from '@/api/system'

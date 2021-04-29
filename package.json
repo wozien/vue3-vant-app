@@ -54,7 +54,7 @@
     "prettier": "^2.2.1",
     "typescript": "~3.9.3",
     "vconsole": "^3.4.0",
-    "vite": "^2.0.5",
+    "vite": "^2.2.3",
     "vite-plugin-style-import": "^0.8.1",
     "vue-tsc": "^0.0.20",
     "yorkie": "^2.0.0"
