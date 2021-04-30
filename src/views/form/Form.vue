@@ -35,8 +35,9 @@
     <van-popup
       v-model:show="showPopup"
       position="bottom"
-      :style="{ height: '90%' }"
+      :style="{ height: '95%' }"
       :duration="0.2"
+      closeable
       round
     >
       <FormChat :visible="showPopup"></FormChat>
@@ -281,6 +282,14 @@ function useFormPopup() {
   .form-canvas {
     // height: calc(100vh - 120px);
     overflow: auto;
+  }
+
+  &::v-deep(.van-popup__close-icon) {
+    font-size: 16px;
+  }
+  &::v-deep(.van-popup__close-icon--top-right) {
+    top: 10px;
+    right: 12px;
   }
 }
 </style>

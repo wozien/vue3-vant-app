@@ -1,7 +1,7 @@
 <template>
   <div class="form-chat">
     <header>沟通记录</header>
-    <div class="messages">
+    <div class="messages" ref="messageRef">
       <div class="message-item" v-for="item in list" :key="item.id">
         <div class="info-header">
           <van-image :src="item.avatar" width="30" height="30" fit="cover" round />
@@ -39,6 +39,7 @@ export default defineComponent({
     const store = useStore()
     const message = ref('')
     const list = ref<any[]>([])
+    const messageRef = ref()
     const curRecord = computed(() => store.getters.curRecord)
     const user = computed(() => store.state.user)
 
@@ -71,6 +72,9 @@ export default defineComponent({
             data.avatar = user.value.avatar
             list.value.push(data)
             message.value = ''
+            setTimeout(() => {
+              setScroll(messageRef.value)
+            }, 0)
           }
         }
       }
@@ -85,6 +89,7 @@ export default defineComponent({
     return {
       list,
       message,
+      messageRef,
       send
     }
   }
@@ -109,6 +114,12 @@ function formatServerData(data: any) {
   res.date = formatDate('yyyy-MM-dd hh:mm', str2Date(data.date))
   res.avatar = isAbsoluteURL(data.src) ? data.src : '/img/avatar.png'
   return res
+}
+
+function setScroll(el: HTMLElement) {
+  if (el) {
+    el.scrollTop = el.scrollHeight - el.offsetHeight
+  }
 }
 </script>
 
