@@ -10,6 +10,7 @@
       >
         <Icon name="company" />
         <span class="name">{{ item.name }}</span>
+        <van-tag v-if="item.expire" type="warning">已过期</van-tag>
       </div>
       <div class="list-item create-btn" v-if="companyList.length < 5" @click="showCreate = true">
         <van-icon name="plus" />创建企业
@@ -80,6 +81,7 @@ interface Company {
   name: string
   dbName: string
   oauthUrl: string
+  expire: boolean
 }
 
 export default defineComponent({
@@ -110,14 +112,14 @@ export default defineComponent({
             name: company_name,
             dbName: db_name,
             oauthUrl: oauth2_login_url,
-            expire: new Date(expire_date).getTime()
+            expire: isExpire(expire_date)
           }
         })
         const len = companyList.value.length
         if (len) {
           active.value = store.state.user.company.dbName || companyList.value[0]?.dbName
           if (len === 1 && !route.query.keepSwitch) {
-            onSwitchCompany()
+            loadCompany(companyList.value[0])
           }
         }
       }
@@ -132,14 +134,9 @@ export default defineComponent({
         return
       }
 
-      toast.loading('载入企业数据')
       const activeCompany = companyList.value.find(item => item.dbName === active.value)
       if (activeCompany) {
-        const res = await switchCompany(activeCompany.dbName, activeCompany.oauthUrl)
-        if (res.ret === 0) {
-          router.push('/dashboard')
-        }
-        toast.clear()
+        loadCompany(activeCompany)
       }
     }
 
@@ -148,12 +145,20 @@ export default defineComponent({
       if (result) {
         companyList.value.push(result)
         showCreate.value = false
-        toast.loading('载入企业数据')
-        const res = await switchCompany(result.dbName, result.oauthUrl)
-        if (res.ret === 0) {
-          router.push('/dashboard')
-        }
-        toast.clear()
+        loadCompany(result)
+      }
+    }
+
+    const loadCompany = async (company: Company) => {
+      if (company.expire) {
+        toast.show(`${company.name}企业使用期限已到期，请及时续费`)
+        return
+      }
+      toast.loading('载入企业数据')
+      const res = await switchCompany(company.dbName, company.oauthUrl)
+      toast.clear()
+      if (res.ret === 0) {
+        router.push('/dashboard')
       }
     }
 
@@ -233,7 +238,8 @@ function useCreateCompany() {
       return {
         name: newCompany.name,
         dbName: db_name,
-        oauthUrl: oauth2_login_url
+        oauthUrl: oauth2_login_url,
+        expire: false
       }
     }
   }
@@ -248,6 +254,10 @@ function useCreateCompany() {
     onClickPopup,
     create
   }
+}
+
+function isExpire(dateStr: string) {
+  return Date.now() - new Date(dateStr).getTime() > 0
 }
 </script>
 
@@ -272,31 +282,12 @@ function useCreateCompany() {
       background: white;
       position: relative;
       .name {
+        flex: 1;
         font-size: 13px;
         color: @ins-text-color-light-1;
       }
       &-active {
         border-color: @ins-primary-color;
-        &::before {
-          content: '';
-          display: block;
-          position: absolute;
-          width: 12px;
-          height: 12px;
-          top: 0;
-          right: 10px;
-          background: @ins-primary-color;
-        }
-        &::after {
-          content: '';
-          position: absolute;
-          display: block;
-          width: 0px;
-          border: 6px solid transparent;
-          border-top-color: @ins-primary-color;
-          top: 12px;
-          right: 10px;
-        }
       }
     }
     .create-btn {

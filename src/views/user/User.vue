@@ -33,7 +33,7 @@
         <van-cell title="联系我们" icon-prefix="ins-icon" icon="contact" @click="onClickContract" />
       </van-cell-group>
       <div class="footer">
-        <van-button round block hairline size="small" type="primary" @click="onLogout"
+        <van-button type="primary" @click="onLogout" size="small" round block hairline
           >退出登录</van-button
         >
       </div>
