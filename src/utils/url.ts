@@ -6,6 +6,8 @@ import urlKit from 'url'
 import { omit } from 'lodash-es'
 import qs from 'qs'
 
+const { VITE_BASE_API } = import.meta.env
+
 interface QueryParms {
   [key: string]: any
 }
@@ -67,11 +69,7 @@ export const getCurrentUrlPath = function (url: string, queryKeysToBeStripped: b
     const queryString = _getQueryString(url, queryKeysToBeStripped)
     finalUrl = url.replace(/\?.+$/, '') + (queryString ? '?' + queryString : '')
   }
-  // if (queryParamsToBeAdded) {
-  //   const urlObj = urlKit.parse(finalUrl, true)
-  //   finalUrl = urlObj.pathname + '?' +
-  //     _buildQueryString({ ...urlObj.query, ...queryParamsToBeAdded })
-  // }
+
   return finalUrl
 }
 
@@ -98,6 +96,18 @@ export const getFullUrl = function (
   }
   const query = _buildQueryString(params)
   return protocol + host + path + (query ? '?' : '') + query
+}
+
+/**
+ * 获取env配置的host的完整url
+ * @param path
+ * @param params
+ * @returns
+ */
+export const getBaseFullUrl = (path: string, params?: any): string => {
+  const host = VITE_BASE_API as string
+  const query = _buildQueryString(params)
+  return host.replace(/\/$/, '') + '/' + path.replace(/^\//, '') + (query ? '?' : '') + query
 }
 
 export default {

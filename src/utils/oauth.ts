@@ -21,9 +21,15 @@ const enum Scope {
  * @param host
  * @param sourceUrl
  */
-const _buildRedirectUrl = (host: string, sourceUrl: string) => {
+const _buildRedirectUrl = (host: string, sourceUrl: string, useHttps = false) => {
   sourceUrl = sourceUrl.replace(`http://${host}`, '').replace(`https://${host}`, '')
-  return urlKit.getFullUrl(host, urlKit.getCurrentUrlPath(sourceUrl, ['code', 'state']))
+  return urlKit.getFullUrl(
+    host,
+    urlKit.getCurrentUrlPath(sourceUrl, ['code', 'state']),
+    undefined,
+    undefined,
+    useHttps
+  )
 }
 
 /**
@@ -50,8 +56,8 @@ const _getWxOauthUrl = (redirectUri: string, scope: string, state: string) => {
  * @param scopeType
  */
 const _redirectToWx = (scopeType = Scope.BASE) => {
-  const { host, href: currentUrl } = location
-  const redirectUrl = _buildRedirectUrl(host, currentUrl)
+  const { host, href: currentUrl, protocol } = location
+  const redirectUrl = _buildRedirectUrl(host, currentUrl, protocol === 'https:')
   const authUrl = _getWxOauthUrl(redirectUrl, scopeType, scopeType)
   window.location.href = authUrl
 }

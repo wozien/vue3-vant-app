@@ -180,3 +180,27 @@ export const isLegalPhone = (phoneNumber: string) => {
 export const isAbsoluteURL = (url: string): boolean => {
   return /^([a-z][a-z\d+\-.]*:)?\/\//i.test(url)
 }
+
+/**
+ * 下载文件
+ * @param url
+ */
+export const downloadUrl = (url: string) => {
+  const tempLink = document.createElement('a')
+  tempLink.style.display = 'none'
+  tempLink.href = url
+  tempLink.setAttribute('download', 'true')
+
+  // 兼容不支持download属性
+  if (typeof tempLink.download === 'undefined') {
+    tempLink.setAttribute('target', '_blank')
+  }
+
+  document.body.appendChild(tempLink)
+  tempLink.click()
+
+  // Fixes "webkit blob resource error 1"
+  setTimeout(function () {
+    document.body.removeChild(tempLink)
+  }, 0)
+}

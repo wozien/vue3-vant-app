@@ -4,7 +4,6 @@
 
 import http from '../utils/http'
 import { AxiosResponse } from 'axios'
-import { DomainArr } from '@/logics/types'
 import { getContext } from '@/logics/class/App'
 interface OdooRpcParams {
   args: any[]
@@ -18,14 +17,17 @@ interface OdooCallKwFunc {
 }
 
 interface OdooSearchRead {
-  (options: {
-    model: string
-    domain?: DomainArr
-    fields: string[]
-    limit?: number
-    sort?: string
-    context?: Record<string, any>
-  }): Promise<AxiosResponse>
+  (
+    options: {
+      model: string
+      domain?: any[]
+      fields: string[]
+      limit?: number
+      sort?: string
+      context?: Record<string, any>
+    },
+    isOdoo?: boolean
+  ): Promise<AxiosResponse>
 }
 
 /**
@@ -100,7 +102,7 @@ export const callButton: (
  * odoo  /web/dataset/search_read
  * @param options
  */
-export const searchRead: OdooSearchRead = options => {
+export const searchRead: OdooSearchRead = (options, isOdoo = false) => {
   const params = Object.assign(
     {
       limit: 10,
@@ -109,8 +111,9 @@ export const searchRead: OdooSearchRead = options => {
     },
     options
   )
+  const url = isOdoo ? '/meta/web/dataset/search_read' : '/meta/mobile/search_read'
 
-  return http.post('/meta/mobile/search_read', { ...params, context: getContext() })
+  return http.post(url, { ...params, context: getContext() })
 }
 
 /**

@@ -17,8 +17,8 @@
         />
         <div class="icons">
           <div class="icon">
-            <Icon name="file" @click="onClickFile" />
-            <Icon name="message" @click="openPopup" />
+            <Icon name="file" @click="openPopup('attacment')" />
+            <Icon name="message" @click="openPopup('chat')" />
           </div>
           <span v-if="state !== 'audit'" class="status" @click="toProcessView">{{
             state_name
@@ -40,7 +40,8 @@
       closeable
       round
     >
-      <FormChat :visible="showPopup"></FormChat>
+      <FormChat v-if="popupType === 'chat'" :visible="showPopup"></FormChat>
+      <FormAttachment v-else :visible="showPopup"></FormAttachment>
     </van-popup>
   </div>
 </template>
@@ -66,6 +67,7 @@ import FormCanvas from './FormCanvas'
 import ButtonView from '@/components/odoo-button/ButtonView.vue'
 import LineSwitcher from '@/components/line-switcher/LineSwitcher.vue'
 import FormChat from './FormChat.vue'
+import FormAttachment from './FormAttachment.vue'
 import { formatDate } from '@/utils/date'
 import { viewCommonProps } from '@/hooks/component/useView'
 import { getRecordId } from '@/logics/core/dataPoint'
@@ -79,7 +81,8 @@ export default defineComponent({
     FormCanvas,
     ButtonView,
     LineSwitcher,
-    FormChat
+    FormChat,
+    FormAttachment
   },
 
   props: {
@@ -91,7 +94,7 @@ export default defineComponent({
     const router = useRouter()
     const store = useStore()
     const { toast } = useToast()
-    const { showPopup, openPopup } = useFormPopup()
+    const { showPopup, popupType, openPopup } = useFormPopup()
 
     const data = reactive({
       creator: {
@@ -234,22 +237,25 @@ export default defineComponent({
       curRecord,
       imgUrl,
       showPopup,
+      popupType,
       toProcessView,
-      openPopup,
-      onClickFile: () => toast.show('暂不支持附件功能')
+      openPopup
     }
   }
 })
 
 function useFormPopup() {
   const showPopup = ref(false)
+  const popupType = ref('')
 
-  const openPopup = () => {
+  const openPopup = (type: string) => {
+    popupType.value = type
     showPopup.value = true
   }
 
   return {
     showPopup,
+    popupType,
     openPopup
   }
 }

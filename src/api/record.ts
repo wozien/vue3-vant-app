@@ -2,7 +2,7 @@
  * 表单记录
  */
 
-import { mobileCallKw, callKw, callButton } from './odoo'
+import { mobileCallKw, callKw, callButton, searchRead } from './odoo'
 
 /**
  * 获取表单数据
@@ -163,5 +163,25 @@ export const postFormMessage = async (
  */
 export const formMessageFormat = async (id: number): HttpResPromise => {
   const res = await callKw('mail.message', 'message_format', [[id]])
+  return res.data
+}
+
+/**
+ * 获取附件列表
+ * @param model
+ * @param id
+ * @returns
+ */
+export const fetchAttachment = async (model: string, id: number): HttpResPromise => {
+  const domain = ['&', ['res_model', '=', model], ['res_id', '=', id]]
+  const fields = ['key', 'id', 'mimetype', 'type', 'url', 'name', 'file_size']
+  const res = await searchRead(
+    {
+      model: 'ir.attachment',
+      domain,
+      fields
+    },
+    true
+  )
   return res.data
 }
