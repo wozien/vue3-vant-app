@@ -59,10 +59,9 @@ export const fetchFlowDetail: (
 export const flowAgreen = async (opinion: string, context: any): Promise<HttpRes> => {
   const approve_type = context.approve_type || '1'
   const args = [{ approve_type, opinion }]
-  let res = await callKw('workflow.approve.wizard', 'create', args, { context })
-  if (res.data) {
-    res = res.data
-    if ((res as any).ret === 0) {
+  let { data: res } = await callKw('workflow.approve.wizard', 'create', args, { context })
+  if (res) {
+    if ((res as HttpRes).ret === 0) {
       return await callButton('workflow.approve.wizard', 'button_confirm', [[res.data]], {
         context
       })
@@ -84,10 +83,9 @@ export const flowReturn = async (
       process_id: context.process_id
     }
   ]
-  let res = await callKw('workflow.back.wizard', 'create', args, { context })
-  if (res.data) {
-    res = res.data
-    if ((res as any).ret === 0) {
+  let { data: res } = await callKw('workflow.back.wizard', 'create', args, { context })
+  if (res) {
+    if ((res as HttpRes).ret === 0) {
       return await callButton('workflow.back.wizard', 'button_back_confirm', [[res.data]], {
         context
       })

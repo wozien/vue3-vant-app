@@ -64,11 +64,7 @@ export default defineComponent({
     onBeforeMount(async () => {
       let loadParams = JSON.parse(sessionStorage.getItem(sessionStorageKeys.loadParams) || '{}')
       let { menuId, actionId } = loadParams
-      const res = await getAppAsync(
-        route.query.model as string,
-        menuId as string,
-        actionId as string
-      )
+      const res = await getAppAsync(route.query.model as string, menuId, actionId)
       curApp.value = res
     })
 
@@ -106,13 +102,13 @@ export default defineComponent({
 })
 
 function getContext(curApp: App, modelKey: string, viewType: ViewType): ViewContext {
-  const curView = curApp.getView(viewType, modelKey) as View
-  const curModel = curApp.getModel(modelKey) as Model
+  const curView = curApp.getView(viewType, modelKey)
+  const curModel = curApp.getModel(modelKey)
   const fieldsInfo = curApp.fieldsInfo?.[viewType]
 
   return {
-    curModel,
-    curView,
+    curModel: curModel!,
+    curView: curView!,
     appName: curApp.name,
     fields: (curModel && curModel.getFields()) || {},
     fieldsInfo: fieldsInfo || {},

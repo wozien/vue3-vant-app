@@ -144,12 +144,13 @@ export default defineComponent({
     }
 
     const setCurRecord = () => {
-      const { subModel, subId } = route.query
+      const subModel = route.query.subModel as string
+      const subId = route.query.subId as string
       if (subModel) {
-        const recordId = getRecordId(subModel as string, subId as string)
+        const recordId = getRecordId(subModel, subId)
         if (recordId) {
           store.commit('SET_CUR_RECORD', recordId)
-        } else if (subId && (subId as string).startsWith('virtual_')) {
+        } else if (subId && subId.startsWith('virtual_')) {
           // 添加明细行后直接刷新，返回表头
           router.back()
         }

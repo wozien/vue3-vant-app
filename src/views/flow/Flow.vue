@@ -21,7 +21,7 @@
 </template>
 
 <script lang="ts">
-import { find } from 'lodash-es'
+import { find, each } from 'lodash-es'
 import { defineComponent, computed, reactive, toRefs, watch, Ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useStore, User } from '@/store'
@@ -30,7 +30,17 @@ import { formatDate, str2Date } from '@/utils/date'
 import { setDocumentTitle } from '@/hooks/web/useTitle'
 import ListCard from '../list/ListCard.vue'
 
-const FLOW_TYPES = {
+interface FlowTypesItem {
+  type: string
+  title: string
+}
+
+interface FlowTypes {
+  task: FlowTypesItem[]
+  create: FlowTypesItem[]
+}
+
+const FLOW_TYPES: FlowTypes = {
   task: [
     { type: 'willApproval', title: '待审批' },
     { type: 'willConsult', title: '待查阅' },
@@ -42,8 +52,6 @@ const FLOW_TYPES = {
     { type: 'completed', title: '已完成' }
   ]
 }
-
-type GROUP_TYPE = keyof typeof FLOW_TYPES
 
 export default defineComponent({
   name: 'Flow',
@@ -92,18 +100,17 @@ export default defineComponent({
  * 计算对应的流程组信息
  */
 function useGroup(type: string) {
-  let group
-  for (let key in FLOW_TYPES) {
-    const types = FLOW_TYPES[key as GROUP_TYPE]
+  let group: { name: string; types: FlowTypesItem[] } = Object.create(null)
+  each(FLOW_TYPES, (types, key) => {
     if (find(types, { type })) {
       group = {
         name: key,
         types: types
       }
     }
-  }
+  })
   setDocumentTitle(group?.name === 'task' ? '我的任务' : '我的发起')
-  return group as any
+  return group
 }
 
 /**

@@ -91,10 +91,9 @@ export const saveRecord = async (
  * @param id
  */
 export const deleteRecord = async (model: string, id: number, context = {}): Promise<HttpRes> => {
-  let res = await callKw('sys.admin.delete.confirm.wizard', 'create', [{}], { context })
-  if (res.data) {
-    res = res.data
-    if ((res as any).ret === 0) {
+  let { data: res } = await callKw('sys.admin.delete.confirm.wizard', 'create', [{}], { context })
+  if (res) {
+    if ((res as HttpRes).ret === 0) {
       return await callButton('sys.admin.delete.confirm.wizard', 'wizard_confirm', [[res.data]], {
         context
       })

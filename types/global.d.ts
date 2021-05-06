@@ -12,6 +12,7 @@ declare type ReadonlyRecordable<T = any> = {
 
 declare type Nullable<T> = T | null
 
+// nerver 表示永远不可能发生的类型
 declare type NonNullable<T> = T extends null | undefined ? never : T
 
 declare interface Fn<T = any, R = T> {

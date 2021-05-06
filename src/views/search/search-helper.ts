@@ -4,9 +4,10 @@ import pyUtils from '@/logics/odoo/py_utils'
 const arrayToString = Domain.prototype.arrayToString
 const stringToArray = Domain.prototype.stringToArray
 
-export type SearchItem = {
+export type SearchItemType = 'input' | 'date_range' | 'selection'
+export interface SearchItem {
   name: string
-  type: 'input' | 'date_range' | 'selection'
+  type: SearchItemType
   label: string
   placeholder?: string
   options?: { key: string; string: string }[]
@@ -19,18 +20,18 @@ export const searchItems: SearchItem[] = [
     name: 'number',
     type: 'input',
     label: '单据编号',
-    placeholder: '请输入单据编号',
+    placeholder: '请输入单据编号'
   },
   {
     name: 'create_uid',
     type: 'input',
     label: '创建人',
-    placeholder: '请输入创建人',
+    placeholder: '请输入创建人'
   },
   {
     name: 'create_date',
     type: 'date_range',
-    label: '创建时间',
+    label: '创建时间'
   },
   {
     name: 'state',
@@ -41,9 +42,9 @@ export const searchItems: SearchItem[] = [
       { key: 'temporary', string: '暂存' },
       { key: 'save', string: '已保存' },
       { key: 'submit', string: '审核中' },
-      { key: 'audit', string: '已审核' },
-    ],
-  },
+      { key: 'audit', string: '已审核' }
+    ]
+  }
 ]
 
 /**
@@ -57,7 +58,7 @@ export const getDefaultValues = () => {
     } else if (item.type === 'date_range') {
       values[item.name] = {
         start: false,
-        end: false,
+        end: false
       }
     }
   }
@@ -69,7 +70,10 @@ export const getDefaultValues = () => {
  * @param values
  * @param searchItems
  */
-export const getDomain = (values: Record<string, any>, searchItems: SearchItem[]) => {
+export const getDomain = <T extends Pick<SearchItem, 'name' | 'type'>>(
+  values: Recordable,
+  searchItems: Array<T>
+) => {
   const domains = []
   for (let item of searchItems) {
     const { name, type } = item

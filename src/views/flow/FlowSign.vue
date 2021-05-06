@@ -33,7 +33,7 @@ import UserPicker from '@/components/user-picker/UserPicker.vue'
 
 export default defineComponent({
   components: {
-    UserPicker,
+    UserPicker
   },
 
   setup() {
@@ -42,7 +42,7 @@ export default defineComponent({
       type: '1',
       receiver: '',
       showPicker: false,
-      selected: null,
+      selected: null
     })
 
     const onUserSelected = (data: any) => {
@@ -54,7 +54,7 @@ export default defineComponent({
       const data = {
         type: state.type === '1' ? 'before' : 'after',
         receiver: state.receiver,
-        selected: toRaw(state.selected),
+        selected: toRaw(state.selected)
       }
       return data
     }
@@ -73,15 +73,15 @@ export default defineComponent({
       ...toRefs(state),
       onUserSelected,
       reset,
-      getData,
+      getData
     }
-  },
+  }
 })
 
 function calcReceiver(data: any) {
   const members = data.members || []
   const roles = data.roles || []
-  const res = [] as string[]
+  const res: Array<string> = []
   members.forEach((mb: any) => res.push(mb.name))
   roles.forEach((rl: any) => res.push(rl.name))
   return res.length > 3 ? res.slice(0, 3).join(',') + '等' : res.join(',')
