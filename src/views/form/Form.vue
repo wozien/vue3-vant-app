@@ -17,7 +17,7 @@
         />
         <div class="icons">
           <div class="icon">
-            <Icon name="file" @click="openPopup('attacment')" />
+            <Icon name="file" @click="openPopup('attachment')" />
             <Icon name="message" @click="openPopup('chat')" />
           </div>
           <span v-if="state !== 'audit'" class="status" @click="toProcessView">{{
@@ -41,7 +41,7 @@
       round
     >
       <FormChat v-if="popupType === 'chat'" :visible="showPopup"></FormChat>
-      <FormAttachment v-else :visible="showPopup"></FormAttachment>
+      <FormAttachment v-else :visible="showPopup" ref="attachRef"></FormAttachment>
     </van-popup>
   </div>
 </template>
@@ -106,6 +106,7 @@ export default defineComponent({
       state_name: ''
     })
     const formRef = ref()
+    const attachRef = ref()
     const searchFields = computed(() => {
       return props.fieldsInfo ? Object.keys(props.fieldsInfo) : []
     })
@@ -226,10 +227,17 @@ export default defineComponent({
 
     const canBeSaved = () => formRef.value?.canBeSaved() && true
     provide('canBeSaved', canBeSaved)
+    provide('openPopup', openPopup)
+    provide('flushAttach', (recordID: number) => {
+      if (attachRef.value) {
+        attachRef.value.flush(recordID)
+      }
+    })
 
     return {
       ...toRefs(data),
       formRef,
+      attachRef,
       showHeader,
       showLineSwitcher,
       height,

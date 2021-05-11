@@ -107,7 +107,9 @@ export default defineComponent({
       return renderButtons.value.slice(3)
     })
     const curRecord = computed(() => store.getters.curRecord)
-    const canBeSaved = inject<Function>('canBeSaved')
+    const canBeSaved = inject<Fn>('canBeSaved')!
+    const openPopup = inject<Fn>('openPopup')!
+    const flushAttach = inject<Fn>('flushAttach')!
 
     // 按钮点击入口
     const onButtonClick = async (button: string | ViewButton) => {
@@ -159,6 +161,9 @@ export default defineComponent({
           case 'copyLine':
             await onCopyLine()
             break
+          case 'upload':
+            onUpload()
+            break
           default:
             Toast('该按钮功能暂不支持')
         }
@@ -201,6 +206,11 @@ export default defineComponent({
       }
     }
 
+    // 附件上传
+    const onUpload = () => {
+      openPopup('attacment')
+    }
+
     // 编辑
     const onEdit = () => {
       router.replace({
@@ -229,6 +239,7 @@ export default defineComponent({
           store.commit('SET_RECORD_TOKEN')
           query.id = res.data
         }
+        flushAttach && flushAttach(query.id)
         router.replace({
           name: 'view',
           query

@@ -2,7 +2,12 @@
   <Modal v-model:show="showModal" @confirm="onConfirm" @cancel="onCancel">
     <van-cell-group>
       <van-cell title="头像" is-link center>
-        <van-uploader :max-size="1024 * 1024" :after-read="onAfterRead" @oversize="onOversize">
+        <van-uploader
+          :max-size="1024 * 1024"
+          accept=".jpg, .jpeg"
+          :after-read="onAfterRead"
+          @oversize="onOversize"
+        >
           <van-image :src="avatar || user.avatar" width="50" height="50" fit="cover" round />
         </van-uploader>
       </van-cell>

@@ -3,6 +3,7 @@
  */
 
 import { mobileCallKw, callKw, callButton, searchRead } from './odoo'
+import http from '@/utils/http'
 
 /**
  * 获取表单数据
@@ -182,5 +183,41 @@ export const fetchAttachment = async (model: string, id: number): HttpResPromise
     },
     true
   )
+  return res.data
+}
+
+/**
+ * 附件上传
+ * @param model
+ * @param file
+ * @returns
+ */
+export const uploadAttachment = async (model: string, file: File): HttpResPromise => {
+  const formData = new FormData()
+  formData.append('model', model)
+  formData.append('ufile', file)
+  const res = await http.post('/meta/mobile/upload_attachment', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' }
+  })
+  return res.data
+}
+
+/**
+ * 附件和单据绑定
+ * @param id
+ * @param recordID
+ * @param method
+ * @returns
+ */
+export const flushAttachment = async (
+  id: number,
+  recordID: number,
+  method = 'write'
+): HttpResPromise => {
+  const args = [[id]] as any[]
+  if (method === 'write') {
+    args.push({ res_id: recordID })
+  }
+  const res = await callKw('ir.attachment', method, args)
   return res.data
 }

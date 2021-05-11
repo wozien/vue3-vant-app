@@ -14,11 +14,25 @@
         />
         <img v-else :src="item.coverImg" width="30" @click.stop="previewImg(item)" />
         <p class="name">{{ item.name }}</p>
+        <van-icon
+          name="delete"
+          v-if="$route.query.readonly === '0'"
+          size="18px"
+          color="#ccc"
+          @click.stop="deleteFile(item)"
+        />
       </div>
       <van-empty v-if="!files.length" description="暂无附件数据"></van-empty>
     </div>
     <footer v-if="$route.query.readonly === '0'">
-      <van-button type="primary" block round>上传附件</van-button>
+      <van-uploader
+        :max-size="10 * 1024 * 1024"
+        accept="image/*, .doc, .docx, .xls, .xlsx, .ppt, .pptx, .pdf"
+        @oversize="onOversize"
+        :after-read="onAfterRead"
+      >
+        <van-button type="primary" block round>上传附件</van-button>
+      </van-uploader>
     </footer>
   </div>
 </template>
@@ -26,17 +40,18 @@
 <script lang="ts">
 import { computed, defineComponent, ref, watchEffect } from 'vue'
 import { useStore } from '@/store'
-import { fetchAttachment } from '@/api/record'
+import { reject } from 'lodash-es'
+import { fetchAttachment, uploadAttachment, flushAttachment } from '@/api/record'
 import { pick } from 'lodash-es'
 import useToast from '@/hooks/component/useToast'
 import { downloadUrl } from '@/utils'
 import { getBaseFullUrl } from '@/utils/url'
-import { ImagePreview } from 'vant'
+import { ImagePreview, Dialog } from 'vant'
 
 const TOKEN = localStorage.getItem('INSUITE_TOKEN')
 
 type FileType = 'image' | 'pdf' | 'word' | 'ppt' | 'excel' | 'others'
-interface File {
+interface FileItem {
   id: number
   key: string
   name: string
@@ -52,7 +67,9 @@ export default defineComponent({
   setup(props) {
     const store = useStore()
     const { toast } = useToast()
-    const files = ref<File[]>([])
+    const files = ref<FileItem[]>([])
+    let delFileIds: number[] = []
+    let addFileIds: number[] = []
     const curRecord = computed(() => store.getters.curRecord)
 
     const loadData = async () => {
@@ -67,13 +84,13 @@ export default defineComponent({
               ...pick(row, ['id', 'key', 'name']),
               type,
               coverImg: getCoverImg(type, row.id)
-            } as File
+            } as FileItem
           })
         }
       }
     }
 
-    const previewImg = (file: File): void => {
+    const previewImg = (file: FileItem): void => {
       if (file.type !== 'image') {
         toast.show('改附件类型不支持预览')
         return
@@ -87,8 +104,58 @@ export default defineComponent({
       downloadUrl(url)
     }
 
+    const deleteFile = (item: FileItem) => {
+      Dialog.confirm({
+        message: '是否确定删除附件 ' + item.name
+      })
+        .then(() => {
+          const index = files.value.findIndex(file => file.id === item.id)
+          ~index && files.value.splice(index, 1)
+          if (addFileIds.includes(item.id)) {
+            addFileIds = reject(addFileIds, item.id)
+          } else {
+            delFileIds.push(item.id)
+          }
+        })
+        .catch(() => {})
+    }
+
+    const onAfterRead = async (data: any) => {
+      const file = data.file as File
+      if (file) {
+        toast.loading('附件上传中')
+        const res = await uploadAttachment(curRecord.value.model, file)
+        toast.clear()
+        if (res.ret === 0 && res.data.length) {
+          const { id, filename, key, minetype } = res.data[0]
+          const type = getFileType(minetype || file.type || file.name)
+          const fileItem: FileItem = {
+            id,
+            key,
+            type,
+            name: filename,
+            coverImg: getCoverImg(type, id)
+          }
+          files.value.push(fileItem)
+          addFileIds.push(id)
+        }
+      }
+    }
+
+    const onOversize = () => {
+      toast.show('文件大小不能超过10Mb')
+    }
+
+    const flush = async (recordID: number) => {
+      await Promise.all([
+        ...delFileIds.map(id => flushAttachment(id, +recordID, 'unlink')),
+        ...addFileIds.map(id => flushAttachment(id, +recordID))
+      ])
+      delFileIds = addFileIds = []
+    }
+
     watchEffect(() => {
-      if (props.visible) {
+      if (props.visible && !delFileIds.length && !addFileIds.length) {
         loadData()
       }
     })
@@ -96,7 +163,11 @@ export default defineComponent({
     return {
       files,
       previewImg,
-      downloadFile
+      downloadFile,
+      deleteFile,
+      onAfterRead,
+      onOversize,
+      flush
     }
   }
 })
@@ -107,11 +178,11 @@ function getFileType(mimetype: string): FileType {
     type = 'image'
   } else if (mimetype === 'application/pdf') {
     type = 'pdf'
-  } else if (~mimetype.search('spreadsheetml')) {
+  } else if (~mimetype.search('spreadsheetml') || /\.xls(x)?$/.test(mimetype)) {
     type = 'excel'
-  } else if (~mimetype.search('presentationml')) {
+  } else if (~mimetype.search('presentationml') || /\.ppt(x)?$/.test(mimetype)) {
     type = 'ppt'
-  } else if (~mimetype.search('wordprocessingml')) {
+  } else if (~mimetype.search('wordprocessingml') || /\.doc(x)?$/.test(mimetype)) {
     type = 'word'
   }
   return type
@@ -184,6 +255,12 @@ function getDownloadUrl(key: string) {
   footer {
     padding: 10px;
     border-top: @ins-border;
+    &::v-deep(.van-uploader) {
+      display: block;
+      .van-uploader__input-wrapper {
+        width: 100%;
+      }
+    }
   }
 }
 </style>

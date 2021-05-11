@@ -109,6 +109,8 @@ class View {
         this._makePresetButton('newLine', 'New Line', 'edit', { highlight: true })
       )
       viewButtons.push(this._makePresetButton('deleteLine', 'Delete Line'))
+    } else {
+      viewButtons.splice(1, 0, this._makePresetButton('upload', 'Upload'))
     }
 
     return viewButtons
@@ -127,7 +129,8 @@ class View {
       'Copy Line': '行复制',
       'Delete Line': '行删除',
       'Save Line': '行保存',
-      'New Line': '保存并新增'
+      'New Line': '保存并新增',
+      Upload: '附件上传'
     }
     return buttonMap[key as keyof typeof buttonMap] || key
   }
