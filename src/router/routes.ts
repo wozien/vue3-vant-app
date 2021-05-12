@@ -67,7 +67,7 @@ const routes: RouteRecordRaw[] = [
     path: '/forget',
     name: 'forget',
     component: Forget,
-    meta: { title: '忘记密码', skipAuth: true }
+    meta: { title: '重置密码', skipAuth: true }
   },
   {
     path: '/register',

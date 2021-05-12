@@ -1,5 +1,6 @@
 <template>
   <div class="forget-page">
+    <h2 class="title">重置密码</h2>
     <AuthCode v-if="!codeValid" ref="authCodeRef" v-model:phone="account.phone" />
     <div v-else class="content">
       <LoginInput type="password" placeholder="请输入新密码" v-model="account.password">
@@ -99,6 +100,12 @@ export default defineComponent({
   .app-page;
   background: white;
   padding: 46px 30px;
+  .title {
+    color: @ins-primary-color;
+    font-size: 22px;
+    font-weight: 600;
+    margin-bottom: 20px;
+  }
   .content {
     margin-bottom: 50px;
   }

@@ -192,8 +192,6 @@ function useMessageCode() {
 .auth-code {
   margin-bottom: 50px;
   .image-code {
-    position: absolute;
-    right: 30px;
     width: 80px;
   }
   .message-code {
