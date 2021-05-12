@@ -75,6 +75,7 @@ export default defineComponent({
     const loadData = async () => {
       if (curRecord.value) {
         const { model, res_id } = curRecord.value
+        if (isNaN(+res_id)) return
         const res = await fetchAttachment(model, res_id)
         if (res.ret === 0) {
           const records = res.data?.records || []
@@ -136,7 +137,7 @@ export default defineComponent({
             name: filename,
             coverImg: getCoverImg(type, id)
           }
-          files.value.push(fileItem)
+          files.value.unshift(fileItem)
           addFileIds.push(id)
         }
       }
@@ -195,7 +196,7 @@ function getCoverImg(type: FileType, fileId?: number): string {
       token: TOKEN
     })
   } else {
-    return `/src/assets/img/${type}.png`
+    return `/img/${type}.png`
   }
 }
 

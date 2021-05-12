@@ -110,7 +110,10 @@ class View {
       )
       viewButtons.push(this._makePresetButton('deleteLine', 'Delete Line'))
     } else {
-      viewButtons.splice(1, 0, this._makePresetButton('upload', 'Upload'))
+      const index = viewButtons.findIndex(btn => btn.funcName === 'save')
+      if (~index) {
+        viewButtons.splice(index + 1, 0, this._makePresetButton('upload', 'Upload'))
+      }
     }
 
     return viewButtons

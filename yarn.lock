@@ -2699,7 +2699,7 @@ v8-compile-cache@^2.0.3:
 
 vant@^3.0.0:
   version "3.0.16"
-  resolved "https://registry.nlark.com/vant/download/vant-3.0.16.tgz?cache=0&sync_timestamp=1620633903927&other_urls=https%3A%2F%2Fregistry.nlark.com%2Fvant%2Fdownload%2Fvant-3.0.16.tgz#abc4404b9cc61f4607ac61c0ba6d890975e2723e"
+  resolved "https://registry.nlark.com/vant/download/vant-3.0.16.tgz#abc4404b9cc61f4607ac61c0ba6d890975e2723e"
   integrity sha1-q8RAS5zGH0YHrGHAum2JCXXicj4=
   dependencies:
     "@vant/icons" "^1.5.3"
