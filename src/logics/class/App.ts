@@ -9,7 +9,7 @@ import View from './View'
 import ViewItem from './ViewItem'
 import { fetchAction, fetchAppDetail } from '@/api/app'
 import { fetchFlowDetail } from '@/api/workflow'
-import { findTree } from '@/utils'
+import { findTree, uuid } from '@/utils'
 import { sessionStorageKeys } from '@/logics/enums/cache'
 import store from '@/store'
 
@@ -214,7 +214,7 @@ export const getAppAsync: (
   let app: App
 
   if (actionId && typeof actionId === 'string') actionId = +actionId
-  let appKey = `app_${modelKey}_${menuId || Date.now()}`
+  let appKey = `app_${modelKey}_${menuId || actionId || uuid()}`
 
   // 优先取缓存
   if (appCaches[appKey]) {

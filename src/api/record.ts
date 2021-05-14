@@ -221,3 +221,19 @@ export const flushAttachment = async (
   const res = await callKw('ir.attachment', method, args)
   return res.data
 }
+
+/**
+ * 获取关联单据数据
+ * @param model
+ * @param id
+ * @returns
+ */
+export const fetchFormRelated = async (model: string, id: number): HttpResPromise => {
+  const res = await http.get('/meta/mobile/related_doc', {
+    params: {
+      model,
+      record_id: id
+    }
+  })
+  return res.data
+}

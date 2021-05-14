@@ -2,7 +2,7 @@
   <div class="list-card" @click="onClickCard">
     <header class="van-hairline--bottom">
       <span class="name">{{ name }}</span>
-      <span :class="['state', stateType && `state-${stateType}`]">{{ state }}</span>
+      <span v-if="state" :class="['state', stateType && `state-${stateType}`]">{{ state }}</span>
     </header>
     <ul class="content">
       <li class="field" v-for="f in fields" :key="f.name">
@@ -11,15 +11,7 @@
       </li>
     </ul>
     <footer>
-      <van-image
-        v-if="createImg"
-        :src="createImg"
-        width="25"
-        height="25"
-        fit="cover"
-        round
-        lazy-load
-      />
+      <van-image v-if="createImg" :src="createImg" width="25" height="25" fit="cover" round />
       <span v-if="creator" class="create">{{ `${creator} ${createDate} 发起` }}</span>
     </footer>
   </div>
@@ -41,15 +33,17 @@ interface ListCardField {
   value: string | number
 }
 
-interface ListCard {
+export interface ListCardItem {
   id: number
   name: string
-  state: string
+  model?: string
+  actionId?: number
+  state?: string
   stateType?: string
   fields: ListCardField[]
   creator: string
   createDate: string
-  createImg: string
+  createImg?: string
   [key: string]: any
 }
 
@@ -57,7 +51,7 @@ export default defineComponent({
   props: {
     appName: String,
     record: {
-      type: Object as PropType<ListRecord | ListCard>,
+      type: Object as PropType<ListRecord | ListCardItem>,
       required: true
     },
     fieldsInfo: {
@@ -82,6 +76,9 @@ export default defineComponent({
         // 工作流
         sessionStorage.setItem(sessionStorageKeys.flowParams, JSON.stringify(cardData.context))
         sessionStorage.removeItem(sessionStorageKeys.loadParams)
+      }
+
+      if (cardData.model) {
         query.model = cardData.model
       }
 
@@ -98,9 +95,9 @@ export default defineComponent({
   }
 })
 
-function useCard(record: ListRecord | ListCard, fieldsInfo: FieldsInfo, appName?: string) {
+function useCard(record: ListRecord | ListCardItem, fieldsInfo: FieldsInfo, appName?: string) {
   if (!(record instanceof ListRecord)) return record
-  const res: ListCard = {
+  const res: ListCardItem = {
     id: record.id,
     name: appName || '',
     state: record.state,

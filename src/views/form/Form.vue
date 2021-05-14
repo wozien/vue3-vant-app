@@ -17,12 +17,11 @@
         />
         <div class="icons">
           <div class="icon">
+            <Icon name="related" @click="openPopup('related')" />
             <Icon name="file" @click="openPopup('attachment')" />
             <Icon name="message" @click="openPopup('chat')" />
           </div>
-          <span v-if="state !== 'audit'" class="status" @click="toProcessView">{{
-            state_name
-          }}</span>
+          <p v-if="state !== 'audit'" class="status" @click="toProcessView">{{ state_name }}</p>
         </div>
       </div>
     </div>
@@ -41,6 +40,7 @@
       round
     >
       <FormChat v-if="popupType === 'chat'" :visible="showPopup"></FormChat>
+      <FormRelated v-else-if="popupType === 'related'" :visible="showPopup"></FormRelated>
       <FormAttachment v-else :visible="showPopup" ref="attachRef"></FormAttachment>
     </van-popup>
   </div>
@@ -68,6 +68,7 @@ import ButtonView from '@/components/odoo-button/ButtonView.vue'
 import LineSwitcher from '@/components/line-switcher/LineSwitcher.vue'
 import FormChat from './FormChat.vue'
 import FormAttachment from './FormAttachment.vue'
+import FormRelated from './FormRelated.vue'
 import { formatDate } from '@/utils/date'
 import { viewCommonProps } from '@/hooks/component/useView'
 import { getRecordId } from '@/logics/core/dataPoint'
@@ -82,7 +83,8 @@ export default defineComponent({
     ButtonView,
     LineSwitcher,
     FormChat,
-    FormAttachment
+    FormAttachment,
+    FormRelated
   },
 
   props: {
@@ -290,6 +292,9 @@ function useFormPopup() {
         .status {
           color: @ins-info-color;
           font-size: 13px;
+          text-align: right;
+          padding-right: 8px;
+          padding-top: 2px;
         }
       }
     }

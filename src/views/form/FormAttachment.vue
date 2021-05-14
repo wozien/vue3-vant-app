@@ -24,7 +24,7 @@
       </div>
       <van-empty v-if="!files.length" description="暂无附件数据"></van-empty>
     </div>
-    <footer v-if="$route.query.readonly === '0'">
+    <footer v-if="$route.query.readonly !== '1'">
       <van-uploader
         :max-size="10 * 1024 * 1024"
         accept="image/*, .doc, .docx, .xls, .xlsx, .ppt, .pptx, .pdf"

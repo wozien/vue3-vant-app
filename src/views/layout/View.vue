@@ -21,7 +21,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, onBeforeMount, computed, watchEffect } from 'vue'
+import { defineComponent, ref, onBeforeMount, computed, watchEffect, watch } from 'vue'
 import { Model, View, ViewType, Fields, FieldsInfo, Action } from '@/logics/types'
 import App, { getAppAsync } from '@/logics/class/App'
 import { useRoute, onBeforeRouteUpdate } from 'vue-router'
@@ -61,13 +61,14 @@ export default defineComponent({
     })
     useTitle(title)
 
-    onBeforeMount(async () => {
+    const loadApp = async () => {
       let loadParams = JSON.parse(sessionStorage.getItem(sessionStorageKeys.loadParams) || '{}')
       let { menuId, actionId } = loadParams
       const res = await getAppAsync(route.query.model as string, menuId, actionId)
       curApp.value = res
-    })
+    }
 
+    onBeforeMount(loadApp)
     onBeforeRouteUpdate((to, from) => {
       const viewType = to.query.viewType
       const fromViewType = from.query.viewType
@@ -90,6 +91,11 @@ export default defineComponent({
         }
       }
     })
+
+    watch(
+      () => route.query.model,
+      val => val && loadApp()
+    )
 
     return {
       curApp,

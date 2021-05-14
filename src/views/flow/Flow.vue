@@ -28,7 +28,7 @@ import { useStore, User } from '@/store'
 import { fetchFlowList } from '@/api/workflow'
 import { formatDate, str2Date } from '@/utils/date'
 import { setDocumentTitle } from '@/hooks/web/useTitle'
-import ListCard from '../list/ListCard.vue'
+import ListCard, { ListCardItem } from '../list/ListCard.vue'
 
 interface FlowTypesItem {
   type: string
@@ -160,11 +160,11 @@ function useList(searchType: Ref<string>, user: Ref<User>) {
   }
 
   // 转换成卡片数据包
-  const toListCardData = (rows: any) => {
+  const toListCardData = (rows: any): ListCardItem[] => {
     return rows.map((row: any) => {
       const date = str2Date(row.submit_date || row.accept_date || row.return_date)
       const state = row.current_auditor ? `${row.current_auditor} 审核中` : ''
-      const res = {
+      const res: ListCardItem = {
         id: row.bill_id,
         name: row.model,
         model: row.model_id,
