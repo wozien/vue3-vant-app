@@ -206,15 +206,14 @@ class App {
  * @param appId
  * @param actionId
  */
-export const getAppAsync: (
-  modelKey: string,
-  menuId?: string,
-  actionId?: number | string
-) => Promise<App> = async (modelKey, menuId, actionId) => {
+export const getAppAsync: (modelKey: string, actionId?: number | string) => Promise<App> = async (
+  modelKey,
+  actionId
+) => {
   let app: App
 
   if (actionId && typeof actionId === 'string') actionId = +actionId
-  let appKey = `app_${modelKey}_${menuId || actionId || uuid()}`
+  let appKey = `app_${modelKey}_${actionId || uuid()}`
 
   // 优先取缓存
   if (appCaches[appKey]) {

@@ -1,6 +1,6 @@
 import { PropType } from 'vue'
 import { FieldsInfo, Fields, View } from '@/logics/types'
-import { useRouter } from 'vue-router'
+import { useRouter, NavigationFailure } from 'vue-router'
 import { ViewType } from '@/logics/types'
 
 export const viewCommonProps = {
@@ -16,14 +16,16 @@ export interface ViewQuery {
   actionId?: number
   subModel?: string
   subId?: number
+  readonly?: 0 | 1 | '0' | '1'
 }
 
+// overlaod
 interface NormalizeQuery<T = ViewQuery> {
   (model: string, viewType: ViewType, actionId?: number, id?: number): T
   (query: ViewQuery, extend?: Recordable): T
 }
 
-const normalize: NormalizeQuery = (a: any, b: any, c?: any, d?: any) => {
+const normalizeQuery: NormalizeQuery = (a: any, b: any, c?: any, d?: any) => {
   let query: ViewQuery
   if (typeof a === 'string') {
     query = {
@@ -33,26 +35,28 @@ const normalize: NormalizeQuery = (a: any, b: any, c?: any, d?: any) => {
     c && (query.actionId = c)
     d && (query.id = d)
   } else {
-    query = Object.assign(a, b || {})
+    query = Object.assign({}, a, b || {})
   }
 
   return query
 }
 
+type PromiseRouterNavagation = Promise<void | undefined | NavigationFailure>
+
 export function useViewNavigater() {
   const router = useRouter()
 
-  const to: NormalizeQuery<void> = (a: any, b: any, c?: any, d?: any) => {
-    const query = normalize(a, b, c, d)
-    router.push({
+  const to: NormalizeQuery<PromiseRouterNavagation> = (a: any, b: any, c?: any, d?: any) => {
+    const query = normalizeQuery(a, b, c, d)
+    return router.push({
       name: 'view',
       query: { ...query }
     })
   }
 
-  const replace: NormalizeQuery<void> = (a: any, b: any, c?: any, d?: any) => {
-    const query = normalize(a, b, c, d)
-    router.replace({
+  const replace: NormalizeQuery<PromiseRouterNavagation> = (a: any, b: any, c?: any, d?: any) => {
+    const query = normalizeQuery(a, b, c, d)
+    return router.replace({
       name: 'view',
       query: { ...query }
     })

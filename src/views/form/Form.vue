@@ -36,6 +36,7 @@
       position="bottom"
       :style="{ height: '95%' }"
       :duration="0.2"
+      :close-on-popstate="true"
       closeable
       round
     >
@@ -263,6 +264,12 @@ function useFormPopup() {
     popupType.value = type
     showPopup.value = true
   }
+
+  onBeforeRouteUpdate(() => {
+    if (showPopup.value) {
+      showPopup.value = false
+    }
+  })
 
   return {
     showPopup,

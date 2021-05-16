@@ -66,22 +66,22 @@ export default defineComponent({
     const cardData = useCard(props.record, props.fieldsInfo, props.appName)
 
     const onClickCard = () => {
-      const query = {
+      const query: any = {
         id: cardData.id,
         readonly: 1,
         viewType: 'form'
-      } as any
+      }
 
       if (cardData.isFlow) {
         // 工作流
         sessionStorage.setItem(sessionStorageKeys.flowParams, JSON.stringify(cardData.context))
-        sessionStorage.removeItem(sessionStorageKeys.loadParams)
       }
 
-      if (cardData.model) {
-        query.model = cardData.model
-      }
+      cardData.model && (query.model = cardData.model)
+      cardData.actionId && (query.actionId = cardData.actionId)
 
+      // 这里的函数外用router.push为啥不跳转 ?
+      // viewNavigater.to(route.query as any, query)
       router.push({
         name: 'view',
         query: Object.assign({}, route.query, query)

@@ -21,7 +21,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, onBeforeMount, computed, watchEffect, watch } from 'vue'
+import { defineComponent, ref, computed, watchEffect } from 'vue'
 import { Model, View, ViewType, Fields, FieldsInfo, Action } from '@/logics/types'
 import App, { getAppAsync } from '@/logics/class/App'
 import { useRoute, onBeforeRouteUpdate } from 'vue-router'
@@ -29,7 +29,6 @@ import { Toast } from 'vant'
 import useTitle from '@/hooks/web/useTitle'
 import ListView from '../list/List.vue'
 import FormView from '../form/Form.vue'
-import { sessionStorageKeys } from '@/logics/enums/cache'
 
 interface ViewContext {
   appName: string
@@ -61,14 +60,6 @@ export default defineComponent({
     })
     useTitle(title)
 
-    const loadApp = async () => {
-      let loadParams = JSON.parse(sessionStorage.getItem(sessionStorageKeys.loadParams) || '{}')
-      let { menuId, actionId } = loadParams
-      const res = await getAppAsync(route.query.model as string, menuId, actionId)
-      curApp.value = res
-    }
-
-    onBeforeMount(loadApp)
     onBeforeRouteUpdate((to, from) => {
       const viewType = to.query.viewType
       const fromViewType = from.query.viewType
@@ -81,21 +72,19 @@ export default defineComponent({
       }
     })
 
-    watchEffect(() => {
-      if (curApp.value.isLoaded && route.query.model) {
-        let { model, viewType } = route.query
-        model = route.query.subModel || model
-        ctx.value = getContext(curApp.value as App, model as string, viewType as ViewType)
+    watchEffect(async () => {
+      let { model, viewType, subModel, actionId } = route.query as Recordable<string>
+      if (!model) return
+      if (!curApp.value.isLoaded || curApp.value.modelKey !== model) {
+        const res = await getAppAsync(model, actionId)
+        curApp.value = res
+      } else {
+        ctx.value = getContext(curApp.value as App, subModel || model, viewType as ViewType)
         if (!ctx.value.curView) {
           Toast(`移动${viewName.value}视图不存在，请前往设计器同步发布移动视图`)
         }
       }
     })
-
-    watch(
-      () => route.query.model,
-      val => val && loadApp()
-    )
 
     return {
       curApp,
