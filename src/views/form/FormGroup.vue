@@ -3,7 +3,11 @@
   <div class="form-item-group" v-if="type === 'group'">
     <h2 class="group-header" v-if="renderItem.string" @click="toggle">
       <span class="string">{{ renderItem.string }}</span>
-      <van-icon v-if="canfold" name="arrow" :class="['fold-icon', !expanded && 'rotate-fold-icon']" />
+      <van-icon
+        v-if="canfold"
+        name="arrow"
+        :class="['fold-icon', !expanded && 'rotate-fold-icon']"
+      />
     </h2>
     <div class="group-wrapper" ref="wrapperRef" @transitionend="onTransitionEnd" v-show="show">
       <div class="group-content" ref="contentRef">
@@ -13,7 +17,7 @@
   </div>
 
   <!-- page -->
-  <div class="form-item-page" v-else-if="type ==='page'">
+  <div class="form-item-page" v-else-if="type === 'page'">
     <slot></slot>
   </div>
 </template>
@@ -25,7 +29,10 @@ import { doubleRaf, raf } from '@vant/use'
 
 export default defineComponent({
   props: {
-    renderItem: Object as PropType<Item>,
+    renderItem: {
+      type: Object as PropType<Item>,
+      required: true
+    },
     type: String
   },
 
@@ -35,26 +42,26 @@ export default defineComponent({
     const wrapperRef = ref()
     const contentRef = ref()
 
-    const attrs = computed(() => props.renderItem && props.renderItem.attrs || {})
+    const attrs = computed(() => (props.renderItem && props.renderItem.attrs) || {})
     const canfold = computed(() => {
       return attrs.value.can_fold && attrs.value.can_fold.checked
     })
 
     const toggle = () => {
-      if(!canfold.value) return
+      if (!canfold.value) return
       expanded.value = !expanded.value
     }
 
     const onTransitionEnd = () => {
-      if(!expanded.value) {
+      if (!expanded.value) {
         show.value = false
       } else {
         wrapperRef.value.style.height = ''
       }
     }
 
-    watch(expanded, (val) => {
-      if(val) {
+    watch(expanded, val => {
+      if (val) {
         show.value = true
       }
 
@@ -63,10 +70,10 @@ export default defineComponent({
       const tick = val ? nextTick : raf
 
       tick(() => {
-        if(!wrapperRef.value || !contentRef.value) return
+        if (!wrapperRef.value || !contentRef.value) return
 
         const { offsetHeight } = contentRef.value
-        if(offsetHeight) {
+        if (offsetHeight) {
           const contentHeight = `${offsetHeight}px`
           wrapperRef.value.style.height = val ? 0 : contentHeight
 
@@ -79,7 +86,7 @@ export default defineComponent({
         }
       })
     })
-    
+
     return {
       canfold,
       expanded,
@@ -98,7 +105,7 @@ export default defineComponent({
   .group-header {
     display: flex;
     align-items: center;
-    color: @text-color-light-1;
+    color: @ins-text-color-light-1;
     padding: 10px 14px;
     .string {
       flex: 1;
@@ -106,7 +113,7 @@ export default defineComponent({
     }
 
     .fold-icon {
-      transition: transform .25s ease;
+      transition: transform 0.25s ease;
       transform: rotate(-90deg);
       &.rotate-fold-icon {
         transform: rotate(90deg);

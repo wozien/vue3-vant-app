@@ -1,33 +1,47 @@
 <template>
-  <div class="market">
-    <van-search v-model="searchValue" shape="round" placeholder="搜索应用"></van-search>
-    <div class="market-wrapper" v-if="filterList.length">
-      <div v-for="item in filterList" :key="item.key" class="market-item van-hairline--top">
-        <span class="label">{{ item.name }}</span>
-        <AppList :app-data="item.apps" />
+  <div class="page market-page">
+    <div class="market">
+      <van-search v-model="searchValue" shape="round" placeholder="搜索应用"></van-search>
+      <div class="market-wrapper" v-if="filterList.length">
+        <div v-for="item in filterList" :key="item.key" class="market-item van-hairline--top">
+          <span class="label">{{ item.name }}</span>
+          <AppList :app-data="item.apps" />
+        </div>
       </div>
+      <van-empty v-if="showEmpty" :description="description" :image="emptyImage"></van-empty>
     </div>
-    <van-empty v-if="showEmpty" :description="description" :image="emptyImage"></van-empty>
+
+    <TabBar active="market" />
   </div>
 </template>
 
 <script lang="ts">
 import { defaults } from 'lodash-es'
-import { defineComponent, computed, watchEffect, reactive, toRefs, onMounted, onActivated } from 'vue'
+import {
+  defineComponent,
+  computed,
+  watchEffect,
+  reactive,
+  toRefs,
+  onMounted,
+  onActivated
+} from 'vue'
 import AppList from '@/components/app-list/AppList.vue'
 import { fetchAppData } from '@/api/app'
 import useToast from '@/hooks/component/useToast'
+import TabBar from '@/components/tabbar/TabBar.vue'
 
 export default defineComponent({
   components: {
-    AppList
+    AppList,
+    TabBar
   },
 
   setup() {
     const state = reactive({
       searchValue: '',
       list: [] as any[],
-      filterList: [] as any[],
+      filterList: [] as any[]
     })
     const { loading } = useToast(true)
     const showEmpty = computed(() => state.list.length === 0 && loading.value === false)
@@ -41,21 +55,21 @@ export default defineComponent({
 
     const loadData = async () => {
       const res = await fetchAppData()
-      if(res.ret === 0) {
-        state.list = res.data.filter((item:any) => item.apps.length)
+      if (res.ret === 0) {
+        state.list = res.data.filter((item: any) => item.apps.length)
       }
     }
 
     watchEffect(() => {
-      if(state.list.length) {
+      if (state.list.length) {
         let res: any
-        if(!state.searchValue) {
+        if (!state.searchValue) {
           res = state.list.slice(0)
         } else {
           res = []
-          for(let item of state.list) {
+          for (let item of state.list) {
             const apps = item.apps.filter((app: any) => app.name.includes(state.searchValue))
-            if(apps.length) {
+            if (apps.length) {
               res.push(defaults({ apps }, item))
             }
           }
@@ -71,7 +85,7 @@ export default defineComponent({
     })
 
     onActivated(() => {
-      if(!loading.value) loadData()
+      if (!loading.value) loadData()
     })
 
     return {
@@ -87,6 +101,7 @@ export default defineComponent({
 
 <style lang="less" scoped>
 .market {
+  height: calc(100% - 50px);
   background: #fff;
   .market-wrapper {
     height: calc(100% - 54px);
@@ -99,7 +114,7 @@ export default defineComponent({
         line-height: 14px;
         padding-left: 8px;
         margin: 10px 0px;
-        border-left: 2px solid @primary-color;
+        border-left: 2px solid @ins-primary-color;
       }
     }
   }

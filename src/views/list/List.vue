@@ -54,24 +54,20 @@ import ListRecord from '@/logics/class/ListRecord'
 import { viewCommonProps } from '@/hooks/component/useView'
 import { fetchListData } from '@/api/app'
 import { fetchReferencesBatch, fetchX2ManysBatch } from '@/logics/class/ListRecord'
-import SearchView from '@views/search/SearchView.vue'
-import SearchBar from '@views/search/SearchBar.vue'
-import { wrapperEnv } from '@/helpers/utils'
-
-const { NODE_ENV } = wrapperEnv(process.env)
-const isDev = NODE_ENV === 'development'
+import SearchView from '@/views/search/SearchView.vue'
+import SearchBar from '@/views/search/SearchBar.vue'
 
 export default defineComponent({
   components: {
     ListCard,
     SearchView,
-    SearchBar,
+    SearchBar
   },
 
   props: {
     ...viewCommonProps,
     appName: String,
-    action: Object as PropType<Action>,
+    action: Object as PropType<Action>
   },
 
   setup(props) {
@@ -86,7 +82,7 @@ export default defineComponent({
       refreshing: false,
       list: [] as ListRecord[],
       showSearchView: false,
-      domain: [] as any[],
+      domain: [] as any[]
     })
     const searchFields = computed(() => {
       return props.fieldsInfo ? Object.keys(props.fieldsInfo) : []
@@ -102,8 +98,7 @@ export default defineComponent({
     const canCreate = computed(() => {
       return (
         props.curView &&
-        props.curView.buttons.findIndex((btn: any) => btn.funcName === 'create') > -1 &&
-        isDev
+        props.curView.buttons.findIndex((btn: any) => btn.funcName === 'create') > -1
       )
     })
 
@@ -116,7 +111,7 @@ export default defineComponent({
           searchFields.value,
           {
             search: state.domain,
-            action: props.action?.domain,
+            action: props.action?.domain
           },
           props.action?.context
         )
@@ -125,7 +120,7 @@ export default defineComponent({
           if (length) {
             await Promise.all([
               fetchReferencesBatch(res.data, props.fieldsInfo),
-              fetchX2ManysBatch(res.data, props.fieldsInfo),
+              fetchX2ManysBatch(res.data, props.fieldsInfo)
             ])
             res.data.forEach((raw: any, index: number) => {
               const record = new ListRecord(raw)
@@ -158,8 +153,8 @@ export default defineComponent({
         query: {
           model: route.query.model,
           viewType: 'form',
-          id: '',
-        },
+          id: ''
+        }
       })
     }
 
@@ -184,9 +179,9 @@ export default defineComponent({
       onLoad,
       onRefresh,
       onAddBtn,
-      onSearch,
+      onSearch
     }
-  },
+  }
 })
 </script>
 
@@ -205,7 +200,7 @@ export default defineComponent({
     width: 40px;
     height: 40px;
     border-radius: 50%;
-    background: @primary-color;
+    background: @ins-primary-color;
     display: flex;
     justify-content: center;
     align-items: center;

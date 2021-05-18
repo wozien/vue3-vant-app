@@ -2,14 +2,13 @@ import axios, { AxiosRequestConfig, AxiosResponse, AxiosError } from 'axios'
 import { Notify } from 'vant'
 import router from '@/router'
 import { LocalStorageKeys } from '@/logics/enums/cache'
-import { wrapperEnv } from '@/helpers/utils'
 
-const { BASE_API } = wrapperEnv(process.env)
+const { VITE_BASE_API } = import.meta.env
 const TOKEN_KEY = LocalStorageKeys.token
 
 const instance = axios.create({
-  baseURL: BASE_API,
-  timeout: 30000,
+  baseURL: VITE_BASE_API as string,
+  timeout: 30000
 })
 
 // request pre-handler
@@ -33,7 +32,7 @@ instance.interceptors.response.use(
     if (res.ret !== 0) {
       Notify({
         type: 'danger',
-        message: res.msg || '接口错误',
+        message: res.msg || '接口错误'
       })
       if (res.ret === 10000) {
         // token 过期
@@ -93,7 +92,7 @@ instance.interceptors.response.use(
 
     Notify({
       type: 'danger',
-      message: errMsg,
+      message: errMsg
     })
     return Promise.reject(errMsg)
   }

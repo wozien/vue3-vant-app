@@ -1,28 +1,31 @@
-import { createRouter, createWebHashHistory } from 'vue-router'
+import { createRouter, createWebHistory } from 'vue-router'
 import routes from './routes'
 import { LocalStorageKeys } from '@/logics/enums/cache'
-import { baseOauth } from '@/helpers/oauth'
-import { isWechatAgent } from '@/helpers/utils'
+import { baseOauth } from '@/utils/oauth'
+import { isWechatAgent } from '@/utils'
 import { getToken } from '@/api/user'
 
 const router = createRouter({
-  history: createWebHashHistory(),
+  history: createWebHistory(),
   routes,
   scrollBehavior() {
     return { top: 0 }
-  },
+  }
 })
 
 // beforeEach hook
-router.beforeEach(async (to) => {
+router.beforeEach(async to => {
   let token = localStorage.getItem(LocalStorageKeys.token)
+  const skipAuth = to.meta?.skipAuth
 
-  if (to.path !== '/login' && !token) {
+  if (!skipAuth && !token) {
     let openid = localStorage.getItem(LocalStorageKeys.wxOpenId)
     // 通过微信静默授权获取open_id
     if (!openid && isWechatAgent()) {
       const data = await baseOauth()
-      data && (openid = data)
+      if (typeof data === 'string') {
+        openid = data
+      }
     }
 
     // 通过open_id 获取 token 信息

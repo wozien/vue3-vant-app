@@ -10,27 +10,40 @@
         <van-image
           v-if="state === 'audit'"
           @click="toProcessView"
-          :src="require('@/assets/img/audit.png')"
+          :src="imgUrl"
           width="45"
           height="45"
           round
         />
         <div class="icons">
           <div class="icon">
-            <Icon name="file" @click="onClickFile" />
-            <Icon name="message" @click="onClickMessage" />
+            <Icon name="related" @click="openPopup('related')" />
+            <Icon name="file" @click="openPopup('attachment')" />
+            <Icon name="message" @click="openPopup('chat')" />
           </div>
-          <span v-if="state !== 'audit'" class="status" @click="toProcessView">{{
-            state_name
-          }}</span>
+          <p v-if="state !== 'audit'" class="status" @click="toProcessView">{{ state_name }}</p>
         </div>
       </div>
     </div>
-    <div class="form-canvas" :style="{ height: formContentHeight + 'px' }">
+    <div class="form-canvas" :style="{ height: height + 'px' }">
       <FormCanvas :items="curView && curView.items" :fields="fields" ref="formRef" />
     </div>
     <LineSwitcher v-show="showLineSwitcher" />
     <ButtonView :buttons="curView && curView.buttons" />
+
+    <van-popup
+      v-model:show="showPopup"
+      position="bottom"
+      :style="{ height: '95%' }"
+      :duration="0.2"
+      :close-on-popstate="true"
+      closeable
+      round
+    >
+      <FormChat v-if="popupType === 'chat'" :visible="showPopup"></FormChat>
+      <FormRelated v-else-if="popupType === 'related'" :visible="showPopup"></FormRelated>
+      <FormAttachment v-else :visible="showPopup" ref="attachRef"></FormAttachment>
+    </van-popup>
   </div>
 </template>
 
@@ -46,31 +59,37 @@ import {
   onMounted,
   onBeforeUnmount,
   provide,
-  ref,
+  ref
 } from 'vue'
 import { useRoute, useRouter, onBeforeRouteUpdate } from 'vue-router'
-import { Toast, Dialog } from 'vant'
+import { Dialog, Toast } from 'vant'
 import { useStore } from '@/store'
 import FormCanvas from './FormCanvas'
 import ButtonView from '@/components/odoo-button/ButtonView.vue'
 import LineSwitcher from '@/components/line-switcher/LineSwitcher.vue'
-import { formatDate } from '@/helpers/date'
+import FormChat from './FormChat.vue'
+import FormAttachment from './FormAttachment.vue'
+import FormRelated from './FormRelated.vue'
+import { formatDate } from '@/utils/date'
 import { viewCommonProps } from '@/hooks/component/useView'
 import { getRecordId } from '@/logics/core/dataPoint'
 import { sessionStorageKeys } from '@/logics/enums/cache'
 import { load as loadDataPoint, clean as cleanRecord, isDirty } from '@/logics/core/dataPoint'
 import useToast from '@/hooks/component/useToast'
-import { isWechatAgent } from '@/helpers/utils'
+import imgUrl from '@/assets/img/audit.png'
 
 export default defineComponent({
   components: {
     FormCanvas,
     ButtonView,
     LineSwitcher,
+    FormChat,
+    FormAttachment,
+    FormRelated
   },
 
   props: {
-    ...viewCommonProps,
+    ...viewCommonProps
   },
 
   setup(props) {
@@ -78,18 +97,19 @@ export default defineComponent({
     const router = useRouter()
     const store = useStore()
     const { toast } = useToast()
+    const { showPopup, popupType, openPopup } = useFormPopup()
 
     const data = reactive({
       creator: {
         name: '',
         avatar: '',
-        date: '',
+        date: ''
       },
       state: '',
-      state_name: '',
+      state_name: ''
     })
     const formRef = ref()
-    const formContentHeight = ref(0)
+    const attachRef = ref()
     const searchFields = computed(() => {
       return props.fieldsInfo ? Object.keys(props.fieldsInfo) : []
     })
@@ -100,15 +120,15 @@ export default defineComponent({
     const showLineSwitcher = computed(() => {
       return !!route.query.subModel
     })
+    const height = computed(() => {
+      return (
+        document.body.clientHeight -
+        50 -
+        +(showHeader.value && 70) -
+        +(showLineSwitcher.value && 50)
+      )
+    })
     const curRecord = computed(() => store.getters.curRecord)
-
-    const calcHeight = () => {
-      const headerHeight = showHeader.value ? 70 : 0
-      const switchLineHeight = showLineSwitcher.value ? 50 : 0
-      const buttonHeight = 50
-      formContentHeight.value =
-        document.body.clientHeight - headerHeight - switchLineHeight - buttonHeight
-    }
 
     const loadRecord = async (routeQuery?: Record<string, any>) => {
       let { model, id } = routeQuery || route.query
@@ -120,7 +140,7 @@ export default defineComponent({
           modelName: model as string,
           res_id: id ? +id : undefined,
           viewType: 'form',
-          fieldsInfo: toRaw(props.fieldsInfo),
+          fieldsInfo: toRaw(props.fieldsInfo)
         })
         setCurRecord()
         toast.clear()
@@ -128,12 +148,13 @@ export default defineComponent({
     }
 
     const setCurRecord = () => {
-      const { subModel, subId } = route.query
+      const subModel = route.query.subModel as string
+      const subId = route.query.subId as string
       if (subModel) {
-        const recordId = getRecordId(subModel as string, subId as string)
+        const recordId = getRecordId(subModel, subId)
         if (recordId) {
           store.commit('SET_CUR_RECORD', recordId)
-        } else if (subId && (subId as string).startsWith('virtual_')) {
+        } else if (subId && subId.startsWith('virtual_')) {
           // 添加明细行后直接刷新，返回表头
           router.back()
         }
@@ -148,36 +169,25 @@ export default defineComponent({
       if (!type) return
       router.push({
         name: 'flow-process',
-        query: Object.assign({}, route.query),
+        query: Object.assign({}, route.query)
       })
     }
-
-    const onClickFile = () => Toast('暂不支持附件功能')
-    const onClickMessage = () => Toast('暂不支持沟通记录功能')
 
     // 表体行表单返回主表单
     watchEffect(() => {
       setCurRecord()
     })
 
-    watchEffect(() => {
-      if (isWechatAgent({ iphone: true })) {
-        setTimeout(() => {
-          calcHeight()
-        }, 0)
-      } else calcHeight()
-    })
-
-    watch(searchFields, (val) => {
+    watch(searchFields, val => {
       if (val.length) loadRecord()
     })
 
-    watch(curRecord, (val) => {
+    watch(curRecord, val => {
       if (val && val.creator) {
         data.creator = {
           name: val.creator.name,
           avatar: val.creator.avatar || '/img/avatar.png',
-          date: formatDate('M月d日 hh:mm', val.creator.date),
+          date: formatDate('M月d日 hh:mm', val.creator.date)
         }
         data.state = val.state
         data.state_name = val.state_name
@@ -198,7 +208,7 @@ export default defineComponent({
           if (dirty) {
             const bool = await Dialog.confirm({
               message: '是否确定放弃表单修改？',
-              closeOnPopstate: false,
+              closeOnPopstate: false
             })
               .then(() => true)
               .catch(() => false)
@@ -220,22 +230,57 @@ export default defineComponent({
 
     const canBeSaved = () => formRef.value?.canBeSaved() && true
     provide('canBeSaved', canBeSaved)
+    provide('openPopup', openPopup)
+    provide('flushAttach', (recordID: number) => {
+      if (attachRef.value) {
+        attachRef.value.flush(recordID)
+      }
+    })
 
     return {
       ...toRefs(data),
       formRef,
+      attachRef,
       showHeader,
       showLineSwitcher,
-      formContentHeight,
+      height,
       localData: computed(() => store.state.localData),
       curRecordId: computed(() => store.state.curRecordId),
       curRecord,
+      imgUrl,
+      showPopup,
+      popupType,
       toProcessView,
-      onClickFile,
-      onClickMessage,
+      openPopup
     }
-  },
+  }
 })
+
+function useFormPopup() {
+  const showPopup = ref(false)
+  const popupType = ref('')
+
+  const openPopup = (type: string) => {
+    if (import.meta.env.PROD) {
+      Toast('改功能暂不支持')
+      return
+    }
+    popupType.value = type
+    showPopup.value = true
+  }
+
+  onBeforeRouteUpdate(() => {
+    if (showPopup.value) {
+      showPopup.value = false
+    }
+  })
+
+  return {
+    showPopup,
+    popupType,
+    openPopup
+  }
+}
 </script>
 
 <style lang="less" scoped>
@@ -245,21 +290,8 @@ export default defineComponent({
     height: 70px;
     background: #fff;
     padding: 0px 14px;
-    display: flex;
-    align-items: center;
-    .info {
-      flex: 1;
-      padding: 0px 10px;
-      .name {
-        font-size: 14px;
-        color: @text-color-light-1;
-        margin-bottom: 2px;
-      }
-      .time {
-        font-size: 12px;
-        color: @text-color-light-2;
-      }
-    }
+    .user-info;
+
     .right {
       display: flex;
       align-items: center;
@@ -269,8 +301,11 @@ export default defineComponent({
           text-align: right;
         }
         .status {
-          color: @info-color;
+          color: @ins-info-color;
           font-size: 13px;
+          text-align: right;
+          padding-right: 8px;
+          padding-top: 2px;
         }
       }
     }
@@ -278,6 +313,14 @@ export default defineComponent({
   .form-canvas {
     // height: calc(100vh - 120px);
     overflow: auto;
+  }
+
+  &::v-deep(.van-popup__close-icon) {
+    font-size: 16px;
+  }
+  &::v-deep(.van-popup__close-icon--top-right) {
+    top: 10px;
+    right: 12px;
   }
 }
 </style>

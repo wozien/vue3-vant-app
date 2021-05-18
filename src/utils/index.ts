@@ -103,7 +103,7 @@ export const uuid = (len = 6) => {
     'w',
     'x',
     'y',
-    'z',
+    'z'
   ]
 
   let res = ''
@@ -131,14 +131,14 @@ export const insertThousandSeps = (num: number | string) => {
  * @returns
  */
 let envConfig = Object.create(null)
-export const wrapperEnv = (envConf?: Recordable<string>): Recordable => {
+export const wrapperEnv = (envConf?: any): any => {
   if (envConf && isEmpty(envConfig)) {
     for (const envName in envConf) {
       let realValue: any = envConf[envName].replace(/\\n/g, '\n')
       realValue = realValue === 'true' ? true : realValue === 'false' ? false : realValue
 
       // TODO handler number or array type
-      envConfig[envName.replace(/^VUE_APP_/, '')] = realValue
+      envConfig[envName.replace(/^VITE_/, '')] = realValue
     }
   }
   envConfig['IS_DEV'] = envConfig['NODE_ENV'] === 'developement'
@@ -151,7 +151,7 @@ export const wrapperEnv = (envConf?: Recordable<string>): Recordable => {
  */
 export const isWechatAgent = ({
   iphone,
-  android,
+  android
 }: { iphone?: boolean; android?: boolean } = {}) => {
   const ua = navigator.userAgent.toLowerCase()
   let addition = true
@@ -161,4 +161,46 @@ export const isWechatAgent = ({
     addition = ua.search('android') !== -1
   }
   return ua.search('micromessenger') !== -1 && addition
+}
+
+/**
+ * 判断是否合法的手机号码, 暂时只校验11位数字
+ * @param phoneNumber
+ * @returns
+ */
+export const isLegalPhone = (phoneNumber: string) => {
+  return /^\d{11}$/.test(phoneNumber)
+}
+
+/**
+ * 是否绝对地址
+ * @param url
+ * @returns
+ */
+export const isAbsoluteURL = (url: string): boolean => {
+  return /^([a-z][a-z\d+\-.]*:)?\/\//i.test(url)
+}
+
+/**
+ * 下载文件
+ * @param url
+ */
+export const downloadUrl = (url: string) => {
+  const tempLink = document.createElement('a')
+  tempLink.style.display = 'none'
+  tempLink.href = url
+  tempLink.setAttribute('download', 'true')
+
+  // 兼容不支持download属性
+  if (typeof tempLink.download === 'undefined') {
+    tempLink.setAttribute('target', '_blank')
+  }
+
+  document.body.appendChild(tempLink)
+  tempLink.click()
+
+  // Fixes "webkit blob resource error 1"
+  setTimeout(function () {
+    document.body.removeChild(tempLink)
+  }, 0)
 }

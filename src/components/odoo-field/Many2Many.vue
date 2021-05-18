@@ -1,7 +1,7 @@
 <template>
   <div v-if="widget === 'many2many_tags'">
     <van-field
-      :label="string" 
+      :label="string"
       :required="isRequired"
       :clickable="false"
       :is-link="!isReadonly"
@@ -9,16 +9,19 @@
       center
       @click="onClick"
     >
-      <template #input> 
+      <template #input>
         <div class="items">
           <span class="empty" v-if="!items.length">{{ placeholder }}</span>
-          <van-tag v-for="item in items" 
-            :key="item.id" 
-            round plain
+          <van-tag
+            v-for="item in items"
+            :key="item.id"
+            round
+            plain
             :closeable="!isReadonly"
             @click.prevent
             @close="onTagClose(item.id)"
-          >{{ item.display_name }}</van-tag> 
+            >{{ item.display_name }}</van-tag
+          >
         </div>
       </template>
     </van-field>
@@ -33,7 +36,7 @@
     </van-popup>
   </div>
 
-  <One2Many v-else v-bind="{field, item, mode}"/>
+  <One2Many v-else v-bind="{ field, item, mode }" />
 </template>
 
 <script lang="ts">
@@ -59,26 +62,28 @@ export default defineComponent({
       columns: [] as string[],
       loading: false
     })
-    const { string, placeholder, rawValue, curRecord, isReadonly, isRequired, setValue } = useFieldCommon(props)
+    const { string, placeholder, rawValue, curRecord, isReadonly, isRequired, setValue } =
+      useFieldCommon(props)
     const widget = computed(() => props.item?.widget)
     const items = computed(() => {
-      if(rawValue.value) {
+      if (rawValue.value) {
         return map((rawValue.value as any).data, 'data')
       }
       return []
     })
     const domain = computed(() => {
-      const res = curRecord.value && getDomain(curRecord.value.id, { fieldName: props.field?.name }) || []
+      const res =
+        (curRecord.value && getDomain(curRecord.value.id, { fieldName: props.field?.name })) || []
       const backList = items.value.map((item: any) => item.id)
-      if(backList.length) {
+      if (backList.length) {
         res.push(['id', 'not in', backList])
       }
       return res
     })
 
     const onTagClose = (id: number) => {
-      const record = find((rawValue.value as any).data, {res_id: id})
-      if(record) {
+      const record = find((rawValue.value as any).data, { res_id: id })
+      if (record) {
         setValue({
           operation: 'FORGET',
           ids: [record.id]
@@ -87,7 +92,7 @@ export default defineComponent({
     }
 
     const onClick = async () => {
-      if(isReadonly.value) return
+      if (isReadonly.value) return
       await loadData()
       state.showPicker = true
     }
@@ -103,7 +108,7 @@ export default defineComponent({
     const loadData = async () => {
       state.loading = true
       const res = await fetchMany2OneData(props.field?.relation as string, '', domain.value)
-      if(res.ret === 0) {
+      if (res.ret === 0) {
         state.columns = res.data.map((item: any) => {
           const [id, display_name] = item
           return {
@@ -137,7 +142,7 @@ export default defineComponent({
 <style lang="less" scoped>
 .items {
   .empty {
-    color: @text-color-light-2;
+    color: @ins-text-color-light-2;
   }
   &::v-deep(.van-tag) {
     margin-right: 6px;

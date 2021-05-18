@@ -4,7 +4,7 @@
 
 import { each, map } from 'lodash-es'
 import { getApp } from './App'
-import { str2Date } from '@/helpers/date'
+import { str2Date } from '@/utils/date'
 import { FieldsInfo } from './Field'
 import { fetchNameGet, fetchRecord } from '@/api/record'
 
@@ -55,7 +55,7 @@ class Record {
       id,
       name,
       avatar,
-      time: str2Date(raw.create_date), // 后台返回是UCT时间
+      time: str2Date(raw.create_date) // 后台返回是UCT时间
     }
   }
 

@@ -13,12 +13,12 @@ const FormCanvas = defineComponent({
     FormGroup,
     FormField,
     FormNotebook,
-    FlexDrop,
+    FlexDrop
   },
 
   props: {
     items: Array as PropType<Item[]>,
-    fields: Object as PropType<Fields>,
+    fields: Object as PropType<Fields>
   },
 
   setup(props) {
@@ -41,7 +41,7 @@ const FormCanvas = defineComponent({
 
     const renderItem = (item: Item) => {
       const items = item.items
-      const field = find(props.fields as any, (field: Field) => {
+      const field = find(props.fields, (field: Field) => {
         return field.key === item.fieldKey || field.name === item.fieldKey
       })
       const mode = (route.query.readonly as string) === '1' ? 'readonly' : 'edit'
@@ -76,13 +76,13 @@ const FormCanvas = defineComponent({
 
     const renderItems = (items?: Item[]) => {
       if (items?.length) {
-        const template = items.map((item) => renderItem(item))
+        const template = items.map(item => renderItem(item))
         return template
       }
     }
 
     return () => renderItems(props.items)
-  },
+  }
 })
 
 export default FormCanvas

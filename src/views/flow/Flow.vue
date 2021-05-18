@@ -21,34 +21,42 @@
 </template>
 
 <script lang="ts">
-import { find } from 'lodash-es'
+import { find, each } from 'lodash-es'
 import { defineComponent, computed, reactive, toRefs, watch, Ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useStore, User } from '@/store'
 import { fetchFlowList } from '@/api/workflow'
-import { formatDate, str2Date } from '@/helpers/date'
+import { formatDate, str2Date } from '@/utils/date'
 import { setDocumentTitle } from '@/hooks/web/useTitle'
-import ListCard from '../list/ListCard.vue'
+import ListCard, { ListCardItem } from '../list/ListCard.vue'
 
-const FLOW_TYPES = {
+interface FlowTypesItem {
+  type: string
+  title: string
+}
+
+interface FlowTypes {
+  task: FlowTypesItem[]
+  create: FlowTypesItem[]
+}
+
+const FLOW_TYPES: FlowTypes = {
   task: [
     { type: 'willApproval', title: '待审批' },
     { type: 'willConsult', title: '待查阅' },
-    { type: 'approvaled', title: '已审批' },
+    { type: 'approvaled', title: '已审批' }
   ],
   create: [
     { type: 'returned', title: '被退回' },
     { type: 'approvaling', title: '审批中' },
-    { type: 'completed', title: '已完成' },
-  ],
+    { type: 'completed', title: '已完成' }
+  ]
 }
-
-type GROUP_TYPE = keyof typeof FLOW_TYPES
 
 export default defineComponent({
   name: 'Flow',
   components: {
-    ListCard,
+    ListCard
   },
 
   setup() {
@@ -67,11 +75,11 @@ export default defineComponent({
           router.replace({
             name: 'flow',
             query: {
-              type: val,
-            },
+              type: val
+            }
           })
         }
-      },
+      }
     })
     const group = useGroup(searchType.value)
     const { listState, showEmpty, onLoad, onRefresh } = useList(searchType, user)
@@ -83,25 +91,24 @@ export default defineComponent({
       ...toRefs(listState),
       showEmpty,
       onLoad,
-      onRefresh,
+      onRefresh
     }
-  },
+  }
 })
 
 /**
  * 计算对应的流程组信息
  */
 function useGroup(type: string) {
-  let group
-  for (let key in FLOW_TYPES) {
-    const types = FLOW_TYPES[key as GROUP_TYPE]
+  let group: { name: string; types: FlowTypesItem[] } = Object.create(null)
+  each(FLOW_TYPES, (types, key) => {
     if (find(types, { type })) {
       group = {
         name: key,
-        types: types,
+        types: types
       }
     }
-  }
+  })
   setDocumentTitle(group?.name === 'task' ? '我的任务' : '我的发起')
   return group
 }
@@ -112,10 +119,10 @@ function useGroup(type: string) {
 function useList(searchType: Ref<string>, user: Ref<User>) {
   const state = reactive({
     offset: 0,
-    list: [],
+    list: [] as any[],
     loading: false,
     finished: false,
-    refreshing: false,
+    refreshing: false
   })
   const showEmpty = computed(() => {
     return state.list.length === 0 && !state.loading
@@ -153,11 +160,11 @@ function useList(searchType: Ref<string>, user: Ref<User>) {
   }
 
   // 转换成卡片数据包
-  const toListCardData = (rows: any) => {
+  const toListCardData = (rows: any): ListCardItem[] => {
     return rows.map((row: any) => {
       const date = str2Date(row.submit_date || row.accept_date || row.return_date)
       const state = row.current_auditor ? `${row.current_auditor} 审核中` : ''
-      const res = {
+      const res: ListCardItem = {
         id: row.bill_id,
         name: row.model,
         model: row.model_id,
@@ -169,7 +176,7 @@ function useList(searchType: Ref<string>, user: Ref<User>) {
         fields: [{ name: 'bill_number', string: '单据编号', value: row.bill_number }],
         type: searchType.value,
         context: Object.assign({}, row, { type: searchType.value }),
-        isFlow: true,
+        isFlow: true
       }
 
       if (res.type === 'returned') {
@@ -186,7 +193,7 @@ function useList(searchType: Ref<string>, user: Ref<User>) {
     })
   }
 
-  watch(searchType, (val) => {
+  watch(searchType, val => {
     val && onRefresh()
   })
   watch(user, onRefresh)
@@ -196,7 +203,7 @@ function useList(searchType: Ref<string>, user: Ref<User>) {
     listState: state,
     showEmpty,
     onLoad,
-    onRefresh,
+    onRefresh
   }
 }
 </script>

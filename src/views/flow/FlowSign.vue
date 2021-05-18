@@ -1,11 +1,12 @@
 <template>
   <div class="flow-sign">
-    <van-field 
+    <van-field
       v-model="receiver"
-      label="接收人" 
-      placeholder="请选择接收人" 
-      readonly is-link
-      @click="showPicker=true"
+      label="接收人"
+      placeholder="请选择接收人"
+      readonly
+      is-link
+      @click="showPicker = true"
     />
     <van-field name="radio" label="加签方式">
       <template #input>
@@ -23,7 +24,7 @@
     </div>
   </div>
 
-  <UserPicker v-model:show="showPicker" @select="onUserSelected" ref="pickerRef"/>
+  <UserPicker v-model:show="showPicker" @select="onUserSelected" ref="pickerRef" />
 </template>
 
 <script lang="ts">
@@ -62,8 +63,8 @@ export default defineComponent({
       state.type = '1'
       state.receiver = ''
       state.selected = null
-      if(pickerRef.value) {
-        (pickerRef.value as any).reset()
+      if (pickerRef.value) {
+        ;(pickerRef.value as any).reset()
       }
     }
 
@@ -80,7 +81,7 @@ export default defineComponent({
 function calcReceiver(data: any) {
   const members = data.members || []
   const roles = data.roles || []
-  const res = [] as string[]
+  const res: Array<string> = []
   members.forEach((mb: any) => res.push(mb.name))
   roles.forEach((rl: any) => res.push(rl.name))
   return res.length > 3 ? res.slice(0, 3).join(',') + '等' : res.join(',')
@@ -92,7 +93,7 @@ function calcReceiver(data: any) {
   .tip {
     padding: 20px;
     font-size: 12px;
-    color: @text-color-light-2;
+    color: @ins-text-color-light-2;
     p {
       margin-bottom: 8px;
     }

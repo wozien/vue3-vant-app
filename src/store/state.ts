@@ -1,21 +1,21 @@
 import type { DataPoint, DataPointId } from '@/logics/types/dataPoint'
 import { localData } from '@/logics/core/dataPoint'
-import { uuid } from '@/helpers/utils'
+import { uuid } from '@/utils'
 interface Company {
-  dbName: string;
-  name: string;
+  dbName: string
+  name: string
 }
 
 export interface Org {
-  id: number;
-  name: string;
+  id: number
+  name: string
 }
 
 export interface User {
-  avatar: string;
-  nickname: string;
-  phone: string;
-  company: Company;
+  avatar: string
+  nickname: string
+  phone: string
+  company: Company
   context: Recordable
 }
 
@@ -26,7 +26,7 @@ export interface State {
   curOrg?: Org
   localData: {
     [key: string]: DataPoint
-  },
+  }
   curRecordId: DataPointId
   recordToken: string
 }

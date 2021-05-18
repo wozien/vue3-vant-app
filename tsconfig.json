@@ -15,7 +15,7 @@
     "noEmit": true,
     "lib": ["dom", "esnext"],
     "types": [
-      "webpack-env"
+      "vite/client"
     ],
     "typeRoots": ["./node_modules/@types", "./types"],
     "paths": {

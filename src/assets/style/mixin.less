@@ -3,6 +3,12 @@
   position: relative;
 }
 
+.ellipsis {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
 .card {
   background: #fff;
   border-radius: 8px;
@@ -18,8 +24,44 @@
 
 .no-data {
   font-size: 13px;
-  color: @text-color-light-2;
+  color: @ins-text-color-light-2;
   text-align: center;
   padding: 40px;
 }
 
+.link-text {
+  color: @ins-primary-color;
+  font-size: 13px;
+}
+
+.flex-center {
+  display: flex;
+  align-items: center;
+}
+
+.reset-input {
+  outline: none;
+  border: none;
+  color: @ins-text-color;
+  font-size: 14px;
+  &::placeholder {
+    color: #828695;
+  }
+}
+
+.user-info {
+  .flex-center;
+  .info {
+    flex: 1;
+    padding: 0px 10px;
+    .name {
+      font-size: 14px;
+      color: @ins-text-color-light-1;
+      margin-bottom: 2px;
+    }
+    .time {
+      font-size: 12px;
+      color: @ins-text-color-light-2;
+    }
+  }
+}

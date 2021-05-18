@@ -1,8 +1,7 @@
 import ViewItem from './ViewItem'
 import type { StudioItem } from '../types'
-import { findTree, uuid } from '@/helpers/utils'
+import { findTree, uuid } from '@/utils'
 import { chekcButtonAccess } from '@/api/app'
-import { wrapperEnv } from '@/helpers/utils'
 
 export type ViewType = 'form' | 'list'
 export interface StudioView {
@@ -34,9 +33,6 @@ export interface ViewButton {
   isGroup?: boolean
 }
 
-const { NODE_ENV } = wrapperEnv(process.env)
-const isDev = NODE_ENV === 'development'
-
 class View {
   model: string
   name: string
@@ -55,7 +51,7 @@ class View {
     this.isLinkView = viewObj.isLinkView || false
     this.options = viewObj.options || {}
     this.buttons = this._initButtons(viewObj.buttons)
-    this.items = viewObj.mobileItems ? viewObj.mobileItems.map((i) => new ViewItem(i)) : []
+    this.items = viewObj.mobileItems ? viewObj.mobileItems.map(i => new ViewItem(i)) : []
   }
 
   _formatOneButton(button: any) {
@@ -68,7 +64,7 @@ class View {
       invisible: button.invisible?.length ? button.invisible : '',
       loading: false,
       isFlow: this._isFlowButton(button),
-      isGroup: !!button.children,
+      isGroup: !!button.children
     }
 
     if (buttonItem.isGroup) {
@@ -95,15 +91,6 @@ class View {
       }
     }
 
-    // 生产环境暂时屏蔽编辑态按钮
-    if (!isDev) {
-      viewButtons = viewButtons.filter((btn) => {
-        return (
-          btn.mode !== 'edit' &&
-          (!btn.funcName || !['edit', 'create', 'copy'].includes(btn.funcName))
-        )
-      })
-    }
     return viewButtons
   }
 
@@ -122,6 +109,11 @@ class View {
         this._makePresetButton('newLine', 'New Line', 'edit', { highlight: true })
       )
       viewButtons.push(this._makePresetButton('deleteLine', 'Delete Line'))
+    } else {
+      const index = viewButtons.findIndex(btn => btn.funcName === 'save')
+      if (~index) {
+        viewButtons.splice(index + 1, 0, this._makePresetButton('upload', 'Upload'))
+      }
     }
 
     return viewButtons
@@ -141,6 +133,7 @@ class View {
       'Delete Line': '行删除',
       'Save Line': '行保存',
       'New Line': '保存并新增',
+      Upload: '附件上传'
     }
     return buttonMap[key as keyof typeof buttonMap] || key
   }
@@ -161,7 +154,7 @@ class View {
       highlight: false,
       isFlow: false,
       loading: false,
-      ...options,
+      ...options
     }
   }
 
@@ -193,10 +186,10 @@ class View {
               key: button.key,
               type: button.type,
               name: getName(button.funcName as string),
-              event: button.funcName === 'copy' && '_onCopyRecord',
+              event: button.funcName === 'copy' && '_onCopyRecord'
             },
             tag: 'button',
-            children: [],
+            children: []
           })
         }
       },

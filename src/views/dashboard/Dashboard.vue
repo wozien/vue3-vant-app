@@ -1,37 +1,41 @@
 <template>
-  <div class="dashboard-page">
-    <div class="header">
-      <van-image :src="user.avatar" width="60" height="60" fit="cover" round/>
-      <div class="info">
-        <p class="name">{{ greet.greeting }}, {{ user.nickname }}</p>
-        <p class="time">{{ greet.week }}</p>
+  <div class="page dashboard-page">
+    <div class="dashboard">
+      <div class="header">
+        <van-image :src="user.avatar" width="60" height="60" fit="cover" round />
+        <div class="info">
+          <p class="name">{{ greet.greeting }}, {{ user.nickname }}</p>
+          <p class="time">{{ greet.week }}</p>
+        </div>
+        <div class="icon" @click="onGotoFlow('returned')">
+          <img src="@/assets/img/flow-send.png" />
+          <span>我发起的</span>
+        </div>
       </div>
-      <div class="icon" @click="onGotoFlow('returned')">
-        <img src="@assets/img/flow-send.png">
-        <span>我发起的</span> 
+      <div class="flow">
+        <div class="flow-item approval" @click="onGotoFlow('willApproval')">
+          <img src="@/assets/img/will-approval.png" />
+          <span class="text">待我审批</span>
+          <span class="num">{{ willApproval }}</span>
+        </div>
+        <div class="flow-item consult" @click="onGotoFlow('willConsult')">
+          <img src="@/assets/img/will-consult.png" />
+          <span class="text">待我查阅</span>
+          <span class="num">{{ willConsult }}</span>
+        </div>
+      </div>
+      <div class="usually">
+        <div class="title">
+          <span class="label">常用</span>
+          <span class="more" @click="$router.push('/market')">全部应用</span>
+          <van-icon name="arrow" color="#c8c9cc" />
+        </div>
+        <AppList :app-data="appData" v-if="appData.length" />
+        <p v-else class="no-data">暂无数据</p>
       </div>
     </div>
-    <div class="flow">
-      <div class="flow-item approval" @click="onGotoFlow('willApproval')">
-        <img src="@assets/img/will-approval.png">
-        <span class="text">待我审批</span>
-        <span class="num">{{ willApproval }}</span>
-      </div>
-      <div class="flow-item consult" @click="onGotoFlow('willConsult')">
-        <img src="@assets/img/will-consult.png">
-        <span class="text">待我查阅</span>
-        <span class="num">{{ willConsult }}</span>
-      </div>
-    </div>
-    <div class="usually">
-      <div class="title">
-        <span class="label">常用</span>
-        <span class="more" @click="$router.push('/market')">全部应用</span>
-        <van-icon name="arrow" color="#c8c9cc"/>
-      </div>
-      <AppList :app-data="appData" v-if="appData.length"/>
-      <p v-else class="no-data">暂无数据</p>
-    </div>
+
+    <TabBar active="dashboard" />
   </div>
 </template>
 
@@ -42,10 +46,12 @@ import { useRouter } from 'vue-router'
 import { fetchFlowNum } from '@/api/workflow'
 import { fetchUsuallyApp } from '@/api/app'
 import AppList from '@/components/app-list/AppList.vue'
+import TabBar from '@/components/tabbar/TabBar.vue'
 
 export default defineComponent({
   components: {
-    AppList
+    AppList,
+    TabBar
   },
 
   setup() {
@@ -57,7 +63,7 @@ export default defineComponent({
     })
     const greet = useGreet()
     const { appData } = useUsually()
-    
+
     const onGotoFlow = (type: string) => {
       router.push({
         path: '/workflow',
@@ -69,7 +75,7 @@ export default defineComponent({
 
     onActivated(async () => {
       const res = await fetchFlowNum()
-      if(res.ret === 0) {
+      if (res.ret === 0) {
         state.willConsult = res.data.willConsult
         state.willApproval = res.data.willApproval
       }
@@ -90,25 +96,39 @@ function useGreet() {
   const hours = date.getHours()
 
   let greeting
-  if(hours >= 5 && hours < 11) greeting = '早上好'
-  else if(hours >= 11 && hours < 13) greeting = '中午好'
-  else if(hours >= 13 && hours < 19) greeting = '下午好'
+  if (hours >= 5 && hours < 11) greeting = '早上好'
+  else if (hours >= 11 && hours < 13) greeting = '中午好'
+  else if (hours >= 13 && hours < 19) greeting = '下午好'
   else greeting = '晚上好'
 
   let week
-  switch(date.getDay()) {
-    case 0: week = '周日'; break
-    case 1: week = '周一'; break 
-    case 2: week = '周二'; break
-    case 3: week = '周三'; break
-    case 4: week = '周四'; break
-    case 5: week = '周五'; break
-    case 6: week = '周六'; break
+  switch (date.getDay()) {
+    case 0:
+      week = '周日'
+      break
+    case 1:
+      week = '周一'
+      break
+    case 2:
+      week = '周二'
+      break
+    case 3:
+      week = '周三'
+      break
+    case 4:
+      week = '周四'
+      break
+    case 5:
+      week = '周五'
+      break
+    case 6:
+      week = '周六'
+      break
   }
 
   return {
     greeting,
-    week: `${date.getMonth()+1}月${date.getDate()}日, ${week}`
+    week: `${date.getMonth() + 1}月${date.getDate()}日, ${week}`
   }
 }
 
@@ -116,7 +136,7 @@ function useUsually() {
   const appData = ref([])
   const fetch = async () => {
     const res = await fetchUsuallyApp()
-    if(res.ret === 0) {
+    if (res.ret === 0) {
       appData.value = res.data
     }
   }
@@ -126,18 +146,18 @@ function useUsually() {
     appData
   }
 }
-
 </script>
 
 <style lang="less" scoped>
-.dashboard-page {
+.dashboard {
+  height: calc(100% - 50px);
   padding: 10px;
   .header {
     .card;
     display: flex;
     align-items: center;
     font-size: 13px;
-    color: @text-color-light-2;
+    color: @ins-text-color-light-2;
     margin-bottom: 10px;
     .info {
       flex: 1;
@@ -145,7 +165,7 @@ function useUsually() {
       border-right: 1px solid #eee;
       .name {
         font-size: 16px;
-        color: @text-color;
+        color: @ins-text-color;
         margin-bottom: 10px;
       }
     }
@@ -181,7 +201,7 @@ function useUsually() {
       }
       .text {
         font-size: 13px;
-        color: @text-color-light-1;
+        color: @ins-text-color-light-1;
         padding: 6px 0px;
       }
       .num {
@@ -201,17 +221,17 @@ function useUsually() {
         flex: 1;
         font-weight: 500;
         padding-left: 6px;
-        border-left: 2px solid @primary-color;
+        border-left: 2px solid @ins-primary-color;
         line-height: 16px;
       }
       .more {
         font-size: 13px;
-        color: @text-color-light-2;
+        color: @ins-text-color-light-2;
       }
     }
     .no-data {
       text-align: center;
-      color: @text-color-light-2;
+      color: @ins-text-color-light-2;
       font-size: 12px;
       padding: 10px 0px;
     }

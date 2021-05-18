@@ -1,6 +1,6 @@
 <template>
   <Modal v-model:show="showModal" @confirm="onConfirm">
-    <UserSelect v-model:selected="selected"/>
+    <UserSelect v-model:selected="selected" />
   </Modal>
 </template>
 
@@ -23,12 +23,12 @@ export default defineComponent({
 
   setup(props, { emit }) {
     const state = reactive({
-      selected: { 
+      selected: {
         members: [],
         roles: []
       }
     })
-    const showModal = computed({
+    const showModal = computed<boolean>({
       get() {
         return props.show
       },
@@ -46,7 +46,7 @@ export default defineComponent({
       state.selected.members = []
       state.selected.roles = []
     }
-    
+
     return {
       showModal,
       ...toRefs(state),
@@ -57,5 +57,4 @@ export default defineComponent({
 })
 </script>
 
-<style lang="less" scoped>
-</style>
+<style lang="less" scoped></style>

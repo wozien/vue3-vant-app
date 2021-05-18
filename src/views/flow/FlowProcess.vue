@@ -41,7 +41,7 @@
 import { defineComponent, watchEffect, onBeforeMount, reactive, ref, toRefs } from 'vue'
 import { useRoute } from 'vue-router'
 import BpmnJS from 'bpmn-js/lib/Modeler'
-import { formatDate } from '@/helpers/date'
+import { formatDate } from '@/utils/date'
 import { Dialog } from 'vant'
 import { callButton } from '@/api/odoo'
 import { sessionStorageKeys } from '@/logics/enums/cache'
@@ -52,8 +52,8 @@ export default defineComponent({
     const route = useRoute()
     const state = reactive({
       options: {} as any,
-      list: [],
-      active: 'log',
+      list: [] as any[],
+      active: 'log'
     })
     const canvas = ref(null)
 
@@ -62,7 +62,7 @@ export default defineComponent({
       if (model && id) {
         const flowParams = JSON.parse(sessionStorage.getItem(sessionStorageKeys.flowParams) || '{}')
         const res = await callButton(model as string, 'workflow_view', [[+id]], {
-          context: flowParams,
+          context: flowParams
         })
         if (res.ret === 0 && res.data?.args?.length) {
           state.options = res.data.args[0] || {}
@@ -84,7 +84,7 @@ export default defineComponent({
           return {
             ...item,
             state,
-            time: formatDate('M-d hh:mm', date),
+            time: formatDate('M-d hh:mm', date)
           }
         })
       }
@@ -92,9 +92,9 @@ export default defineComponent({
 
     return {
       canvas,
-      ...toRefs(state),
+      ...toRefs(state)
     }
-  },
+  }
 })
 
 //  bpmn logic
@@ -120,7 +120,7 @@ function setColor(options: any) {
   const colors = {
     default: '#c8c9cc',
     done: '#07c160',
-    current: '#1989fa',
+    current: '#1989fa'
   }
   setDefaultColor(colors.default)
   options.oldNodeId && setNodeColor(options.oldNodeId, colors.done)
@@ -190,7 +190,7 @@ function disabledEvent() {
     'connectionSegment.move.hove',
     'connectionSegment.move.end',
     'connectionSegment.move.cleanup',
-    'connectionSegment.move.cancel',
+    'connectionSegment.move.cancel'
   ]
   eventBus.off(disableEvents, null)
 }
@@ -210,7 +210,7 @@ function showNodeInfo(nodeInfos: any) {
   setTimeout(() => {
     Dialog({
       message,
-      messageAlign: 'left',
+      messageAlign: 'left'
     })
   }, 200)
 }
@@ -243,7 +243,7 @@ function bindEvent(container: any, options: any) {
       display: flex;
       align-items: center;
       justify-content: space-around;
-      color: @text-color-light-2;
+      color: @ins-text-color-light-2;
       font-size: 13px;
       span {
         &::before {
@@ -282,9 +282,9 @@ function bindEvent(container: any, options: any) {
         border-radius: 3px;
         padding: 10px;
         font-size: 13px;
-        color: @text-color-light-1;
+        color: @ins-text-color-light-1;
         .title {
-          color: @text-color;
+          color: @ins-text-color;
           font-size: 14px;
           &::before {
             display: inline-block;
@@ -293,7 +293,7 @@ function bindEvent(container: any, options: any) {
             height: 12px;
             border-radius: 50%;
             margin-right: 6px;
-            background: @text-color-light-2;
+            background: @ins-text-color-light-2;
           }
         }
 
@@ -312,18 +312,18 @@ function bindEvent(container: any, options: any) {
 
         &.list-item-done {
           .title::before {
-            background: @success-color;
+            background: @ins-success-color;
           }
           .content .state {
-            color: @success-color;
+            color: @ins-success-color;
           }
         }
         &.list-item-returned {
           .title::before {
-            background: @error-color;
+            background: @ins-error-color;
           }
           .content .state {
-            color: @error-color;
+            color: @ins-error-color;
           }
         }
       }

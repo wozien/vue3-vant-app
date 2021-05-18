@@ -19,7 +19,7 @@ import {
   intersection,
   isEmpty,
   filter,
-  defaults,
+  defaults
 } from 'lodash-es'
 import { FieldsInfo } from '@/logics/types'
 import {
@@ -28,16 +28,16 @@ import {
   DataPointId,
   DataPoint,
   DataPointData,
-  DataPointState,
+  DataPointState
 } from '@/logics/types/dataPoint'
 import fieldUtils from '@/logics/core/fieldUtils'
-import { str2Date, formatDate } from '@/helpers/date'
+import { str2Date, formatDate } from '@/utils/date'
 import {
   fetchRecord,
   saveRecord,
   fetchDefaultValues,
   fetchNameGet,
-  fetchOnChange,
+  fetchOnChange
 } from '@/api/record'
 import { sessionStorageKeys } from '@/logics/enums/cache'
 import Domain from '@/logics/odoo/Domain'
@@ -81,7 +81,7 @@ const x2ManyCommands = {
   REPLACE_WITH: 6,
   replace_with: function (ids: any[]) {
     return [6, false, ids]
-  },
+  }
 }
 
 /**
@@ -94,7 +94,7 @@ const _addX2ManyDefaultRecord = async (list: DataPoint, options: any) => {
     modelName: list.model,
     fieldsInfo: list.fieldsInfo,
     parentId: list.id,
-    viewType: list.viewType,
+    viewType: list.viewType
   }
 
   const recordID = await _makeDefaultRecord(list.model, params)
@@ -181,7 +181,7 @@ const _applyChange = (recordID: DataPointId, changes: DataPointData): Promise<an
       }
     }
 
-    return new Promise((resolve) => {
+    return new Promise(resolve => {
       if (onChangeFields.length) {
         _performOnChange(record, onChangeFields).then((result: any) => {
           resolve(Object.keys(changes).concat(Object.keys((result && result.value) || {})))
@@ -221,9 +221,9 @@ const _applyOnChange = (values: any, record: DataPoint) => {
             parentId: record.id,
             fieldsInfo: {
               id: { type: 'integer', name: 'id' },
-              display_name: { type: 'char', name: 'display_name' },
+              display_name: { type: 'char', name: 'display_name' }
             },
-            viewType: 'form',
+            viewType: 'form'
           })
           id = rec.id
           record._changes[name] = id
@@ -249,9 +249,9 @@ const _applyOnChange = (values: any, record: DataPoint) => {
             parentId: record.id,
             fieldsInfo: {
               id: { type: 'integer', name: 'id' },
-              display_name: { type: 'char', name: 'display_name' },
+              display_name: { type: 'char', name: 'display_name' }
             },
-            viewType: 'form',
+            viewType: 'form'
           })
           defs.push(_fetchNameGet(rec))
           id = rec.id
@@ -272,7 +272,7 @@ const _applyOnChange = (values: any, record: DataPoint) => {
           viewType: 'list',
           modelName: field.relation as string,
           parentId: record.id,
-          fieldsInfo: field.list || {},
+          fieldsInfo: field.list || {}
         })
       }
       record._changes[name] = list.id
@@ -300,7 +300,7 @@ const _applyOnChange = (values: any, record: DataPoint) => {
               viewType: 'list',
               fieldsInfo: list.fieldsInfo,
               modelName: list.model,
-              parentId: list.id,
+              parentId: list.id
             }
             if (command[0] === 1) {
               params.res_id = command[1]
@@ -352,7 +352,7 @@ const _applyOnChange = (values: any, record: DataPoint) => {
     list._changes.push({
       operation: 'ADD',
       id: rec ? rec.id : null,
-      resID: resID,
+      resID: resID
     })
   }
 }
@@ -396,7 +396,7 @@ const _applyX2OneChange = (record: DataPoint, fieldName: string, data: any) => {
     modelName: coModel,
     parentId: record.id,
     res_id: data.id,
-    viewType: 'form',
+    viewType: 'form'
   })
 
   record._changes[fieldName] = rec.id
@@ -453,12 +453,12 @@ const _applyX2ManyChange = (record: DataPoint, fieldName: string, command: any) 
           modelName: list.model,
           fieldsInfo: {
             id: { type: 'integer', name: 'id' },
-            display_name: { type: 'char', name: 'display_name' },
+            display_name: { type: 'char', name: 'display_name' }
           },
           viewType: 'form',
           parentId: list.id,
           data: d,
-          res_id: d.id,
+          res_id: d.id
         })
         list._cache[rec.res_id as number] = rec.id
         list._changes.push({ operation: 'ADD', id: rec.id })
@@ -578,9 +578,9 @@ const _fetchRecord = async (record: DataPoint) => {
         data: recordData.odoo_data[0],
         creator: {
           ...recordData.create_user,
-          date: str2Date(res.data.create_date || ''),
+          date: str2Date(res.data.create_date || '')
         },
-        ...pick(recordData, ['state', 'state_name']),
+        ...pick(recordData, ['state', 'state_name'])
       })
       _parseServerData(record)
       await Promise.all([_fetchX2Manys(record), _fetchReferences(record)])
@@ -669,7 +669,7 @@ const _fetchX2Manys = (record: DataPoint) => {
         modelName: field.relation,
         res_ids: ids,
         fieldsInfo,
-        parentId: record.id,
+        parentId: record.id
       })
       record.data[fieldName] = list.id
       if (!fieldInfo.__no_fetch) {
@@ -704,7 +704,7 @@ const _fetchX2ManysData = async (list: DataPoint) => {
             modelName: list.model,
             res_id: id,
             fieldsInfo: list.fieldsInfo,
-            data,
+            data
           })
           _parseServerData(dataPoint)
           list._cache[id] = dataPoint.id
@@ -735,15 +735,15 @@ const _fetchReference = async (
       return _makeDataPoint({
         data: {
           id: result[0][0],
-          display_name: result[0][1],
+          display_name: result[0][1]
         },
         fieldsInfo: {
           id: { type: 'integer', name: 'id' },
-          display_name: { type: 'char', name: 'display_name' },
+          display_name: { type: 'char', name: 'display_name' }
         },
         parentId: record.id,
         modelName: model,
-        viewType: 'form',
+        viewType: 'form'
       })
     }
   }
@@ -787,15 +787,15 @@ const _fetchReferenceData = async (
         const referenceDp = _makeDataPoint({
           data: {
             id: value[0],
-            display_name: value[1],
+            display_name: value[1]
           },
           fieldsInfo: {
             id: { type: 'integer', name: 'id' },
-            display_name: { type: 'char', name: 'display_name' },
+            display_name: { type: 'char', name: 'display_name' }
           },
           parentId: recordId,
           modelName: model,
-          viewType: 'form',
+          viewType: 'form'
         })
         record.data[fieldName] = referenceDp.id
       })
@@ -881,7 +881,7 @@ const _fetchRelationalData = (record: DataPoint) => {
       // TODO context
       toBeFetched.push({
         context: {},
-        record: relatedRecord,
+        record: relatedRecord
       })
     }
   })
@@ -952,7 +952,7 @@ const _makeDataPoint = <T extends LoadParams>(params: T): DataPoint => {
     type,
     data,
     res_id,
-    res_ids,
+    res_ids
   }
 
   localData[dataPoint.id] = dataPoint
@@ -971,7 +971,7 @@ const _makeDefaultRecord = async (modelName: string, params: LoadParams) => {
   const fieldNames = Object.keys(params.fieldsInfo)
   const record = _makeDataPoint({
     ...params,
-    modelName,
+    modelName
   })
 
   // 默认值处理
@@ -1028,7 +1028,7 @@ const _getDefaultData = async (record: DataPoint) => {
   const recordId = await _makeDefaultRecord(record.model, {
     fieldsInfo: record.fieldsInfo,
     viewType: record.viewType,
-    modelName: record.model,
+    modelName: record.model
   })
 
   const defaultRecord = localData[recordId]
@@ -1062,7 +1062,7 @@ const _getDataToFetch = (list: DataPoint, fieldName: string) => {
       parentId: list.id,
       fieldsInfo: _getFieldsInfo(),
       viewType: 'list',
-      res_ids: record.data[fieldName],
+      res_ids: record.data[fieldName]
     })
     record.data[fieldName] = m2mList.id
   })
@@ -1105,7 +1105,7 @@ const _getFieldsInfo = (element?: DataPoint) => {
     ? element.fieldsInfo
     : ({
         id: { type: 'integer', name: 'id' },
-        display_name: { type: 'char', name: 'display_name' },
+        display_name: { type: 'char', name: 'display_name' }
       } as FieldsInfo)
 }
 
@@ -1140,7 +1140,7 @@ const _generateChanges = (record: DataPoint, options: any) => {
   }
   // TODO get x2many commands
   const commands = _generateX2ManyCommands(record, {
-    changesOnly: 'changesOnly' in options ? options.changesOnly : true,
+    changesOnly: 'changesOnly' in options ? options.changesOnly : true
   })
 
   for (let fieldName in record.fieldsInfo) {
@@ -1238,12 +1238,12 @@ const _generateX2ManyCommands = (record: DataPoint, options: any) => {
         // replace command
         commands[fieldName].push(x2ManyCommands.replace_with(realIDs))
 
-        each(relRecordCreated, (relRecord) => {
+        each(relRecordCreated, relRecord => {
           const changes = _generateChanges(relRecord, options)
           commands[fieldName].push(x2ManyCommands.create(relRecord.ref, changes))
         })
 
-        each(relRecordUpdated, (relRecord) => {
+        each(relRecordUpdated, relRecord => {
           const changes = _generateChanges(relRecord, options)
           if (isEmpty(changes)) {
             const command = x2ManyCommands.update(relRecord.res_id, changes)
@@ -1330,7 +1330,7 @@ const _getEvalContext = (element: DataPoint, forDomain = false) => {
       active_ids: evalContext.id ? [evalContext.id] : [],
       active_model: element.model,
       current_date: formatDate('yyyy-MM-dd'),
-      id: evalContext.id || false,
+      id: evalContext.id || false
     },
     element.context || {},
     evalContext
@@ -1445,14 +1445,14 @@ const _parseServerData = (record: DataPoint) => {
           modelName: field.relation,
           data: {
             id: val[0],
-            display_name: val[1],
+            display_name: val[1]
           },
           fieldsInfo: {
             id: { type: 'integer', name: 'id' },
-            display_name: { type: 'char', name: 'display_name' },
+            display_name: { type: 'char', name: 'display_name' }
           },
           parentId: record.id,
-          viewType: 'form',
+          viewType: 'form'
         })
         data[fieldName] = r.id
       } else {
@@ -1476,10 +1476,10 @@ const _performOnChange = async (record: DataPoint, fields: string[] | string, op
     additionalContext: defaults(
       {
         isModifierValue: true,
-        view_type: 'form',
+        view_type: 'form'
       },
       options || {}
-    ),
+    )
   }
 
   const onchangeSpec = _buildOnchangeSpecs(record)
@@ -1542,7 +1542,7 @@ const _processX2ManyCommands = (record: DataPoint, fieldName: string, commands: 
     modelName: field.relation as string,
     parentId: record.id,
     fieldsInfo,
-    res_ids: [],
+    res_ids: []
   })
   record._changes[fieldName] = list.id
   list._changes = []
@@ -1559,12 +1559,12 @@ const _processX2ManyCommands = (record: DataPoint, fieldName: string, commands: 
         viewType,
         modelName: list.model,
         fieldsInfo: fieldsInfo,
-        parentId: list.id,
+        parentId: list.id
       })
 
       list._changes.push({ operation: 'ADD', id: r.id })
 
-      each(_getFieldsName(r), (fieldName) => {
+      each(_getFieldsName(r), fieldName => {
         r.data[fieldName] = null
       })
 
@@ -1582,10 +1582,10 @@ const _processX2ManyCommands = (record: DataPoint, fieldName: string, commands: 
               modelName: field.relation as string,
               fieldsInfo: {
                 id: { type: 'integer', name: 'id' },
-                display_name: { type: 'char', name: 'display_name' },
+                display_name: { type: 'char', name: 'display_name' }
               },
               data: { id: r._changes[fieldName] },
-              parentId: r.id,
+              parentId: r.id
             })
             r._changes[fieldName] = rec.id
             many2ones[fieldName] = true
@@ -1596,10 +1596,10 @@ const _processX2ManyCommands = (record: DataPoint, fieldName: string, commands: 
               modelName: ref[0],
               fieldsInfo: {
                 id: { type: 'integer', name: 'id' },
-                display_name: { type: 'char', name: 'display_name' },
+                display_name: { type: 'char', name: 'display_name' }
               },
               data: { id: ref[1] },
-              parentId: r.id,
+              parentId: r.id
             })
             r._changes[fieldName] = rec.id
             many2ones[fieldName] = true
@@ -1667,7 +1667,7 @@ const _updateRecordsData = (records: DataPoint[], fieldName: string, values: any
         fieldsInfo: _getFieldsInfo(),
         parentId: x2mList.id,
         res_id: id,
-        data: find(values, { id }),
+        data: find(values, { id })
       })
       x2mList.data.push(rec.id)
       x2mList._cache[id] = rec.id
@@ -1754,10 +1754,10 @@ export const applyDefaultValues = (recordID: DataPointId, values: any, options: 
         data: { id: values[fieldName] },
         fieldsInfo: {
           id: { type: 'integer', name: 'id' },
-          display_name: { type: 'char', name: 'display_name' },
+          display_name: { type: 'char', name: 'display_name' }
         },
         parentId: record.id,
-        viewType: viewType,
+        viewType: viewType
       })
       record._changes[fieldName] = dp.id
     } else if (field.type === 'reference' && values[fieldName]) {
@@ -1767,10 +1767,10 @@ export const applyDefaultValues = (recordID: DataPointId, values: any, options: 
         data: { id: parseInt(ref[1]) },
         fieldsInfo: {
           id: { type: 'integer', name: 'id' },
-          display_name: { type: 'char', name: 'display_name' },
+          display_name: { type: 'char', name: 'display_name' }
         },
         parentId: record.id,
-        viewType: viewType,
+        viewType: viewType
       })
       defs.push(_fetchNameGet(dp))
       record._changes[fieldName] = dp.id
@@ -1978,7 +1978,7 @@ export const get = (id: DataPointId, options?: any) => {
 
     return {
       ...element,
-      data,
+      data
     }
   }
 
@@ -1988,7 +1988,7 @@ export const get = (id: DataPointId, options?: any) => {
 
   const list = {
     ...element,
-    data: map(element.data, (id: DataPointId) => get(id)),
+    data: map(element.data, (id: DataPointId) => get(id))
   } as any
 
   return list
@@ -2071,8 +2071,8 @@ export const notifyChanges = async (recordID: DataPointId, changes: DataPointDat
         [x2manyCommad.fieldName]: {
           operation: x2manyCommad.type,
           id: recordID,
-          data: changes,
-        },
+          data: changes
+        }
       }
       recordID = x2manyCommad.recordID as DataPointId
     }

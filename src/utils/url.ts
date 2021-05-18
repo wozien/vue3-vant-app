@@ -6,19 +6,21 @@ import urlKit from 'url'
 import { omit } from 'lodash-es'
 import qs from 'qs'
 
-interface QueryParms  {
-  [key: string]: any;
+const { VITE_BASE_API } = import.meta.env
+
+interface QueryParms {
+  [key: string]: any
 }
 
 /**
  * 设置一个url的query参数
- * @param url 
- * @param query 
+ * @param url
+ * @param query
  */
 export const setUrlQuery = (url: string, query: QueryParms) => {
   const urlObj = new URL(url)
 
-  for(let key in query) {
+  for (let key in query) {
     urlObj.searchParams.set(key, query[key])
   }
 
@@ -28,8 +30,8 @@ export const setUrlQuery = (url: string, query: QueryParms) => {
 const _buildQueryString = (params: any) => {
   return params
     ? Object.keys(params).reduce((acc, key) => {
-      return acc + (acc ? '&' : '') + `${key}=${params[key]}`
-    }, '')
+        return acc + (acc ? '&' : '') + `${key}=${params[key]}`
+      }, '')
     : ''
 }
 
@@ -55,8 +57,8 @@ export const getTimedUrl = function (origUrl: string) {
 
 /**
  * 处理path
- * @param url 
- * @param queryKeysToBeStripped 
+ * @param url
+ * @param queryKeysToBeStripped
  */
 export const getCurrentUrlPath = function (url: string, queryKeysToBeStripped: boolean | string[]) {
   let finalUrl = url
@@ -65,25 +67,27 @@ export const getCurrentUrlPath = function (url: string, queryKeysToBeStripped: b
   }
   if (queryKeysToBeStripped && Array.isArray(queryKeysToBeStripped)) {
     const queryString = _getQueryString(url, queryKeysToBeStripped)
-    finalUrl = url.replace(/\?.+$/, '') + (queryString ? ('?' + queryString) : '')
+    finalUrl = url.replace(/\?.+$/, '') + (queryString ? '?' + queryString : '')
   }
-  // if (queryParamsToBeAdded) {
-  //   const urlObj = urlKit.parse(finalUrl, true)
-  //   finalUrl = urlObj.pathname + '?' +
-  //     _buildQueryString({ ...urlObj.query, ...queryParamsToBeAdded })
-  // }
+
   return finalUrl
 }
 
 /**
  * 获取完整的地址
- * @param host 
- * @param path 
- * @param params 
- * @param newDomain 
- * @param useHttps 
+ * @param host
+ * @param path
+ * @param params
+ * @param newDomain
+ * @param useHttps
  */
-export const getFullUrl = function (host: string, path: string, params?: any, newDomain?: string, useHttps = false) {
+export const getFullUrl = function (
+  host: string,
+  path: string,
+  params?: any,
+  newDomain?: string,
+  useHttps = false
+) {
   const protocol = useHttps ? 'https://' : 'http://'
   if (newDomain) {
     const hostParts = host.split(':')
@@ -92,6 +96,18 @@ export const getFullUrl = function (host: string, path: string, params?: any, ne
   }
   const query = _buildQueryString(params)
   return protocol + host + path + (query ? '?' : '') + query
+}
+
+/**
+ * 获取env配置的host的完整url
+ * @param path
+ * @param params
+ * @returns
+ */
+export const getBaseFullUrl = (path: string, params?: any): string => {
+  const host = VITE_BASE_API as string
+  const query = _buildQueryString(params)
+  return host.replace(/\/$/, '') + '/' + path.replace(/^\//, '') + (query ? '?' : '') + query
 }
 
 export default {

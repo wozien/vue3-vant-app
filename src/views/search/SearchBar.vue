@@ -1,12 +1,12 @@
 <template>
-  <van-search 
-    v-model="searchValue" 
-    shape="round" 
+  <van-search
+    v-model="searchValue"
+    shape="round"
     :placeholder="placeholder"
     :show-action="showAction"
   >
     <template v-if="showAction" #action>
-      <Icon name="filter" @click="$emit('click-action')"/>
+      <Icon name="filter" @click="$emit('click-action')" />
     </template>
   </van-search>
 </template>
@@ -14,14 +14,14 @@
 <script lang="ts">
 import { debounce } from 'lodash-es'
 import { computed, defineComponent, PropType, ref, watch } from 'vue'
-import { getDomain, SearchItem } from './search-helper'
+import { getDomain, SearchItemType } from './search-helper'
 
 export default defineComponent({
   props: {
     placeholder: String,
     showAction: Boolean,
     searchFields: {
-      type: Object as PropType<string[]>,
+      type: Array as PropType<string[]>,
       default: () => []
     }
   },
@@ -30,8 +30,10 @@ export default defineComponent({
 
   setup(props, { emit }) {
     const searchValue = ref('')
-    const searchItems = computed(() => props.searchFields.map((name: string) => ({name, type: 'input'})))
-    const valueChange = debounce((val) => {
+    const searchItems = computed(() =>
+      props.searchFields.map((name: string) => ({ name, type: 'input' as SearchItemType }))
+    )
+    const valueChange = debounce(val => {
       const domain = getSearchDomain(val)
       // console.log(domain)
       emit('search', domain)
@@ -41,8 +43,8 @@ export default defineComponent({
       const values = props.searchFields.reduce((res: any, key: string) => {
         res[key] = val
         return res
-      } , {})
-      return getDomain(values, searchItems.value as SearchItem[])
+      }, {})
+      return getDomain(values, searchItems.value)
     }
 
     watch(searchValue, val => {
@@ -54,5 +56,4 @@ export default defineComponent({
     }
   }
 })
-
 </script>

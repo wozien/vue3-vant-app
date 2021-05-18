@@ -25,10 +25,13 @@ export interface DataPoint extends DataPointProps {
 }
 
 export interface DataPointState extends DataPointProps {
-  data: DataPoint | DataPoint[] | { 
-    id?: number
-    [key: string]: any
-  }
+  data:
+    | DataPoint
+    | DataPoint[]
+    | {
+        id?: number
+        [key: string]: any
+      }
 }
 
 export interface LoadParams {
@@ -39,13 +42,11 @@ export interface LoadParams {
   res_ids?: (number | string)[]
   type?: DataPointType
   parentId?: DataPointId
-  data?: { 
+  data?: {
     id?: number
     [key: string]: any
-  },
+  }
   domain?: any[]
 }
 
-export type LocalData = {
-  [key: string]: DataPoint
-}
+export type LocalData = Recordable<DataPoint>

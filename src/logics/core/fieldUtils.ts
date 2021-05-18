@@ -1,7 +1,7 @@
 import { find, isNumber, isString, identity } from 'lodash-es'
-import { str2Date, formatDate as date2Str } from '@/helpers/date'
+import { str2Date, formatDate as date2Str } from '@/utils/date'
 import { DataPoint } from '@/logics/types/dataPoint'
-import { insertThousandSeps } from '@/helpers/utils'
+import { insertThousandSeps } from '@/utils'
 import sprintf from '@/logics/odoo/sprintf'
 
 // -------------- format --------------
@@ -107,12 +107,12 @@ function parseMany2one(value: any) {
   if (Array.isArray(value)) {
     return {
       id: value[0],
-      display_name: value[1],
+      display_name: value[1]
     }
   }
   if (isNumber(value) || isString(value)) {
     return {
-      id: parseInt(value as string, 10),
+      id: parseInt(value as string, 10)
     }
   }
   return value
@@ -138,7 +138,7 @@ export default {
     one2many: formatX2Many,
     many2many: formatX2Many,
     reference: formatMany2one,
-    jsonb: formatJsonb,
+    jsonb: formatJsonb
   },
   parse: {
     char: identity,
@@ -153,6 +153,6 @@ export default {
     one2many: identity,
     many2many: identity,
     reference: parseMany2one,
-    jsonb: parseJsonb,
-  },
+    jsonb: parseJsonb
+  }
 }
