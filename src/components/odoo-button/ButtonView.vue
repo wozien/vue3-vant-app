@@ -79,6 +79,7 @@ import {
 } from '@/logics/core/dataPoint'
 import { sessionStorageKeys } from '@/logics/enums/cache'
 import { deleteRecord } from '@/api/record'
+import { useViewNavigator } from '@/hooks/component/useView'
 
 export default defineComponent({
   components: {
@@ -96,6 +97,7 @@ export default defineComponent({
     const route = useRoute()
     const router = useRouter()
     const store = useStore()
+    const viewNavigator = useViewNavigator({ route, router })
 
     const showPopover = ref(false)
     const showSubPopover = ref(false)
@@ -213,12 +215,7 @@ export default defineComponent({
 
     // 编辑
     const onEdit = () => {
-      router.replace({
-        name: 'view',
-        query: Object.assign({}, route.query, {
-          readonly: 0
-        })
-      })
+      viewNavigator.toggleReadonly(false)
     }
     // 保存
     const onSave = async () => {
@@ -240,10 +237,7 @@ export default defineComponent({
           query.id = res.data
         }
         flushAttach && flushAttach(query.id)
-        router.replace({
-          name: 'view',
-          query
-        })
+        viewNavigator(query as any)
       }
     }
     // 行保存
@@ -253,7 +247,7 @@ export default defineComponent({
         Toast('存在必录项未填')
         return
       }
-      router.back()
+      viewNavigator.back()
     }
     // 取消
     const onCancel = () => {
@@ -262,14 +256,9 @@ export default defineComponent({
       const back = () => {
         const isNewRecord = isNew(recordId)
         if (isNewRecord) {
-          router.back()
+          viewNavigator.back()
         } else {
-          router.replace({
-            name: 'view',
-            query: Object.assign({}, route.query, {
-              readonly: 1
-            })
-          })
+          viewNavigator.toggleReadonly()
         }
       }
 
@@ -289,12 +278,9 @@ export default defineComponent({
     }
     // 创建
     const onCreate = () => {
-      router.replace({
-        name: 'view',
-        query: Object.assign({}, route.query, {
-          id: '',
-          readonly: 0
-        })
+      viewNavigator({
+        id: '',
+        readonly: 0
       })
     }
     // 删除
@@ -307,7 +293,7 @@ export default defineComponent({
           const res = await deleteRecord(record.model, record.res_id, action.context || {})
           if (res.ret === 0) {
             Toast('删除成功')
-            router.back()
+            viewNavigator.back()
           }
         })
         .catch(() => {})
@@ -316,12 +302,9 @@ export default defineComponent({
     const onCopy = async () => {
       const record = await copyRecord(curRecord.value.id)
       store.commit('SET_RECORD_TOKEN')
-      router.replace({
-        name: 'view',
-        query: Object.assign({}, route.query, {
-          readonly: 0,
-          id: record.res_id
-        })
+      viewNavigator({
+        id: record.res_id,
+        readonly: 0
       })
     }
     // 行插入
@@ -352,12 +335,7 @@ export default defineComponent({
           const resIds = (list as any).res_ids || []
           const id = rowIndex !== undefined ? resIds[rowIndex] : last(resIds)
           if (id) {
-            router.replace({
-              name: 'view',
-              query: Object.assign({}, route.query, {
-                subId: id
-              })
-            })
+            viewNavigator({ subId: id })
           }
         }
       }
@@ -373,7 +351,7 @@ export default defineComponent({
             ids: [curRecord.value.id]
           }
         })
-        router.back()
+        viewNavigator.back()
       }
     }
     // 行复制
@@ -388,14 +366,9 @@ export default defineComponent({
         })
         const list = get(curRecord.value.parentId)
         if (list) {
-          const id = last((list as any).res_ids || [])
+          const id = last((list as any).res_ids || []) as number
           if (id) {
-            router.replace({
-              name: 'view',
-              query: Object.assign({}, route.query, {
-                subId: id
-              })
-            })
+            viewNavigator({ subId: id })
           }
         }
       }

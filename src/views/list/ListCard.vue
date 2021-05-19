@@ -20,12 +20,12 @@
 <script lang="ts">
 import { each } from 'lodash-es'
 import { defineComponent, PropType } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
 import type { FieldsInfo, FieldInfo } from '@/logics/types'
 import ListRecord from '@/logics/class/ListRecord'
 import { formatDate } from '@/utils/date'
 import { sessionStorageKeys } from '@/logics/enums/cache'
 import fieldUtils from '@/logics/core/fieldUtils'
+import { useViewNavigator } from '@/hooks/component/useView'
 
 interface ListCardField {
   name: string
@@ -61,8 +61,7 @@ export default defineComponent({
   },
 
   setup(props) {
-    const route = useRoute()
-    const router = useRouter()
+    const viewNavigator = useViewNavigator()
     const cardData = useCard(props.record, props.fieldsInfo, props.appName)
 
     const onClickCard = () => {
@@ -80,12 +79,8 @@ export default defineComponent({
       cardData.model && (query.model = cardData.model)
       cardData.actionId && (query.actionId = cardData.actionId)
 
-      // 这里的函数外用router.push为啥不跳转 ?
-      // viewNavigater.to(route.query as any, query)
-      router.push({
-        name: 'view',
-        query: Object.assign({}, route.query, query)
-      })
+      // router.push
+      viewNavigator.to(query)
     }
 
     return {
