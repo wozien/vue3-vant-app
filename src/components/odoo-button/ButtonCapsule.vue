@@ -28,14 +28,14 @@ import Button from './Button.vue'
 
 export default defineComponent({
   components: {
-    Button,
+    Button
   },
 
   props: {
     button: {
       type: Object as PropType<ViewButton>,
-      required: true,
-    },
+      required: true
+    }
   },
   emits: ['click'],
 
@@ -51,9 +51,9 @@ export default defineComponent({
 
     return {
       showPopover,
-      onClick,
+      onClick
     }
-  },
+  }
 })
 </script>
 

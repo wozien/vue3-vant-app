@@ -49,28 +49,21 @@ import One2Many from './One2Many.vue'
 
 export default defineComponent({
   components: {
-    One2Many,
+    One2Many
   },
 
   props: {
-    ...fieldCommonProps,
+    ...fieldCommonProps
   },
 
   setup(props) {
     const state = reactive({
       showPicker: false,
       columns: [] as string[],
-      loading: false,
+      loading: false
     })
-    const {
-      string,
-      placeholder,
-      rawValue,
-      curRecord,
-      isReadonly,
-      isRequired,
-      setValue,
-    } = useFieldCommon(props)
+    const { string, placeholder, rawValue, curRecord, isReadonly, isRequired, setValue } =
+      useFieldCommon(props)
     const widget = computed(() => props.item?.widget)
     const items = computed(() => {
       if (rawValue.value) {
@@ -93,7 +86,7 @@ export default defineComponent({
       if (record) {
         setValue({
           operation: 'FORGET',
-          ids: [record.id],
+          ids: [record.id]
         })
       }
     }
@@ -107,7 +100,7 @@ export default defineComponent({
     const onConfirm = (item: any) => {
       setValue({
         operation: 'ADD_M2M',
-        ids: pick(item, ['id', 'display_name']),
+        ids: pick(item, ['id', 'display_name'])
       })
       state.showPicker = false
     }
@@ -121,7 +114,7 @@ export default defineComponent({
           return {
             id,
             display_name,
-            text: display_name,
+            text: display_name
           }
         })
       }
@@ -140,9 +133,9 @@ export default defineComponent({
       items,
       onTagClose,
       onClick,
-      onConfirm,
+      onConfirm
     }
-  },
+  }
 })
 </script>
 

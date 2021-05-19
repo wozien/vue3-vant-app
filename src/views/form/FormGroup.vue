@@ -31,9 +31,9 @@ export default defineComponent({
   props: {
     renderItem: {
       type: Object as PropType<Item>,
-      required: true,
+      required: true
     },
-    type: String,
+    type: String
   },
 
   setup(props) {
@@ -60,7 +60,7 @@ export default defineComponent({
       }
     }
 
-    watch(expanded, (val) => {
+    watch(expanded, val => {
       if (val) {
         show.value = true
       }
@@ -94,9 +94,9 @@ export default defineComponent({
       wrapperRef,
       contentRef,
       toggle,
-      onTransitionEnd,
+      onTransitionEnd
     }
-  },
+  }
 })
 </script>
 

@@ -12,11 +12,11 @@ import UserSelect from './UserSelect.vue'
 export default defineComponent({
   components: {
     Modal,
-    UserSelect,
+    UserSelect
   },
 
   props: {
-    show: Boolean,
+    show: Boolean
   },
 
   emits: ['update:show', 'select'],
@@ -25,8 +25,8 @@ export default defineComponent({
     const state = reactive({
       selected: {
         members: [],
-        roles: [],
-      },
+        roles: []
+      }
     })
     const showModal = computed<boolean>({
       get() {
@@ -34,7 +34,7 @@ export default defineComponent({
       },
       set(val) {
         emit('update:show', val)
-      },
+      }
     })
 
     const onConfirm = (cb: Function) => {
@@ -51,9 +51,9 @@ export default defineComponent({
       showModal,
       ...toRefs(state),
       reset,
-      onConfirm,
+      onConfirm
     }
-  },
+  }
 })
 </script>
 

@@ -7,7 +7,7 @@ export function createVitePlugins(viteEnv: Record<string, any>, isBuild: boolean
   const vitePlugins: (Plugin | Plugin[])[] = [
     // have to
     vue(),
-    vueJsx(),
+    vueJsx()
   ]
 
   // style import on demand
@@ -18,19 +18,19 @@ export function createVitePlugins(viteEnv: Record<string, any>, isBuild: boolean
           {
             libraryName: 'vant',
             esModule: true,
-            resolveStyle: (name) => {
+            resolveStyle: name => {
               // https://github.com/anncwb/vite-plugin-style-import/issues/10
               return `vant/es/${name}/style/less`
-            },
+            }
           },
           {
             libraryName: 'vxe-table',
             esModule: true,
-            resolveStyle: (name) => {
+            resolveStyle: name => {
               return `vxe-table/lib/${name}/style/index`
-            },
-          },
-        ],
+            }
+          }
+        ]
       })
     )
   }

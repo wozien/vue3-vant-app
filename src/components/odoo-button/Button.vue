@@ -18,8 +18,8 @@ export default defineComponent({
   props: {
     button: {
       type: Object as PropType<ViewButton>,
-      required: true,
-    },
+      required: true
+    }
   },
   emits: ['click'],
 
@@ -31,9 +31,9 @@ export default defineComponent({
 
     return {
       highlight,
-      onClickBtn,
+      onClickBtn
     }
-  },
+  }
 })
 </script>
 

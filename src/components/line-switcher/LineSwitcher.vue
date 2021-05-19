@@ -20,7 +20,7 @@ export default defineComponent({
     const state = reactive({
       recordIds: [] as any[],
       current: 0,
-      total: 0,
+      total: 0
     })
     const curRecord = computed(() => store.getters.curRecord)
 
@@ -48,7 +48,7 @@ export default defineComponent({
 
     watch(
       () => state.current,
-      (val) => {
+      val => {
         const curRecordId = state.recordIds[val]
         curRecordId && store.commit('SET_CUR_RECORD', curRecordId)
       }
@@ -57,9 +57,9 @@ export default defineComponent({
     return {
       ...toRefs(state),
       onLeft,
-      onRight,
+      onRight
     }
-  },
+  }
 })
 </script>
 

@@ -82,8 +82,8 @@ export default defineComponent({
   props: {
     selected: {
       type: Object as PropType<{ members: ListItem[]; roles: ListItem[] }>,
-      default: () => ({ members: [], roles: [] }),
-    },
+      default: () => ({ members: [], roles: [] })
+    }
   },
 
   emits: ['update:selected'],
@@ -93,11 +93,11 @@ export default defineComponent({
       members: {} as any,
       roles: {} as any,
       memberSelect: [] as ListItem[],
-      roleSelect: [] as ListItem[],
+      roleSelect: [] as ListItem[]
     })
 
     const onClickMemberItem = (item: any) => {
-      const index = state.memberSelect.findIndex((mb) => mb.id === item.id)
+      const index = state.memberSelect.findIndex(mb => mb.id === item.id)
       if (index > -1) {
         state.memberSelect.splice(index, 1)
       } else {
@@ -106,7 +106,7 @@ export default defineComponent({
     }
 
     const onClickRoleItem = (item: any) => {
-      const index = state.roleSelect.findIndex((rl) => rl.id === item.id)
+      const index = state.roleSelect.findIndex(rl => rl.id === item.id)
       if (index > -1) {
         state.roleSelect.splice(index, 1)
       } else {
@@ -131,20 +131,20 @@ export default defineComponent({
 
     watch(
       () => state.memberSelect,
-      (val) => {
+      val => {
         emit('update:selected', {
           members: val,
-          roles: state.roleSelect,
+          roles: state.roleSelect
         })
       }
     )
 
     watch(
       () => state.roleSelect,
-      (val) => {
+      val => {
         emit('update:selected', {
           members: state.memberSelect,
-          roles: val,
+          roles: val
         })
       }
     )
@@ -152,9 +152,9 @@ export default defineComponent({
     return {
       ...toRefs(state),
       onClickMemberItem,
-      onClickRoleItem,
+      onClickRoleItem
     }
-  },
+  }
 })
 
 /**

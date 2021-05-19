@@ -28,7 +28,7 @@ import {
   DatetimePicker,
   TreeSelect,
   Empty,
-  Loading,
+  Loading
 } from 'vant'
 
 export default function (app: App) {
