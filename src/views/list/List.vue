@@ -151,9 +151,9 @@ export default defineComponent({
       router.push({
         name: 'view',
         query: {
-          model: route.query.model,
-          viewType: 'form',
-          id: ''
+          ...route.query,
+          id: '',
+          viewType: 'form'
         }
       })
     }

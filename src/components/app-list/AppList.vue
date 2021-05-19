@@ -14,7 +14,7 @@ import { defineComponent, PropType } from 'vue'
 import { Toast } from 'vant'
 import { addAppCount } from '@/api/app'
 import { getAppAsync } from '@/logics/class/App'
-import { useViewNavigater } from '@/hooks/component/useView'
+import { useViewNavigator } from '@/hooks/component/useView'
 
 interface AppRaw {
   id: number
@@ -30,7 +30,7 @@ export default defineComponent({
   },
 
   setup(props) {
-    const viewNavigater = useViewNavigater()
+    const viewNavigator = useViewNavigator()
 
     const onClickApp = async ({ id, action_id: actionId, model_key: modelKey }: AppRaw) => {
       const toast = Toast.loading({ message: '加载视图...', duration: 0 })
@@ -38,7 +38,7 @@ export default defineComponent({
         const [app] = await Promise.all([getAppAsync(modelKey, actionId), addAppCount(id)])
 
         const hasList = app.views && 'list' in app.views
-        viewNavigater.to(modelKey, hasList ? 'list' : 'form', actionId).then(() => {
+        viewNavigator.to(modelKey, hasList ? 'list' : 'form', actionId).then(() => {
           toast.clear()
         })
       } catch (e) {

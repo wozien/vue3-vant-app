@@ -1,6 +1,6 @@
 import { PropType } from 'vue'
 import { FieldsInfo, Fields, View } from '@/logics/types'
-import { useRouter, NavigationFailure } from 'vue-router'
+import { useRouter, useRoute, NavigationFailure, LocationQuery } from 'vue-router'
 import { ViewType } from '@/logics/types'
 
 export const viewCommonProps = {
@@ -10,22 +10,40 @@ export const viewCommonProps = {
 }
 
 export interface ViewQuery {
-  model: string
-  viewType: ViewType
-  id?: number
+  model?: string
+  viewType?: ViewType
+  id?: number | string
   actionId?: number
   subModel?: string
   subId?: number
   readonly?: 0 | 1 | '0' | '1'
+  [key: string]: any
 }
 
 // overlaod
 interface NormalizeQuery<T = ViewQuery> {
   (model: string, viewType: ViewType, actionId?: number, id?: number): T
-  (query: ViewQuery, extend?: Recordable): T
+  (query: ViewQuery, routeQuery?: LocationQuery): T
 }
 
-const normalizeQuery: NormalizeQuery = (a: any, b: any, c?: any, d?: any) => {
+type PromiseRouterNavagation = Promise<void | undefined | NavigationFailure>
+
+type NavigationFn = NormalizeQuery<PromiseRouterNavagation>
+
+interface NavigatorOptions {
+  mode?: 'push' | 'replace'
+  route?: ReturnType<typeof useRoute>
+  router?: ReturnType<typeof useRouter>
+}
+
+interface Navigator extends NormalizeQuery<PromiseRouterNavagation> {
+  to: NavigationFn
+  replace: NavigationFn
+  toggleReadonly: (readonly?: boolean) => void
+  back: () => void
+}
+
+const normalizeQuery: NormalizeQuery = (a: any, b?: any, c?: any, d?: any) => {
   let query: ViewQuery
   if (typeof a === 'string') {
     query = {
@@ -35,36 +53,37 @@ const normalizeQuery: NormalizeQuery = (a: any, b: any, c?: any, d?: any) => {
     c && (query.actionId = c)
     d && (query.id = d)
   } else {
-    query = Object.assign({}, a, b || {})
+    b = b || {}
+    query = { ...b, ...a }
   }
 
   return query
 }
 
-type PromiseRouterNavagation = Promise<void | undefined | NavigationFailure>
+export function useViewNavigator({
+  mode = 'replace',
+  route = useRoute(),
+  router = useRouter()
+}: NavigatorOptions = {}): Navigator {
+  const createNavigationFn = (mode: 'replace' | 'push') => {
+    const navigationFn: NavigationFn = (a: any, b?: any, c?: any, d?: any) => {
+      const query = normalizeQuery(a, b || route.query, c, d)
+      return router[mode]({
+        name: 'view',
+        query
+      })
+    }
 
-export function useViewNavigater() {
-  const router = useRouter()
-
-  const to: NormalizeQuery<PromiseRouterNavagation> = (a: any, b: any, c?: any, d?: any) => {
-    const query = normalizeQuery(a, b, c, d)
-    return router.push({
-      name: 'view',
-      query: { ...query }
-    })
+    return navigationFn
   }
 
-  const replace: NormalizeQuery<PromiseRouterNavagation> = (a: any, b: any, c?: any, d?: any) => {
-    const query = normalizeQuery(a, b, c, d)
-    return router.replace({
-      name: 'view',
-      query: { ...query }
-    })
+  const navigator = createNavigationFn(mode) as Navigator
+  navigator.to = createNavigationFn('push')
+  navigator.replace = createNavigationFn('replace')
+  navigator.back = () => router.back()
+  navigator.toggleReadonly = (readonly = true) => {
+    navigator.replace({ readonly: readonly ? 1 : 0 })
   }
 
-  return {
-    to,
-    replace,
-    back: router.back
-  }
+  return navigator
 }
