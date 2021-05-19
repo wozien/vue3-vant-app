@@ -116,16 +116,6 @@ class View {
       }
     }
 
-    // 生产环境暂时屏蔽编辑态按钮
-    if (import.meta.env.PROD) {
-      viewButtons = viewButtons.filter(btn => {
-        return (
-          btn.mode !== 'edit' &&
-          (!btn.funcName || !['edit', 'create', 'copy'].includes(btn.funcName))
-        )
-      })
-    }
-
     return viewButtons
   }
 

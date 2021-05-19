@@ -98,8 +98,7 @@ export default defineComponent({
     const canCreate = computed(() => {
       return (
         props.curView &&
-        props.curView.buttons.findIndex((btn: any) => btn.funcName === 'create') > -1 &&
-        import.meta.env.DEV
+        props.curView.buttons.findIndex((btn: any) => btn.funcName === 'create') > -1
       )
     })
 
