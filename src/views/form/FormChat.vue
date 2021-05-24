@@ -28,6 +28,7 @@ import { fetchFormChats, postFormMessage, formMessageFormat } from '@/api/record
 import { getApp } from '@/logics/class/App'
 import { formatDate, str2Date } from '@/utils/date'
 import { isAbsoluteURL } from '@/utils'
+import templateRef from '@/hooks/core/templateRef'
 
 export default defineComponent({
   props: {
@@ -39,7 +40,7 @@ export default defineComponent({
     const store = useStore()
     const message = ref('')
     const list = ref<any[]>([])
-    const messageRef = ref()
+    const messageRef = templateRef<HTMLElement>('messageRef')
     const curRecord = computed(() => store.getters.curRecord)
     const user = computed(() => store.state.user)
 
@@ -89,7 +90,6 @@ export default defineComponent({
     return {
       list,
       message,
-      messageRef,
       send
     }
   }
@@ -116,7 +116,7 @@ function formatServerData(data: any) {
   return res
 }
 
-function setScroll(el: HTMLElement) {
+function setScroll(el: HTMLElement | null) {
   if (el) {
     el.scrollTop = el.scrollHeight - el.offsetHeight
   }

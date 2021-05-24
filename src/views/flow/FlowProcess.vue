@@ -38,13 +38,14 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, watchEffect, onBeforeMount, reactive, ref, toRefs } from 'vue'
+import { defineComponent, watchEffect, onBeforeMount, reactive, toRefs } from 'vue'
 import { useRoute } from 'vue-router'
 import BpmnJS from 'bpmn-js/lib/Modeler'
 import { formatDate } from '@/utils/date'
 import { Dialog } from 'vant'
 import { callButton } from '@/api/odoo'
 import { sessionStorageKeys } from '@/logics/enums/cache'
+import templateRef from '@/hooks/core/templateRef'
 
 export default defineComponent({
   name: 'FlowProcess',
@@ -55,7 +56,7 @@ export default defineComponent({
       list: [] as any[],
       active: 'log'
     })
-    const canvas = ref(null)
+    const canvas = templateRef('canvas')
 
     onBeforeMount(async () => {
       const { model, id } = route.query
@@ -91,7 +92,6 @@ export default defineComponent({
     })
 
     return {
-      canvas,
       ...toRefs(state)
     }
   }
