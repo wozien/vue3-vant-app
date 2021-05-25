@@ -62,7 +62,7 @@ import {
   ref
 } from 'vue'
 import { useRoute, useRouter, onBeforeRouteUpdate } from 'vue-router'
-import { Dialog, Toast } from 'vant'
+import { Dialog } from 'vant'
 import { useStore } from '@/store'
 import FormCanvas from './FormCanvas'
 import ButtonView from '@/components/odoo-button/ButtonView.vue'
@@ -261,10 +261,6 @@ function useFormPopup() {
   const popupType = ref('')
 
   const openPopup = (type: string) => {
-    if (import.meta.env.PROD) {
-      Toast('改功能暂不支持')
-      return
-    }
     popupType.value = type
     showPopup.value = true
   }
