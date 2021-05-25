@@ -26,6 +26,7 @@
 import { defineComponent, PropType, ref, computed, watch, nextTick } from 'vue'
 import { Item } from '@/logics/types'
 import { doubleRaf, raf } from '@vant/use'
+import templateRef from '@/hooks/core/templateRef'
 
 export default defineComponent({
   props: {
@@ -39,8 +40,8 @@ export default defineComponent({
   setup(props) {
     const expanded = ref(true)
     const show = ref(expanded.value)
-    const wrapperRef = ref()
-    const contentRef = ref()
+    const wrapperRef = templateRef('wrapperRef')
+    const contentRef = templateRef('contentRef')
 
     const attrs = computed(() => (props.renderItem && props.renderItem.attrs) || {})
     const canfold = computed(() => {
@@ -55,7 +56,7 @@ export default defineComponent({
     const onTransitionEnd = () => {
       if (!expanded.value) {
         show.value = false
-      } else {
+      } else if (wrapperRef.value) {
         wrapperRef.value.style.height = ''
       }
     }
@@ -74,12 +75,12 @@ export default defineComponent({
 
         const { offsetHeight } = contentRef.value
         if (offsetHeight) {
-          const contentHeight = `${offsetHeight}px`
-          wrapperRef.value.style.height = val ? 0 : contentHeight
+          const contentHeight = `${val ? 0 : offsetHeight}px`
+          wrapperRef.value.style.height = contentHeight
 
           // use double raf to ensure animation can start
           doubleRaf(() => {
-            wrapperRef.value.style.height = val ? contentHeight : 0
+            wrapperRef.value && (wrapperRef.value.style.height = contentHeight)
           })
         } else {
           onTransitionEnd()
@@ -91,8 +92,6 @@ export default defineComponent({
       canfold,
       expanded,
       show,
-      wrapperRef,
-      contentRef,
       toggle,
       onTransitionEnd
     }

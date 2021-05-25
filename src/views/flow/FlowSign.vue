@@ -28,8 +28,9 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, reactive, toRefs, toRaw } from 'vue'
+import { defineComponent, reactive, toRefs, toRaw } from 'vue'
 import UserPicker from '@/components/user-picker/UserPicker.vue'
+import templateRef from '@/hooks/core/templateRef'
 
 export default defineComponent({
   components: {
@@ -37,7 +38,7 @@ export default defineComponent({
   },
 
   setup() {
-    const pickerRef = ref()
+    const pickerRef = templateRef('pickerRef')
     const state = reactive({
       type: '1',
       receiver: '',
@@ -69,7 +70,6 @@ export default defineComponent({
     }
 
     return {
-      pickerRef,
       ...toRefs(state),
       onUserSelected,
       reset,
