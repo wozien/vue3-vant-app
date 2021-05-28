@@ -8,6 +8,7 @@ export default defineComponent({
       default: false
     },
     hideFooter: Boolean,
+    hideCancel: Boolean,
     confirmText: String,
     render: Function,
     confirm: Function,
@@ -57,9 +58,11 @@ export default defineComponent({
     const renderFooter = () => {
       const defaultButtons = () => (
         <div class="footer">
-          <van-button onClick={onCancel} round block>
-            返回
-          </van-button>
+          {props.hideCancel ? null : (
+            <van-button onClick={onCancel} class="cancel-btn" round block>
+              返回
+            </van-button>
+          )}
           <van-button type="primary" round block onClick={onConfirm} loading={loading.value}>
             {props.confirmText || '确定'}
           </van-button>
@@ -110,7 +113,7 @@ export default defineComponent({
     .van-button {
       height: 38px;
       margin: 0px 4px;
-      &:first-child {
+      &.cancel-btn {
         flex: 0 0 100px;
       }
     }
