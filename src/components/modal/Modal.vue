@@ -1,5 +1,5 @@
 <script lang="tsx">
-import { computed, defineComponent, ref, Transition } from 'vue'
+import { defineComponent, ref, Transition } from 'vue'
 
 export default defineComponent({
   props: {
@@ -20,10 +20,10 @@ export default defineComponent({
   setup(props, { emit, slots }) {
     const loading = ref(false)
 
-    const height = computed(() => {
-      const res = document.body.clientHeight
-      return !props.hideFooter ? res - 64 : res
-    })
+    // const height = computed(() => {
+    //   const res = document.body.clientHeight
+    //   return !props.hideFooter ? res - 64 : res
+    // })
 
     const onCancel = () => {
       emit('update:show', false)
@@ -78,9 +78,7 @@ export default defineComponent({
       return (
         <Transition name="slide">
           <div class="ins-modal" v-show={props.show}>
-            <div class="main" style={{ height: height.value + 'px' }}>
-              {renderContent()}
-            </div>
+            <div class="main">{renderContent()}</div>
             {renderFooter()}
           </div>
         </Transition>
@@ -99,15 +97,15 @@ export default defineComponent({
   left: 0;
   z-index: 99;
   background: #f7f8fa;
+  display: flex;
+  flex-direction: column;
   .main {
-    // height: calc(100vh - 64px);
-    overflow: auto;
+    flex: 1;
+    overflow-y: auto;
     position: relative;
   }
   .footer {
-    position: absolute;
-    width: 100%;
-    bottom: 0;
+    flex: 0 0 64px;
     padding: 10px;
     display: flex;
     .van-button {

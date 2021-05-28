@@ -201,7 +201,7 @@ function useCamera() {
         const res = await imageSearch(file)
         if (res.ret === 0) {
           showScanModal.value = true
-          scanList.value = res.data
+          scanList.value = res.data || []
           nextTick(() => {
             title.value = '识别结果'
           })

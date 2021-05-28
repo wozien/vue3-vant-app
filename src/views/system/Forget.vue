@@ -51,8 +51,8 @@ export default defineComponent({
     let randomCode: string = ''
     let token: string = ''
     const confirm = async () => {
+      loading.value = true
       if (!codeValid.value && authCodeRef.value) {
-        loading.value = true
         const res = await authCodeRef.value.authorize('forget')
         if (res !== false) {
           codeValid.value = true

@@ -11,6 +11,7 @@
         <Icon name="company" />
         <span class="name">{{ item.name }}</span>
         <van-tag v-if="item.expire" type="warning">已过期</van-tag>
+        <van-tag v-else-if="item.invitation" type="primary">待接受邀请</van-tag>
       </div>
       <div class="list-item create-btn" v-if="companyList.length < 5" @click="showCreate = true">
         <van-icon name="plus" />创建企业
@@ -82,6 +83,7 @@ interface Company {
   dbName: string
   oauthUrl: string
   expire: boolean
+  invitation: boolean
 }
 
 export default defineComponent({
@@ -107,13 +109,15 @@ export default defineComponent({
       const res = await fetchCompanyList()
       if (res.ret === 0 && res.data?.length) {
         companyList.value = res.data.map((item: any) => {
-          const { db_name, oauth2_login_url, company_name, expire_date } = item
+          const { db_name, oauth2_login_url, company_name, expire_date, is_accept_invitation } =
+            item
           return {
             name: company_name,
             dbName: db_name,
             oauthUrl: oauth2_login_url,
-            expire: isExpire(expire_date)
-          }
+            expire: isExpire(expire_date),
+            invitation: is_accept_invitation
+          } as Company
         })
         const len = companyList.value.length
         if (len) {
@@ -136,6 +140,10 @@ export default defineComponent({
 
       const activeCompany = companyList.value.find(item => item.dbName === active.value)
       if (activeCompany) {
+        if (activeCompany.invitation) {
+          toast.show('不能进入未接受邀请的企业，请先在web端登录接受邀请')
+          return
+        }
         loadCompany(activeCompany)
       }
     }
@@ -239,7 +247,8 @@ function useCreateCompany() {
         name: newCompany.name,
         dbName: db_name,
         oauthUrl: oauth2_login_url,
-        expire: false
+        expire: false,
+        invitation: false
       }
     }
   }
