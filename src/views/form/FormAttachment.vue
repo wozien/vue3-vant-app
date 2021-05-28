@@ -27,7 +27,7 @@
     <footer v-if="$route.query.readonly !== '1'">
       <van-uploader
         :max-size="10 * 1024 * 1024"
-        accept="image/*, .doc, .docx, .xls, .xlsx, .ppt, .pptx, .pdf"
+        :accept="fileAccept.join(',')"
         @oversize="onOversize"
         :after-read="onAfterRead"
       >
@@ -58,6 +58,18 @@ interface FileItem {
   type: FileType
   coverImg: string
 }
+
+const FILE_ACCEPT = [
+  'image/*',
+  'application/pdf',
+  'application/msword', // .doc
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document', //.docx
+  'application/vnd.ms-excel', // .xls
+  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // .xlsx
+  'application/vnd.ms-powerpoint', // .ppt
+  'application/vnd.openxmlformats-officedocument.presentationml.presentation', // .pptx,
+  '.doc,.docx,.xls,.xlsx,.ppt,.pptx'
+]
 
 export default defineComponent({
   props: {
@@ -122,6 +134,11 @@ export default defineComponent({
     }
 
     const onAfterRead = async (data: any) => {
+      if (files.value.length === 10) {
+        toast.show('最多只能上传10个附件')
+        return
+      }
+
       const file = data.file as File
       if (file) {
         toast.loading('附件上传中')
@@ -163,6 +180,7 @@ export default defineComponent({
 
     return {
       files,
+      fileAccept: FILE_ACCEPT,
       previewImg,
       downloadFile,
       deleteFile,

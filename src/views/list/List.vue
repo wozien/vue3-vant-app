@@ -194,20 +194,7 @@ export default defineComponent({
   }
 
   .add-btn {
-    position: absolute;
-    right: 10px;
-    bottom: 20px;
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background: @ins-primary-color;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    .ins-icon {
-      color: #fff;
-      font-size: 26px;
-    }
+    .float-btn;
   }
 }
 </style>

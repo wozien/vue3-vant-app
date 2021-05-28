@@ -83,3 +83,15 @@ export const getUserCount = async (account: string): HttpResPromise => {
   })
   return res.data
 }
+
+/**
+ * 图像查询
+ * @param image
+ * @returns
+ */
+export const imageSearch = async (image: File): HttpResPromise => {
+  const formData = new FormData()
+  formData.append('image', image)
+  const res = await http.post('/image/search', formData)
+  return res.data
+}

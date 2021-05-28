@@ -204,3 +204,15 @@ export const downloadUrl = (url: string) => {
     document.body.removeChild(tempLink)
   }, 0)
 }
+
+/**
+ * console.[log|error|warn]
+ * @param e
+ * @param level
+ */
+export function log(e: Error | string, level: 'error' | 'warn' | 'info' = 'error') {
+  let method = (level === 'info' ? 'log' : level) as keyof Console
+  if (import.meta.env.DEV && method in console) {
+    console[method].call(null, e)
+  }
+}

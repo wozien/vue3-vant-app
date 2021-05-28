@@ -34,6 +34,11 @@
   font-size: 13px;
 }
 
+.tip-text {
+  color: @ins-text-color-light-2;
+  font-size: 13px;
+}
+
 .flex-center {
   display: flex;
   align-items: center;
@@ -63,5 +68,22 @@
       font-size: 12px;
       color: @ins-text-color-light-2;
     }
+  }
+}
+
+.float-btn {
+  position: absolute;
+  right: 10px;
+  bottom: 20px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: @ins-primary-color;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  .ins-icon {
+    color: #fff;
+    font-size: 26px;
   }
 }
