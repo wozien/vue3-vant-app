@@ -1862,7 +1862,7 @@ export const copyLine = async (list: DataPoint, id: DataPointId) => {
  */
 export const evalModifiers = (id: DataPointId, modifiers: any) => {
   const record = localData[id]
-  return _evalModifiers(record, modifiers)
+  return record ? _evalModifiers(record, modifiers) : null
 }
 
 /**

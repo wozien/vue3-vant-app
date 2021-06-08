@@ -199,7 +199,7 @@ export default defineComponent({
     })
 
     onBeforeRouteUpdate(async (to, from) => {
-      const { viewType: fromViewType, subId: fromSubId } = from.query
+      const { viewType: fromViewType, id: fromId, subId: fromSubId } = from.query
       const { viewType, id, subId } = to.query
       if (fromViewType === 'form') {
         if (viewType === 'list' && route.query.readonly === '0') {
@@ -216,9 +216,14 @@ export default defineComponent({
           }
         }
 
-        if (viewType === 'form' && !id && !subId && !fromSubId) {
-          // 点击创建
-          loadRecord(to.query)
+        if (viewType === 'form') {
+          if (!id && !subId && !fromSubId) {
+            // 点击创建
+            loadRecord(to.query)
+          } else if (id && fromId && id !== fromId && to.query.model === from.query.model) {
+            // 同个模型下的关联查看
+            loadRecord(to.query)
+          }
         }
       }
     })

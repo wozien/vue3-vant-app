@@ -387,7 +387,8 @@ export default defineComponent({
     // flush = post 可以防止表体和表体切换 button 数据更新滞后，造成按钮 domain 计算报错问题
     watchEffect(
       () => {
-        if (curRecord.value) {
+        const { model, subModel } = route.query
+        if (curRecord.value && [model, subModel].includes(curRecord.value.model)) {
           renderButtons.value = calcButtons(
             props.buttons,
             route.query.readonly as string,
