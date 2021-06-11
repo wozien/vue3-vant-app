@@ -51,8 +51,8 @@ export default defineComponent({
     let randomCode: string = ''
     let token: string = ''
     const confirm = async () => {
-      loading.value = true
       if (!codeValid.value && authCodeRef.value) {
+        loading.value = true
         const res = await authCodeRef.value.authorize('forget')
         if (res !== false) {
           codeValid.value = true
@@ -77,7 +77,7 @@ export default defineComponent({
         if (res.ret === 0) {
           toast.show('密码修改成功')
           sessionStorage.setItem(sessionStorageKeys.loginAccount, account.phone)
-          setTimeout(() => router.push(`/login`), 1000)
+          router.push(`/login`)
         }
       }
 
