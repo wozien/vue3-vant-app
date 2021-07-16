@@ -1,12 +1,13 @@
 import { PropType } from 'vue'
-import { FieldsInfo, Fields, View } from '@/logics/types'
+import { FieldsInfo, Fields, View, Model } from '@/logics/types'
 import { useRouter, useRoute, NavigationFailure, LocationQuery } from 'vue-router'
 import { ViewType } from '@/logics/types'
 
 export const viewCommonProps = {
   fieldsInfo: Object as PropType<FieldsInfo>,
   fields: Object as PropType<Fields>,
-  curView: Object as PropType<View>
+  curView: Object as PropType<View>,
+  curModel: Object as PropType<Model>
 }
 
 export interface ViewQuery {

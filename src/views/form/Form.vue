@@ -17,7 +17,11 @@
         />
         <div class="icons">
           <div class="icon">
-            <Icon name="related" @click="openPopup('related')" />
+            <Icon
+              v-if="curModel && curModel.type === 'document'"
+              name="related"
+              @click="openPopup('related')"
+            />
             <Icon name="file" @click="openPopup('attachment')" />
             <Icon name="message" @click="openPopup('chat')" />
           </div>

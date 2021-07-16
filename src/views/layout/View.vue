@@ -15,6 +15,7 @@
         :fields-info="ctx && ctx.fieldsInfo"
         :fields="ctx && ctx.fields"
         :cur-view="ctx && ctx.curView"
+        :cur-model="ctx && ctx.curModel"
       />
     </transition>
   </div>

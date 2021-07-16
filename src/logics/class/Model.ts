@@ -15,12 +15,14 @@ export type Fields = {
 class Model {
   key: string
   name: string
+  type: string
   fields: Field[]
 
   constructor(modelObj: StudioModel) {
     this.key = modelObj.key
     this.name = modelObj.name
-    this.fields = modelObj.fields.map((f) => {
+    this.type = modelObj.type
+    this.fields = modelObj.fields.map(f => {
       const field = new Field(f)
       const odooField = modelObj.odoo_fields[f.name]
       if (odooField) {
@@ -41,7 +43,7 @@ class Model {
   }
 
   getField(key: string) {
-    return this.fields.find((f) => f.key === key || f.name === key)
+    return this.fields.find(f => f.key === key || f.name === key)
   }
 
   getFields(): Fields {

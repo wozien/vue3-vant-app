@@ -37,13 +37,13 @@
 
     <TabBar active="dashboard" />
 
-    <div class="camera-btn">
+    <!-- <div class="camera-btn">
       <van-uploader capture="camera" :after-read="onCameraScan">
         <i class="ins-icon ins-icon-camera" />
       </van-uploader>
-    </div>
+    </div> -->
 
-    <Modal v-model:show="showScanModal" :hideCancel="true" @confirm="onCameraConfirm">
+    <!-- <Modal v-model:show="showScanModal" :hideCancel="true" @confirm="onCameraConfirm">
       <van-empty description="暂无识别匹配结果" v-if="!scanList.length"></van-empty>
       <p class="scan-result-count" v-if="scanList.length">
         {{ `我们为您找到了${scanList.length}个相似的商品` }}
@@ -61,7 +61,7 @@
           }}</span>
         </div>
       </div>
-    </Modal>
+    </Modal> -->
   </div>
 </template>
 
