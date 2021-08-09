@@ -52,7 +52,7 @@ export default defineComponent({
       const report = getReportData()
       return id && report ? (report as any).bi_url : ''
     })
-    const showEmpty = computed(() => state.list.length === 0 && loading.value === false)
+    const showEmpty = computed(() => state.filterList.length === 0 && loading.value === false)
     const description = computed(() => {
       return state.searchValue ? '暂无搜索结果' : '暂无应用数据'
     })
