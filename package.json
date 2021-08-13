@@ -13,8 +13,7 @@
     "commit": "git-cz"
   },
   "gitHooks": {
-    "pre-commit": "lint-staged",
-    "commit-msg": "node build/verifyCommit.js"
+    "pre-commit": "lint-staged"
   },
   "lint-staged": {
     "*.ts?(x)": [
