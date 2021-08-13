@@ -141,6 +141,12 @@ export default defineComponent({
 
       const file = data.file as File
       if (file) {
+        const fieldType = getFileType(file.type)
+        if (fieldType === 'others') {
+          toast.show('暂不支持上传该类型文件')
+          return
+        }
+
         toast.loading('附件上传中')
         const res = await uploadAttachment(curRecord.value.model, file)
         toast.clear()
