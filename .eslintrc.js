@@ -36,6 +36,7 @@ module.exports = {
         message: 'Unexpected property on console object was called'
       }
     ],
+    'vue/script-setup-uses-vars': 'off',
     // 闭合标签
     'vue/html-self-closing': 'off',
     'vue/no-parsing-error': [2, {

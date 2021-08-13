@@ -67,7 +67,7 @@ const FormCanvas = defineComponent({
           if (field && item) {
             const compRef = ref(null)
             FieldCompRefs.push(compRef)
-            return <FormField item={item} field={field} mode={mode} ref={compRef} />
+            return <FormField item={item} field={field} mode={mode} ref={compRef} key={item.key} />
           } else {
             return null
           }

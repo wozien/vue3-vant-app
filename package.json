@@ -9,7 +9,8 @@
     "build:dev": "yarn type-check && vite build --mode development",
     "serve": "vite preview",
     "lint": "eslint \"src/**/*.{vue,ts,tsx}\" --fix",
-    "type-check": "vue-tsc --noEmit"
+    "type-check": "vue-tsc --noEmit",
+    "commit": "git-cz"
   },
   "gitHooks": {
     "pre-commit": "lint-staged",
@@ -47,6 +48,8 @@
     "@vue/compiler-sfc": "^3.0.0",
     "@vue/eslint-config-typescript": "^7.0.0",
     "chalk": "^4.1.0",
+    "commitizen": "^4.2.4",
+    "cz-customizable": "^6.3.0",
     "eslint": "^6.7.2",
     "eslint-plugin-vue": "^7.0.0-0",
     "less": "^3.12.2",
@@ -63,5 +66,10 @@
     "> 1%",
     "last 2 versions",
     "not dead"
-  ]
+  ],
+  "config": {
+    "commitizen": {
+      "path": "node_modules/cz-customizable"
+    }
+  }
 }

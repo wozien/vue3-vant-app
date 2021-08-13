@@ -19,6 +19,12 @@ export const fetchUsuallyApp = async (): Promise<HttpRes> => {
   return res.data
 }
 
+// 获取常用报表
+export const fetchUsuallyReport = async (): Promise<HttpRes> => {
+  const res = await http.get('/meta/mobile/frequently_used_bi')
+  return res.data
+}
+
 /**
  * 获取应用模型和视图
  * @param modelKey
@@ -46,6 +52,14 @@ export const fetchAction = async (actionId: number): Promise<HttpRes> => {
 export const addAppCount = async (appId: number): Promise<HttpRes> => {
   const res = await http.post('/meta/mobile/open_app_count', {
     id: appId
+  })
+  return res.data
+}
+
+// 报表次数统计
+export const addReportCount = async (reportId: number): HttpResPromise => {
+  const res = await http.post('/meta/mobile/open_bi_count', {
+    id: reportId
   })
   return res.data
 }
@@ -99,5 +113,14 @@ export const fetchListData: (
 export const chekcButtonAccess = async (model: string, buttons: any[]): Promise<HttpRes> => {
   const args = [model, buttons]
   const res = await callKw(model, 'button_access_check', args)
+  return res.data
+}
+
+/**
+ * 获取移动报表数据
+ * @returns
+ */
+export const fetchReportList = async (): Promise<HttpRes> => {
+  const res = await http.get('/meta/mobile/bi_app_data')
   return res.data
 }

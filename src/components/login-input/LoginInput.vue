@@ -76,6 +76,7 @@ export default defineComponent({
   align-items: center;
   .ins-input {
     flex: 1;
+    min-width: 0;
     .reset-input;
   }
   .ins-input__icon,

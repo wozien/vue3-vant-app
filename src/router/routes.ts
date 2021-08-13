@@ -11,6 +11,7 @@ const User = () => import('@/views/user/User.vue')
 const View = () => import('@/views/layout/View.vue')
 const Flow = () => import('@/views/flow/Flow.vue')
 const FlowProcess = () => import('@/views/flow/FlowProcess.vue')
+const Report = () => import('@/views/report/Report.vue')
 
 const routes: RouteRecordRaw[] = [
   {
@@ -54,6 +55,11 @@ const routes: RouteRecordRaw[] = [
         name: 'flow-process',
         component: FlowProcess,
         meta: { index: 3 }
+      },
+      {
+        path: '/report/:id?',
+        name: 'report',
+        component: Report
       }
     ]
   },

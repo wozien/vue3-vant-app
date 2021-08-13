@@ -2,7 +2,7 @@
   <div class="form-related">
     <header>关联单据</header>
     <div class="content">
-      <ListCard v-for="item in list" :key="item.id" :record="item" />
+      <ListCard v-for="item in list" :key="item.key" :record="item" />
       <van-empty v-if="!list.length" description="暂无关联单据数据" />
     </div>
   </div>
@@ -57,6 +57,7 @@ function toListCardData(data: any = {}): ListCardItem {
     model,
     name: display_name,
     actionId: action_id,
+    key: `${model}_${action_id}_${id}`,
     creator: create_user?.name,
     createDate: formatDate('M月d日 hh:mm', str2Date(create_date)),
     createImg: '',

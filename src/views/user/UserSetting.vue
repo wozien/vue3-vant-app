@@ -35,6 +35,10 @@ function useUploader() {
     Toast.fail('文件大小不能超过1Mb')
   }
   const onUpload = async (phone: string) => {
+    if (!curFile) {
+      Toast('请先选择头像')
+      return false
+    }
     const res = await uploadUserAvatar(curFile, phone)
     return res
   }
@@ -70,7 +74,7 @@ export default defineComponent({
     const onConfirm = async (cb: Function) => {
       try {
         const res = await uploader.onUpload(store.state.user.phone)
-        if (res.ret === 0) {
+        if (res && res.ret === 0) {
           // 重新获取下图像
           store.state.user.avatar = setUrlQuery(store.state.user.avatar, {
             t: new Date().getTime()

@@ -33,17 +33,26 @@
         <AppList :app-data="appData" v-if="appData.length" />
         <p v-else class="no-data">暂无数据</p>
       </div>
+      <div class="usually">
+        <div class="title">
+          <span class="label">报表</span>
+          <span class="more" @click="$router.push('/report')">全部报表</span>
+          <van-icon name="arrow" color="#c8c9cc" />
+        </div>
+        <ReportList :list="reportData" v-if="reportData.length" />
+        <p v-else class="no-data">暂无数据</p>
+      </div>
     </div>
 
     <TabBar active="dashboard" />
 
-    <div class="camera-btn">
+    <!-- <div class="camera-btn">
       <van-uploader capture="camera" :after-read="onCameraScan">
         <i class="ins-icon ins-icon-camera" />
       </van-uploader>
-    </div>
+    </div> -->
 
-    <Modal v-model:show="showScanModal" :hideCancel="true" @confirm="onCameraConfirm">
+    <!-- <Modal v-model:show="showScanModal" :hideCancel="true" @confirm="onCameraConfirm">
       <van-empty description="暂无识别匹配结果" v-if="!scanList.length"></van-empty>
       <p class="scan-result-count" v-if="scanList.length">
         {{ `我们为您找到了${scanList.length}个相似的商品` }}
@@ -61,7 +70,7 @@
           }}</span>
         </div>
       </div>
-    </Modal>
+    </Modal> -->
   </div>
 </template>
 
@@ -70,9 +79,10 @@ import { defineComponent, ref, reactive, toRefs, computed, onActivated, nextTick
 import { useStore } from '@/store'
 import { useRouter, onBeforeRouteLeave } from 'vue-router'
 import { fetchFlowNum } from '@/api/workflow'
-import { fetchUsuallyApp } from '@/api/app'
+import { fetchUsuallyApp, fetchUsuallyReport } from '@/api/app'
 import { imageSearch } from '@/api/system'
 import AppList from '@/components/app-list/AppList.vue'
+import ReportList from '@/components/app-list/ReportList.vue'
 import TabBar from '@/components/tabbar/TabBar.vue'
 import useTitle from '@/hooks/web/useTitle'
 import useToast from '@/hooks/component/useToast'
@@ -82,6 +92,7 @@ import { log } from '@/utils'
 export default defineComponent({
   components: {
     AppList,
+    ReportList,
     TabBar
   },
 
@@ -93,7 +104,7 @@ export default defineComponent({
       willApproval: 0
     })
     const greet = useGreet()
-    const { appData } = useUsually()
+    const { appData, reportData } = useUsually()
     const { showScanModal, scanList, onCameraScan, onCameraConfirm, previewImages } = useCamera()
 
     const onGotoFlow = (type: string) => {
@@ -118,6 +129,7 @@ export default defineComponent({
       user: computed(() => store.state.user),
       greet,
       appData,
+      reportData,
       scanList,
       showScanModal,
       onGotoFlow,
@@ -171,16 +183,23 @@ function useGreet() {
 
 function useUsually() {
   const appData = ref([])
+  const reportData = ref([])
   const fetch = async () => {
-    const res = await fetchUsuallyApp()
-    if (res.ret === 0) {
-      appData.value = res.data
+    try {
+      const [resA, resR] = await Promise.all([fetchUsuallyApp(), fetchUsuallyReport()])
+      if (resA.ret === 0 && resR.ret === 0) {
+        appData.value = resA.data
+        reportData.value = resR.data
+      }
+    } catch (e) {
+      //
     }
   }
   onActivated(() => fetch())
 
   return {
-    appData
+    appData,
+    reportData
   }
 }
 

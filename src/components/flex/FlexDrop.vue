@@ -1,8 +1,8 @@
 <template>
   <div class="form-item-field" :data-field-name="field && field.name" :data-field-type="type">
     <van-field
-      :label="string" 
-      :placeholder="placeholder" 
+      :label="string"
+      :placeholder="placeholder"
       v-model="value"
       :required="isRequired"
       :clickable="!isReadonly"
@@ -13,7 +13,7 @@
     />
 
     <Modal v-model:show="showModal" @confirm="onConfirm">
-      <FlexDropForm :flex-fields="flexFields" ref="flexFormRef"/>
+      <FlexDropForm :flex-fields="flexFields" ref="flexFormRef" />
     </Modal>
   </div>
 </template>
@@ -39,24 +39,33 @@ export default defineComponent({
 
   setup(props) {
     const store = useStore()
-    const { string, placeholder, type, value, isReadonly, isRequired, curRecord, setValue } = useFieldCommon(props)
+    const { string, placeholder, type, value, isReadonly, isRequired, curRecord, setValue } =
+      useFieldCommon(props)
     const showModal = ref(false)
     const flexFields = ref<any[]>([])
     const flexFormRef = ref()
     let oldDependId: any
 
     const onClickFlex = async () => {
-      if(isReadonly.value) return
+      if (isReadonly.value) return
       const attrs = props.item?.attrs || {}
-      if(attrs.depend_field) {
-        const domain = [...getDependDomain(attrs.depend_field, curRecord.value.id), curRecord.value.model]
-        
-        if(domain[1] && domain[1] !== oldDependId) {
+      if (attrs.depend_field) {
+        const domain = [
+          ...getDependDomain(attrs.depend_field, curRecord.value.id),
+          curRecord.value.model
+        ]
+
+        if (domain[1] && domain[1] !== oldDependId) {
           const toast = Toast.loading({ forbidClick: true })
           const res = await fetchFlexFields(domain)
-          if(res.ret === 0) {
+          if (res.ret === 0) {
             flexFields.value = res.data
-            showModal.value = true
+            if (res.data.length) {
+              showModal.value = true
+            } else {
+              Toast('关联字段暂无辅助属性')
+              return
+            }
           }
           toast.clear()
         }
@@ -99,9 +108,9 @@ function getDependDomain(depend: string, recordID: string): any[] {
   const deps = depend.split('.')
   let len = deps.length
 
-  while(--len && recordID) {
+  while (--len && recordID) {
     const record = findDataPoint(recordID)
-    if(record) {
+    if (record) {
       recordID = record.parentId as string
     }
   }
@@ -109,5 +118,4 @@ function getDependDomain(depend: string, recordID: string): any[] {
   const data = getRecordData(recordID, last(deps) as string)
   return data ? [data.model, data.res_id] : []
 }
-
 </script>

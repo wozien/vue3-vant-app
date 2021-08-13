@@ -81,6 +81,7 @@ export default defineComponent({
       font-size: 13px;
       color: @ins-text-color-light-1;
       text-align: center;
+      padding: 0 6px;
     }
   }
 }
