@@ -104,16 +104,17 @@ export default defineComponent({
 
     let lastId = 0
     const onLoad = async () => {
-      if (searchFields.value.length) {
+      // action 空时为工作流表单切回列表
+      if (searchFields.value.length && props.action) {
         const res = await fetchListData(
           route.query.model as string,
           lastId,
           searchFields.value,
           {
             search: state.domain,
-            action: props.action?.domain
+            action: props.action.domain
           },
-          props.action?.context
+          props.action.context
         )
         if (res.ret === 0) {
           const length = res.data.length

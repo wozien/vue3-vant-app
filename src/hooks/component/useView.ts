@@ -37,7 +37,7 @@ interface NavigatorOptions {
   router?: ReturnType<typeof useRouter>
 }
 
-interface Navigator extends NormalizeQuery<PromiseRouterNavagation> {
+export interface Navigator extends NormalizeQuery<PromiseRouterNavagation> {
   to: NavigationFn
   replace: NavigationFn
   toggleReadonly: (readonly?: boolean) => void
