@@ -65,7 +65,8 @@ export default ({ command, mode }: ConfigEnv): UserConfig => {
     server: {
       port: 8080,
       open: true,
-      cors: true
+      cors: true,
+      host: '0.0.0.0'
     }
   }
 }
