@@ -4,7 +4,7 @@ pipeline {
     environment {
         // 注意根据需要修改配置
         branch_name = "uat"
-        docker_host = "res.insuite.net"
+        docker_host = "harbor.insuite.net"
         docker_file_path = "./docker/Dockerfile"
         docker_repository_name = "framework/insuite-mobile"
         docker_img_name = "${docker_host}/${docker_repository_name}"
@@ -52,6 +52,7 @@ pipeline {
 
                 // 删除镜像
                 sh "docker rmi -f $docker_img_name:$build_tag $docker_img_name:$branch_name"
+
             }
         }
     }

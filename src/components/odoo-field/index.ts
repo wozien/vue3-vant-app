@@ -20,7 +20,7 @@ fieldResitrys.set('one2many', FieldOn2Many)
 fieldResitrys.set('flex_dropdown', FieldFlexDrop)
 fieldResitrys.set('pschar2one', FieldMany2One)
 
-const noSupportWidget = ['related', 'blank']
+const noSupportWidget = ['related', 'blank', 'handle']
 
 export function getFieldComponent(fieldType: string, widget?: string): any {
   let fieldComponent = fieldResitrys.get(fieldType)

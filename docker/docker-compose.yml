@@ -1,17 +1,17 @@
 version: '2'
 services:
-  insuite-mobile:
-    container_name: insuite-mobile
-    image: registry.cn-hangzhou.aliyuncs.com/liuhai/insuite-mobile:latest
+  mobile:
+    container_name: web_mobile
+    image: harbor.insuite.net/framework/insuite-mobile:dev
     restart: always
     ports:
-      - '80:80'
-      - '443:443'
+      - '80'
+      - '443'
     privileged: true
     networks:
       my_net:
         aliases:
-        - insuite-mobile
+        - web_mobile
 
 networks:
   my_net:
