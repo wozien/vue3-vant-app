@@ -86,7 +86,6 @@ export default function (props: FieldCommonPropsType) {
     const format = (fieldUtils.format as any)[type.value]
     if (format) {
       val = format(+val, props.field)
-      console.log(val)
       setValue(val)
     }
   }

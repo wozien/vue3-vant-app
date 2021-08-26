@@ -121,8 +121,9 @@ export default defineComponent({
         })
         const len = companyList.value.length
         if (len) {
-          active.value = store.state.user.company.dbName || companyList.value[0]?.dbName
-          if (len === 1 && !route.query.keepSwitch) {
+          const company = companyList.value[0]
+          active.value = store.state.user.company.dbName || company.dbName
+          if (len === 1 && !company.invitation && !route.query.keepSwitch) {
             loadCompany(companyList.value[0])
           }
         }
