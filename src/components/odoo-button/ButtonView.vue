@@ -3,12 +3,12 @@
     <van-popover v-if="moreButtons.length" v-model:show="showPopover" placement="top-start">
       <div class="popover-button">
         <div
-          class="popover-button__item van-hairline--bottom van-ellipsis"
+          class="popover-button__item van-hairline--bottom"
           v-for="item in moreButtons"
           :key="item.key"
           @click="onSelect(item)"
         >
-          <span v-if="!item.isGroup">{{ item.string }}</span>
+          <span v-if="!item.isGroup" class="button-name">{{ item.string }}</span>
           <van-popover
             v-else-if="item.children && item.children.length"
             placement="right-end"
@@ -17,16 +17,16 @@
           >
             <div class="popover-button">
               <div
-                class="popover-button__item van-hairline--bottom van-ellipsis"
+                class="popover-button__item van-hairline--bottom"
                 v-for="subItem in item.children"
                 :key="subItem.key"
                 @click="onSelect(subItem)"
               >
-                {{ subItem.string }}
+                <span class="button-name">{{ subItem.string }}</span>
               </div>
             </div>
             <template #reference>
-              <span>{{ item.string }}</span>
+              <span class="button-name button-group-name">{{ item.string }}</span>
               <van-icon name="arrow" class="group-icon" color="#646566" />
             </template>
           </van-popover>

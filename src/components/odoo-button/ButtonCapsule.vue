@@ -11,7 +11,7 @@
         :key="item.key"
         @click="onClick(item)"
       >
-        {{ item.string }}
+        <span class="button-name">{{ item.string }}</span>
       </div>
     </div>
     <template #reference>
