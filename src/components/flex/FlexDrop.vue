@@ -64,6 +64,7 @@ export default defineComponent({
               showModal.value = true
             } else {
               Toast('关联字段暂无辅助属性')
+              onApplyChanges({ names: false, flex: false })
               return
             }
           }
@@ -74,15 +75,18 @@ export default defineComponent({
       }
     }
 
-    const onConfirm = async (cb: Function) => {
-      const changes = flexFormRef.value.getChanges()
-      // console.log(changes)
-      // emit onchange
+    const onApplyChanges = async (changes: any) => {
       await notifyChanges(curRecord.value.id, {
         [props.field?.name as string]: changes.names,
         flex: changes.flex
       })
       store.commit('SET_RECORD_TOKEN')
+    }
+
+    const onConfirm = async (cb: Function) => {
+      const changes = flexFormRef.value.getChanges()
+      // emit onchange
+      await onApplyChanges(changes)
       cb()
     }
 
