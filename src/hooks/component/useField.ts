@@ -13,16 +13,16 @@ type RawFieldValue = FieldValue | DataPoint
 export const fieldCommonProps = {
   item: {
     type: Object as PropType<Item>,
-    default: () => {}, // required 不能类型推断为必录 ???
+    default: () => {} // required 不能类型推断为必录 ???
   },
   field: {
     type: Object as PropType<Field>,
-    default: () => {},
+    default: () => {}
   },
   mode: {
     type: String as PropType<WidgetMode>,
-    default: 'readonly',
-  },
+    default: 'readonly'
+  }
 }
 
 export type FieldCommonPropsType = Readonly<{
@@ -55,6 +55,9 @@ export default function (props: FieldCommonPropsType) {
     () => modifiers.value && (modifiers.value.invisible || modifiers.value.column_invisible)
   )
 
+  /**
+   * 字段组件值更新入口
+   */
   let lastValue: any
   const setValue = async (val: any) => {
     if (lastValue !== undefined && (lastValue === val || lastValue === val.display_name)) {
@@ -71,6 +74,19 @@ export default function (props: FieldCommonPropsType) {
 
       await notifyChanges(curRecord.value.id, { [field.name]: val })
       store.commit('SET_RECORD_TOKEN')
+    }
+  }
+
+  /**
+   * 因为float类型的组件用了rawValue 作为v-model
+   * 需要format格式化后再就值比较
+   * @param val
+   */
+  const setNumberValue = (val: string) => {
+    const format = (fieldUtils.format as any)[type.value]
+    if (format) {
+      val = format(+val, props.field)
+      setValue(val)
     }
   }
 
@@ -130,5 +146,6 @@ export default function (props: FieldCommonPropsType) {
     isRequired,
     invisible,
     setValue,
+    setNumberValue
   }
 }

@@ -6,7 +6,7 @@
     "dev": "vite",
     "build": "yarn type-check && vite build",
     "build:uat": "yarn type-check && vite build --mode uat",
-    "build:dev": "yarn type-check && vite build --mode development",
+    "build:dev": "yarn type-check && vite build --mode dev",
     "serve": "vite preview",
     "lint": "eslint \"src/**/*.{vue,ts,tsx}\" --fix",
     "type-check": "vue-tsc --noEmit",

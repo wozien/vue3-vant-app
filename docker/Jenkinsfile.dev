@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         // 注意根据需要修改配置
-        branch_name = "prod"
+        branch_name = "dev"
         docker_host = "harbor.insuite.net"
         docker_file_path = "./docker/Dockerfile"
         docker_repository_name = "framework/insuite-mobile"
@@ -35,7 +35,7 @@ pipeline {
                     sh "yarn -v"
                     sh "yarn config set registry https://registry.npm.taobao.org"
                     sh "yarn"
-                    sh "yarn build"
+                    sh "yarn build:dev"
                 }
                 sh "docker build -f ${docker_file_path} -t ${docker_img_name}:${build_tag} ."
             }
@@ -52,6 +52,7 @@ pipeline {
 
                 // 删除镜像
                 sh "docker rmi -f $docker_img_name:$build_tag $docker_img_name:$branch_name"
+
             }
         }
     }

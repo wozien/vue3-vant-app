@@ -29,7 +29,7 @@
         </div>
       </div>
     </div>
-    <div class="form-canvas" :style="{ height: height + 'px' }">
+    <div class="form-canvas" :style="{ height: height + 'px' }" ref="canvasRef">
       <FormCanvas :items="curView && curView.items" :fields="fields" ref="formRef" />
     </div>
     <LineSwitcher v-show="showLineSwitcher" />
@@ -114,6 +114,7 @@ export default defineComponent({
     })
     const formRef = ref()
     const attachRef = ref()
+    const canvasRef = ref()
     const searchFields = computed(() => {
       return props.fieldsInfo ? Object.keys(props.fieldsInfo) : []
     })
@@ -228,6 +229,10 @@ export default defineComponent({
             // 同个模型下的关联查看
             loadRecord(to.query)
           }
+
+          if (canvasRef.value) {
+            canvasRef.value.scrollTop = 0
+          }
         }
       }
     })
@@ -250,12 +255,13 @@ export default defineComponent({
       ...toRefs(data),
       formRef,
       attachRef,
+      canvasRef,
       showHeader,
       showLineSwitcher,
       height,
-      localData: computed(() => store.state.localData),
-      curRecordId: computed(() => store.state.curRecordId),
-      curRecord,
+      // localData: computed(() => store.state.localData),
+      // curRecordId: computed(() => store.state.curRecordId),
+      // curRecord,
       imgUrl,
       showPopup,
       popupType,

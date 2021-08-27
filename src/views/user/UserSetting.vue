@@ -1,14 +1,14 @@
 <template>
   <Modal v-model:show="showModal" @confirm="onConfirm" @cancel="onCancel">
     <van-cell-group>
-      <van-cell title="头像" is-link center>
+      <van-cell title="头像" :clickable="false" is-link center>
         <van-uploader
+          ref="uploadRef"
           :max-size="1024 * 1024"
-          accept=".jpg, .jpeg"
           :after-read="onAfterRead"
           @oversize="onOversize"
         >
-          <van-image :src="avatar || user.avatar" width="50" height="50" fit="cover" round />
+          <van-image :src="avatar || user.avatar" width="35" height="35" fit="cover" round />
         </van-uploader>
       </van-cell>
       <van-cell title="姓名" :value="user.nickname"></van-cell>
@@ -23,12 +23,18 @@ import { useStore } from '@/store'
 import { Toast } from 'vant'
 import { uploadUserAvatar } from '@/api/user'
 import { setUrlQuery } from '@/utils/url'
+import { getFileExt } from '@/utils/index'
 
 function useUploader() {
   const avatar = ref('')
   let curFile: File
   const onAfterRead = (file: any) => {
-    curFile = file.file
+    curFile = file.file as File
+    const ext = getFileExt(curFile.name)
+    if (['.jpg', '.jpeg'].includes(ext) === false) {
+      Toast('暂只支持 jpg 格式的图片')
+      return
+    }
     avatar.value = file.content
   }
   const onOversize = () => {

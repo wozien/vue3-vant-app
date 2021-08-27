@@ -216,3 +216,13 @@ export function log(e: Error | string, level: 'error' | 'warn' | 'info' = 'error
     console[method].call(null, e)
   }
 }
+
+/**
+ * 获取文件后缀名
+ * @param fileName
+ * @returns
+ */
+export function getFileExt(fileName: string) {
+  const matches = fileName.match(/.+(\.\w+)$/)
+  return matches && matches.length ? matches[1] : ''
+}

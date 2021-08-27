@@ -64,12 +64,27 @@ body {
 .popover-button {
   .popover-button__item {
     width: 100px;
+    height: 44px;
     line-height: 44px;
     text-align: center;
     font-size: 14px;
     color: #323233;
     margin: 0px 16px;
     position: relative;
+    .van-popover__wrapper {
+      height: 44px;
+    }
+
+    .button-name {
+      width: 100px;
+      display: inline-block;
+      overflow: hidden;
+      white-space: nowrap; 
+      text-overflow: ellipsis;
+      &.button-group-name {
+        width: 82px;
+      }
+    }
     &:last-child::after {
       border-bottom-width: 0px !important;
     }

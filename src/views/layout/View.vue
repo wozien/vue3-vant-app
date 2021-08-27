@@ -76,7 +76,11 @@ export default defineComponent({
     watchEffect(async () => {
       let { model, viewType, subModel, actionId } = route.query as Recordable<string>
       if (!model) return
-      if (!curApp.value.isLoaded || curApp.value.modelKey !== model) {
+      if (
+        !curApp.value.isLoaded ||
+        curApp.value.modelKey !== model ||
+        (curApp.value.actionId as any) != actionId
+      ) {
         const res = await getAppAsync(model, actionId)
         curApp.value = res
       } else {

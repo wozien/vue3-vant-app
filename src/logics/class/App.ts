@@ -211,16 +211,17 @@ export const getAppAsync: (modelKey: string, actionId?: number | string) => Prom
   actionId
 ) => {
   let app: App
+  let appKey: string
 
   if (actionId && typeof actionId === 'string') actionId = +actionId
-  let appKey = `app_${modelKey}_${actionId || uuid()}`
+  appKey = `app_${modelKey}_${actionId || uuid()}`
 
   // 优先取缓存
   if (appCaches[appKey]) {
     app = appCaches[appKey]
   } else {
     app = new App(appKey, modelKey, actionId as number)
-    appCaches[appKey] = app
+    actionId && (appCaches[appKey] = app) // 工作流视图不缓存
   }
 
   if (app && !app.isLoaded) {
@@ -237,6 +238,15 @@ export const getAppAsync: (modelKey: string, actionId?: number | string) => Prom
 export const getApp = (appKey?: string) => {
   appKey = appKey || activeAppKey
   return appCaches[appKey]
+}
+
+/**
+ * 清楚缓存
+ * @param appKey
+ */
+export const cleanAppCache = (appKey?: string) => {
+  appKey = appKey || activeAppKey
+  delete appCaches[appKey]
 }
 
 /**

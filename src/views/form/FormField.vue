@@ -32,7 +32,7 @@
       v-model="rawValue"
       clearable
       center
-      @update:model-value="setValue"
+      @update:model-value="setNumberValue"
     />
     <!-- char, text -->
     <van-field
@@ -58,7 +58,7 @@ export default defineComponent({
   name: 'FormField',
 
   props: {
-    ...fieldCommonProps,
+    ...fieldCommonProps
   },
 
   setup(props) {
@@ -74,6 +74,7 @@ export default defineComponent({
       isRequired,
       invisible,
       setValue,
+      setNumberValue
     } = useFieldCommon(props)
 
     const renderType = computed(() => {
@@ -82,7 +83,7 @@ export default defineComponent({
     const itemClass = computed(() => ({
       'form-item-field': true,
       [`form-item-${type.value}`]: type.value === 'one2many',
-      'form-item-readonly': props.mode === 'edit' && isReadonly.value,
+      'form-item-readonly': props.mode === 'edit' && isReadonly.value
     }))
     const isX2Many = computed(() => props.field?.isX2Many())
     const Component = computed(() => {
@@ -111,9 +112,10 @@ export default defineComponent({
       isSet,
       isX2Many,
       setValue,
-      Component,
+      setNumberValue,
+      Component
     }
-  },
+  }
 })
 
 /**

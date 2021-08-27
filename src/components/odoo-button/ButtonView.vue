@@ -3,12 +3,12 @@
     <van-popover v-if="moreButtons.length" v-model:show="showPopover" placement="top-start">
       <div class="popover-button">
         <div
-          class="popover-button__item van-hairline--bottom van-ellipsis"
+          class="popover-button__item van-hairline--bottom"
           v-for="item in moreButtons"
           :key="item.key"
           @click="onSelect(item)"
         >
-          <span v-if="!item.isGroup">{{ item.string }}</span>
+          <span v-if="!item.isGroup" class="button-name">{{ item.string }}</span>
           <van-popover
             v-else-if="item.children && item.children.length"
             placement="right-end"
@@ -17,16 +17,16 @@
           >
             <div class="popover-button">
               <div
-                class="popover-button__item van-hairline--bottom van-ellipsis"
+                class="popover-button__item van-hairline--bottom"
                 v-for="subItem in item.children"
                 :key="subItem.key"
                 @click="onSelect(subItem)"
               >
-                {{ subItem.string }}
+                <span class="button-name">{{ subItem.string }}</span>
               </div>
             </div>
             <template #reference>
-              <span>{{ item.string }}</span>
+              <span class="button-name button-group-name">{{ item.string }}</span>
               <van-icon name="arrow" class="group-icon" color="#646566" />
             </template>
           </van-popover>
@@ -55,6 +55,7 @@ import { find, findIndex, last } from 'lodash-es'
 import store, { useStore } from '@/store'
 import { Toast, Dialog } from 'vant'
 import { ViewButton } from '@/logics/types'
+import Action from '@/logics/class/Action'
 import { callButton } from '@/api/odoo'
 import { createModal } from '@/components/modal'
 import { flowAgreen, flowReturn, flowSign, flowCirculate } from '@/api/workflow'
@@ -79,7 +80,7 @@ import {
 } from '@/logics/core/dataPoint'
 import { sessionStorageKeys } from '@/logics/enums/cache'
 import { deleteRecord } from '@/api/record'
-import { useViewNavigator } from '@/hooks/component/useView'
+import { useViewNavigator, Navigator } from '@/hooks/component/useView'
 
 export default defineComponent({
   components: {
@@ -181,7 +182,7 @@ export default defineComponent({
           })
           toast.clear()
           if (res.ret === 0) {
-            const action = res.data
+            const action = new Action(res.data)
 
             if (
               button.funcName === 'svc_std_pre_physical_delete' ||
@@ -190,8 +191,11 @@ export default defineComponent({
               // 删除特殊处理
               onDelete(action)
             } else {
-              handleServiceAction(action, button)
-              ;(await reload()) && store.commit('SET_RECORD_TOKEN')
+              const needReload = await handleServiceAction(action, button, viewNavigator)
+              if (needReload) {
+                await reload()
+                store.commit('SET_RECORD_TOKEN')
+              }
             }
           }
         }
@@ -284,13 +288,13 @@ export default defineComponent({
       })
     }
     // 删除
-    const onDelete = (action: any) => {
+    const onDelete = (action: Action) => {
       const record = curRecord.value
       Dialog.confirm({
         message: '确实是否删除该表单记录?'
       })
         .then(async () => {
-          const res = await deleteRecord(record.model, record.res_id, action.context || {})
+          const res = await deleteRecord(record.model, record.res_id, action.context)
           if (res.ret === 0) {
             Toast('删除成功')
             viewNavigator.back()
@@ -461,25 +465,37 @@ function getCallButtonContext(button: ViewButton, record: DataPoint): any {
 /**
  * 处理服务器返回的action
  */
-function handleServiceAction(action: any, button: ViewButton) {
-  if (action.type === 'ir.actions.act_window_close' && 'notify_toast' in action) {
-    const message = action.notify_toast.message
+async function handleServiceAction(action: Action, button: ViewButton, viewNavigator: Navigator) {
+  let reload = false
+  const actionRaw = action.raw
+
+  if (action.type === 'ir.actions.act_window_close' && 'notify_toast' in actionRaw) {
+    const message = actionRaw.notify_toast.message
     Toast(message)
-  } else if (action.type === 'ir.actions.act_window' && action.target === 'new') {
+    reload = true
+  } else if (action.type === 'ir.actions.act_window') {
     // 返回向导视图
     if (button.isFlow) {
-      handleWorkflowAction(action, button)
+      handleWorkflowAction(actionRaw, button)
+    } else if (action.context.wk_link) {
+      // 跳转到工作流的视图 IN202109-9605
+      sessionStorage.setItem(sessionStorageKeys.flowParams, JSON.stringify(action.context))
+      viewNavigator.to({
+        actionId: undefined,
+        type: action.context.type
+      })
     } else {
       // TODO 处理其他类型向导
+      // 需要考虑wizard视图的升级
       Toast('该按钮功能暂不支持')
     }
   } else if (action.type === 'ir.actions.cus_function') {
-    switch (action.funcName) {
+    switch (actionRaw.funcName) {
       case '_handleSign':
-        handleFlowSign(action)
+        handleFlowSign(actionRaw)
         break
       case '_handleConsult':
-        handleFlowConsult(action)
+        handleFlowConsult(actionRaw)
         break
       default:
         Toast('该按钮功能暂不支持')
@@ -488,6 +504,7 @@ function handleServiceAction(action: any, button: ViewButton) {
   } else {
     Toast('该按钮功能暂不支持')
   }
+  return reload
 }
 
 /**

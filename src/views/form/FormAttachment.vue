@@ -61,14 +61,14 @@ interface FileItem {
 
 const FILE_ACCEPT = [
   'image/*',
+  '.doc,.docx,.xls,.xlsx,.ppt,.pptx',
   'application/pdf',
   'application/msword', // .doc
   'application/vnd.openxmlformats-officedocument.wordprocessingml.document', //.docx
   'application/vnd.ms-excel', // .xls
   'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // .xlsx
   'application/vnd.ms-powerpoint', // .ppt
-  'application/vnd.openxmlformats-officedocument.presentationml.presentation', // .pptx,
-  '.doc,.docx,.xls,.xlsx,.ppt,.pptx'
+  'application/vnd.openxmlformats-officedocument.presentationml.presentation' // .pptx,
 ]
 
 export default defineComponent({
@@ -141,6 +141,12 @@ export default defineComponent({
 
       const file = data.file as File
       if (file) {
+        const fieldType = getFileType(file.type)
+        if (fieldType === 'others') {
+          toast.show('暂不支持上传该类型文件')
+          return
+        }
+
         toast.loading('附件上传中')
         const res = await uploadAttachment(curRecord.value.model, file)
         toast.clear()
