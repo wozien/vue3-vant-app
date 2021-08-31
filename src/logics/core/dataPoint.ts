@@ -669,7 +669,8 @@ const _fetchX2Manys = (record: DataPoint) => {
         modelName: field.relation,
         res_ids: ids,
         fieldsInfo,
-        parentId: record.id
+        parentId: record.id,
+        relationField: fieldInfo.relationField
       })
       record.data[fieldName] = list.id
       if (!fieldInfo.__no_fetch) {
@@ -955,6 +956,8 @@ const _makeDataPoint = <T extends LoadParams>(params: T): DataPoint => {
     res_ids
   }
 
+  params.relationField && (dataPoint.relationField = params.relationField)
+
   localData[dataPoint.id] = dataPoint
   if (dataPoint.type === 'record') {
     recordMap && recordMap.set(`${dataPoint.model}_${res_id}`, dataPoint.id)
@@ -1191,6 +1194,14 @@ const _generateOnChangeData = (record: DataPoint, options?: any) => {
       const isUTC = field.type === 'datetime'
       const fmt = isUTC ? 'yyyy-MM-dd hh:mm:ss' : 'yyyy-MM-dd'
       data[fieldName] = formatDate(fmt, data[fieldName], isUTC)
+    }
+  }
+  // o2m
+  if (record.parentId) {
+    const parent = localData[record.parentId]
+    if (parent.parentId && parent.relationField) {
+      const parentRecord = localData[parent.parentId]
+      data[parent.relationField] = _generateOnChangeData(parentRecord)
     }
   }
   return data
@@ -1542,7 +1553,8 @@ const _processX2ManyCommands = (record: DataPoint, fieldName: string, commands: 
     modelName: field.relation as string,
     parentId: record.id,
     fieldsInfo,
-    res_ids: []
+    res_ids: [],
+    relationField: field.relationField
   })
   record._changes[fieldName] = list.id
   list._changes = []
@@ -2014,7 +2026,7 @@ export const getRecordData = (id: DataPointId, fieldName: string) => {
   const changes = record._changes || {}
   const value = changes[fieldName] || record.data[fieldName]
   const field = record.fieldsInfo[fieldName]
-  if (!field || !value) return value
+  if (!field || !value) return false
 
   if (field.type === 'many2one' || field.type === 'reference') {
     return get(value) || false

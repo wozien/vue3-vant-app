@@ -170,6 +170,7 @@ class App {
     }
     field.relation && (info.relation = field.relation)
     field.selection && (info.selection = field.selection)
+    field.relation_field && (info.relationField = field.relation_field)
 
     if (item) {
       if (item.subView?.length) {

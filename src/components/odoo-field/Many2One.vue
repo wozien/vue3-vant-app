@@ -35,25 +35,18 @@
 import { defineComponent, reactive, toRefs, Ref, computed, watch } from 'vue'
 import useFieldCommon, { fieldCommonProps, FieldCommonPropsType } from '@/hooks/component/useField'
 import { fetchMany2OneData } from '@/api/record'
-import { getDomain, DataPoint } from '@/logics/core/dataPoint'
+import { getDomain, DataPoint, getRecordData } from '@/logics/core/dataPoint'
 import useToast from '@/hooks/component/useToast'
+import { isObject } from 'lodash-es'
 
 export default defineComponent({
   props: {
-    ...fieldCommonProps,
+    ...fieldCommonProps
   },
 
   setup(props) {
-    const {
-      string,
-      placeholder,
-      value,
-      rawValue,
-      isRequired,
-      curRecord,
-      setValue,
-      widget,
-    } = useFieldCommon(props)
+    const { string, placeholder, value, rawValue, isRequired, curRecord, setValue, widget } =
+      useFieldCommon(props)
     const { state, onOpenModal } = useModal(props, curRecord)
 
     const onClickItem = (id: number) => {
@@ -61,7 +54,7 @@ export default defineComponent({
     }
 
     const onConfirm = async (cb: Fn) => {
-      const item = state.list.find((item) => item.id == state.active)
+      const item = state.list.find(item => item.id == state.active)
       if (item) {
         // notify change
         await setValue(widget.value === 'pschar2one' ? item.display_name : item)
@@ -96,9 +89,9 @@ export default defineComponent({
       onOpenModal,
       onClickItem,
       onConfirm,
-      onCancel,
+      onCancel
     }
-  },
+  }
 })
 
 function useModal({ field, item }: FieldCommonPropsType, curRecord: Ref<any>) {
@@ -107,7 +100,7 @@ function useModal({ field, item }: FieldCommonPropsType, curRecord: Ref<any>) {
     showModal: false,
     searchValue: '',
     active: 0,
-    list: [] as { id: number; display_name: string }[],
+    list: [] as { id: number; display_name: string }[]
   })
 
   const domain = computed(() => {
@@ -130,22 +123,43 @@ function useModal({ field, item }: FieldCommonPropsType, curRecord: Ref<any>) {
         if (dpField) {
           context.depend_field_info = {
             relation: dpField.relation,
-            type: dpField.type,
+            type: dpField.type
           }
           context.module = item.attrs.module
         }
       }
     } else {
       relation = field.relation as string
+      const { depend_fields, depend_method } = item.attrs
+      if (depend_fields) {
+        const fieldNames = depend_fields.split(',')
+        const dependObj = {
+          fields: Object.create(null),
+          method: depend_method || '',
+          relation_model: relation
+        }
+        fieldNames.forEach((fieldName: string) => {
+          const data = getRecordData(curRecord.value.id, fieldName)
+          dependObj.fields[fieldName] = isObject(data) && data ? (data as any).data : data
+        })
+        context.dependObj = dependObj
+        context.field_name = field.name
+      }
     }
 
     toast.loading()
-    const res = await fetchMany2OneData(relation, state.searchValue, domain.value, context)
+    const res = await fetchMany2OneData(
+      relation,
+      curRecord.value.model,
+      state.searchValue,
+      domain.value,
+      context
+    )
     if (res.ret === 0) {
       state.list = res.data.map((item: any) => {
         return {
           id: item[0],
-          display_name: item[1],
+          display_name: item[1]
         }
       })
     }
@@ -161,7 +175,7 @@ function useModal({ field, item }: FieldCommonPropsType, curRecord: Ref<any>) {
 
   return {
     state,
-    onOpenModal,
+    onOpenModal
   }
 }
 </script>

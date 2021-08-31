@@ -1,7 +1,19 @@
 import { Modifiers, ModifierKey } from '../types/index'
 
-export type FieldType = 'char'|'text'|'integer'|'float'|'date'|'datetime'|'boolean'|
-  'selection'|'one2many'|'many2one'|'many2many'|'related'|'reference'
+export type FieldType =
+  | 'char'
+  | 'text'
+  | 'integer'
+  | 'float'
+  | 'date'
+  | 'datetime'
+  | 'boolean'
+  | 'selection'
+  | 'one2many'
+  | 'many2one'
+  | 'many2many'
+  | 'related'
+  | 'reference'
 
 export interface StudioField {
   key: string
@@ -32,10 +44,12 @@ export interface FieldInfo {
   selection?: [string, string][]
   onChange?: boolean
   list?: FieldsInfo
-  domain?: string,
+  domain?: string
   modifiers?: Modifiers
   relatedFields?: any
+  relationField?: string
   __no_fetch?: boolean
+  [key: string]: any
 }
 
 export type FieldsInfo = {
@@ -43,9 +57,9 @@ export type FieldsInfo = {
 }
 
 class Field {
-  key: string 
-  name: string 
-  type: FieldType 
+  key: string
+  name: string
+  type: FieldType
   string: string
   options: any
   relation?: string
@@ -53,22 +67,23 @@ class Field {
   flex?: boolean
   domain?: string
   fields: Field[]
-  modifiers: Modifiers
+  modifiers: Modifiers;
+  [key: string]: any
 
   constructor(fieldObj: StudioField) {
     this.key = fieldObj.key
     this.name = fieldObj.name
     this.type = fieldObj.type
     this.string = fieldObj.string
-    this.relation =  fieldObj.relation || ''
+    this.relation = fieldObj.relation || ''
     this.options = fieldObj.options
     this.fields = []
     this.modifiers = {}
     this._formatModifier()
 
-    if(Array.isArray(fieldObj.fields) && fieldObj.fields.length) {
+    if (Array.isArray(fieldObj.fields) && fieldObj.fields.length) {
       this.fields = fieldObj.fields.map(f => new Field(f))
-    } 
+    }
   }
 
   isX2Many() {
@@ -76,7 +91,9 @@ class Field {
   }
 
   isComplexField() {
-    return ['selection', 'many2one', 'reference', 'one2many', 'date', 'datetime'].includes(this.type)
+    return ['selection', 'many2one', 'reference', 'one2many', 'date', 'datetime'].includes(
+      this.type
+    )
   }
 
   _isModifierKey(key: string) {
@@ -84,10 +101,10 @@ class Field {
   }
 
   _formatModifier() {
-    for(let key in this.options) {
-      if(this._isModifierKey(key)) {
+    for (let key in this.options) {
+      if (this._isModifierKey(key)) {
         const value = this.options[key]
-        if(value.checked) {
+        if (value.checked) {
           this.modifiers[key as ModifierKey] = true
         }
       }

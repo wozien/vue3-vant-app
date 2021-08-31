@@ -37,6 +37,9 @@ class Model {
           field.type = odooField.type
           field.relation = odooField.relation
         }
+        if (field.type === 'one2many') {
+          field.relation_field = odooField.relation_field
+        }
       }
       return field
     })

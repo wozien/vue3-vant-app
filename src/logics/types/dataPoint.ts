@@ -47,6 +47,7 @@ export interface LoadParams {
     [key: string]: any
   }
   domain?: any[]
+  relationField?: string
 }
 
 export type LocalData = Recordable<DataPoint>

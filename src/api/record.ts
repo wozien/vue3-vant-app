@@ -31,6 +31,7 @@ export const fetchRecord: (
  * @param model
  */
 export const fetchMany2OneData = async (
+  relation: string,
   model: string,
   searchValue = '',
   domain: any = [],
@@ -44,7 +45,7 @@ export const fetchMany2OneData = async (
     args: domain,
     context: context || {}
   }
-  const res = await callKw(model, 'ps_name_search', [], kw)
+  const res = await callKw(relation, 'ps_name_search', [], kw)
   return res.data
 }
 
