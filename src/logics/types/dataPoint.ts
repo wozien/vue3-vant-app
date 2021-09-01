@@ -48,6 +48,7 @@ export interface LoadParams {
   }
   domain?: any[]
   relationField?: string
+  rawContext?: string
 }
 
 export type LocalData = Recordable<DataPoint>

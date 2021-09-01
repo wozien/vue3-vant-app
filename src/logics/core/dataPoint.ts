@@ -19,9 +19,10 @@ import {
   intersection,
   isEmpty,
   filter,
-  defaults
+  defaults,
+  isNumber
 } from 'lodash-es'
-import { FieldsInfo } from '@/logics/types'
+import { FieldsInfo, ModifierKey } from '@/logics/types'
 import {
   LoadParams,
   LocalData,
@@ -96,6 +97,9 @@ const _addX2ManyDefaultRecord = async (list: DataPoint, options: any) => {
     parentId: list.id,
     viewType: list.viewType
   }
+
+  // TODO additionalContexts
+  ;(params as any).context = _getContext(list)
 
   const recordID = await _makeDefaultRecord(list.model, params)
   const record = localData[recordID]
@@ -538,9 +542,9 @@ const _copyX2ManyRecord = async (recordID: DataPointId, defaultTemplate: any) =>
  * @param modifiers
  */
 const _evalModifiers = (element: DataPoint, modifiers: any) => {
-  const result = {} as any
+  const result = Object.create(null)
   let evalContext: any
-  const evalModifier = (mod: any) => {
+  const evalModifier = (mod: any): boolean => {
     if (mod === undefined || mod === false || mod === true) {
       return !!mod
     }
@@ -549,6 +553,7 @@ const _evalModifiers = (element: DataPoint, modifiers: any) => {
       return (new Domain(mod, evalContext) as any).compute(evalContext)
     } catch (e) {
       if (import.meta.env.DEV) console.error(e)
+      return false
     }
   }
 
@@ -564,7 +569,7 @@ const _evalModifiers = (element: DataPoint, modifiers: any) => {
   if ('required' in modifiers) {
     result.required = evalModifier(modifiers.required)
   }
-  return result
+  return result as Record<ModifierKey, boolean>
 }
 
 /**
@@ -674,7 +679,8 @@ const _fetchX2Manys = (record: DataPoint) => {
         res_ids: ids,
         fieldsInfo,
         parentId: record.id,
-        relationField: fieldInfo.relationField
+        relationField: fieldInfo.relationField,
+        rawContext: fieldInfo.context
       })
       record.data[fieldName] = list.id
       if (!fieldInfo.__no_fetch) {
@@ -696,11 +702,13 @@ const _fetchX2Manys = (record: DataPoint) => {
 const _fetchX2ManysData = async (list: DataPoint) => {
   const { model, res_ids } = list
   const fieldNames = _getFieldsName(list)
-  if (res_ids.length && fieldNames.length) {
-    const res = await fetchRecord(model, res_ids as number[], fieldNames)
+  const missingIDs = res_ids.filter(id => isNumber(id))
+
+  if (missingIDs.length && fieldNames.length) {
+    const res = await fetchRecord(model, missingIDs as number[], fieldNames)
     if (res.ret === 0) {
       const records = res.data
-      each(res_ids, (id: any) => {
+      each(missingIDs, (id: any) => {
         const data = find(records, { id })
         if (data) {
           const dataPoint = _makeDataPoint({
@@ -961,6 +969,7 @@ const _makeDataPoint = <T extends LoadParams>(params: T): DataPoint => {
   }
 
   params.relationField && (dataPoint.relationField = params.relationField)
+  params.rawContext && (dataPoint.rawContext = params.rawContext)
 
   localData[dataPoint.id] = dataPoint
   if (dataPoint.type === 'record') {
@@ -982,13 +991,12 @@ const _makeDefaultRecord = async (modelName: string, params: LoadParams) => {
   })
 
   // 默认值处理
-  const res = await fetchDefaultValues(modelName, fieldNames)
+  const res = await fetchDefaultValues(modelName, fieldNames, (params as any).context || {})
   if (res.ret === 0) {
     await applyDefaultValues(record.id, res.data, { fieldNames })
     await _performOnChange(record, without(fieldNames, '__last_update'), { from: 'create' })
     await _fetchRelationalData(record)
   }
-
   return record.id
 }
 
@@ -1021,7 +1029,11 @@ const _getContext = (element: DataPoint, options?: any) => {
   }
 
   if (element.rawContext) {
-    // TODO
+    const rawContext = new Context(element.rawContext)
+    const evalContext = _getEvalContext(localData[element.parentId as string])
+    evalContext.id = evalContext.id || false
+    rawContext.set_eval_context(evalContext)
+    context.add(rawContext)
   }
 
   return context.eval()
@@ -1558,7 +1570,8 @@ const _processX2ManyCommands = (record: DataPoint, fieldName: string, commands: 
     parentId: record.id,
     fieldsInfo,
     res_ids: [],
-    relationField: field.relationField
+    relationField: field.relationField,
+    rawContext: field.context
   })
   record._changes[fieldName] = list.id
   list._changes = []

@@ -33,7 +33,7 @@
       <FormCanvas :items="curView && curView.items" :fields="fields" ref="formRef" />
     </div>
     <LineSwitcher v-show="showLineSwitcher" />
-    <ButtonView :buttons="curView && curView.buttons" />
+    <ButtonView :buttons="curView && curView.buttons" ref="btnRef" />
 
     <van-popup
       v-model:show="showPopup"
@@ -79,6 +79,7 @@ import { viewCommonProps } from '@/hooks/component/useView'
 import { getRecordId } from '@/logics/core/dataPoint'
 import { sessionStorageKeys } from '@/logics/enums/cache'
 import { load as loadDataPoint, clean as cleanRecord, isDirty } from '@/logics/core/dataPoint'
+import type { DataPointId } from '@/logics/types/dataPoint'
 import useToast from '@/hooks/component/useToast'
 import imgUrl from '@/assets/img/audit.png'
 
@@ -178,6 +179,19 @@ export default defineComponent({
       })
     }
 
+    // 存在必录的记录id
+    const noSaveElementIds = new Set<DataPointId>()
+    const canBeSaved = () => {
+      const res = formRef.value?.canBeSaved()
+      const id = curRecord.value?.id
+      if (!res) {
+        noSaveElementIds.add(id)
+      } else if (noSaveElementIds.has(id)) {
+        noSaveElementIds.delete(id)
+      }
+      return res && noSaveElementIds.size === 0
+    }
+
     // 表体行表单返回主表单
     watchEffect(() => {
       setCurRecord()
@@ -225,13 +239,32 @@ export default defineComponent({
           if (!id && !subId && !fromSubId) {
             // 点击创建
             loadRecord(to.query)
-          } else if (id && fromId && id !== fromId && to.query.model === from.query.model) {
+          } else if (
+            id &&
+            fromId &&
+            id !== fromId &&
+            !isNaN(+id) &&
+            to.query.model === from.query.model
+          ) {
             // 同个模型下的关联查看
             loadRecord(to.query)
           }
 
-          if (canvasRef.value) {
-            canvasRef.value.scrollTop = 0
+          if (!fromSubId && subId) {
+            // 表头到表体
+            canvasRef.value && (canvasRef.value.scrollTop = 0)
+          } else if (fromSubId && !subId) {
+            // 表体到表头
+            if (!canBeSaved()) {
+              const bool = await Dialog.confirm({
+                message: '表体存在必录项未填，是否确定返回表头?',
+                closeOnPopstate: false
+              })
+                .then(() => true)
+                .catch(() => false)
+              return bool
+            }
+            return true
           }
         }
       }
@@ -242,7 +275,6 @@ export default defineComponent({
       cleanRecord()
     })
 
-    const canBeSaved = () => formRef.value?.canBeSaved() && true
     provide('canBeSaved', canBeSaved)
     provide('openPopup', openPopup)
     provide('flushAttach', (recordID: number) => {

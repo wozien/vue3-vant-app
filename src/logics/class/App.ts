@@ -180,6 +180,9 @@ class App {
       if (item.attrs?.on_change === '1') {
         info.onChange = true
       }
+      if (item.attrs?.context) {
+        info.context = item.attrs.context
+      }
       if (item.domain.length) {
         info.domain = item.domain
       }

@@ -45,6 +45,7 @@ export interface FieldInfo {
   onChange?: boolean
   list?: FieldsInfo
   domain?: string
+  context?: string
   modifiers?: Modifiers
   relatedFields?: any
   relationField?: string
