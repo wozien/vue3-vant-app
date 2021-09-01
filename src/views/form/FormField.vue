@@ -16,6 +16,7 @@
     <van-field
       v-else-if="isReadonly && !isX2Many"
       :readonly="true"
+      :required="isRequired"
       :label="string"
       v-model="value"
       center

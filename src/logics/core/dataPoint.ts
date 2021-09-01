@@ -545,7 +545,11 @@ const _evalModifiers = (element: DataPoint, modifiers: any) => {
       return !!mod
     }
     evalContext = evalContext || _getEvalContext(element)
-    return (new Domain(mod, evalContext) as any).compute(evalContext)
+    try {
+      return (new Domain(mod, evalContext) as any).compute(evalContext)
+    } catch (e) {
+      if (import.meta.env.DEV) console.error(e)
+    }
   }
 
   if ('invisible' in modifiers) {

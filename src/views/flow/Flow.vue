@@ -1,5 +1,5 @@
 <template>
-  <div name="workflow-view">
+  <div class="workflow-view">
     <van-tabs v-model:active="active">
       <van-tab v-for="item in group.types" :key="item.type" :title="item.title" :name="item.type" />
     </van-tabs>

@@ -68,6 +68,10 @@ class Domain {
               fieldValue = values.parent[fieldName];
           }
 
+          if(this._data[1].endsWith('like') && fieldValue === false) {
+            fieldValue = '';
+          }
+
           switch (this._data[1]) {
               case '=':
               case '==':
@@ -103,6 +107,10 @@ class Domain {
                   return (fieldValue.indexOf(this._data[2]) >= 0);
               case '=ilike':
                   return new RegExp(this._data[2].replace(/%/g, '.*'), 'i').test(fieldValue);
+              case "not ilike":
+                  return (fieldValue.indexOf(this._data[2]) === -1);
+              case "not =ilike":
+                  return !new RegExp(this._data[2].replace(/%/g, '.*'), 'i').test(fieldValue);  
               default:
                   throw new Error(_.str.sprintf(
                       'Domain %s uses an unsupported operator',

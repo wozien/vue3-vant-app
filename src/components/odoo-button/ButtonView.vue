@@ -388,7 +388,7 @@ export default defineComponent({
       }
     }
 
-    // flush = post 可以防止表体和表体切换 button 数据更新滞后，造成按钮 domain 计算报错问题
+    // flush = post 可以防止表头和表体切换 button 数据更新滞后，造成按钮 domain 计算报错问题
     watchEffect(
       () => {
         const { model, subModel } = route.query

@@ -33,7 +33,7 @@ export type FieldCommonPropsType = Readonly<{
 
 export default function (props: FieldCommonPropsType) {
   const store = useStore()
-  const string = computed(() => props.field.string || props.item.string)
+  const string = computed(() => props.item.string || props.field.string)
   const type = computed(() => props.field.type)
   const widget = computed(() => props.item.widget)
   const placeholder = computed(() => {
@@ -48,9 +48,7 @@ export default function (props: FieldCommonPropsType) {
   const isReadonly = computed(
     () => (modifiers.value && modifiers.value.readonly) || props.mode === 'readonly'
   )
-  const isRequired = computed(
-    () => !isReadonly.value && modifiers.value && modifiers.value.required
-  )
+  const isRequired = computed(() => modifiers.value && modifiers.value.required)
   const invisible = computed(
     () => modifiers.value && (modifiers.value.invisible || modifiers.value.column_invisible)
   )
