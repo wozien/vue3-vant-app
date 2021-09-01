@@ -107,7 +107,7 @@ export default defineComponent({
 
     const loadData = async () => {
       state.loading = true
-      const res = await fetchMany2OneData(props.field?.relation as string, '', domain.value)
+      const res = await fetchMany2OneData(props.field?.relation as string, '', '', domain.value)
       if (res.ret === 0) {
         state.columns = res.data.map((item: any) => {
           const [id, display_name] = item

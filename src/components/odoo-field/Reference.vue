@@ -1,7 +1,7 @@
 <template>
   <van-field
-    :label="string" 
-    :placeholder="placeholder" 
+    :label="string"
+    :placeholder="placeholder"
     v-model="value"
     :required="isRequired"
     :clickable="true"
@@ -15,7 +15,7 @@
     <div class="m2o-selector">
       <van-search v-model="searchValue" placeholder="输入名称搜索" shape="round"></van-search>
       <div class="list-wrapper">
-        <van-tree-select 
+        <van-tree-select
           :active-id="activeId"
           v-model:main-active-index="mainActiveId"
           :items="items"
@@ -41,22 +41,21 @@ export default defineComponent({
   },
 
   setup(props) {
-    const { 
-      string, placeholder, value, rawValue, isRequired, curRecord, setValue 
-    } = useFieldCommon(props)
+    const { string, placeholder, value, rawValue, isRequired, curRecord, setValue } =
+      useFieldCommon(props)
     const { state, onOpenModal } = useModal(props)
     const { toast } = useToast()
 
     const domain = computed(() => {
-      return  curRecord && getDomain(curRecord.value.id, { fieldName: props.field?.name })
+      return curRecord && getDomain(curRecord.value.id, { fieldName: props.field?.name })
     })
 
     const onConfirm = async (cb: Fn) => {
       const curModel = state.models[state.mainActiveId]
-      if(curModel) {
-        if(state.activeId !== -1) {
+      if (curModel) {
+        if (state.activeId !== -1) {
           state.items.forEach(async (item: any) => {
-            if(item.model === curModel.model) {
+            if (item.model === curModel.model) {
               const select = item.children.find((row: any) => row.id === state.activeId)
               await setValue({
                 model: curModel.model,
@@ -76,9 +75,14 @@ export default defineComponent({
     const loadData = async () => {
       const activeModel = state.models[state.mainActiveId]
       toast.loading()
-      const res = await fetchMany2OneData(activeModel.model as string, state.searchValue, domain.value)
+      const res = await fetchMany2OneData(
+        activeModel.model as string,
+        '',
+        state.searchValue,
+        domain.value
+      )
       state.items.forEach((item: any) => {
-        if(item.model === activeModel.model) {
+        if (item.model === activeModel.model) {
           item.children = res.data.map((row: any) => {
             const [id, name] = row
             return {
@@ -100,24 +104,30 @@ export default defineComponent({
       loadData()
     }
 
-    watch(() => state.showModal, (val) => {
-      if(!val) return
-      if(rawValue.value) {
-        const { model, res_id } = rawValue.value as any
-        state.activeId = res_id
-        if(model) {
-          const index = state.models.findIndex((item: any) => item.model === model)
-          state.mainActiveId = index === -1 ? 0 : index
-        } 
-      } else {
-        state.activeId = -1
-        state.mainActiveId = 0
+    watch(
+      () => state.showModal,
+      val => {
+        if (!val) return
+        if (rawValue.value) {
+          const { model, res_id } = rawValue.value as any
+          state.activeId = res_id
+          if (model) {
+            const index = state.models.findIndex((item: any) => item.model === model)
+            state.mainActiveId = index === -1 ? 0 : index
+          }
+        } else {
+          state.activeId = -1
+          state.mainActiveId = 0
+        }
+
+        loadData()
       }
+    )
 
-      loadData()
-    })
-
-    watch(() => state.searchValue, () => loadData())
+    watch(
+      () => state.searchValue,
+      () => loadData()
+    )
 
     return {
       string,
@@ -145,14 +155,14 @@ function useModal(props: any) {
   })
 
   const onOpenModal = async () => {
-    if(props.mode === 'readonly') return
+    if (props.mode === 'readonly') return
     state.showModal = true
   }
 
   watchEffect(() => {
-    if(props.field?.selection?.length) {
+    if (props.field?.selection?.length) {
       props.field.selection.forEach(([model, name]: [string, string]) => {
-        if(model && name) {
+        if (model && name) {
           state.models.push({ model, name })
           state.items.push({ text: name, model, children: [] })
         }
@@ -165,7 +175,6 @@ function useModal(props: any) {
     onOpenModal
   }
 }
-
 </script>
 
 <style lang="less" scoped>
