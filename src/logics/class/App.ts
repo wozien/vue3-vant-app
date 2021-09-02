@@ -164,6 +164,7 @@ class App {
 
   _getFieldInfo(field: Field, item?: ViewItem) {
     const info: FieldInfo = {
+      fieldKey: field.key,
       type: field.type,
       name: field.name,
       string: field.string || item?.string

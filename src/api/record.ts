@@ -44,6 +44,10 @@ export const fetchMany2OneData = async (
     model,
     args: domain,
     context: context || {}
+  } as any
+
+  if (context?.field_name) {
+    kw.field_name = context.field_name
   }
   const res = await callKw(relation, 'ps_name_search', [], kw)
   return res.data
