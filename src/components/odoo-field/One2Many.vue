@@ -77,7 +77,8 @@ export default defineComponent({
           name: 'view',
           query: Object.assign({}, route.query, {
             subModel: record.model,
-            subId: row.id
+            subId: row.id,
+            readonly: isReadonly.value ? 1 : 0
           })
         })
       }

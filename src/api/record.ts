@@ -44,8 +44,14 @@ export const fetchMany2OneData = async (
     model,
     args: domain,
     context: context || {}
+  } as any
+  let method = 'ps_name_search'
+  if (relation === 'ps.char2one.model') {
+    method = 'name_search'
+    delete kw.view_type
+    delete kw.model
   }
-  const res = await callKw(relation, 'ps_name_search', [], kw)
+  const res = await callKw(relation, method, [], kw)
   return res.data
 }
 

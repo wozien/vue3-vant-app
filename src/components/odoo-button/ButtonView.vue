@@ -76,7 +76,9 @@ import {
   copyRecord,
   get,
   reload,
-  evalModifiers
+  evalModifiers,
+  getContext,
+  getRecordId
 } from '@/logics/core/dataPoint'
 import { sessionStorageKeys } from '@/logics/enums/cache'
 import { deleteRecord } from '@/api/record'
@@ -172,9 +174,9 @@ export default defineComponent({
         }
       } else if (button.type === 'object') {
         // call_button
-        const { model, id } = route.query
+        const { model, res_id } = curRecord.value
         if (button && model) {
-          const args = id ? [+id] : []
+          const args = res_id ? [+res_id] : []
           const toast = Toast.loading('加载中...')
           const context = getCallButtonContext(button, curRecord.value)
           const res = await callButton(model as string, button.funcName as string, [args], {
@@ -194,6 +196,9 @@ export default defineComponent({
               const needReload = await handleServiceAction(action, button, viewNavigator)
               if (needReload) {
                 await reload()
+                // 表体按钮出发reload还需要还原当前的record
+                const curRecordId = getRecordId(model, res_id)
+                store.commit('SET_CUR_RECORD', curRecordId)
                 store.commit('SET_RECORD_TOKEN')
               }
             }
@@ -455,9 +460,13 @@ function calcButtons(
  * call_button context
  */
 function getCallButtonContext(button: ViewButton, record: DataPoint): any {
-  const context = button.isFlow ? getFlowParams() : {}
+  let context = button.isFlow ? getFlowParams() : {}
   if (button.mode === 'edit' && button.type === 'object') {
     context.formData = generateChanges(record, { changesOnly: false })
+  }
+
+  if (record.parentId) {
+    context = Object.assign({}, context, getContext(record.parentId))
   }
   return context
 }
@@ -470,9 +479,11 @@ async function handleServiceAction(action: Action, button: ViewButton, viewNavig
   const actionRaw = action.raw
 
   if (action.type === 'ir.actions.act_window_close' && 'notify_toast' in actionRaw) {
-    const message = actionRaw.notify_toast.message
-    Toast(message)
-    reload = true
+    const notify_toast = actionRaw.notify_toast
+    Toast(notify_toast.message)
+    if (notify_toast.type === 'success') {
+      reload = true
+    }
   } else if (action.type === 'ir.actions.act_window') {
     // 返回向导视图
     if (button.isFlow) {

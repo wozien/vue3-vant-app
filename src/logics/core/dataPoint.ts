@@ -2024,6 +2024,18 @@ export const get = (id: DataPointId, options?: any) => {
 }
 
 /**
+ * get context
+ * @param id
+ * @param options
+ * @returns
+ */
+export const getContext = (id: DataPointId, options?: any) => {
+  options = options || {}
+  const element = localData[id]
+  return _getContext(element, options)
+}
+
+/**
  * 根据模型和记录id获取DataPointId
  * @param modelKey
  * @param res_id
@@ -2156,14 +2168,11 @@ export const save = async (recordID: DataPointId) => {
 }
 
 /**
- * 重新加载record
+ * 重新加载根record
  * @param record
  */
-export const reload = async (record?: DataPoint) => {
-  if (!record) {
-    record = localData[rootID]
-    if (!record || isNew(record.id)) return false
-  }
+export const reload = async (record: DataPoint = localData[rootID]) => {
+  if (!record || isNew(record.id) || record.id !== rootID) return false
 
   const recordId = record.id || rootID
   // 移除其他DataPoint

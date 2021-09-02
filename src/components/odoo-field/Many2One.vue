@@ -126,6 +126,7 @@ function useModal({ field, item }: FieldCommonPropsType, curRecord: Ref<any>) {
             type: dpField.type
           }
           context.module = item.attrs.module
+          context.disable_state_filter = true
         }
       }
     } else {
