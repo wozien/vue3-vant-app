@@ -9,7 +9,12 @@
     <!-- boolean -->
     <van-field v-if="type === 'boolean'" :label="string" :required="isRequired">
       <template #input>
-        <van-checkbox v-model="value" shape="square" :disabled="isReadonly" @change="setValue" />
+        <van-checkbox
+          v-model="value"
+          shape="square"
+          :disabled="isReadonly"
+          @update:model-value="setValue"
+        />
       </template>
     </van-field>
     <!-- readonly -->

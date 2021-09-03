@@ -179,7 +179,7 @@ const _applyChange = (recordID: DataPointId, changes: DataPointData): Promise<an
       const field = record.fieldsInfo[fieldName]
       if (field && field.onChange) {
         const isX2Many = field.type === 'one2many' || field.type === 'many2many'
-        if (!isX2Many) {
+        if (!isX2Many || _isX2ManyValid(record._changes[fieldName] || record.data[fieldName])) {
           onChangeFields.push(fieldName)
         }
       }
@@ -932,6 +932,58 @@ const _fetchX2ManysBatched = (list: DataPoint) => {
     }
   })
   return Promise.all(defs)
+}
+
+/**
+ * 判断字段是否有值
+ * @param value
+ * @param fieldType
+ * @returns
+ */
+const _isFieldSet = (value: any, fieldType: string) => {
+  switch (fieldType) {
+    case 'boolean':
+      return true
+    case 'one2many':
+    case 'many2many':
+      return value.length > 0
+    default:
+      return value !== false
+  }
+}
+
+/**
+ * 判断是否出发 x2m 字段的onchange
+ * 在表体存在必录的未填的数据库记录时为false
+ * @param id
+ * @returns
+ */
+const _isX2ManyValid = (id: DataPointId) => {
+  let isValid = true
+  const list = localData[id]
+  each(list._changes, (command: any) => {
+    if (
+      command.operation === 'DELETE' ||
+      command.operation === 'FORGET' ||
+      (command.operation === 'ADD' && !command.isNew) ||
+      command.operation === 'REMOVE_ALL'
+    ) {
+      return
+    }
+
+    const recordData = get(command.id, { raw: true }).data
+    const record = localData[command.id]
+    each(_getFieldsName(list), fieldName => {
+      const fieldInfo = list.fieldsInfo[fieldName]
+      const rawModifiers = fieldInfo.modifiers || {}
+      const modifiers = _evalModifiers(record, pick(rawModifiers, ['required']))
+      if (modifiers.required && !_isFieldSet(recordData[fieldName], fieldInfo.type)) {
+        isValid = false
+      }
+    })
+  })
+
+  return isValid
 }
 
 /**
