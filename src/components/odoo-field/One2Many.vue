@@ -91,6 +91,7 @@ export default defineComponent({
           operation: 'CREATE'
         }
       })
+      storeX2ManyCommand('UPDATE')
       store.commit('SET_RECORD_TOKEN')
 
       nextTick(() => {
