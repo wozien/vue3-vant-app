@@ -51,6 +51,10 @@ export const fetchMany2OneData = async (
     delete kw.view_type
     delete kw.model
   }
+
+  if (context?.field_name) {
+    kw.field_name = context.field_name
+  }
   const res = await callKw(relation, method, [], kw)
   return res.data
 }

@@ -94,6 +94,15 @@ export default defineComponent({
   }
 })
 
+function getFileNames(curRecord: DataPoint, fieldKeys: string[]) {
+  const fieldsInfo = curRecord.fieldsInfo
+  return Object.keys(fieldsInfo).filter(fieldName => {
+    return (
+      fieldsInfo[fieldName].fieldKey && fieldKeys.includes(fieldsInfo[fieldName].fieldKey as string)
+    )
+  })
+}
+
 function useModal({ field, item }: FieldCommonPropsType, curRecord: Ref<any>) {
   const { toast } = useToast()
   const state = reactive({
@@ -131,12 +140,20 @@ function useModal({ field, item }: FieldCommonPropsType, curRecord: Ref<any>) {
       }
     } else {
       relation = field.relation as string
-      const { depend_fields, depend_method } = item.attrs
+      // 筛选函数
+      let { depend_fields, depend_method } = item.attrs
+      if (item.attrs.method && item.attrs.method.checked) {
+        depend_fields = item.attrs.method.depend_fields
+        depend_method = item.attrs.method.depend_method
+      }
+
       if (depend_fields) {
-        const fieldNames = depend_fields.split(',')
+        const fieldNames = Array.isArray(depend_fields)
+          ? getFileNames(curRecord.value, depend_fields)
+          : depend_fields.split(',')
         const dependObj = {
           fields: Object.create(null),
-          method: depend_method || '',
+          methods: depend_method || '',
           relation_model: relation
         }
         fieldNames.forEach((fieldName: string) => {

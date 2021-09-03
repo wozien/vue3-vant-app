@@ -39,6 +39,7 @@ export interface OdooField {
 export interface FieldInfo {
   name: string
   type: FieldType
+  fieldKey?: string
   string?: string
   relation?: string
   selection?: [string, string][]
