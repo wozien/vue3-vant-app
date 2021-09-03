@@ -26,7 +26,7 @@ class ViewItem {
   items: ViewItem[]
   modifiers: Modifiers
   domain: string
-  attrs?: any
+  attrs: any
   options?: any
   subView?: View[]
 
@@ -40,11 +40,11 @@ class ViewItem {
     this.domain = itemObj.domain
     this.attrs = itemObj.attrs || {}
     this.options = itemObj.options || {}
-    this.items = itemObj.items.map((i) => new ViewItem(i))
+    this.items = itemObj.items.map(i => new ViewItem(i))
     this.modifiers = {}
 
     if (itemObj.subView?.length) {
-      this.subView = itemObj.subView.map((v) => new View(v))
+      this.subView = itemObj.subView.map(v => new View(v))
     }
 
     this._formatModifier()
@@ -61,7 +61,7 @@ class ViewItem {
   get fieldsToFetch() {
     if (this.widget === 'many2many_tags') {
       return {
-        display_name: { type: 'char' },
+        display_name: { type: 'char' }
       }
     }
     return null

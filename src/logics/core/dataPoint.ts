@@ -1044,11 +1044,15 @@ const _getContext = (element: DataPoint, options?: any) => {
  * @param record
  */
 const _getDefaultData = async (record: DataPoint) => {
-  const recordId = await _makeDefaultRecord(record.model, {
+  const params: LoadParams = {
     fieldsInfo: record.fieldsInfo,
     viewType: record.viewType,
     modelName: record.model
-  })
+  }
+  if (record.type === 'list') {
+    params.parentId = record.id
+  }
+  const recordId = await _makeDefaultRecord(record.model, params)
 
   const defaultRecord = localData[recordId]
   delete localData[recordId]
@@ -1838,8 +1842,12 @@ export const copyRecord = async (recordID: DataPointId, defaultTemplate?: any) =
 
   each(data, (value, fieldName) => {
     const field = fieldsInfo[fieldName]
-    if (fieldName === 'id' || fieldName === 'state' || fieldName === 'number') {
-      // TODO 判断不允许复制的字段
+    if (
+      fieldName === 'id' ||
+      fieldName === 'state' ||
+      fieldName === 'number' ||
+      field.copy === false
+    ) {
       changes[fieldName] = data[fieldName] = defaultData[fieldName] || false
     } else if (field.type === 'one2many') {
       defs.push(_copyX2ManyRecord(value, defaultTemplate))

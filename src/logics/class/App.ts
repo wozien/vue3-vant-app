@@ -175,14 +175,15 @@ class App {
     field.domain && (info.domain = field.domain)
 
     if (item) {
+      const { on_change, context, copy } = item.attrs
+      on_change === '1' && (info.onChange = true)
+      context && (info.context = context)
+
+      if (copy && copy.checked === false) {
+        info.copy = false
+      }
       if (item.subView?.length) {
         this.getViewFields(item?.subView, info)
-      }
-      if (item.attrs?.on_change === '1') {
-        info.onChange = true
-      }
-      if (item.attrs?.context) {
-        info.context = item.attrs.context
       }
       if (item.domain.length) {
         info.domain = item.domain
