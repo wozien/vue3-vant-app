@@ -249,15 +249,7 @@ export default defineComponent({
         viewNavigator(query as any)
       }
     }
-    // 行保存
-    const onSaveLine = () => {
-      const canSaved = canBeSaved && canBeSaved()
-      if (!canSaved) {
-        Toast('存在必录项未填')
-        return
-      }
-      viewNavigator.back()
-    }
+
     // 取消
     const onCancel = () => {
       const recordId = curRecord.value.id
@@ -316,6 +308,16 @@ export default defineComponent({
         readonly: 0
       })
     }
+    // 行保存
+    const onSaveLine = () => {
+      const canSaved = canBeSaved && canBeSaved()
+      if (!canSaved) {
+        Toast('存在必录项未填')
+        return
+      }
+      storageButtonFunc('saveLine')
+      viewNavigator.back()
+    }
     // 行插入
     const onInsertLine = async () => {
       const list = get(curRecord.value.parentId)
@@ -360,6 +362,7 @@ export default defineComponent({
             ids: [curRecord.value.id]
           }
         })
+        storageButtonFunc('deleteLine')
         viewNavigator.back()
       }
     }
@@ -419,6 +422,10 @@ export default defineComponent({
   }
 })
 
+function storageButtonFunc(func: string) {
+  sessionStorage.setItem(sessionStorageKeys.buttonFunc, func)
+}
+
 /**
  * 计算显示的按钮
  */
@@ -434,7 +441,9 @@ function calcButtons(
       if (button.children?.length) {
         button.children = _calc(button.children)
       }
-      res.push(button)
+      if (!button.children || button.children.length) {
+        res.push(button)
+      }
     }
 
     for (let button of buttons) {

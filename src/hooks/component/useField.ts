@@ -70,8 +70,8 @@ export default function (props: FieldCommonPropsType) {
         val = (fieldUtils.parse as any)[fieldType](val)
       }
 
-      await notifyChanges(curRecord.value.id, { [field.name]: val })
-      store.commit('SET_RECORD_TOKEN')
+      const res = await notifyChanges(curRecord.value.id, { [field.name]: val })
+      res && store.commit('SET_RECORD_TOKEN')
     }
   }
 

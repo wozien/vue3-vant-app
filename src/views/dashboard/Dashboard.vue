@@ -260,6 +260,7 @@ function useCamera() {
 <style lang="less" scoped>
 .dashboard {
   height: calc(100% - 50px);
+  overflow-y: auto;
   padding: 10px;
   .header {
     .card;

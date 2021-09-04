@@ -255,7 +255,14 @@ export default defineComponent({
             canvasRef.value && (canvasRef.value.scrollTop = 0)
           } else if (fromSubId && !subId) {
             // 表体到表头
+            const buttonFunc = sessionStorage.getItem(sessionStorageKeys.buttonFunc)
+            if (buttonFunc && ['deleteLine', 'saveLine'].includes(buttonFunc)) {
+              sessionStorage.removeItem(sessionStorageKeys.buttonFunc)
+              return
+            }
+
             if (!canBeSaved()) {
+              // 点击浏览器后退, 行保存和删除行不用提示
               const bool = await Dialog.confirm({
                 message: '表体存在必录项未填，是否确定返回表头?',
                 closeOnPopstate: false

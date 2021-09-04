@@ -83,7 +83,7 @@ export default defineComponent({
         title: '联系信息',
         messageAlign: 'left',
         message:
-          '客服电话: 400-018-7701\n办公邮箱: insuiteservice@inspur.com\n办公地址: 山东省济南市历城区东八区企业公馆A7-1'
+          '客服电话: 400-018-7701\n办公邮箱: insuiteservice@inspur.com\n办公地址: 山东省济南市历下区浪潮路1036号浪潮科技园'
       })
     }
 

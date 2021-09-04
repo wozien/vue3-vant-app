@@ -8,5 +8,6 @@ export const enum sessionStorageKeys {
   flowParams = 'FLOW_PARAMS', // 工作流加载的参数
   x2manyCommand = 'X2MANY_COMMAND', // 记录表体操作的命令
   loginAccount = 'LOGIN_ACCOUNT', // 登录的账号
-  reportData = 'REPORT_DATA' // 报表点击数据
+  reportData = 'REPORT_DATA', // 报表点击数据
+  buttonFunc = 'BUTTON_FUNC' // 点击的按钮函数
 }

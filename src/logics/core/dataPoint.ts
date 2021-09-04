@@ -20,7 +20,8 @@ import {
   isEmpty,
   filter,
   defaults,
-  isNumber
+  isNumber,
+  extend
 } from 'lodash-es'
 import { FieldsInfo, ModifierKey } from '@/logics/types'
 import {
@@ -161,6 +162,11 @@ const _applyChange = (recordID: DataPointId, changes: DataPointData): Promise<an
   record._isDirty = true
   const defs = []
 
+  const initialData = {} as any
+  _visitChildren(record, function (elem) {
+    initialData[elem.id] = extend(true, {}, pick(elem, ['data', '_changes']))
+  })
+
   // apply changes to local data
   for (let fieldName in changes) {
     const field = record.fieldsInfo[fieldName]
@@ -187,9 +193,16 @@ const _applyChange = (recordID: DataPointId, changes: DataPointData): Promise<an
 
     return new Promise(resolve => {
       if (onChangeFields.length) {
-        _performOnChange(record, onChangeFields).then((result: any) => {
-          resolve(Object.keys(changes).concat(Object.keys((result && result.value) || {})))
-        })
+        _performOnChange(record, onChangeFields)
+          .then((result: any) => {
+            resolve(Object.keys(changes).concat(Object.keys((result && result.value) || {})))
+          })
+          .catch(() => {
+            _visitChildren(record, function (elem) {
+              extend(elem, initialData[elem.id])
+            })
+            resolve(false)
+          })
       } else {
         resolve(Object.keys(changes))
       }
@@ -1591,8 +1604,10 @@ const _performOnChange = async (record: DataPoint, fields: string[] | string, op
     }
 
     await _applyOnChange(result.value, record)
+    return result
   }
-  return res
+
+  throw new Error(res.msg)
 }
 
 /**
@@ -2179,7 +2194,8 @@ export const notifyChanges = async (recordID: DataPointId, changes: DataPointDat
     }
   }
 
-  await _applyChange(recordID, changes)
+  const changeKeys = await _applyChange(recordID, changes)
+  return changeKeys && changeKeys.length
 }
 
 /**
@@ -2209,10 +2225,10 @@ export const save = async (recordID: DataPointId) => {
 
   if (method === 'create' || Object.keys(changes).length) {
     const res = await saveRecord(record.model, method, record.data.id as number, changes)
-    record._isDirty = false
-    record._changes = {}
 
     if (res.ret === 0) {
+      record._isDirty = false
+      record._changes = {}
       // reload data
       if (isNew(record.id)) {
         record.res_id = res.data
