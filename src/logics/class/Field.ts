@@ -92,6 +92,10 @@ class Field {
     return ['one2many', 'many2many'].includes(this.type)
   }
 
+  isNumber() {
+    return ['integer', 'float'].includes(this.type)
+  }
+
   isComplexField() {
     return ['selection', 'many2one', 'reference', 'one2many', 'date', 'datetime'].includes(
       this.type

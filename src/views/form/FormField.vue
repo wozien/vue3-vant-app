@@ -13,7 +13,7 @@
           v-model="value"
           shape="square"
           :disabled="isReadonly"
-          @update:model-value="setValue"
+          @update:model-value="debounceSetValue"
         />
       </template>
     </van-field>
@@ -38,7 +38,7 @@
       v-model="rawValue"
       clearable
       center
-      @update:model-value="setNumberValue"
+      @update:model-value="debounceSetValue"
     />
     <!-- char, text -->
     <van-field
@@ -50,7 +50,7 @@
       v-model="value"
       clearable
       center
-      @update:model-value="setValue"
+      @update:model-value="debounceSetValue"
     />
   </div>
 </template>
@@ -79,8 +79,7 @@ export default defineComponent({
       isReadonly,
       isRequired,
       invisible,
-      setValue,
-      setNumberValue
+      debounceSetValue
     } = useFieldCommon(props)
 
     const renderType = computed(() => {
@@ -117,8 +116,7 @@ export default defineComponent({
       itemClass,
       isSet,
       isX2Many,
-      setValue,
-      setNumberValue,
+      debounceSetValue,
       Component
     }
   }
