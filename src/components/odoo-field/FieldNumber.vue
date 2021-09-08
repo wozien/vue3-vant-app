@@ -1,0 +1,83 @@
+<template>
+  <van-field
+    :label="string"
+    :placeholder="placeholder"
+    type="number"
+    v-model="value"
+    :required="isRequired"
+    :readonly="isReadonly"
+    @change="setValue"
+    clearable
+    center
+  />
+</template>
+
+<script lang="ts">
+import { defineComponent, computed, watchEffect } from 'vue'
+import useFieldCommon, { fieldCommonProps } from '@/hooks/component/useField'
+import { getPrecision } from '@/utils'
+import fieldUtils from '@/logics/core/fieldUtils'
+
+export default defineComponent({
+  props: {
+    ...fieldCommonProps
+  },
+
+  setup(props) {
+    const {
+      string,
+      placeholder,
+      type,
+      value,
+      rawValue,
+      isRequired,
+      setNumberValue,
+      curRecord,
+      isReadonly
+    } = useFieldCommon(props)
+
+    const precision = computed(() => {
+      if (!curRecord.value) return 2
+
+      const field = curRecord.value.fieldsInfo[props.field.name]
+      if (!field) return 2
+
+      const precision = getPrecision(curRecord.value, field)
+      if (precision !== undefined) return precision
+      if ('digits' in props.field) return props.field.digits[1]
+      return 2
+    })
+
+    const isSet = () => {
+      return !!value.value
+    }
+
+    watchEffect(() => {
+      const field = props.field
+      const fieldType = field.options?.relatedType || field.type
+      value.value = (fieldUtils.format as any)[fieldType](rawValue.value, field, {
+        precision: precision.value
+      })
+    })
+
+    return {
+      type,
+      string,
+      placeholder,
+      value,
+      rawValue,
+      isRequired,
+      isReadonly,
+      isSet,
+      setValue: () => {
+        setNumberValue(value.value as string, {
+          precision: precision.value
+        })
+      },
+      precision
+    }
+  }
+})
+</script>
+
+<style lang="less" scoped></style>

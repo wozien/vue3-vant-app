@@ -40,12 +40,11 @@ function formatInteger(value: any) {
   return insertThousandSeps(sprintf('%d', value))
 }
 
-function formatFloat(value: any) {
+function formatFloat(value: any, field: any, options = { precision: 2 }) {
   if (value === false) {
     return ''
   }
-  // TODO 查看配置的精度
-  const percision = 2
+  const percision = options.precision != null ? options.precision : 2
   const formatted = sprintf('%.' + percision + 'f', value || 0).split('.')
   formatted[0] = insertThousandSeps(formatted[0])
   return formatted.join('.')

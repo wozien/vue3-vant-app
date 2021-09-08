@@ -163,16 +163,22 @@ class App {
   }
 
   _getFieldInfo(field: Field, item?: ViewItem) {
+    const precision = item?.options?.precision || field.options?.precision
     const info: FieldInfo = {
       fieldKey: field.key,
       type: field.type,
       name: field.name,
-      string: field.string || item?.string
+      string: field.string || item?.string,
+      precision: precision ? [precision[0], precision[1]] : undefined
     }
     field.relation && (info.relation = field.relation)
     field.selection && (info.selection = field.selection)
     field.relation_field && (info.relationField = field.relation_field)
     field.domain && (info.domain = field.domain)
+
+    if (field.type === 'float' && info.precision && !item?.options?.precision) {
+      info.precision[1] = this._getFieldNames(info.precision[1])
+    }
 
     if (item) {
       const { on_change, context, copy } = item.attrs
@@ -205,6 +211,38 @@ class App {
       })
     }
     return info
+  }
+
+  /**
+   * 获取precision配置
+   * @param precision
+   * @returns
+   */
+  _getFieldNames(longKey: string) {
+    const keys = longKey.split('/')
+    const names: string[] = []
+
+    keys.forEach(key => names.push(this._getFieldName(key)))
+    return names.join('/')
+  }
+
+  /**
+   * 根据fieldKey获取name
+   * @param key
+   * @returns
+   */
+  _getFieldName(key: string) {
+    let name = ''
+
+    Object.keys(this.models).find(modelKey => {
+      const fieldName = this.models[modelKey].keyNameMap[key]
+      if (fieldName) {
+        name = fieldName
+        return true
+      }
+    })
+
+    return name
   }
 }
 

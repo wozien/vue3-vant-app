@@ -2211,6 +2211,25 @@ export const findDataPoint = (props: DataPointId | any) => {
 }
 
 /**
+ * 获取父级数据id（有些是列表，不能直接取parentID）
+ * @param element
+ * @returns
+ */
+export const getParentDataId = (element: DataPointState) => {
+  let parentId = element && element.parentID
+
+  if (parentId) {
+    // reference的parentID是个对象。。。
+    let parent = localData[typeof parentId === 'object' ? parentId.id : parentId]
+    if (parent && parent.type === 'list' && parent.parentID) {
+      parentId = parent.parentID
+    }
+  }
+
+  return parentId
+}
+
+/**
  * 单据保存
  * @param recordID
  */

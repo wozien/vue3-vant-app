@@ -19,7 +19,7 @@
     </van-field>
     <!-- readonly -->
     <van-field
-      v-else-if="isReadonly && !isX2Many"
+      v-else-if="isReadonly && !needFormat"
       :readonly="true"
       :required="isRequired"
       :label="string"
@@ -27,18 +27,11 @@
       center
     />
     <!-- relation field -->
-    <component v-else-if="Component" :is="Component" v-bind="{ item, field, mode }" />
-    <!-- integer, float -->
-    <van-field
-      v-else-if="type === 'integer' || type === 'float'"
-      :type="renderType"
-      :label="string"
-      :placeholder="placeholder"
-      :required="isRequired"
-      v-model="rawValue"
-      clearable
-      center
-      @update:model-value="debounceSetValue"
+    <component
+      v-else-if="Component"
+      :is="Component"
+      ref="component"
+      v-bind="{ item, field, mode }"
     />
     <!-- char, text -->
     <van-field
@@ -58,6 +51,7 @@
 <script lang="ts">
 import { defineComponent, computed } from 'vue'
 import useFieldCommon, { fieldCommonProps } from '@/hooks/component/useField'
+import templateRef from '@/hooks/core/templateRef'
 import { getFieldComponent } from '@/components/odoo-field'
 
 export default defineComponent({
@@ -81,6 +75,7 @@ export default defineComponent({
       invisible,
       debounceSetValue
     } = useFieldCommon(props)
+    const component = templateRef('component')
 
     const renderType = computed(() => {
       return getRenderType(type.value)
@@ -99,8 +94,14 @@ export default defineComponent({
     })
 
     const isSet = () => {
-      return !modifiers.value?.required || !!value.value || type.value === 'boolean'
+      if (!modifiers.value?.required) return true
+      if (component.value && 'isSet' in component.value) return (component.value as any).isSet()
+      return !!value.value || type.value === 'boolean'
     }
+
+    const needFormat = computed(() => {
+      return isX2Many.value || props.field?.isNumber()
+    })
 
     return {
       string,
@@ -117,7 +118,8 @@ export default defineComponent({
       isSet,
       isX2Many,
       debounceSetValue,
-      Component
+      Component,
+      needFormat
     }
   }
 })

@@ -5,9 +5,12 @@ import FieldReference from './Reference.vue'
 import FieldMany2Many from './Many2Many.vue'
 import FieldOn2Many from './One2Many.vue'
 import FieldFlexDrop from '../flex/FlexDrop.vue'
+import FieldNumber from './FieldNumber.vue'
 
 const fieldResitrys = new Map<string, any>()
 
+fieldResitrys.set('float', FieldNumber)
+fieldResitrys.set('integer', FieldNumber)
 fieldResitrys.set('selection', FieldSelection)
 fieldResitrys.set('date', FieldDate)
 fieldResitrys.set('datetime', FieldDate)
