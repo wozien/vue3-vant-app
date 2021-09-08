@@ -201,6 +201,14 @@ export default defineComponent({
                 store.commit('SET_CUR_RECORD', curRecordId)
                 store.commit('SET_RECORD_TOKEN')
               }
+
+              if (
+                button.funcName === 'svc_std_pre_audit' &&
+                ['mdm.unit.group', 'mdm.unit', 'mdm.currency'].includes(model)
+              ) {
+                // 处理精度刷新
+                store.dispatch('setPrecision')
+              }
             }
           }
         }

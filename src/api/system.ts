@@ -95,3 +95,9 @@ export const imageSearch = async (image: File): HttpResPromise => {
   const res = await http.post('/image/search', formData)
   return res.data
 }
+
+// 获取系统精度
+export const fetchPrecision = async (): Promise<HttpRes> => {
+  const res = await http.get('/system/precision_info')
+  return res.data
+}

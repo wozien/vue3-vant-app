@@ -50,6 +50,7 @@ export interface FieldInfo {
   modifiers?: Modifiers
   relatedFields?: any
   relationField?: string
+  precision?: [string, string]
   __no_fetch?: boolean
   [key: string]: any
 }
