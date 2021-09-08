@@ -17,6 +17,7 @@ import { defineComponent, computed, watchEffect } from 'vue'
 import useFieldCommon, { fieldCommonProps } from '@/hooks/component/useField'
 import { getPrecision } from '@/utils'
 import fieldUtils from '@/logics/core/fieldUtils'
+import { DEFAULT_DIGIT } from '@/logics/enums/cache'
 
 export default defineComponent({
   props: {
@@ -37,15 +38,15 @@ export default defineComponent({
     } = useFieldCommon(props)
 
     const precision = computed(() => {
-      if (!curRecord.value) return 2
+      if (!curRecord.value) return DEFAULT_DIGIT
 
       const field = curRecord.value.fieldsInfo[props.field.name]
-      if (!field) return 2
+      if (!field) return DEFAULT_DIGIT
 
       const precision = getPrecision(curRecord.value, field)
       if (precision !== undefined) return precision
       if ('digits' in props.field) return props.field.digits[1]
-      return 2
+      return DEFAULT_DIGIT
     })
 
     const isSet = () => {
