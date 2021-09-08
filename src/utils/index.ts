@@ -1,4 +1,14 @@
 import { isFunction, isEmpty, find, iteratee } from 'lodash-es'
+import type { FieldInfo } from '@/logics/types'
+import store from '@/store'
+import type { Precision } from '@/store/state'
+import {
+  findDataPoint,
+  getParentDataId,
+  getRecordData,
+  DataPointState,
+  DataPoint
+} from '@/logics/core/dataPoint'
 
 /**
  * 树的递归查找
@@ -225,4 +235,36 @@ export function log(e: Error | string, level: 'error' | 'warn' | 'info' = 'error
 export function getFileExt(fileName: string) {
   const matches = fileName.match(/.+(\.\w+)$/)
   return matches && matches.length ? matches[1] : ''
+}
+
+/**
+ * 解析精度配置并从store中获取精度
+ * @param record
+ * @param field
+ * @returns
+ */
+export function getPrecision(record: DataPointState, field: FieldInfo) {
+  const [type, digit] = field.precision || []
+  if (!digit || !type) return
+
+  const precision = digit.split('/')
+  let len = precision.length
+  let parentRecord = record
+
+  while (--len) {
+    if (record.parentId) {
+      parentRecord = findDataPoint(getParentDataId(record)) as DataPoint
+    } else {
+      break
+    }
+  }
+
+  const { res_id: id, model } =
+    getRecordData(parentRecord.id, precision[precision.length - 1]) || {}
+  const config = store.state.user.precision
+  if (!(model in config)) return 2
+
+  const modelData = config[model as keyof Precision] as []
+  const data = modelData.find((one: any) => one.id === id)
+  return !data || data[type] == null ? 2 : data[type]
 }

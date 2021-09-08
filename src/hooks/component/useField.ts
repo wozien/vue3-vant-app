@@ -80,19 +80,19 @@ export default function (props: FieldCommonPropsType) {
    * 需要format格式化后再就值比较
    * @param val
    */
-  const setNumberValue = (val: string) => {
+  const setNumberValue = (val: string, options = {}) => {
     const format = (fieldUtils.format as any)[type.value]
     if (format) {
-      val = format(+val, props.field)
+      val = format(+val, props.field, options)
       setValue(val)
     }
   }
 
   let timer: any
-  const debounceSetValue = (val: string) => {
+  const debounceSetValue = (val: string, options = {}) => {
     if (timer) clearTimeout(timer)
     timer = setTimeout(() => {
-      props.field?.isNumber() ? setNumberValue(val) : setValue(val)
+      props.field?.isNumber() ? setNumberValue(val, options) : setValue(val)
     }, 400)
   }
 
@@ -114,7 +114,7 @@ export default function (props: FieldCommonPropsType) {
         rawValue.value = (data as DataPointData)[fieldName]
       }
 
-      if (!props.field.isX2Many()) {
+      if (!props.field.isX2Many() && !props.field.isNumber()) {
         const fieldType = field.options?.relatedType || field.type
         value.value = (fieldUtils.format as any)[fieldType](rawValue.value, field)
       }
