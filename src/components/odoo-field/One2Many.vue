@@ -1,6 +1,6 @@
 <template>
   <vxe-table :data="tableData" max-height="500" empty-text="暂无数据" @cell-click="onCellClick">
-    <vxe-table-column type="seq" title="#" width="50" fixed="left"></vxe-table-column>
+    <vxe-table-column type="seq" title="#" width="40" fixed="left"></vxe-table-column>
     <vxe-table-column
       v-for="col in columns"
       :key="col.field"
@@ -26,9 +26,11 @@
   </vxe-table>
 
   <div class="add-row" v-if="!isReadonly && !isMany2Many">
-    <van-button icon="plus" size="small" type="primary" round block plain @click="onAddRow"
+    <!-- <van-button icon="plus" size="small" type="primary" round block @click="onAddRow"
       >添加明细行</van-button
-    >
+    > -->
+    <van-icon name="plus" />
+    <span @click="onAddRow">添加明细行</span>
   </div>
 </template>
 
@@ -192,6 +194,8 @@ function getData(list: DataPointState) {
 
 <style lang="less" scoped>
 .add-row {
-  padding: 15px 50px 10px;
+  padding: 6px 12px;
+  font-size: 13px;
+  color: @ins-primary-color;
 }
 </style>
