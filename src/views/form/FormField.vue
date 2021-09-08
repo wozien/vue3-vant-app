@@ -13,7 +13,7 @@
           v-model="value"
           shape="square"
           :disabled="isReadonly"
-          @update:model-value="debounceSetValue"
+          @update:model-value="setValue"
         />
       </template>
     </van-field>
@@ -43,7 +43,7 @@
       v-model="value"
       clearable
       center
-      @update:model-value="debounceSetValue"
+      @update:model-value="setValue"
     />
   </div>
 </template>
@@ -68,12 +68,11 @@ export default defineComponent({
       type,
       widget,
       value,
-      rawValue,
       modifiers,
       isReadonly,
       isRequired,
       invisible,
-      debounceSetValue
+      setValue
     } = useFieldCommon(props)
     const component = templateRef('component')
 
@@ -85,12 +84,17 @@ export default defineComponent({
       [`form-item-${type.value}`]: type.value === 'one2many',
       'form-item-readonly': props.mode === 'edit' && isReadonly.value
     }))
-    const isX2Many = computed(() => props.field?.isX2Many())
     const Component = computed(() => {
       if (props.field && props.item) {
         return getFieldComponent(props.field.type, props.item.widget)
       }
       return null
+    })
+    const needFormat = computed(() => {
+      if (props.field) {
+        return props.field.isX2Many() || props.field.isNumber()
+      }
+      return false
     })
 
     const isSet = () => {
@@ -99,25 +103,19 @@ export default defineComponent({
       return !!value.value || type.value === 'boolean'
     }
 
-    const needFormat = computed(() => {
-      return isX2Many.value || props.field?.isNumber()
-    })
-
     return {
       string,
       placeholder,
       type,
       widget,
       value,
-      rawValue,
       isReadonly,
       isRequired,
       invisible,
       renderType,
       itemClass,
       isSet,
-      isX2Many,
-      debounceSetValue,
+      setValue,
       Component,
       needFormat
     }

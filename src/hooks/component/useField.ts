@@ -88,14 +88,6 @@ export default function (props: FieldCommonPropsType) {
     }
   }
 
-  let timer: any
-  const debounceSetValue = (val: string, options = {}) => {
-    if (timer) clearTimeout(timer)
-    timer = setTimeout(() => {
-      props.field?.isNumber() ? setNumberValue(val, options) : setValue(val)
-    }, 400)
-  }
-
   // handleModel 是为了处理一些不必要的effect
   // 比如，表头进入表体，避免表头字段在destroy前会执行该effect
   // 在表体视图行切换的时候需要重新执行effect
@@ -152,7 +144,6 @@ export default function (props: FieldCommonPropsType) {
     isRequired,
     invisible,
     setValue,
-    setNumberValue,
-    debounceSetValue
+    setNumberValue
   }
 }

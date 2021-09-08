@@ -1035,10 +1035,11 @@ const _makeDataPoint = <T extends LoadParams>(params: T): DataPoint => {
 
   params.relationField && (dataPoint.relationField = params.relationField)
   params.rawContext && (dataPoint.rawContext = params.rawContext)
-
   localData[dataPoint.id] = dataPoint
-  if (dataPoint.type === 'record') {
-    recordMap && recordMap.set(`${dataPoint.model}_${res_id}`, dataPoint.id)
+
+  const mapKey = `${dataPoint.model}_${res_id}`
+  if (dataPoint.type === 'record' && !recordMap.has(mapKey)) {
+    recordMap.set(mapKey, dataPoint.id)
   }
   return dataPoint
 }
@@ -1807,7 +1808,7 @@ const _visitChildren = (element: DataPoint, fn: (el: DataPoint) => void) => {
 
 // ------  public  ------------
 export let localData: LocalData = {}
-export let recordMap: Map<string, DataPointId> | null
+export let recordMap: Map<string, DataPointId> = new Map()
 export let rootID: DataPointId
 export type { DataPointId, DataPoint, DataPointData, DataPointState }
 
@@ -2269,20 +2270,22 @@ export const save = async (recordID: DataPointId) => {
 export const reload = async (record: DataPoint = localData[rootID]) => {
   if (!record || isNew(record.id) || record.id !== rootID) return false
 
-  const recordId = record.id || rootID
-  // 移除其他DataPoint
-  each(Object.keys(localData), (key: string) => {
-    key !== recordId && delete localData[key]
-  })
-
+  clean(record)
   await _fetchRecord(record)
   return true
 }
 
-export const clean = () => {
+export const clean = (record?: DataPoint) => {
+  // localData = {} 会让vuex丢失绑定
   each(Object.keys(localData), (key: string) => {
     delete localData[key]
   })
-  recordMap = new Map<string, DataPointId>()
+  recordMap.clear()
   rootID = ''
+
+  if (record) {
+    localData[record.id] = record
+    rootID = record.id
+    recordMap.set(`${record.model}_${record.res_id}`, rootID)
+  }
 }
