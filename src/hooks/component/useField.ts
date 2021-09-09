@@ -63,28 +63,19 @@ export default function (props: FieldCommonPropsType) {
     }
 
     const field = props.field
+    let fieldVal = val
     if (field) {
       const fieldType = field.type
       if (!['date', 'datetime'].includes(fieldType)) {
         // value is Date Object same as rawValue
-        val = (fieldUtils.parse as any)[fieldType](val)
+        fieldVal = (fieldUtils.parse as any)[fieldType](val)
       }
 
-      const res = await notifyChanges(curRecord.value.id, { [field.name]: val })
-      res && store.commit('SET_RECORD_TOKEN')
-    }
-  }
-
-  /**
-   * 因为float类型的组件用了rawValue 作为v-model
-   * 需要format格式化后再就值比较
-   * @param val
-   */
-  const setNumberValue = (val: string, options = {}) => {
-    const format = (fieldUtils.format as any)[type.value]
-    if (format) {
-      val = format(+val, props.field, options)
-      setValue(val)
+      const res = await notifyChanges(curRecord.value.id, { [field.name]: fieldVal })
+      if (res) {
+        lastValue = val
+        store.commit('SET_RECORD_TOKEN')
+      }
     }
   }
 
@@ -109,8 +100,8 @@ export default function (props: FieldCommonPropsType) {
       if (!props.field.isX2Many() && !props.field.isNumber()) {
         const fieldType = field.options?.relatedType || field.type
         value.value = (fieldUtils.format as any)[fieldType](rawValue.value, field)
+        // lastValue = value.value
       }
-      lastValue = value.value
 
       // 计算modifiers
       if (item && field && (!modifiers.value || !isEmpty(modifiers.value))) {
@@ -144,6 +135,6 @@ export default function (props: FieldCommonPropsType) {
     isRequired,
     invisible,
     setValue,
-    setNumberValue
+    setLastValue: (val: string) => (lastValue = val)
   }
 }

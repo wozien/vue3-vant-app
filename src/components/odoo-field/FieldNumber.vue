@@ -6,7 +6,7 @@
     v-model="value"
     :required="isRequired"
     :readonly="isReadonly"
-    @change="setValue"
+    @change="setValue(value)"
     clearable
     center
   />
@@ -24,17 +24,8 @@ export default defineComponent({
   },
 
   setup(props) {
-    const {
-      string,
-      placeholder,
-      type,
-      value,
-      rawValue,
-      isRequired,
-      setNumberValue,
-      curRecord,
-      isReadonly
-    } = useFieldCommon(props)
+    const { string, placeholder, value, rawValue, isRequired, setValue, curRecord, isReadonly } =
+      useFieldCommon(props)
 
     const precision = computed(() => {
       if (!curRecord.value) return 2
@@ -48,10 +39,6 @@ export default defineComponent({
       return 2
     })
 
-    const isSet = () => {
-      return !!value.value
-    }
-
     watchEffect(() => {
       const field = props.field
       const fieldType = field.options?.relatedType || field.type
@@ -60,24 +47,19 @@ export default defineComponent({
       })
     })
 
+    const isSet = () => {
+      return !!value.value
+    }
+
     return {
-      type,
       string,
       placeholder,
       value,
-      rawValue,
       isRequired,
       isReadonly,
       isSet,
-      setValue: () => {
-        setNumberValue(value.value as string, {
-          precision: precision.value
-        })
-      },
-      precision
+      setValue
     }
   }
 })
 </script>
-
-<style lang="less" scoped></style>
