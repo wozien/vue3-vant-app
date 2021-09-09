@@ -70,6 +70,10 @@ export default function (props: FieldCommonPropsType) {
         // value is Date Object same as rawValue
         fieldVal = (fieldUtils.parse as any)[fieldType](val)
       }
+      const dataValue = (curRecord.value?.data as any)[field.name]
+      if (dataValue === fieldVal || (dataValue === false && val === '')) {
+        return
+      }
 
       const res = await notifyChanges(curRecord.value.id, { [field.name]: fieldVal })
       if (res) {
@@ -77,6 +81,7 @@ export default function (props: FieldCommonPropsType) {
         store.commit('SET_RECORD_TOKEN')
       }
     }
+    return val
   }
 
   // handleModel 是为了处理一些不必要的effect

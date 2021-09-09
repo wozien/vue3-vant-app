@@ -9,6 +9,7 @@ import {
   DataPointState,
   DataPoint
 } from '@/logics/core/dataPoint'
+import { DEFAULT_DIGIT } from '@/logics/enums/cache'
 
 /**
  * 树的递归查找
@@ -262,9 +263,9 @@ export function getPrecision(record: DataPointState, field: FieldInfo) {
   const { res_id: id, model } =
     getRecordData(parentRecord.id, precision[precision.length - 1]) || {}
   const config = store.state.user.precision
-  if (!(model in config)) return 2
+  if (!(model in config)) return DEFAULT_DIGIT
 
   const modelData = config[model as keyof Precision] as []
   const data = modelData.find((one: any) => one.id === id)
-  return !data || data[type] == null ? 2 : data[type]
+  return !data || data[type] == null ? DEFAULT_DIGIT : data[type]
 }

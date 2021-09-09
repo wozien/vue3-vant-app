@@ -11,3 +11,5 @@ export const enum sessionStorageKeys {
   reportData = 'REPORT_DATA', // 报表点击数据
   buttonFunc = 'BUTTON_FUNC' // 点击的按钮函数
 }
+
+export const DEFAULT_DIGIT = 2
