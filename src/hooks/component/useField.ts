@@ -86,6 +86,7 @@ export default function (props: FieldCommonPropsType) {
       val = format(+val, props.field, options)
       setValue(val)
     }
+    return val
   }
 
   let timer: any

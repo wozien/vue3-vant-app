@@ -3,7 +3,7 @@
     :label="string"
     :placeholder="placeholder"
     type="number"
-    v-model="value"
+    v-model="numberValue"
     :required="isRequired"
     :readonly="isReadonly"
     @change="setValue"
@@ -13,7 +13,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, computed, watchEffect } from 'vue'
+import { defineComponent, computed, watchEffect, reactive, toRefs } from 'vue'
 import useFieldCommon, { fieldCommonProps } from '@/hooks/component/useField'
 import { getPrecision } from '@/utils'
 import fieldUtils from '@/logics/core/fieldUtils'
@@ -37,6 +37,10 @@ export default defineComponent({
       isReadonly
     } = useFieldCommon(props)
 
+    const state = reactive({
+      numberValue: value.value
+    })
+
     const precision = computed(() => {
       if (!curRecord.value) return DEFAULT_DIGIT
 
@@ -59,6 +63,7 @@ export default defineComponent({
       value.value = (fieldUtils.format as any)[fieldType](rawValue.value, field, {
         precision: precision.value
       })
+      state.numberValue = value.value
     })
 
     return {
@@ -70,8 +75,9 @@ export default defineComponent({
       isRequired,
       isReadonly,
       isSet,
+      ...toRefs(state),
       setValue: () => {
-        setNumberValue(value.value as string, {
+        value.value = setNumberValue(state.numberValue as string, {
           precision: precision.value
         })
       },
