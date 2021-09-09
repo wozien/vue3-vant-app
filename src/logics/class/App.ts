@@ -163,21 +163,26 @@ class App {
   }
 
   _getFieldInfo(field: Field, item?: ViewItem) {
-    const precision = item?.options?.precision || field.options?.precision
     const info: FieldInfo = {
       fieldKey: field.key,
       type: field.type,
       name: field.name,
-      string: field.string || item?.string,
-      precision: precision ? [precision[0], precision[1]] : undefined
+      string: field.string || item?.string
     }
     field.relation && (info.relation = field.relation)
     field.selection && (info.selection = field.selection)
     field.relation_field && (info.relationField = field.relation_field)
     field.domain && (info.domain = field.domain)
 
-    if (field.type === 'float' && info.precision && !item?.options?.precision) {
-      info.precision[1] = this._getFieldNames(info.precision[1])
+    if (field.type === 'float') {
+      if (field.options?.related_unit) {
+        info.precision = ['qty_precision', field.options.related_unit]
+      } else if (item?.options?.precision) {
+        info.precision = item.options.precision
+      } else if (field.options?.precision) {
+        const precision = field.options.precision
+        info.precision = [precision[0], this._getFieldNames(precision[1])]
+      }
     }
 
     if (item) {
