@@ -38,7 +38,7 @@ export default defineComponent({
       if (curRecord.value) {
         const recordID = curRecord.value.parentId
         const list = recordID && get(recordID)
-        if (list) {
+        if (list && list.type === 'list' && Array.isArray(list.data)) {
           state.recordIds = list.data.map((record: any) => record.id)
           state.total = state.recordIds?.length || 0
           state.current = state.recordIds.findIndex((id: string) => id === curRecord.value.id)

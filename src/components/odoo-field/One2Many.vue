@@ -1,6 +1,6 @@
 <template>
   <vxe-table :data="tableData" max-height="500" empty-text="暂无数据" @cell-click="onCellClick">
-    <vxe-table-column type="seq" title="#" width="50" fixed="left"></vxe-table-column>
+    <vxe-table-column type="seq" title="#" width="40" fixed="left"></vxe-table-column>
     <vxe-table-column
       v-for="col in columns"
       :key="col.field"
@@ -26,7 +26,7 @@
   </vxe-table>
 
   <div class="add-row" v-if="!isReadonly && !isMany2Many">
-    <van-button icon="plus" size="small" type="primary" round block plain @click="onAddRow"
+    <van-button icon="plus" size="small" type="primary" round plain block @click="onAddRow"
       >添加明细行</van-button
     >
   </div>
