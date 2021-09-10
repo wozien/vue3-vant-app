@@ -1947,11 +1947,18 @@ export const copyLine = async (list: DataPoint, id: DataPointId) => {
 
   each(changes, (value: any, fieldName: string) => {
     const field = fieldsInfo[fieldName]
-    // TODO judge field copy option to continue
+    if (!field) return
 
-    if (field && field.type === 'one2many') {
+    if (
+      fieldName === 'id' ||
+      fieldName === 'state' ||
+      fieldName === 'number' ||
+      field.copy === false
+    ) {
+      changes[fieldName] = localRecord.data[fieldName] || false
+    } else if (field.type === 'one2many') {
       // TODO process o2m field in list
-    } else if (fieldName !== 'id' && fieldName !== 'state') {
+    } else {
       changes[fieldName] = value
     }
   })
@@ -2242,25 +2249,20 @@ export const save = async (recordID: DataPointId) => {
   }
 
   const changes = _generateChanges(record, { changesOnly: method !== 'create' })
+  const res = await saveRecord(record.model, method, record.data.id as number, changes)
 
-  if (method === 'create' || Object.keys(changes).length) {
-    const res = await saveRecord(record.model, method, record.data.id as number, changes)
-
-    if (res.ret === 0) {
-      record._isDirty = false
-      record._changes = {}
-      // reload data
-      if (isNew(record.id)) {
-        record.res_id = res.data
-      }
-
-      await reload(record)
+  if (res.ret === 0) {
+    record._isDirty = false
+    record._changes = {}
+    // reload data
+    if (isNew(record.id)) {
+      record.res_id = res.data
     }
 
-    return res
+    await reload(record)
   }
 
-  return true
+  return res
 }
 
 /**

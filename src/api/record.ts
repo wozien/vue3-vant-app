@@ -65,6 +65,7 @@ export const fetchMany2OneData = async (
  * @param fieldNames
  */
 export const fetchDefaultValues = async (model: string, fieldNames: string[], context = {}) => {
+  context = Object.assign({}, context, { position: 'bottom' })
   const res = await callKw(model, 'default_get', [fieldNames || []], { context })
   return res.data
 }

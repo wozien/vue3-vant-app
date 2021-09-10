@@ -104,7 +104,7 @@ export default defineComponent({
 
     const onConfirm = () => {
       const { node, fieldName } = dateState.currentNode
-      values[fieldName][node] = formatDate('yyyy-MM-dd', dateState.dateValue)
+      values[fieldName][node] = formatDate('yyyy-MM-dd', dateState.dateValue as any)
       dateState.showPicker = false
     }
 

@@ -75,6 +75,8 @@ export default defineComponent({
       (val: any) => {
         if (val) {
           state.active = typeof val === 'string' ? val : val.res_id
+        } else {
+          state.active = 0
         }
       },
       { immediate: true }

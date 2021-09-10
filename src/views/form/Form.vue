@@ -189,7 +189,13 @@ export default defineComponent({
       } else if (noSaveElementIds.has(id)) {
         noSaveElementIds.delete(id)
       }
-      return res && (curRecord.value.parentId || noSaveElementIds.size === 0)
+      return res && (curRecord.value?.parentId || noSaveElementIds.size === 0)
+    }
+    // 只有行删除调用， 清楚必录的标识
+    const clearNoSave = (id: DataPointId) => {
+      if (noSaveElementIds.has(id)) {
+        noSaveElementIds.delete(id)
+      }
     }
 
     // 表体行表单返回主表单
@@ -283,6 +289,7 @@ export default defineComponent({
     })
 
     provide('canBeSaved', canBeSaved)
+    provide('clearNoSave', clearNoSave)
     provide('openPopup', openPopup)
     provide('flushAttach', (recordID: number) => {
       if (attachRef.value) {

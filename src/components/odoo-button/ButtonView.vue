@@ -116,6 +116,7 @@ export default defineComponent({
     const canBeSaved = inject<Fn>('canBeSaved')!
     const openPopup = inject<Fn>('openPopup')!
     const flushAttach = inject<Fn>('flushAttach')!
+    const clearNoSave = inject<Fn>('clearNoSave')!
 
     // 按钮点击入口
     const onButtonClick = async (button: string | ViewButton) => {
@@ -244,13 +245,9 @@ export default defineComponent({
       }
       const res = await save(store.state.curRecordId)
       let query = Object.assign({}, route.query, { readonly: 1 })
-      if (res === true || res.ret === 0) {
+      if (res.ret === 0) {
         Toast('保存成功')
-        if (
-          res !== true &&
-          res.data &&
-          (!query.id || (query.id as string).startsWith('virtual_'))
-        ) {
+        if (res.data && (!query.id || (query.id as string).startsWith('virtual_'))) {
           store.commit('SET_RECORD_TOKEN')
           query.id = res.data
         }
@@ -297,7 +294,7 @@ export default defineComponent({
     const onDelete = (action: Action) => {
       const record = curRecord.value
       Dialog.confirm({
-        message: '确实是否删除该表单记录?'
+        message: '确定是否删除该表单记录?'
       })
         .then(async () => {
           const res = await deleteRecord(record.model, record.res_id, action.context)
@@ -363,15 +360,17 @@ export default defineComponent({
     // 行删除
     const onDeleteLine = async () => {
       const field = getX2MField()
+      const id = curRecord.value.id
       if (field) {
         // ignore m2m
         await notifyChanges(rootID, {
           [field.name]: {
             operation: 'DELETE',
-            ids: [curRecord.value.id]
+            ids: [id]
           }
         })
         storageButtonFunc('deleteLine')
+        clearNoSave(id)
         viewNavigator.back()
       }
     }

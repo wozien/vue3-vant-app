@@ -80,7 +80,7 @@ export default defineComponent({
       loading: false,
       finished: false,
       refreshing: false,
-      list: [] as ListRecord[],
+      list: [] as any[],
       showSearchView: false,
       domain: [] as any[]
     })
