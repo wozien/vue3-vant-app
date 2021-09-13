@@ -1968,6 +1968,56 @@ export const copyLine = async (list: DataPoint, id: DataPointId) => {
 }
 
 /**
+ * 判断是否可以保存，校验字段必录
+ * @param record
+ * @returns
+ */
+export const canBeSaved = (record?: DataPoint): boolean => {
+  if (!record) {
+    record = get(rootID)
+  }
+
+  // TODO 根据不同type判断
+  function isSet(data: { type: string; value: any }) {
+    return data.type === 'boolean' || (data.value !== false && data.value != null)
+  }
+
+  function checkRecord(record: DataPoint): boolean {
+    const { fieldsInfo, data } = record
+    let valid = true
+
+    for (let fieldName in fieldsInfo) {
+      const info = fieldsInfo[fieldName]
+      const value = data[fieldName]
+
+      if (info.type === 'one2many') {
+        valid = checkListRecord(value)
+      } else {
+        const modifiers = evalModifiers(record.id, info.modifiers)
+        if (!modifiers || !modifiers.required) continue
+        valid = isSet({ type: info.type, value })
+      }
+      if (!valid) {
+        // console.log(info)
+        break
+      }
+    }
+    return valid
+  }
+
+  function checkListRecord(list: DataPoint): boolean {
+    const data = list.data || []
+    for (let i = 0; i < data.length; i++) {
+      const element = data[i]
+      if (element && !checkRecord(element)) return false
+    }
+    return true
+  }
+
+  return record ? checkRecord(record) : true
+}
+
+/**
  * 解析modifiers
  * @param id
  * @param modifiers

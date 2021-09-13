@@ -78,8 +78,8 @@ import {
   reload,
   evalModifiers,
   getContext,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  getRecordId
+  getRecordId,
+  canBeSaved
 } from '@/logics/core/dataPoint'
 import { sessionStorageKeys } from '@/logics/enums/cache'
 import { deleteRecord } from '@/api/record'
@@ -113,10 +113,8 @@ export default defineComponent({
       return renderButtons.value.slice(3)
     })
     const curRecord = computed(() => store.getters.curRecord)
-    const canBeSaved = inject<Fn>('canBeSaved')!
     const openPopup = inject<Fn>('openPopup')!
     const flushAttach = inject<Fn>('flushAttach')!
-    const clearNoSave = inject<Fn>('clearNoSave')!
 
     // 按钮点击入口
     const onButtonClick = async (button: string | ViewButton) => {
@@ -238,8 +236,7 @@ export default defineComponent({
     }
     // 保存
     const onSave = async () => {
-      const canSaved = canBeSaved && canBeSaved()
-      if (!canSaved) {
+      if (!canBeSaved()) {
         Toast('存在必录项未填')
         return
       }
@@ -247,9 +244,11 @@ export default defineComponent({
       let query = Object.assign({}, route.query, { readonly: 1 })
       if (res.ret === 0) {
         Toast('保存成功')
-        if (res.data && (!query.id || (query.id as string).startsWith('virtual_'))) {
+        if (res.data) {
           store.commit('SET_RECORD_TOKEN')
-          query.id = res.data
+          if (res.data !== true && (!query.id || (query.id as string).startsWith('virtual_'))) {
+            query.id = res.data
+          }
         }
         flushAttach && flushAttach(query.id)
         viewNavigator(query as any)
@@ -316,8 +315,7 @@ export default defineComponent({
     }
     // 行保存
     const onSaveLine = () => {
-      const canSaved = canBeSaved && canBeSaved()
-      if (!canSaved) {
+      if (!canBeSaved(curRecord.value)) {
         Toast('存在必录项未填')
         return
       }
@@ -335,8 +333,7 @@ export default defineComponent({
     }
     // 保存并新增
     const onNewLine = async (rowIndex?: number) => {
-      const canSaved = canBeSaved && canBeSaved()
-      if (!canSaved) {
+      if (!canBeSaved(curRecord.value)) {
         Toast('存在必录项未填')
         return
       }
@@ -370,7 +367,6 @@ export default defineComponent({
           }
         })
         storageButtonFunc('deleteLine')
-        clearNoSave(id)
         viewNavigator.back()
       }
     }

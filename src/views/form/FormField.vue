@@ -27,12 +27,7 @@
       center
     />
     <!-- relation field -->
-    <component
-      v-else-if="Component"
-      :is="Component"
-      ref="component"
-      v-bind="{ item, field, mode }"
-    />
+    <component v-else-if="Component" :is="Component" v-bind="{ item, field, mode }" />
     <!-- char, text -->
     <van-field
       v-else
@@ -51,7 +46,6 @@
 <script lang="ts">
 import { defineComponent, computed } from 'vue'
 import useFieldCommon, { fieldCommonProps } from '@/hooks/component/useField'
-import templateRef from '@/hooks/core/templateRef'
 import { getFieldComponent } from '@/components/odoo-field'
 
 export default defineComponent({
@@ -68,13 +62,11 @@ export default defineComponent({
       type,
       widget,
       value,
-      modifiers,
       isReadonly,
       isRequired,
       invisible,
       setValue
     } = useFieldCommon(props)
-    const component = templateRef('component')
 
     const renderType = computed(() => {
       return getRenderType(type.value)
@@ -97,12 +89,6 @@ export default defineComponent({
       return false
     })
 
-    const isSet = () => {
-      if (!modifiers.value?.required) return true
-      if (component.value && 'isSet' in component.value) return (component.value as any).isSet()
-      return !!value.value || type.value === 'boolean'
-    }
-
     return {
       string,
       placeholder,
@@ -114,7 +100,6 @@ export default defineComponent({
       invisible,
       renderType,
       itemClass,
-      isSet,
       setValue,
       Component,
       needFormat

@@ -78,8 +78,12 @@ import { formatDate } from '@/utils/date'
 import { viewCommonProps } from '@/hooks/component/useView'
 import { getRecordId } from '@/logics/core/dataPoint'
 import { sessionStorageKeys } from '@/logics/enums/cache'
-import { load as loadDataPoint, clean as cleanRecord, isDirty } from '@/logics/core/dataPoint'
-import type { DataPointId } from '@/logics/types/dataPoint'
+import {
+  load as loadDataPoint,
+  clean as cleanRecord,
+  isDirty,
+  canBeSaved
+} from '@/logics/core/dataPoint'
 import useToast from '@/hooks/component/useToast'
 import imgUrl from '@/assets/img/audit.png'
 
@@ -179,25 +183,6 @@ export default defineComponent({
       })
     }
 
-    // 存在必录的记录id
-    const noSaveElementIds = new Set<DataPointId>()
-    const canBeSaved = () => {
-      const res = formRef.value?.canBeSaved()
-      const id = curRecord.value?.id
-      if (!res) {
-        noSaveElementIds.add(id)
-      } else if (noSaveElementIds.has(id)) {
-        noSaveElementIds.delete(id)
-      }
-      return res && (curRecord.value?.parentId || noSaveElementIds.size === 0)
-    }
-    // 只有行删除调用， 清楚必录的标识
-    const clearNoSave = (id: DataPointId) => {
-      if (noSaveElementIds.has(id)) {
-        noSaveElementIds.delete(id)
-      }
-    }
-
     // 表体行表单返回主表单
     watchEffect(() => {
       setCurRecord()
@@ -267,7 +252,7 @@ export default defineComponent({
               return
             }
 
-            if (!canBeSaved()) {
+            if (!canBeSaved(curRecord.value)) {
               // 点击浏览器后退, 行保存和删除行不用提示
               const bool = await Dialog.confirm({
                 message: '表体存在必录项未填，是否确定返回表头?',
@@ -288,8 +273,6 @@ export default defineComponent({
       cleanRecord()
     })
 
-    provide('canBeSaved', canBeSaved)
-    provide('clearNoSave', clearNoSave)
     provide('openPopup', openPopup)
     provide('flushAttach', (recordID: number) => {
       if (attachRef.value) {

@@ -54,7 +54,7 @@
 import { defineComponent, computed, ref } from 'vue'
 import { useRouter, Router } from 'vue-router'
 import { useStore } from '@/store'
-import { Dialog } from 'vant'
+import { Dialog, Toast } from 'vant'
 import { userLogout, switchUserOrg } from '@/api/user'
 import { LocalStorageKeys } from '@/logics/enums/cache'
 import UserSetting from './UserSetting.vue'
@@ -107,10 +107,12 @@ function useOrgs() {
   const setCurOrg = async (orgName: string) => {
     const org = store.state.orgs.find(org => org.name === orgName)
     if (org) {
+      const toast = Toast.loading('组织切换中...')
       const res = await switchUserOrg(org.id)
       if (res.ret === 0) {
         store.state.curOrg = org
       }
+      toast.clear()
     }
   }
 

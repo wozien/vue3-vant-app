@@ -167,12 +167,13 @@ class App {
       fieldKey: field.key,
       type: field.type,
       name: field.name,
-      string: field.string || item?.string
+      string: item?.string || field.string
     }
     field.relation && (info.relation = field.relation)
     field.selection && (info.selection = field.selection)
     field.relation_field && (info.relationField = field.relation_field)
     field.domain && (info.domain = field.domain)
+    field.modifiers && (info.modifiers = field.modifiers)
 
     if (field.type === 'float') {
       if (field.options?.related_unit) {

@@ -52,10 +52,6 @@ export default defineComponent({
       formatValue(rawValue.value as number)
     })
 
-    const isSet = () => {
-      return !!value.value
-    }
-
     const setNumberValue = () => {
       formatValue(value.value as string)
       setValue(value.value)
@@ -67,7 +63,6 @@ export default defineComponent({
       value,
       isRequired,
       isReadonly,
-      isSet,
       setNumberValue
     }
   }

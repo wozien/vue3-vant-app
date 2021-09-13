@@ -105,7 +105,6 @@ export default function (props: FieldCommonPropsType) {
       if (!props.field.isX2Many() && !props.field.isNumber()) {
         const fieldType = field.options?.relatedType || field.type
         value.value = (fieldUtils.format as any)[fieldType](rawValue.value, field)
-        // lastValue = value.value
       }
 
       // 计算modifiers
@@ -139,7 +138,6 @@ export default function (props: FieldCommonPropsType) {
     isReadonly,
     isRequired,
     invisible,
-    setValue,
-    setLastValue: (val: string) => (lastValue = val)
+    setValue
   }
 }
