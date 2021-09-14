@@ -211,8 +211,9 @@ export default defineComponent({
     onBeforeRouteUpdate(async (to, from) => {
       const { viewType: fromViewType, id: fromId, subId: fromSubId } = from.query
       const { viewType, id, subId } = to.query
+      const isEdit = route.query.readonly === '0'
       if (fromViewType === 'form') {
-        if (viewType === 'list' && route.query.readonly === '0') {
+        if (viewType === 'list' && isEdit) {
           // 表单回到列表,校验是否又未保存操作
           const dirty = isDirty(curRecord.value.id)
           if (dirty) {
@@ -252,7 +253,7 @@ export default defineComponent({
               return
             }
 
-            if (!canBeSaved(curRecord.value)) {
+            if (!canBeSaved(curRecord.value) && isEdit) {
               // 点击浏览器后退, 行保存和删除行不用提示
               const bool = await Dialog.confirm({
                 message: '表体存在必录项未填，是否确定返回表头?',

@@ -7,6 +7,7 @@
       :field="col.field"
       :title="col.title"
       min-width="120"
+      show-header-overflow
     >
       <template v-if="col.fieldType === 'boolean'" #default="{ row }">
         <van-checkbox v-model="row[col.field]" :disabled="true" shape="square" />

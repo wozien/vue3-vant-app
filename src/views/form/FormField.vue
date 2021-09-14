@@ -38,7 +38,7 @@
       v-model="value"
       clearable
       center
-      @update:model-value="setValue"
+      @change="setValue(value)"
     />
   </div>
 </template>

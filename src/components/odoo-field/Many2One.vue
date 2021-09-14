@@ -4,12 +4,17 @@
     :placeholder="placeholder"
     v-model="value"
     :required="isRequired"
-    :clickable="true"
-    :is-link="true"
-    readonly
+    :clickable="!isChar2one"
+    :is-link="!isChar2one"
+    :readonly="!isChar2one"
     center
-    @click="onOpenModal"
-  />
+    @change="onChange"
+    @click="onClick"
+  >
+    <template #right-icon v-if="isChar2one">
+      <van-icon name="ellipsis" @click="onOpenModal" />
+    </template>
+  </van-field>
 
   <Modal v-model:show="showModal" confirm-text="确定" @confirm="onConfirm" @cancel="onCancel">
     <div class="m2o-selector">
@@ -19,7 +24,7 @@
           v-for="item in list"
           :key="item.id"
           :title="item.display_name"
-          @click="onClickItem(item.id)"
+          @click="onSelectItem(item.id)"
         >
           <template #right-icon>
             <van-icon v-if="active === item.id" name="success"></van-icon>
@@ -48,8 +53,20 @@ export default defineComponent({
     const { string, placeholder, value, rawValue, isRequired, curRecord, setValue, widget } =
       useFieldCommon(props)
     const { state, onOpenModal } = useModal(props, curRecord)
+    const isChar2one = computed(() => props.item.widget === 'pschar2one')
 
-    const onClickItem = (id: number) => {
+    const onClick = () => {
+      if (isChar2one.value) return
+      onOpenModal()
+    }
+
+    const onChange = () => {
+      if (isChar2one.value) {
+        setValue(value.value)
+      }
+    }
+
+    const onSelectItem = (id: number) => {
       state.active = state.active === id ? 0 : id
     }
 
@@ -87,9 +104,12 @@ export default defineComponent({
       placeholder,
       value,
       isRequired,
+      isChar2one,
       ...toRefs(state),
+      onClick,
+      onChange,
       onOpenModal,
-      onClickItem,
+      onSelectItem,
       onConfirm,
       onCancel
     }
