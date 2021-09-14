@@ -60,6 +60,25 @@ export const fetchMany2OneData = async (
 }
 
 /**
+ * selection字段数据获取
+ * @param model
+ */
+export const fetchSelection = async (
+  method: string,
+  model: string,
+  domain: any = [],
+  context?: Recordable
+): Promise<HttpRes> => {
+  const res = await callKw(model, method, [
+    {
+      domain,
+      context: context || {}
+    }
+  ])
+  return res.data
+}
+
+/**
  * 默认值获取
  * @param model
  * @param fieldNames
