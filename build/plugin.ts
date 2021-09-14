@@ -26,9 +26,8 @@ export function createVitePlugins(viteEnv: Record<string, any>, isBuild: boolean
           {
             libraryName: 'vxe-table',
             esModule: true,
-            resolveStyle: name => {
-              return `vxe-table/lib/${name}/style/index`
-            }
+            resolveComponent: name => `vxe-table/es/${name}`,
+            resolveStyle: name => `vxe-table/es/${name}/style.css`
           }
         ]
       })

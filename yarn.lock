@@ -3235,9 +3235,9 @@ vuex@^4.0.0:
     "@vue/devtools-api" "^6.0.0-beta.11"
 
 vxe-table@^4.0.1:
-  version "4.0.21"
-  resolved "https://registry.nlark.com/vxe-table/download/vxe-table-4.0.21.tgz?cache=0&sync_timestamp=1623933913734&other_urls=https%3A%2F%2Fregistry.nlark.com%2Fvxe-table%2Fdownload%2Fvxe-table-4.0.21.tgz#be1291afe64b6c001e02d563e65eb7564ab65344"
-  integrity sha1-vhKRr+ZLbAAeAtVj5l63Vkq2U0Q=
+  version "4.0.27"
+  resolved "https://registry.nlark.com/vxe-table/download/vxe-table-4.0.27.tgz#e7b8c0b942a30a992dabe1d677e8147bd8c623cc"
+  integrity sha1-57jAuUKjCpktq+HWd+gUe9jGI8w=
 
 which@^1.2.14, which@^1.2.9:
   version "1.3.1"

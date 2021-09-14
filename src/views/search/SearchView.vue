@@ -84,6 +84,10 @@ export default defineComponent({
         const field = props.fields?.[fieldName]
         field && (searchValues[fieldName] = values[fieldName])
       }
+      // 创建人过滤
+      if ('create_uid' in searchValues === false && values['create_uid']) {
+        searchValues['create_uid'] = values['create_uid']
+      }
       const domain = getDomain(searchValues, searchItems)
       emit('search', domain)
     }
