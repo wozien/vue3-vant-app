@@ -25,11 +25,12 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, reactive, ref, computed, toRef, PropType } from 'vue'
+import { defineComponent, ref, computed, toRef, PropType } from 'vue'
 import LoginInput from '@/components/login-input/LoginInput.vue'
 import useToast from '@/hooks/component/useToast'
-import { fetchImageCode, fetchMessageCode, forgetAuthorize, getUserCount } from '@/api/system'
+import { forgetAuthorize, getUserCount } from '@/api/system'
 import { isLegalPhone } from '@/utils'
+import { useImageCode, useMessageCode } from '@/hooks/component/useAuthCode'
 
 export default defineComponent({
   components: {
@@ -61,18 +62,19 @@ export default defineComponent({
     const { time, timeContent, sendMessageCode } = useMessageCode()
 
     const checkEmpty = (type?: 'sms' | 'auth') => {
+      let errMsg = ''
       if (!account.value) {
-        toast.show('手机号不能为空')
-        return true
+        errMsg = '手机号不能为空'
       }
       if (!isLegalPhone(account.value)) {
-        toast.show('手机号格式不正确')
-        return true
+        errMsg = '手机号格式不正确'
       } else if (!imgCode.value) {
-        toast.show('图形验证码不能为空')
-        return true
+        errMsg = '图形验证码不能为空'
       } else if (!smsCode.value && type !== 'sms') {
-        toast.show('手机验证码不能为空')
+        errMsg = '手机验证码不能为空'
+      }
+      if (errMsg) {
+        toast.show(errMsg)
         return true
       }
       return false
@@ -136,56 +138,6 @@ export default defineComponent({
     }
   }
 })
-
-function useImageCode() {
-  const imageCode = reactive({
-    id: 0,
-    url: '',
-    expire: false
-  })
-
-  const loadImageCode = async () => {
-    const res = await fetchImageCode()
-    if (res.ret === 0) {
-      imageCode.id = res.data.image_id
-      imageCode.url = res.data.image_url
-      imageCode.expire = false
-    }
-  }
-  loadImageCode()
-
-  return {
-    imageCode,
-    loadImageCode
-  }
-}
-
-function useMessageCode() {
-  const time = ref(0)
-  const timeContent = computed(() => {
-    return time.value ? `${time.value}s 重新获取` : '获取验证码'
-  })
-
-  let timer: any
-  const sendMessageCode = async (payload: any) => {
-    if (time.value > 0) return
-    const res = await fetchMessageCode(payload)
-    if (res.ret === 0) {
-      time.value = 60
-      timer = setInterval(() => {
-        time.value ? --time.value : clearInterval(timer)
-      }, 1000)
-      return true
-    }
-    return false
-  }
-
-  return {
-    time,
-    timeContent,
-    sendMessageCode
-  }
-}
 </script>
 
 <style lang="less" scoped>

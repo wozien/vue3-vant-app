@@ -9,14 +9,21 @@ import { callKw } from './odoo'
 export const userLogin = async (
   account: string,
   password: string,
-  wxOpenId: Nullable<string>
+  wxOpenId: Nullable<string>,
+  imgCode?: string,
+  imgCodeId?: String
 ): Promise<HttpRes> => {
-  const res = await http.post('/system/login', {
+  const data = {
     account,
     wxOpenId,
     pwd: password
-  })
+  } as any
+  if (imgCode) {
+    data.imgCode = imgCode
+    data.imgCodeId = imgCodeId
+  }
 
+  const res = await http.post('/system/login', data)
   return res.data
 }
 
