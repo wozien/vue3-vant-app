@@ -76,7 +76,10 @@ import {
   copyRecord,
   get,
   reload,
-  evalModifiers
+  evalModifiers,
+  getContext,
+  getRecordId,
+  canBeSaved
 } from '@/logics/core/dataPoint'
 import { sessionStorageKeys } from '@/logics/enums/cache'
 import { deleteRecord } from '@/api/record'
@@ -110,7 +113,6 @@ export default defineComponent({
       return renderButtons.value.slice(3)
     })
     const curRecord = computed(() => store.getters.curRecord)
-    const canBeSaved = inject<Fn>('canBeSaved')!
     const openPopup = inject<Fn>('openPopup')!
     const flushAttach = inject<Fn>('flushAttach')!
 
@@ -172,9 +174,9 @@ export default defineComponent({
         }
       } else if (button.type === 'object') {
         // call_button
-        const { model, id } = route.query
+        const { model, res_id } = curRecord.value
         if (button && model) {
-          const args = id ? [+id] : []
+          const args = res_id ? [+res_id] : []
           const toast = Toast.loading('加载中...')
           const context = getCallButtonContext(button, curRecord.value)
           const res = await callButton(model as string, button.funcName as string, [args], {
@@ -194,7 +196,18 @@ export default defineComponent({
               const needReload = await handleServiceAction(action, button, viewNavigator)
               if (needReload) {
                 await reload()
+                // 表体按钮出发reload还需要还原当前的record
+                const curRecordId = getRecordId(model, res_id)
+                store.commit('SET_CUR_RECORD', curRecordId)
                 store.commit('SET_RECORD_TOKEN')
+              }
+
+              if (
+                button.funcName === 'svc_std_pre_audit' &&
+                ['mdm.unit.group', 'mdm.unit', 'mdm.currency'].includes(model)
+              ) {
+                // 处理精度刷新
+                store.dispatch('setPrecision')
               }
             }
           }
@@ -223,36 +236,25 @@ export default defineComponent({
     }
     // 保存
     const onSave = async () => {
-      const canSaved = canBeSaved && canBeSaved()
-      if (!canSaved) {
+      if (!canBeSaved()) {
         Toast('存在必录项未填')
         return
       }
       const res = await save(store.state.curRecordId)
       let query = Object.assign({}, route.query, { readonly: 1 })
-      if (res === true || res.ret === 0) {
+      if (res.ret === 0) {
         Toast('保存成功')
-        if (
-          res !== true &&
-          res.data &&
-          (!query.id || (query.id as string).startsWith('virtual_'))
-        ) {
+        if (res.data) {
           store.commit('SET_RECORD_TOKEN')
-          query.id = res.data
+          if (res.data !== true && (!query.id || (query.id as string).startsWith('virtual_'))) {
+            query.id = res.data
+          }
         }
         flushAttach && flushAttach(query.id)
         viewNavigator(query as any)
       }
     }
-    // 行保存
-    const onSaveLine = () => {
-      const canSaved = canBeSaved && canBeSaved()
-      if (!canSaved) {
-        Toast('存在必录项未填')
-        return
-      }
-      viewNavigator.back()
-    }
+
     // 取消
     const onCancel = () => {
       const recordId = curRecord.value.id
@@ -291,7 +293,7 @@ export default defineComponent({
     const onDelete = (action: Action) => {
       const record = curRecord.value
       Dialog.confirm({
-        message: '确实是否删除该表单记录?'
+        message: '确定是否删除该表单记录?'
       })
         .then(async () => {
           const res = await deleteRecord(record.model, record.res_id, action.context)
@@ -311,6 +313,15 @@ export default defineComponent({
         readonly: 0
       })
     }
+    // 行保存
+    const onSaveLine = () => {
+      if (!canBeSaved(curRecord.value)) {
+        Toast('存在必录项未填')
+        return
+      }
+      storageButtonFunc('saveLine')
+      viewNavigator.back()
+    }
     // 行插入
     const onInsertLine = async () => {
       const list = get(curRecord.value.parentId)
@@ -322,8 +333,7 @@ export default defineComponent({
     }
     // 保存并新增
     const onNewLine = async (rowIndex?: number) => {
-      const canSaved = canBeSaved && canBeSaved()
-      if (!canSaved) {
+      if (!canBeSaved(curRecord.value)) {
         Toast('存在必录项未填')
         return
       }
@@ -347,14 +357,16 @@ export default defineComponent({
     // 行删除
     const onDeleteLine = async () => {
       const field = getX2MField()
+      const id = curRecord.value.id
       if (field) {
         // ignore m2m
         await notifyChanges(rootID, {
           [field.name]: {
             operation: 'DELETE',
-            ids: [curRecord.value.id]
+            ids: [id]
           }
         })
+        storageButtonFunc('deleteLine')
         viewNavigator.back()
       }
     }
@@ -388,7 +400,7 @@ export default defineComponent({
       }
     }
 
-    // flush = post 可以防止表体和表体切换 button 数据更新滞后，造成按钮 domain 计算报错问题
+    // flush = post 可以防止表头和表体切换 button 数据更新滞后，造成按钮 domain 计算报错问题
     watchEffect(
       () => {
         const { model, subModel } = route.query
@@ -414,6 +426,10 @@ export default defineComponent({
   }
 })
 
+function storageButtonFunc(func: string) {
+  sessionStorage.setItem(sessionStorageKeys.buttonFunc, func)
+}
+
 /**
  * 计算显示的按钮
  */
@@ -429,7 +445,9 @@ function calcButtons(
       if (button.children?.length) {
         button.children = _calc(button.children)
       }
-      res.push(button)
+      if (!button.children || button.children.length) {
+        res.push(button)
+      }
     }
 
     for (let button of buttons) {
@@ -455,9 +473,13 @@ function calcButtons(
  * call_button context
  */
 function getCallButtonContext(button: ViewButton, record: DataPoint): any {
-  const context = button.isFlow ? getFlowParams() : {}
+  let context = button.isFlow ? getFlowParams() : {}
   if (button.mode === 'edit' && button.type === 'object') {
     context.formData = generateChanges(record, { changesOnly: false })
+  }
+
+  if (record.parentId) {
+    context = Object.assign({}, context, getContext(record.parentId))
   }
   return context
 }
@@ -470,9 +492,11 @@ async function handleServiceAction(action: Action, button: ViewButton, viewNavig
   const actionRaw = action.raw
 
   if (action.type === 'ir.actions.act_window_close' && 'notify_toast' in actionRaw) {
-    const message = actionRaw.notify_toast.message
-    Toast(message)
-    reload = true
+    const notify_toast = actionRaw.notify_toast
+    Toast(notify_toast.message)
+    if (notify_toast.type === 'success') {
+      reload = true
+    }
   } else if (action.type === 'ir.actions.act_window') {
     // 返回向导视图
     if (button.isFlow) {

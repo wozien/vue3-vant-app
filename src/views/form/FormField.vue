@@ -9,31 +9,25 @@
     <!-- boolean -->
     <van-field v-if="type === 'boolean'" :label="string" :required="isRequired">
       <template #input>
-        <van-checkbox v-model="value" shape="square" :disabled="isReadonly" @change="setValue" />
+        <van-checkbox
+          v-model="value"
+          shape="square"
+          :disabled="isReadonly"
+          @update:model-value="setValue"
+        />
       </template>
     </van-field>
     <!-- readonly -->
     <van-field
-      v-else-if="isReadonly && !isX2Many"
+      v-else-if="isReadonly && !needFormat"
       :readonly="true"
+      :required="isRequired"
       :label="string"
       v-model="value"
       center
     />
     <!-- relation field -->
     <component v-else-if="Component" :is="Component" v-bind="{ item, field, mode }" />
-    <!-- integer, float -->
-    <van-field
-      v-else-if="type === 'integer' || type === 'float'"
-      :type="renderType"
-      :label="string"
-      :placeholder="placeholder"
-      :required="isRequired"
-      v-model="rawValue"
-      clearable
-      center
-      @update:model-value="setNumberValue"
-    />
     <!-- char, text -->
     <van-field
       v-else
@@ -44,7 +38,7 @@
       v-model="value"
       clearable
       center
-      @update:model-value="setValue"
+      @change="setValue(value)"
     />
   </div>
 </template>
@@ -68,13 +62,10 @@ export default defineComponent({
       type,
       widget,
       value,
-      rawValue,
-      modifiers,
       isReadonly,
       isRequired,
       invisible,
-      setValue,
-      setNumberValue
+      setValue
     } = useFieldCommon(props)
 
     const renderType = computed(() => {
@@ -85,17 +76,18 @@ export default defineComponent({
       [`form-item-${type.value}`]: type.value === 'one2many',
       'form-item-readonly': props.mode === 'edit' && isReadonly.value
     }))
-    const isX2Many = computed(() => props.field?.isX2Many())
     const Component = computed(() => {
       if (props.field && props.item) {
         return getFieldComponent(props.field.type, props.item.widget)
       }
       return null
     })
-
-    const isSet = () => {
-      return !modifiers.value?.required || !!value.value || type.value === 'boolean'
-    }
+    const needFormat = computed(() => {
+      if (props.field) {
+        return props.field.isX2Many() || props.field.isNumber()
+      }
+      return false
+    })
 
     return {
       string,
@@ -103,17 +95,14 @@ export default defineComponent({
       type,
       widget,
       value,
-      rawValue,
       isReadonly,
       isRequired,
       invisible,
       renderType,
       itemClass,
-      isSet,
-      isX2Many,
       setValue,
-      setNumberValue,
-      Component
+      Component,
+      needFormat
     }
   }
 })

@@ -85,6 +85,5 @@ export function useViewNavigator({
   navigator.toggleReadonly = (readonly = true) => {
     navigator.replace({ readonly: readonly ? 1 : 0 })
   }
-
   return navigator
 }

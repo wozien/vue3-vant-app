@@ -31,7 +31,7 @@ export interface Creator extends RecordRole {
   time: Date
 }
 
-class Record {
+class ListRecord {
   id: number
   creator: Creator
   state: string
@@ -179,4 +179,4 @@ export const fetchX2ManysBatch = async (raws: RecordRaw[], fieldsInfo?: FieldsIn
   })
 }
 
-export default Record
+export default ListRecord

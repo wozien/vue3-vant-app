@@ -33,7 +33,7 @@
       <FormCanvas :items="curView && curView.items" :fields="fields" ref="formRef" />
     </div>
     <LineSwitcher v-show="showLineSwitcher" />
-    <ButtonView :buttons="curView && curView.buttons" />
+    <ButtonView :buttons="curView && curView.buttons" ref="btnRef" />
 
     <van-popup
       v-model:show="showPopup"
@@ -78,7 +78,12 @@ import { formatDate } from '@/utils/date'
 import { viewCommonProps } from '@/hooks/component/useView'
 import { getRecordId } from '@/logics/core/dataPoint'
 import { sessionStorageKeys } from '@/logics/enums/cache'
-import { load as loadDataPoint, clean as cleanRecord, isDirty } from '@/logics/core/dataPoint'
+import {
+  load as loadDataPoint,
+  clean as cleanRecord,
+  isDirty,
+  canBeSaved
+} from '@/logics/core/dataPoint'
 import useToast from '@/hooks/component/useToast'
 import imgUrl from '@/assets/img/audit.png'
 
@@ -206,8 +211,9 @@ export default defineComponent({
     onBeforeRouteUpdate(async (to, from) => {
       const { viewType: fromViewType, id: fromId, subId: fromSubId } = from.query
       const { viewType, id, subId } = to.query
+      const isEdit = route.query.readonly === '0'
       if (fromViewType === 'form') {
-        if (viewType === 'list' && route.query.readonly === '0') {
+        if (viewType === 'list' && isEdit) {
           // 表单回到列表,校验是否又未保存操作
           const dirty = isDirty(curRecord.value.id)
           if (dirty) {
@@ -225,13 +231,39 @@ export default defineComponent({
           if (!id && !subId && !fromSubId) {
             // 点击创建
             loadRecord(to.query)
-          } else if (id && fromId && id !== fromId && to.query.model === from.query.model) {
+          } else if (
+            id &&
+            fromId &&
+            id !== fromId &&
+            !isNaN(+id) &&
+            to.query.model === from.query.model
+          ) {
             // 同个模型下的关联查看
             loadRecord(to.query)
           }
 
-          if (canvasRef.value) {
-            canvasRef.value.scrollTop = 0
+          if (!fromSubId && subId) {
+            // 表头到表体
+            canvasRef.value && (canvasRef.value.scrollTop = 0)
+          } else if (fromSubId && !subId) {
+            // 表体到表头
+            const buttonFunc = sessionStorage.getItem(sessionStorageKeys.buttonFunc)
+            if (buttonFunc && ['deleteLine', 'saveLine'].includes(buttonFunc)) {
+              sessionStorage.removeItem(sessionStorageKeys.buttonFunc)
+              return
+            }
+
+            if (!canBeSaved(curRecord.value) && isEdit) {
+              // 点击浏览器后退, 行保存和删除行不用提示
+              const bool = await Dialog.confirm({
+                message: '表体存在必录项未填，是否确定返回表头?',
+                closeOnPopstate: false
+              })
+                .then(() => true)
+                .catch(() => false)
+              return bool
+            }
+            return true
           }
         }
       }
@@ -242,8 +274,6 @@ export default defineComponent({
       cleanRecord()
     })
 
-    const canBeSaved = () => formRef.value?.canBeSaved() && true
-    provide('canBeSaved', canBeSaved)
     provide('openPopup', openPopup)
     provide('flushAttach', (recordID: number) => {
       if (attachRef.value) {
@@ -304,8 +334,10 @@ function useFormPopup() {
     .user-info;
 
     .right {
+      flex: 0 0 160px;
       display: flex;
       align-items: center;
+      justify-content: flex-end;
       .icons {
         margin-left: 10px;
         .icon {

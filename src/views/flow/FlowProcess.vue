@@ -13,8 +13,8 @@
       </div>
       <div class="canvas" ref="canvas"></div>
     </div>
-    <div class="flow-log" v-else-if="active === 'log' && list.length">
-      <div class="list">
+    <div class="flow-log" v-else-if="active === 'log'">
+      <div class="list" v-if="list.length">
         <div
           v-for="item in list"
           :key="item.nodeId"
@@ -32,20 +32,19 @@
           </div>
         </div>
       </div>
+      <van-empty v-else description="暂无数据" />
     </div>
-    <p v-else class="no-data">暂无数据</p>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, watchEffect, onBeforeMount, reactive, toRefs } from 'vue'
+import { defineComponent, watchEffect, onBeforeMount, reactive, ref, toRefs } from 'vue'
 import { useRoute } from 'vue-router'
 import BpmnJS from 'bpmn-js/lib/Modeler'
 import { formatDate } from '@/utils/date'
 import { Dialog } from 'vant'
 import { callButton } from '@/api/odoo'
 import { sessionStorageKeys } from '@/logics/enums/cache'
-import templateRef from '@/hooks/core/templateRef'
 
 export default defineComponent({
   name: 'FlowProcess',
@@ -56,7 +55,7 @@ export default defineComponent({
       list: [] as any[],
       active: 'log'
     })
-    const canvas = templateRef('canvas')
+    const canvas = ref(null)
 
     onBeforeMount(async () => {
       const { model, id } = route.query
@@ -92,7 +91,8 @@ export default defineComponent({
     })
 
     return {
-      ...toRefs(state)
+      ...toRefs(state),
+      canvas
     }
   }
 })

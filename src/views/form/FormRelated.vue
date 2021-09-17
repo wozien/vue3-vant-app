@@ -63,7 +63,7 @@ function toListCardData(data: any = {}): ListCardItem {
     createImg: '',
     state: '',
     fields: [
-      { name: 'number', string: '单据编号', value: odoo_data.number },
+      { name: 'number', string: '单据编号', value: odoo_data.number || '暂无' },
       { name: 'biz_date', string: '业务日期', value: odoo_data.biz_date || '' }
     ]
   }

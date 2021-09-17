@@ -84,6 +84,10 @@ export default defineComponent({
         const field = props.fields?.[fieldName]
         field && (searchValues[fieldName] = values[fieldName])
       }
+      // 创建人过滤
+      if ('create_uid' in searchValues === false && values['create_uid']) {
+        searchValues['create_uid'] = values['create_uid']
+      }
       const domain = getDomain(searchValues, searchItems)
       emit('search', domain)
     }
@@ -104,7 +108,7 @@ export default defineComponent({
 
     const onConfirm = () => {
       const { node, fieldName } = dateState.currentNode
-      values[fieldName][node] = formatDate('yyyy-MM-dd', dateState.dateValue)
+      values[fieldName][node] = formatDate('yyyy-MM-dd', dateState.dateValue as any)
       dateState.showPicker = false
     }
 

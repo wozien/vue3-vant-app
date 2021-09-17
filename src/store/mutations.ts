@@ -15,9 +15,14 @@ const mutations: MutationTree<State> = {
         dbName: company?.db_name,
         name: company?.company_name
       },
-      context: data.context
+      context: data.context,
+      precision: data.precision
     }
     state.user = user
+  },
+
+  SET_PRECISION(state, data) {
+    state.user.precision = data
   },
 
   SET_ORGS(state, data: { id: number; name: string }[]) {

@@ -54,7 +54,7 @@
 import { defineComponent, computed, ref } from 'vue'
 import { useRouter, Router } from 'vue-router'
 import { useStore } from '@/store'
-import { Dialog } from 'vant'
+import { Dialog, Toast } from 'vant'
 import { userLogout, switchUserOrg } from '@/api/user'
 import { LocalStorageKeys } from '@/logics/enums/cache'
 import UserSetting from './UserSetting.vue'
@@ -83,7 +83,7 @@ export default defineComponent({
         title: '联系信息',
         messageAlign: 'left',
         message:
-          '客服电话: 400-018-7701\n办公邮箱: insuiteservice@inspur.com\n办公地址: 山东省济南市历城区东八区企业公馆A7-1'
+          '客服电话: 400-018-7701\n办公邮箱: insuiteservice@inspur.com\n办公地址: 山东省济南市历下区浪潮路1036号浪潮科技园'
       })
     }
 
@@ -107,10 +107,12 @@ function useOrgs() {
   const setCurOrg = async (orgName: string) => {
     const org = store.state.orgs.find(org => org.name === orgName)
     if (org) {
+      const toast = Toast.loading('组织切换中...')
       const res = await switchUserOrg(org.id)
       if (res.ret === 0) {
         store.state.curOrg = org
       }
+      toast.clear()
     }
   }
 

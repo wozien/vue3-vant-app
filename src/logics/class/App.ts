@@ -164,19 +164,38 @@ class App {
 
   _getFieldInfo(field: Field, item?: ViewItem) {
     const info: FieldInfo = {
+      fieldKey: field.key,
       type: field.type,
       name: field.name,
-      string: field.string || item?.string
+      string: item?.string || field.string
     }
     field.relation && (info.relation = field.relation)
     field.selection && (info.selection = field.selection)
+    field.relation_field && (info.relationField = field.relation_field)
+    field.domain && (info.domain = field.domain)
+    field.modifiers && (info.modifiers = field.modifiers)
+
+    if (field.type === 'float') {
+      if (field.options?.related_unit) {
+        info.precision = ['qty_precision', field.options.related_unit]
+      } else if (item?.options?.precision) {
+        info.precision = item.options.precision
+      } else if (field.options?.precision) {
+        const precision = field.options.precision
+        info.precision = [precision[0], this._getFieldNames(precision[1])]
+      }
+    }
 
     if (item) {
+      const { on_change, context, copy } = item.attrs
+      on_change === '1' && (info.onChange = true)
+      context && (info.context = context)
+
+      if (copy && copy.checked === false) {
+        info.copy = false
+      }
       if (item.subView?.length) {
         this.getViewFields(item?.subView, info)
-      }
-      if (item.attrs?.on_change === '1') {
-        info.onChange = true
       }
       if (item.domain.length) {
         info.domain = item.domain
@@ -198,6 +217,38 @@ class App {
       })
     }
     return info
+  }
+
+  /**
+   * 获取precision配置
+   * @param precision
+   * @returns
+   */
+  _getFieldNames(longKey: string) {
+    const keys = longKey.split('/')
+    const names: string[] = []
+
+    keys.forEach(key => names.push(this._getFieldName(key)))
+    return names.join('/')
+  }
+
+  /**
+   * 根据fieldKey获取name
+   * @param key
+   * @returns
+   */
+  _getFieldName(key: string) {
+    let name = ''
+
+    Object.keys(this.models).find(modelKey => {
+      const fieldName = this.models[modelKey].keyNameMap[key]
+      if (fieldName) {
+        name = fieldName
+        return true
+      }
+    })
+
+    return name
   }
 }
 

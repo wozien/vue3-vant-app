@@ -31,6 +31,7 @@ export const fetchRecord: (
  * @param model
  */
 export const fetchMany2OneData = async (
+  relation: string,
   model: string,
   searchValue = '',
   domain: any = [],
@@ -43,8 +44,37 @@ export const fetchMany2OneData = async (
     model,
     args: domain,
     context: context || {}
+  } as any
+  let method = 'ps_name_search'
+  if (relation === 'ps.char2one.model') {
+    method = 'name_search'
+    delete kw.view_type
+    delete kw.model
   }
-  const res = await callKw(model, 'ps_name_search', [], kw)
+
+  if (context?.field_name) {
+    kw.field_name = context.field_name
+  }
+  const res = await callKw(relation, method, [], kw)
+  return res.data
+}
+
+/**
+ * selection字段数据获取
+ * @param model
+ */
+export const fetchSelection = async (
+  method: string,
+  model: string,
+  domain: any = [],
+  context?: Recordable
+): Promise<HttpRes> => {
+  const res = await callKw(model, method, [
+    {
+      domain,
+      context: context || {}
+    }
+  ])
   return res.data
 }
 
@@ -53,8 +83,9 @@ export const fetchMany2OneData = async (
  * @param model
  * @param fieldNames
  */
-export const fetchDefaultValues = async (model: string, fieldNames: string[]) => {
-  const res = await callKw(model, 'default_get', [fieldNames || []])
+export const fetchDefaultValues = async (model: string, fieldNames: string[], context = {}) => {
+  context = Object.assign({}, context, { position: 'bottom' })
+  const res = await callKw(model, 'default_get', [fieldNames || []], { context })
   return res.data
 }
 

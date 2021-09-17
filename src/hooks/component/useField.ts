@@ -33,7 +33,7 @@ export type FieldCommonPropsType = Readonly<{
 
 export default function (props: FieldCommonPropsType) {
   const store = useStore()
-  const string = computed(() => props.field.string || props.item.string)
+  const string = computed(() => props.item.string || props.field.string)
   const type = computed(() => props.field.type)
   const widget = computed(() => props.item.widget)
   const placeholder = computed(() => {
@@ -48,9 +48,7 @@ export default function (props: FieldCommonPropsType) {
   const isReadonly = computed(
     () => (modifiers.value && modifiers.value.readonly) || props.mode === 'readonly'
   )
-  const isRequired = computed(
-    () => !isReadonly.value && modifiers.value && modifiers.value.required
-  )
+  const isRequired = computed(() => modifiers.value && modifiers.value.required)
   const invisible = computed(
     () => modifiers.value && (modifiers.value.invisible || modifiers.value.column_invisible)
   )
@@ -65,29 +63,25 @@ export default function (props: FieldCommonPropsType) {
     }
 
     const field = props.field
+    let fieldVal = val
     if (field) {
       const fieldType = field.type
       if (!['date', 'datetime'].includes(fieldType)) {
         // value is Date Object same as rawValue
-        val = (fieldUtils.parse as any)[fieldType](val)
+        fieldVal = (fieldUtils.parse as any)[fieldType](val)
+      }
+      const dataValue = (curRecord.value?.data as any)[field.name]
+      if (dataValue === fieldVal || (dataValue === false && val === '')) {
+        return
       }
 
-      await notifyChanges(curRecord.value.id, { [field.name]: val })
-      store.commit('SET_RECORD_TOKEN')
+      const res = await notifyChanges(curRecord.value.id, { [field.name]: fieldVal })
+      if (res) {
+        lastValue = val
+        store.commit('SET_RECORD_TOKEN')
+      }
     }
-  }
-
-  /**
-   * 因为float类型的组件用了rawValue 作为v-model
-   * 需要format格式化后再就值比较
-   * @param val
-   */
-  const setNumberValue = (val: string) => {
-    const format = (fieldUtils.format as any)[type.value]
-    if (format) {
-      val = format(+val, props.field)
-      setValue(val)
-    }
+    return val
   }
 
   // handleModel 是为了处理一些不必要的effect
@@ -108,11 +102,10 @@ export default function (props: FieldCommonPropsType) {
         rawValue.value = (data as DataPointData)[fieldName]
       }
 
-      if (!props.field.isX2Many()) {
+      if (!props.field.isX2Many() && !props.field.isNumber()) {
         const fieldType = field.options?.relatedType || field.type
         value.value = (fieldUtils.format as any)[fieldType](rawValue.value, field)
       }
-      lastValue = value.value
 
       // 计算modifiers
       if (item && field && (!modifiers.value || !isEmpty(modifiers.value))) {
@@ -145,7 +138,6 @@ export default function (props: FieldCommonPropsType) {
     isReadonly,
     isRequired,
     invisible,
-    setValue,
-    setNumberValue
+    setValue
   }
 }

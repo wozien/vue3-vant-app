@@ -15,6 +15,14 @@
           <Icon name="password" />
         </template>
       </LoginInput>
+      <LoginInput v-if="showCode" v-model="imgCode" placeholder="请输入图形验证码" clearable>
+        <template #icon>
+          <Icon name="imgcode" />
+        </template>
+        <template #suffix>
+          <img :src="imageCodeUrl" alt="" @click="loadImageCode" class="image-code" />
+        </template>
+      </LoginInput>
     </div>
     <van-button type="primary" round block @click="login" :loading="loading">登录</van-button>
     <div class="footer">
@@ -25,7 +33,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, reactive, ref } from 'vue'
+import { defineComponent, reactive, ref, toRef } from 'vue'
 import { useRouter } from 'vue-router'
 import { Toast } from 'vant'
 import { userLogin } from '@/api/user'
@@ -33,6 +41,7 @@ import { LocalStorageKeys } from '@/logics/enums/cache'
 import LoginInput from '@/components/login-input/LoginInput.vue'
 import { isLegalPhone } from '@/utils'
 import { sessionStorageKeys } from '@/logics/enums/cache'
+import { useImageCode } from '@/hooks/component/useAuthCode'
 
 function useLogin() {
   const router = useRouter()
@@ -41,29 +50,54 @@ function useLogin() {
     phone: sessionStorage.getItem(sessionStorageKeys.loginAccount) || '',
     password: ''
   })
+  const imgCode = ref('')
+  const showCode = ref(false)
+  const { imageCode, loadImageCode } = useImageCode()
   sessionStorage.removeItem(sessionStorageKeys.loginAccount)
 
   const login = async () => {
     const { phone, password } = account
+    let errMsg
     if (!phone || !password) {
-      Toast('手机号或者密码不能为空')
-      return
+      errMsg = '手机号或者密码不能为空'
     } else if (!isLegalPhone(phone)) {
-      Toast('手机号格式不正确')
+      errMsg = '手机号格式不正确'
+    } else if (showCode.value && imgCode.value === '') {
+      errMsg = '请输入图形验证码'
+    }
+    if (errMsg) {
+      Toast(errMsg)
       return
     }
 
     loading.value = true
     const wxOpenId = localStorage.getItem(LocalStorageKeys.wxOpenId)
-    const res = await userLogin(phone, password, wxOpenId)
+    const res = await userLogin(phone, password, wxOpenId, imgCode.value, imageCode.id)
     loading.value = false
     if (res.ret === 0) {
       const { access_token } = res.data
       localStorage.setItem(LocalStorageKeys.token, access_token)
       router.push('/companyList')
+    } else {
+      const { code, login_failed_times, refresh_image_code } = res.error as any
+      if (refresh_image_code === 1 && showCode.value) loadImageCode()
+
+      if (code === 400) {
+        showCode.value = login_failed_times >= 3
+      } else if (code === 403) {
+        showCode.value = false
+      }
     }
   }
-  return { loading, account, login }
+  return {
+    loading,
+    account,
+    imgCode,
+    showCode,
+    imageCodeUrl: toRef(imageCode, 'url'),
+    loadImageCode,
+    login
+  }
 }
 
 export default defineComponent({
@@ -103,6 +137,9 @@ export default defineComponent({
   .info {
     overflow: hidden;
     margin-bottom: 30px;
+    .image-code {
+      width: 80px;
+    }
   }
   .footer {
     text-align: center;

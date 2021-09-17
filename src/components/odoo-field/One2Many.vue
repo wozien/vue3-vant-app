@@ -1,23 +1,25 @@
 <template>
-  <vxe-table
-    :data="tableData" 
-    max-height="500"
-    empty-text="暂无数据"
-    @cell-click="onCellClick"
-  >
-    <vxe-table-column type="seq" title="#" width="50" fixed="left"></vxe-table-column>
-    <vxe-table-column 
-      v-for="col in columns" 
+  <vxe-table :data="tableData" max-height="500" empty-text="暂无数据" @cell-click="onCellClick">
+    <vxe-table-column type="seq" title="#" width="40" fixed="left"></vxe-table-column>
+    <vxe-table-column
+      v-for="col in columns"
       :key="col.field"
       :field="col.field"
       :title="col.title"
       min-width="120"
+      show-header-overflow
     >
       <template v-if="col.fieldType === 'boolean'" #default="{ row }">
         <van-checkbox v-model="row[col.field]" :disabled="true" shape="square" />
       </template>
       <template v-else-if="col.fieldType === 'many2many'" #default="{ row }">
-        <van-tag v-for="item in row[col.field]" :key="item.id" round plain style="margin-right: 6px">
+        <van-tag
+          v-for="item in row[col.field]"
+          :key="item.id"
+          round
+          plain
+          style="margin-right: 6px"
+        >
           {{ item.display_name }}
         </van-tag>
       </template>
@@ -25,8 +27,10 @@
   </vxe-table>
 
   <div class="add-row" v-if="!isReadonly && !isMany2Many">
-    <van-button icon="plus" size="small" type="primary" round block plain @click="onAddRow">添加明细行</van-button>
-  </div> 
+    <van-button icon="plus" size="small" type="primary" round plain block @click="onAddRow"
+      >添加明细行</van-button
+    >
+  </div>
 </template>
 
 <script lang="ts">
@@ -64,17 +68,18 @@ export default defineComponent({
     // 表体行点击
     const onCellClick: VxeTableEvents.CellClick = ({ row }) => {
       // m2m 字段暂时只给查看
-      if(isMany2Many.value) return   
+      if (isMany2Many.value) return
 
       const record = find((rawValue.value as any).data, { res_id: row.id })
-      if(record) {
+      if (record) {
         // 把表体操作在session中
         storeX2ManyCommand('UPDATE')
         router.push({
           name: 'view',
           query: Object.assign({}, route.query, {
             subModel: record.model,
-            subId: row.id
+            subId: row.id,
+            readonly: isReadonly.value ? 1 : 0
           })
         })
       }
@@ -87,12 +92,13 @@ export default defineComponent({
           operation: 'CREATE'
         }
       })
+      storeX2ManyCommand('UPDATE')
       store.commit('SET_RECORD_TOKEN')
 
       nextTick(() => {
         // 获取最后一条表体记录的res_id
         const lastRecord = last((rawValue.value as any).data || [])
-        if(lastRecord) {
+        if (lastRecord) {
           router.push({
             name: 'view',
             query: Object.assign({}, route.query, {
@@ -134,15 +140,16 @@ function getColumns(list: DataPointState) {
   let res: Column[] = []
   const fieldsInfo = list.fieldsInfo
 
-  for(let fieldName in fieldsInfo) {
+  for (let fieldName in fieldsInfo) {
     const field = fieldsInfo[fieldName]
-    if(field) {
+    if (field) {
       let modifiers = field.modifiers ? pick(field.modifiers, ['invisible', 'columnInvisible']) : {}
-      if(!isEmpty(modifiers)) {
-        modifiers = evalModifiers(list.id, modifiers)
+      if (!isEmpty(modifiers)) {
+        const res = evalModifiers(list.id, modifiers)
+        res && (modifiers = res)
       }
 
-      if(!modifiers || (!modifiers.column_invisible && !modifiers.invisible)) {
+      if (!modifiers || (!modifiers.column_invisible && !modifiers.invisible)) {
         res.push({
           field: field.name,
           title: field.string,
@@ -156,24 +163,24 @@ function getColumns(list: DataPointState) {
 
 function getData(list: DataPointState) {
   let res: any[] = []
-  if(list && list.data) {
+  if (list && list.data) {
     const fieldsInfo = list.fieldsInfo
     res = list.data.map((record: any) => {
       const row = {} as any
-      for(let fieldName in record.data) {
+      for (let fieldName in record.data) {
         const field = fieldsInfo[fieldName]
-        if(!field) continue
+        if (!field) continue
         let value = record.data[fieldName]
-        if(fieldName === 'id') {
+        if (fieldName === 'id') {
           row[fieldName] = value
-        } else if(field.type === 'many2many' || field.type === 'one2many') {
+        } else if (field.type === 'many2many' || field.type === 'one2many') {
           value = map((value as any).data, 'data')
           row[fieldName] = value
         } else {
           row[fieldName] = (fieldUtils.format as any)[field.type](value, field)
         }
       }
-      if(!row.id) {
+      if (!row.id) {
         row.id = record.res_id
       }
       row.recordID = record.id

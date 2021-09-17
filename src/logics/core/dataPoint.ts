@@ -19,9 +19,11 @@ import {
   intersection,
   isEmpty,
   filter,
-  defaults
+  defaults,
+  isNumber,
+  extend
 } from 'lodash-es'
-import { FieldsInfo } from '@/logics/types'
+import { FieldsInfo, ModifierKey } from '@/logics/types'
 import {
   LoadParams,
   LocalData,
@@ -97,6 +99,9 @@ const _addX2ManyDefaultRecord = async (list: DataPoint, options: any) => {
     viewType: list.viewType
   }
 
+  // TODO additionalContexts
+  ;(params as any).context = _getContext(list)
+
   const recordID = await _makeDefaultRecord(list.model, params)
   const record = localData[recordID]
   list._changes.push({ operation: 'ADD', id: recordID, isNew: true, position: options.position })
@@ -157,6 +162,11 @@ const _applyChange = (recordID: DataPointId, changes: DataPointData): Promise<an
   record._isDirty = true
   const defs = []
 
+  const initialData = {} as any
+  _visitChildren(record, function (elem) {
+    initialData[elem.id] = extend(true, {}, pick(elem, ['data', '_changes']))
+  })
+
   // apply changes to local data
   for (let fieldName in changes) {
     const field = record.fieldsInfo[fieldName]
@@ -175,7 +185,7 @@ const _applyChange = (recordID: DataPointId, changes: DataPointData): Promise<an
       const field = record.fieldsInfo[fieldName]
       if (field && field.onChange) {
         const isX2Many = field.type === 'one2many' || field.type === 'many2many'
-        if (!isX2Many) {
+        if (!isX2Many || _isX2ManyValid(record._changes[fieldName] || record.data[fieldName])) {
           onChangeFields.push(fieldName)
         }
       }
@@ -183,9 +193,16 @@ const _applyChange = (recordID: DataPointId, changes: DataPointData): Promise<an
 
     return new Promise(resolve => {
       if (onChangeFields.length) {
-        _performOnChange(record, onChangeFields).then((result: any) => {
-          resolve(Object.keys(changes).concat(Object.keys((result && result.value) || {})))
-        })
+        _performOnChange(record, onChangeFields)
+          .then((result: any) => {
+            resolve(Object.keys(changes).concat(Object.keys((result && result.value) || {})))
+          })
+          .catch(() => {
+            _visitChildren(record, function (elem) {
+              extend(elem, initialData[elem.id])
+            })
+            resolve(false)
+          })
       } else {
         resolve(Object.keys(changes))
       }
@@ -538,14 +555,19 @@ const _copyX2ManyRecord = async (recordID: DataPointId, defaultTemplate: any) =>
  * @param modifiers
  */
 const _evalModifiers = (element: DataPoint, modifiers: any) => {
-  const result = {} as any
+  const result = Object.create(null)
   let evalContext: any
-  const evalModifier = (mod: any) => {
+  const evalModifier = (mod: any): boolean => {
     if (mod === undefined || mod === false || mod === true) {
       return !!mod
     }
     evalContext = evalContext || _getEvalContext(element)
-    return (new Domain(mod, evalContext) as any).compute(evalContext)
+    try {
+      return (new Domain(mod, evalContext) as any).compute(evalContext)
+    } catch (e) {
+      if (import.meta.env.DEV) console.error(e)
+      return false
+    }
   }
 
   if ('invisible' in modifiers) {
@@ -560,7 +582,7 @@ const _evalModifiers = (element: DataPoint, modifiers: any) => {
   if ('required' in modifiers) {
     result.required = evalModifier(modifiers.required)
   }
-  return result
+  return result as Record<ModifierKey, boolean>
 }
 
 /**
@@ -669,7 +691,9 @@ const _fetchX2Manys = (record: DataPoint) => {
         modelName: field.relation,
         res_ids: ids,
         fieldsInfo,
-        parentId: record.id
+        parentId: record.id,
+        relationField: fieldInfo.relationField,
+        rawContext: fieldInfo.context
       })
       record.data[fieldName] = list.id
       if (!fieldInfo.__no_fetch) {
@@ -691,11 +715,13 @@ const _fetchX2Manys = (record: DataPoint) => {
 const _fetchX2ManysData = async (list: DataPoint) => {
   const { model, res_ids } = list
   const fieldNames = _getFieldsName(list)
-  if (res_ids.length && fieldNames.length) {
-    const res = await fetchRecord(model, res_ids as number[], fieldNames)
+  const missingIDs = res_ids.filter(id => isNumber(id))
+
+  if (missingIDs.length && fieldNames.length) {
+    const res = await fetchRecord(model, missingIDs as number[], fieldNames)
     if (res.ret === 0) {
       const records = res.data
-      each(res_ids, (id: any) => {
+      each(missingIDs, (id: any) => {
         const data = find(records, { id })
         if (data) {
           const dataPoint = _makeDataPoint({
@@ -922,6 +948,58 @@ const _fetchX2ManysBatched = (list: DataPoint) => {
 }
 
 /**
+ * 判断字段是否有值
+ * @param value
+ * @param fieldType
+ * @returns
+ */
+const _isFieldSet = (value: any, fieldType: string) => {
+  switch (fieldType) {
+    case 'boolean':
+      return true
+    case 'one2many':
+    case 'many2many':
+      return value.length > 0
+    default:
+      return value !== false
+  }
+}
+
+/**
+ * 判断是否出发 x2m 字段的onchange
+ * 在表体存在必录的未填的数据库记录时为false
+ * @param id
+ * @returns
+ */
+const _isX2ManyValid = (id: DataPointId) => {
+  let isValid = true
+  const list = localData[id]
+  each(list._changes, (command: any) => {
+    if (
+      command.operation === 'DELETE' ||
+      command.operation === 'FORGET' ||
+      (command.operation === 'ADD' && !command.isNew) ||
+      command.operation === 'REMOVE_ALL'
+    ) {
+      return
+    }
+
+    const recordData = get(command.id, { raw: true }).data
+    const record = localData[command.id]
+    each(_getFieldsName(list), fieldName => {
+      const fieldInfo = list.fieldsInfo[fieldName]
+      const rawModifiers = fieldInfo.modifiers || {}
+      const modifiers = _evalModifiers(record, pick(rawModifiers, ['required']))
+      if (modifiers.required && !_isFieldSet(recordData[fieldName], fieldInfo.type)) {
+        isValid = false
+      }
+    })
+  })
+
+  return isValid
+}
+
+/**
  * 增加新的data point数据
  * @param params
  */
@@ -955,9 +1033,13 @@ const _makeDataPoint = <T extends LoadParams>(params: T): DataPoint => {
     res_ids
   }
 
+  params.relationField && (dataPoint.relationField = params.relationField)
+  params.rawContext && (dataPoint.rawContext = params.rawContext)
   localData[dataPoint.id] = dataPoint
-  if (dataPoint.type === 'record') {
-    recordMap && recordMap.set(`${dataPoint.model}_${res_id}`, dataPoint.id)
+
+  const mapKey = `${dataPoint.model}_${res_id}`
+  if (dataPoint.type === 'record' && !recordMap.has(mapKey)) {
+    recordMap.set(mapKey, dataPoint.id)
   }
   return dataPoint
 }
@@ -975,13 +1057,12 @@ const _makeDefaultRecord = async (modelName: string, params: LoadParams) => {
   })
 
   // 默认值处理
-  const res = await fetchDefaultValues(modelName, fieldNames)
+  const res = await fetchDefaultValues(modelName, fieldNames, (params as any).context || {})
   if (res.ret === 0) {
     await applyDefaultValues(record.id, res.data, { fieldNames })
     await _performOnChange(record, without(fieldNames, '__last_update'), { from: 'create' })
     await _fetchRelationalData(record)
   }
-
   return record.id
 }
 
@@ -1014,7 +1095,11 @@ const _getContext = (element: DataPoint, options?: any) => {
   }
 
   if (element.rawContext) {
-    // TODO
+    const rawContext = new Context(element.rawContext)
+    const evalContext = _getEvalContext(localData[element.parentId as string])
+    evalContext.id = evalContext.id || false
+    rawContext.set_eval_context(evalContext)
+    context.add(rawContext)
   }
 
   return context.eval()
@@ -1025,11 +1110,15 @@ const _getContext = (element: DataPoint, options?: any) => {
  * @param record
  */
 const _getDefaultData = async (record: DataPoint) => {
-  const recordId = await _makeDefaultRecord(record.model, {
+  const params: LoadParams = {
     fieldsInfo: record.fieldsInfo,
     viewType: record.viewType,
     modelName: record.model
-  })
+  }
+  if (record.type === 'list') {
+    params.parentId = record.id
+  }
+  const recordId = await _makeDefaultRecord(record.model, params)
 
   const defaultRecord = localData[recordId]
   delete localData[recordId]
@@ -1191,6 +1280,14 @@ const _generateOnChangeData = (record: DataPoint, options?: any) => {
       const isUTC = field.type === 'datetime'
       const fmt = isUTC ? 'yyyy-MM-dd hh:mm:ss' : 'yyyy-MM-dd'
       data[fieldName] = formatDate(fmt, data[fieldName], isUTC)
+    }
+  }
+  // o2m
+  if (record.parentId) {
+    const parent = localData[record.parentId]
+    if (parent.parentId && parent.relationField) {
+      const parentRecord = localData[parent.parentId]
+      data[parent.relationField] = _generateOnChangeData(parentRecord)
     }
   }
   return data
@@ -1508,8 +1605,10 @@ const _performOnChange = async (record: DataPoint, fields: string[] | string, op
     }
 
     await _applyOnChange(result.value, record)
+    return result
   }
-  return res
+
+  throw new Error(res.msg)
 }
 
 /**
@@ -1542,7 +1641,9 @@ const _processX2ManyCommands = (record: DataPoint, fieldName: string, commands: 
     modelName: field.relation as string,
     parentId: record.id,
     fieldsInfo,
-    res_ids: []
+    res_ids: [],
+    relationField: field.relationField,
+    rawContext: field.context
   })
   record._changes[fieldName] = list.id
   list._changes = []
@@ -1707,7 +1808,7 @@ const _visitChildren = (element: DataPoint, fn: (el: DataPoint) => void) => {
 
 // ------  public  ------------
 export let localData: LocalData = {}
-export let recordMap: Map<string, DataPointId> | null
+export let recordMap: Map<string, DataPointId> = new Map()
 export let rootID: DataPointId
 export type { DataPointId, DataPoint, DataPointData, DataPointState }
 
@@ -1809,8 +1910,12 @@ export const copyRecord = async (recordID: DataPointId, defaultTemplate?: any) =
 
   each(data, (value, fieldName) => {
     const field = fieldsInfo[fieldName]
-    if (fieldName === 'id' || fieldName === 'state' || fieldName === 'number') {
-      // TODO 判断不允许复制的字段
+    if (
+      fieldName === 'id' ||
+      fieldName === 'state' ||
+      fieldName === 'number' ||
+      field.copy === false
+    ) {
       changes[fieldName] = data[fieldName] = defaultData[fieldName] || false
     } else if (field.type === 'one2many') {
       defs.push(_copyX2ManyRecord(value, defaultTemplate))
@@ -1842,17 +1947,74 @@ export const copyLine = async (list: DataPoint, id: DataPointId) => {
 
   each(changes, (value: any, fieldName: string) => {
     const field = fieldsInfo[fieldName]
-    // TODO judge field copy option to continue
+    if (!field) return
 
-    if (field && field.type === 'one2many') {
+    if (
+      fieldName === 'id' ||
+      fieldName === 'state' ||
+      fieldName === 'number' ||
+      field.copy === false
+    ) {
+      changes[fieldName] = localRecord.data[fieldName] || false
+    } else if (field.type === 'one2many') {
       // TODO process o2m field in list
-    } else if (fieldName !== 'id' && fieldName !== 'state') {
+    } else {
       changes[fieldName] = value
     }
   })
 
   localRecord._changes = changes
   return localRecord
+}
+
+/**
+ * 判断是否可以保存，校验字段必录
+ * @param record
+ * @returns
+ */
+export const canBeSaved = (record?: DataPoint): boolean => {
+  if (!record) {
+    record = get(rootID)
+  }
+
+  // TODO 根据不同type判断
+  function isSet(data: { type: string; value: any }) {
+    return data.type === 'boolean' || (data.value !== false && data.value != null)
+  }
+
+  function checkRecord(record: DataPoint): boolean {
+    const { fieldsInfo, data } = record
+    let valid = true
+
+    for (let fieldName in fieldsInfo) {
+      const info = fieldsInfo[fieldName]
+      const value = data[fieldName]
+
+      if (info.type === 'one2many') {
+        valid = checkListRecord(value)
+      } else {
+        const modifiers = evalModifiers(record.id, info.modifiers)
+        if (!modifiers || !modifiers.required) continue
+        valid = isSet({ type: info.type, value })
+      }
+      if (!valid) {
+        // console.log(info)
+        break
+      }
+    }
+    return valid
+  }
+
+  function checkListRecord(list: DataPoint): boolean {
+    const data = list.data || []
+    for (let i = 0; i < data.length; i++) {
+      const element = data[i]
+      if (element && !checkRecord(element)) return false
+    }
+    return true
+  }
+
+  return record ? checkRecord(record) : true
 }
 
 /**
@@ -1995,6 +2157,18 @@ export const get = (id: DataPointId, options?: any) => {
 }
 
 /**
+ * get context
+ * @param id
+ * @param options
+ * @returns
+ */
+export const getContext = (id: DataPointId, options?: any) => {
+  options = options || {}
+  const element = localData[id]
+  return _getContext(element, options)
+}
+
+/**
  * 根据模型和记录id获取DataPointId
  * @param modelKey
  * @param res_id
@@ -2014,7 +2188,7 @@ export const getRecordData = (id: DataPointId, fieldName: string) => {
   const changes = record._changes || {}
   const value = changes[fieldName] || record.data[fieldName]
   const field = record.fieldsInfo[fieldName]
-  if (!field || !value) return value
+  if (!field || !value) return false
 
   if (field.type === 'many2one' || field.type === 'reference') {
     return get(value) || false
@@ -2078,7 +2252,8 @@ export const notifyChanges = async (recordID: DataPointId, changes: DataPointDat
     }
   }
 
-  await _applyChange(recordID, changes)
+  const changeKeys = await _applyChange(recordID, changes)
+  return changeKeys && changeKeys.length
 }
 
 /**
@@ -2094,6 +2269,25 @@ export const findDataPoint = (props: DataPointId | any) => {
 }
 
 /**
+ * 获取父级数据id（有些是列表，不能直接取parentID）
+ * @param element
+ * @returns
+ */
+export const getParentDataId = (element: DataPointState) => {
+  let parentId = element && element.parentID
+
+  if (parentId) {
+    // reference的parentID是个对象。。。
+    let parent = localData[typeof parentId === 'object' ? parentId.id : parentId]
+    if (parent && parent.type === 'list' && parent.parentID) {
+      parentId = parent.parentID
+    }
+  }
+
+  return parentId
+}
+
+/**
  * 单据保存
  * @param recordID
  */
@@ -2105,51 +2299,45 @@ export const save = async (recordID: DataPointId) => {
   }
 
   const changes = _generateChanges(record, { changesOnly: method !== 'create' })
+  const res = await saveRecord(record.model, method, record.data.id as number, changes)
 
-  if (method === 'create' || Object.keys(changes).length) {
-    const res = await saveRecord(record.model, method, record.data.id as number, changes)
+  if (res.ret === 0) {
     record._isDirty = false
     record._changes = {}
-
-    if (res.ret === 0) {
-      // reload data
-      if (isNew(record.id)) {
-        record.res_id = res.data
-      }
-
-      await reload(record)
+    // reload data
+    if (isNew(record.id)) {
+      record.res_id = res.data
     }
 
-    return res
+    await reload(record)
   }
 
-  return true
+  return res
 }
 
 /**
- * 重新加载record
+ * 重新加载根record
  * @param record
  */
-export const reload = async (record?: DataPoint) => {
-  if (!record) {
-    record = localData[rootID]
-    if (!record || isNew(record.id)) return false
-  }
+export const reload = async (record: DataPoint = localData[rootID]) => {
+  if (!record || isNew(record.id) || record.id !== rootID) return false
 
-  const recordId = record.id || rootID
-  // 移除其他DataPoint
-  each(Object.keys(localData), (key: string) => {
-    key !== recordId && delete localData[key]
-  })
-
+  clean(record)
   await _fetchRecord(record)
   return true
 }
 
-export const clean = () => {
+export const clean = (record?: DataPoint) => {
+  // localData = {} 会让vuex丢失绑定
   each(Object.keys(localData), (key: string) => {
     delete localData[key]
   })
-  recordMap = new Map<string, DataPointId>()
+  recordMap.clear()
   rootID = ''
+
+  if (record) {
+    localData[record.id] = record
+    rootID = record.id
+    recordMap.set(`${record.model}_${record.res_id}`, rootID)
+  }
 }
