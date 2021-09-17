@@ -334,8 +334,10 @@ function useFormPopup() {
     .user-info;
 
     .right {
+      flex: 0 0 160px;
       display: flex;
       align-items: center;
+      justify-content: flex-end;
       .icons {
         margin-left: 10px;
         .icon {

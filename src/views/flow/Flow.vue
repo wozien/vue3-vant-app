@@ -163,12 +163,11 @@ function useList(searchType: Ref<string>, user: Ref<User>) {
   const toListCardData = (rows: any): ListCardItem[] => {
     return rows.map((row: any) => {
       const date = str2Date(row.submit_date || row.accept_date || row.return_date)
-      const state = row.current_auditor ? `${row.current_auditor} 审核中` : ''
       const res: ListCardItem = {
         id: row.bill_id,
         name: row.model,
         model: row.model_id,
-        state: state,
+        state: row.state_name,
         stateType: '',
         creator: row.submit_user,
         createDate: formatDate('M月d日 hh:mm', date),
