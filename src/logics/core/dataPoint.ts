@@ -582,6 +582,9 @@ const _evalModifiers = (element: DataPoint, modifiers: any) => {
   if ('required' in modifiers) {
     result.required = evalModifier(modifiers.required)
   }
+  if ('no_row_add' in modifiers) {
+    result.no_row_add = evalModifier(modifiers.no_row_add)
+  }
   return result as Record<ModifierKey, boolean>
 }
 
