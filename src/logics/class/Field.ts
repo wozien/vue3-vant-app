@@ -73,7 +73,7 @@ class Field {
   modifiers: Modifiers;
   [key: string]: any
 
-  constructor(fieldObj: StudioField) {
+  constructor(fieldObj: StudioField, odooField?: any) {
     this.key = fieldObj.key
     this.name = fieldObj.name
     this.type = fieldObj.type
@@ -86,6 +86,10 @@ class Field {
 
     if (Array.isArray(fieldObj.fields) && fieldObj.fields.length) {
       this.fields = fieldObj.fields.map(f => new Field(f))
+    }
+
+    if (odooField) {
+      this._patchProps(odooField)
     }
   }
 
@@ -103,8 +107,43 @@ class Field {
     )
   }
 
+  /**
+   * 处理odoo解析后的字段属性
+   * @param odooField
+   */
+  _patchProps(odooField: any) {
+    if (odooField) {
+      const { string, flex, selection, domain, digits } = odooField
+      // 翻译的处理
+      string && (this.string = string)
+      flex && (this.flex = true)
+      selection && (this.selection = selection)
+      domain && (this.domain = domain)
+      digits && (this.digits = digits)
+
+      // 携带字段
+      if (this.type === 'related') {
+        this.type = odooField.type
+        this.relation = odooField.relation
+      }
+      if (this.type === 'one2many') {
+        this.relation_field = odooField.relation_field
+      }
+
+      // 状态过滤
+      if (odooField.states) {
+        const modifiers = this._stateToModifilers(odooField)
+        for (let attr in modifiers) {
+          if (modifiers[attr]) {
+            this.modifiers[attr as ModifierKey] = modifiers[attr]
+          }
+        }
+      }
+    }
+  }
+
   _isModifierKey(key: string) {
-    return ['readonly', 'required'].includes(key)
+    return ['readonly', 'required', 'invisible'].includes(key)
   }
 
   _formatModifier() {
@@ -116,6 +155,42 @@ class Field {
         }
       }
     }
+  }
+
+  /**
+   * @file core/odoo/addons/base/models/ir_ui_view.py:43
+   * odoo 字段 states 转为modifier处理
+   * 格式为 { 'audit': [['readonly', true]], 'submit': [['readonly', true]] }
+   * @param odooField
+   */
+  _stateToModifilers(odooField: any) {
+    const { states } = odooField
+    const defaultVals = {} as any
+    const stateMaps = {} as any
+    const modifiers = {} as any
+    for (let attr of ['readonly', 'required', 'invisible']) {
+      defaultVals[attr] = !!odooField[attr]
+      stateMaps[attr] = []
+    }
+
+    for (let item of Object.entries(states)) {
+      const [state, modifs] = item as any
+      for (let modif of modifs) {
+        if (defaultVals[modif[0]] != modif[1]) {
+          stateMaps[modif[0]].push(state)
+        }
+      }
+    }
+
+    for (let item of Object.entries(defaultVals)) {
+      const [attr, defaultVal] = item as any
+      if (stateMaps[attr].length) {
+        modifiers[attr] = [['state', `${defaultVal ? 'not in' : 'in'}`, stateMaps[attr]]]
+      } else {
+        modifiers[attr] = defaultVal
+      }
+    }
+    return modifiers
   }
 }
 

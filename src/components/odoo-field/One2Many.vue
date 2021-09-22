@@ -78,8 +78,7 @@ export default defineComponent({
           name: 'view',
           query: Object.assign({}, route.query, {
             subModel: record.model,
-            subId: row.id,
-            readonly: isReadonly.value ? 1 : 0
+            subId: row.id
           })
         })
       }
@@ -114,7 +113,8 @@ export default defineComponent({
       const commandInfo = {
         type,
         recordID: curRecord.value.id,
-        fieldName: props.field?.name
+        fieldName: props.field?.name,
+        isReadonly: isReadonly.value
       }
       sessionStorage.setItem(sessionStorageKeys.x2manyCommand, JSON.stringify(commandInfo))
     }
