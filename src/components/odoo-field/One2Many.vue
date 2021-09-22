@@ -26,7 +26,7 @@
     </vxe-table-column>
   </vxe-table>
 
-  <div class="add-row" v-if="!isReadonly && !isMany2Many">
+  <div class="add-row" v-if="showAddBtn && !isReadonly && !isMany2Many">
     <van-button icon="plus" size="small" type="primary" round plain block @click="onAddRow"
       >添加明细行</van-button
     >
@@ -64,6 +64,17 @@ export default defineComponent({
     const columns = ref<Column[]>([])
     const tableData = ref<any[]>([])
     const isMany2Many = computed(() => props.item?.widget === 'many2many')
+    const showAddBtn = computed(() => {
+      if (props.item) {
+        const { no_row_add } = props.item.attrs
+        if (no_row_add?.checked) {
+          const value = no_row_add.domain?.length ? no_row_add.domain : true
+          const modifiers = evalModifiers(curRecord.value?.id, { no_row_add: value })
+          return !modifiers || !modifiers.no_row_add
+        }
+      }
+      return true
+    })
 
     // 表体行点击
     const onCellClick: VxeTableEvents.CellClick = ({ row }) => {
@@ -78,8 +89,7 @@ export default defineComponent({
           name: 'view',
           query: Object.assign({}, route.query, {
             subModel: record.model,
-            subId: row.id,
-            readonly: isReadonly.value ? 1 : 0
+            subId: row.id
           })
         })
       }
@@ -114,7 +124,8 @@ export default defineComponent({
       const commandInfo = {
         type,
         recordID: curRecord.value.id,
-        fieldName: props.field?.name
+        fieldName: props.field?.name,
+        isReadonly: isReadonly.value
       }
       sessionStorage.setItem(sessionStorageKeys.x2manyCommand, JSON.stringify(commandInfo))
     }
@@ -128,6 +139,7 @@ export default defineComponent({
       isMany2Many,
       isReadonly,
       rawValue,
+      showAddBtn,
       columns,
       tableData,
       onCellClick,

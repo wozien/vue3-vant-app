@@ -452,6 +452,7 @@ function calcButtons(
 
     for (let button of buttons) {
       if (button.mode !== mode) continue
+      // no_row_remove 处理， 隐藏行删除按钮
       // 这里不能直接用button, 因为修改children只影响原数据
       const canButton = Object.assign({}, button)
       if (canButton.invisible) {

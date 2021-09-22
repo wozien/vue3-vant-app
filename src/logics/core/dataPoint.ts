@@ -582,6 +582,9 @@ const _evalModifiers = (element: DataPoint, modifiers: any) => {
   if ('required' in modifiers) {
     result.required = evalModifier(modifiers.required)
   }
+  if ('no_row_add' in modifiers) {
+    result.no_row_add = evalModifier(modifiers.no_row_add)
+  }
   return result as Record<ModifierKey, boolean>
 }
 
@@ -1977,11 +1980,6 @@ export const canBeSaved = (record?: DataPoint): boolean => {
     record = get(rootID)
   }
 
-  // TODO 根据不同type判断
-  function isSet(data: { type: string; value: any }) {
-    return data.type === 'boolean' || (data.value !== false && data.value != null)
-  }
-
   function checkRecord(record: DataPoint): boolean {
     const { fieldsInfo, data } = record
     let valid = true
@@ -2088,6 +2086,14 @@ export const isNew = (id: DataPointId) => {
     return false
   }
   return true
+}
+
+/**
+ * 判断是否设置了值
+ */
+export const isSet = (data: { type: string; value: any }) => {
+  // TODO 根据不同type判断
+  return data.type === 'boolean' || (data.value !== false && data.value != null)
 }
 
 /**

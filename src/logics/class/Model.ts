@@ -29,26 +29,9 @@ class Model {
     this.type = modelObj.type
     this.keyNameMap = {}
     this.fields = modelObj.fields.map(f => {
-      const field = new Field(f)
       const odooField = modelObj.odoo_fields[f.name]
+      const field = new Field(f, odooField)
       this.keyNameMap[f.key] = f.name
-      if (odooField) {
-        // 翻译的处理
-        field.string = odooField.string
-        odooField.flex && (field.flex = true)
-        odooField.selection && (field.selection = odooField.selection)
-        odooField.domain && (field.domain = odooField.domain)
-        odooField.digits && (field.digits = odooField.digits)
-
-        // 携带字段
-        if (field.type === 'related') {
-          field.type = odooField.type
-          field.relation = odooField.relation
-        }
-        if (field.type === 'one2many') {
-          field.relation_field = odooField.relation_field
-        }
-      }
       return field
     })
   }

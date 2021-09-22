@@ -45,6 +45,7 @@
 
 <script lang="ts">
 import { defineComponent, computed } from 'vue'
+import { useRoute } from 'vue-router'
 import useFieldCommon, { fieldCommonProps } from '@/hooks/component/useField'
 import { getFieldComponent } from '@/components/odoo-field'
 
@@ -56,6 +57,7 @@ export default defineComponent({
   },
 
   setup(props) {
+    const route = useRoute()
     const {
       string,
       placeholder,
@@ -74,7 +76,7 @@ export default defineComponent({
     const itemClass = computed(() => ({
       'form-item-field': true,
       [`form-item-${type.value}`]: type.value === 'one2many',
-      'form-item-readonly': props.mode === 'edit' && isReadonly.value
+      'form-item-readonly': route.query.readonly === '0' && isReadonly.value
     }))
     const Component = computed(() => {
       if (props.field && props.item) {

@@ -1,11 +1,11 @@
 import { find } from 'lodash-es'
-import { defineComponent, defineAsyncComponent, ref, watchEffect, computed, Ref } from 'vue'
+import { defineComponent, defineAsyncComponent, ref, watchEffect, computed } from 'vue'
 import { useStore } from '@/store'
 import { getApp } from '@/logics/class/App'
 import { Fields } from '@/logics/types'
 import ViewItem from '@/logics/class/ViewItem'
 import { uuid } from '@/utils'
-import { findDataPoint, getEvalContext } from '@/logics/core/dataPoint'
+import { findDataPoint, getEvalContext, isSet } from '@/logics/core/dataPoint'
 import useExpose from '@/hooks/core/useExpose'
 
 const FormField = defineAsyncComponent(() => import('@/views/form/FormField.vue'))
@@ -28,7 +28,6 @@ export default defineComponent({
     const items = ref<(ViewItem | null)[]>([])
     const curRecord = computed(() => store.getters.curRecord)
     const fields = getFields(curRecord.value.model as string) as Fields
-    let FieldCompRefs: Ref<any>[] = []
 
     watchEffect(() => {
       if (props.flexFields.length) {
@@ -66,17 +65,22 @@ export default defineComponent({
     })
 
     const getChanges = () => {
+      if (!curRecord.value) return {}
+
       const names = [] as any
       const flex = {} as any
+      const { fieldsInfo, data } = curRecord.value
       const evalContext = getEvalContext(curRecord.value.id)
-      items.value.forEach((item: any, index: number) => {
-        const compRef = FieldCompRefs[index]
-        if (item && compRef.value && compRef.value.isSet()) {
-          const field = find(fields, (f: any) => f.key === item.fieldKey)
-          if (field) {
+      items.value.forEach((item: any) => {
+        if (item) {
+          const field = find(fieldsInfo, (f: any) => f.fieldKey === item.fieldKey)
+          if (!field) return
+
+          const value = data[field.name]
+          if (isSet({ type: field.type, value })) {
             flex[field.name] = evalContext[field.name]
+            names.push(`${field.string}:${value}`)
           }
-          names.push(`${compRef.value.string}:${compRef.value.value}`)
         }
       })
       return {
@@ -88,12 +92,10 @@ export default defineComponent({
 
     const renderItems = () => {
       const templates = [] as any
-      FieldCompRefs = []
       items.value.forEach((item: ViewItem | null) => {
         if (item) {
           const field = find(fields, (f: any) => f.key === item.fieldKey)
           const compRef = ref(null)
-          FieldCompRefs.push(compRef)
           templates.push(<FormField item={item} field={field} mode="edit" ref={compRef} />)
         }
       })
