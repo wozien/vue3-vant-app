@@ -1,4 +1,4 @@
-import { find } from 'lodash-es'
+import { find, isObject } from 'lodash-es'
 import { defineComponent, defineAsyncComponent, ref, watchEffect, computed } from 'vue'
 import { useStore } from '@/store'
 import { getApp } from '@/logics/class/App'
@@ -76,9 +76,12 @@ export default defineComponent({
           const field = find(fieldsInfo, (f: any) => f.fieldKey === item.fieldKey)
           if (!field) return
 
-          const value = data[field.name]
+          let value = data[field.name]
           if (isSet({ type: field.type, value })) {
             flex[field.name] = evalContext[field.name]
+            if (isObject(value)) {
+              value = (value as any).data.display_name // m2o
+            }
             names.push(`${field.string}:${value}`)
           }
         }
