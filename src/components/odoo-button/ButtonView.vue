@@ -771,7 +771,8 @@ function handleFlowConsult(action: any) {
       cb(true)
       return
     }
-    const res = await flowCirculate(selected, Object.assign(action.context || {}, getFlowParams()))
+    const billData = action.args[0]?.billData[0]
+    const res = await flowCirculate(selected, Object.assign(action.context || {}, billData))
     if (res.ret === 0) {
       Toast('传阅成功')
       cb()

@@ -14,8 +14,7 @@
             >{{ item.name }}</van-tag
           >
         </div>
-        <p v-else class="no-data">暂无数据</p>
-        <div class="list-container">
+        <div class="list-container" v-if="Object.keys(members).length">
           <van-index-bar
             :index-list="Object.keys(members)"
             highlight-color="#1989fa"
@@ -32,6 +31,7 @@
             </template>
           </van-index-bar>
         </div>
+        <van-empty v-else description="暂无数据" />
       </van-tab>
 
       <van-tab title="角色" name="role">
@@ -47,8 +47,7 @@
             >{{ item.name }}</van-tag
           >
         </div>
-        <p v-else class="no-data">暂无数据</p>
-        <div class="list-container">
+        <div class="list-container" v-if="Object.keys(roles).length">
           <van-index-bar :index-list="Object.keys(roles)" highlight-color="#1989fa" :sticky="false">
             <template v-for="(list, letter) in roles" :key="letter">
               <van-index-anchor :index="letter" />
@@ -61,6 +60,7 @@
             </template>
           </van-index-bar>
         </div>
+        <van-empty v-else description="暂无数据" />
       </van-tab>
     </van-tabs>
   </div>
