@@ -44,7 +44,7 @@ export default defineComponent({
         res[key] = val
         return res
       }, {})
-      return getDomain(values, searchItems.value)
+      return getDomain(values, searchItems.value, 'OR')
     }
 
     watch(searchValue, val => {

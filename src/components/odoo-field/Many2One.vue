@@ -43,6 +43,7 @@ import { fetchMany2OneData } from '@/api/record'
 import { getDomain, DataPoint, getRecordData } from '@/logics/core/dataPoint'
 import useToast from '@/hooks/component/useToast'
 import { isObject } from 'lodash-es'
+import Context from '@/logics/odoo/Context'
 
 export default defineComponent({
   props: {
@@ -146,6 +147,9 @@ function useModal({ field, item }: FieldCommonPropsType, curRecord: Ref<any>) {
   const loadData = async () => {
     let relation,
       context = Object.create(null)
+    if (item.attrs.context) {
+      context = new Context(item.attrs.context).eval()
+    }
     if (item.widget === 'pschar2one') {
       relation = 'ps.char2one.model'
       const depend_field = item.attrs.depend_field

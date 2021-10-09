@@ -44,6 +44,7 @@ import {
 import { sessionStorageKeys } from '@/logics/enums/cache'
 import Domain from '@/logics/odoo/Domain'
 import Context from '../odoo/Context'
+import { Toast } from 'vant'
 
 // -----  private methods  ----------
 
@@ -1607,6 +1608,11 @@ const _performOnChange = async (record: DataPoint, fields: string[] | string, op
       record._domains = Object.assign(result.domain || {}, record._domains)
     }
 
+    // warning
+    if (result.warning) {
+      Toast(result.warning?.message)
+    }
+
     await _applyOnChange(result.value, record)
     return result
   }
@@ -2203,6 +2209,14 @@ export const getRecordData = (id: DataPointId, fieldName: string) => {
   } else {
     return value
   }
+}
+
+/**
+ * 获取单据状态
+ * @returns
+ */
+export const getRecordState = () => {
+  return getRecordData(rootID, 'state')
 }
 
 /**
