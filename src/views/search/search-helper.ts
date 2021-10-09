@@ -72,7 +72,8 @@ export const getDefaultValues = () => {
  */
 export const getDomain = <T extends Pick<SearchItem, 'name' | 'type'>>(
   values: Recordable,
-  searchItems: Array<T>
+  searchItems: Array<T>,
+  operator = 'AND'
 ) => {
   const domains = []
   for (let item of searchItems) {
@@ -98,5 +99,5 @@ export const getDomain = <T extends Pick<SearchItem, 'name' | 'type'>>(
     domains.push(arrayToString(domain))
   }
 
-  return stringToArray(pyUtils.assembleDomains(domains, 'AND'))
+  return stringToArray(pyUtils.assembleDomains(domains, operator as any))
 }

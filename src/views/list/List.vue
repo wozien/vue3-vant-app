@@ -92,7 +92,7 @@ export default defineComponent({
     })
     const searchBarFields = computed(() => {
       const res = ['create_uid']
-      if (props.fields && 'bill_number' in props.fields) res.push('bill_number')
+      if (props.fields && 'number' in props.fields) res.push('number')
       return res
     })
     const canCreate = computed(() => {

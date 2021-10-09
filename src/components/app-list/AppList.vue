@@ -1,6 +1,6 @@
 <template>
   <div class="app-list">
-    <div v-for="item in list" :key="item.id" class="app" @click="onClickApp(item)">
+    <div v-for="item in appData" :key="item.id" class="app" @click="onClickApp(item)">
       <div class="img-wrapper">
         <img class="img" :src="item.icon" />
       </div>
@@ -29,7 +29,7 @@ export default defineComponent({
     appData: Array as PropType<AppRaw[]>
   },
 
-  setup(props) {
+  setup() {
     const viewNavigator = useViewNavigator()
 
     const onClickApp = async ({ id, action_id: actionId, model_key: modelKey }: AppRaw) => {
@@ -47,7 +47,6 @@ export default defineComponent({
     }
 
     return {
-      list: props.appData,
       onClickApp
     }
   }

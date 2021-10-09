@@ -79,6 +79,7 @@ import {
   evalModifiers,
   getContext,
   getRecordId,
+  getRecordState,
   canBeSaved
 } from '@/logics/core/dataPoint'
 import { sessionStorageKeys } from '@/logics/enums/cache'
@@ -458,6 +459,11 @@ function calcButtons(
       if (canButton.invisible) {
         const modifier = evalModifiers(curRecordId, { invisible: canButton.invisible })
         if (!modifier || !modifier.invisible) {
+          addButton(canButton)
+        }
+      } else if (button.funcName === 'insertLine' || button.funcName === 'copyLine') {
+        const state = getRecordState()
+        if (['submit', 'audit'].includes(state) === false) {
           addButton(canButton)
         }
       } else {
