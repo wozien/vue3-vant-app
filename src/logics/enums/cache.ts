@@ -13,3 +13,8 @@ export const enum sessionStorageKeys {
 }
 
 export const DEFAULT_DIGIT = 2
+
+export const getCommandCache = () => {
+  const cache = sessionStorage.getItem(sessionStorageKeys.x2manyCommand)
+  return JSON.parse(cache || '{}')
+}

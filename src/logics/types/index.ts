@@ -13,7 +13,13 @@ type DomainCondition = [string, DomainOpertor, number | string]
 export type DomainArr = Array<DomainContionOpt | DomainCondition>
 
 // modifiers
-export type ModifierKey = 'readonly' | 'required' | 'invisible' | 'column_invisible' | 'no_row_add'
+export type ModifierKey =
+  | 'readonly'
+  | 'required'
+  | 'invisible'
+  | 'column_invisible'
+  | 'no_row_add'
+  | 'no_row_remove'
 export type Modifiers = {
   [key in ModifierKey]?: Boolean | DomainArr
 }

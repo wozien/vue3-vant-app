@@ -1,6 +1,6 @@
 <template>
   <!-- group -->
-  <div class="form-item-group" v-if="type === 'group'">
+  <div class="form-item-group" v-if="type === 'group' || type === 'div'">
     <h2 class="group-header" v-if="renderItem.string" @click="toggle">
       <span class="string">{{ renderItem.string }}</span>
       <van-icon

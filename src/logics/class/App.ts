@@ -133,8 +133,8 @@ class App {
     parentObj = parentObj || this.fieldsInfo
 
     for (let view of views) {
+      if (!view.items.length) continue
       const model = this.getModel(view.model)
-
       if (model) {
         const fieldsInfo = {} as FieldsInfo
         findTree(
@@ -182,7 +182,9 @@ class App {
         info.precision = item.options.precision
       } else if (field.options?.precision) {
         const precision = field.options.precision
-        info.precision = [precision[0], this._getFieldNames(precision[1])]
+        if (precision.length > 2) {
+          info.precision = [precision[0], this._getFieldNames(precision[1])]
+        }
       }
     }
 

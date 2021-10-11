@@ -1673,6 +1673,7 @@ const _processX2ManyCommands = (record: DataPoint, fieldName: string, commands: 
       })
 
       list._changes.push({ operation: 'ADD', id: r.id })
+      list._cache[r.res_id] = r.id
 
       each(_getFieldsName(r), fieldName => {
         r.data[fieldName] = null
@@ -1680,7 +1681,7 @@ const _processX2ManyCommands = (record: DataPoint, fieldName: string, commands: 
 
       r._changes = defaults(value[2], r.data)
       for (let fieldName in r._changes) {
-        if (!(fieldName in r._changes)) continue
+        if (!r._changes[fieldName]) continue
 
         if (fieldName in r.fieldsInfo) {
           const field = r.fieldsInfo[fieldName]
@@ -1919,12 +1920,7 @@ export const copyRecord = async (recordID: DataPointId, defaultTemplate?: any) =
 
   each(data, (value, fieldName) => {
     const field = fieldsInfo[fieldName]
-    if (
-      fieldName === 'id' ||
-      fieldName === 'state' ||
-      fieldName === 'number' ||
-      field.copy === false
-    ) {
+    if (fieldName === 'id' || fieldName === 'state' || field.copy === false) {
       changes[fieldName] = data[fieldName] = defaultData[fieldName] || false
     } else if (field.type === 'one2many') {
       defs.push(_copyX2ManyRecord(value, defaultTemplate))

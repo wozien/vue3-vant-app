@@ -76,6 +76,18 @@ export default defineComponent({
       return true
     })
 
+    const showDelBtn = computed(() => {
+      if (props.item) {
+        const { no_row_remove } = props.item.attrs
+        if (no_row_remove?.checked) {
+          const value = no_row_remove.domain?.length ? no_row_remove.domain : true
+          const modifiers = evalModifiers(curRecord.value?.id, { no_row_remove: value })
+          return !modifiers || !modifiers.no_row_remove
+        }
+      }
+      return false
+    })
+
     // 表体行点击
     const onCellClick: VxeTableEvents.CellClick = ({ row }) => {
       // m2m 字段暂时只给查看
@@ -125,7 +137,9 @@ export default defineComponent({
         type,
         recordID: curRecord.value.id,
         fieldName: props.field?.name,
-        isReadonly: isReadonly.value
+        isReadonly: isReadonly.value,
+        showAddBtn: showAddBtn.value,
+        showDelBtn: showDelBtn.value
       }
       sessionStorage.setItem(sessionStorageKeys.x2manyCommand, JSON.stringify(commandInfo))
     }

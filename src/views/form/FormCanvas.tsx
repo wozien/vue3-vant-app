@@ -34,8 +34,8 @@ const FormCanvas = defineComponent({
 
       switch (item.widget) {
         case 'statusbar':
-        case 'div':
           return null
+        case 'div':
         case 'group':
         case 'page':
           return (

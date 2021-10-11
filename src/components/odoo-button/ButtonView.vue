@@ -82,7 +82,7 @@ import {
   getRecordState,
   canBeSaved
 } from '@/logics/core/dataPoint'
-import { sessionStorageKeys } from '@/logics/enums/cache'
+import { sessionStorageKeys, getCommandCache } from '@/logics/enums/cache'
 import { deleteRecord } from '@/api/record'
 import { useViewNavigator, Navigator } from '@/hooks/component/useView'
 
@@ -299,8 +299,12 @@ export default defineComponent({
         .then(async () => {
           const res = await deleteRecord(record.model, record.res_id, action.context)
           if (res.ret === 0) {
-            Toast('删除成功')
-            viewNavigator.back()
+            if (res.data?.notify_toast) {
+              Toast(res.data.notify_toast.message)
+            } else {
+              Toast('删除成功')
+              viewNavigator.back()
+            }
           }
         })
         .catch(() => {})
@@ -464,6 +468,16 @@ function calcButtons(
       } else if (button.funcName === 'insertLine' || button.funcName === 'copyLine') {
         const state = getRecordState()
         if (['submit', 'audit'].includes(state) === false) {
+          addButton(canButton)
+        }
+      } else if (button.funcName === 'newLine' || button.funcName === 'deleteLine') {
+        // 行新增和行删除按钮要根据o2m字段状态
+        const command = getCommandCache()
+        if (
+          !command.isReadonly &&
+          ((button.funcName === 'newLine' && command.showAddBtn) ||
+            (button.funcName === 'deleteLine' && command.showDelBtn))
+        ) {
           addButton(canButton)
         }
       } else {

@@ -27,7 +27,7 @@ export default defineComponent({
     const store = useStore()
     const items = ref<(ViewItem | null)[]>([])
     const curRecord = computed(() => store.getters.curRecord)
-    const fields = getFields(curRecord.value.model as string) as Fields
+    const fields = getFields(curRecord.value?.model as string) as Fields
 
     watchEffect(() => {
       if (props.flexFields.length) {
