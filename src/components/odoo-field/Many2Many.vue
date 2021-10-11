@@ -46,6 +46,7 @@ import useFieldCommon, { fieldCommonProps } from '@/hooks/component/useField'
 import { getDomain } from '@/logics/core/dataPoint'
 import { fetchMany2OneData } from '@/api/record'
 import One2Many from './One2Many.vue'
+import { Toast } from 'vant'
 
 export default defineComponent({
   components: {
@@ -94,14 +95,20 @@ export default defineComponent({
     const onClick = async () => {
       if (isReadonly.value) return
       await loadData()
-      state.showPicker = true
+      if (state.columns.length) {
+        state.showPicker = true
+      } else {
+        Toast(`暂无${string.value}数据`)
+      }
     }
 
     const onConfirm = (item: any) => {
-      setValue({
-        operation: 'ADD_M2M',
-        ids: pick(item, ['id', 'display_name'])
-      })
+      if (item) {
+        setValue({
+          operation: 'ADD_M2M',
+          ids: pick(item, ['id', 'display_name'])
+        })
+      }
       state.showPicker = false
     }
 

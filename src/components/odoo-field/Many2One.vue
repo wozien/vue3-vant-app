@@ -40,7 +40,7 @@
 import { defineComponent, reactive, toRefs, Ref, computed, watch } from 'vue'
 import useFieldCommon, { fieldCommonProps, FieldCommonPropsType } from '@/hooks/component/useField'
 import { fetchMany2OneData } from '@/api/record'
-import { getDomain, DataPoint, getRecordData } from '@/logics/core/dataPoint'
+import { getDomain, DataPoint, getRecordData, getEvalContext } from '@/logics/core/dataPoint'
 import useToast from '@/hooks/component/useToast'
 import { isObject } from 'lodash-es'
 import Context from '@/logics/odoo/Context'
@@ -140,15 +140,16 @@ function useModal({ field, item }: FieldCommonPropsType, curRecord: Ref<any>) {
   })
 
   const onOpenModal = async () => {
-    state.showModal = true
-    await loadData()
+    const res = await loadData()
+    res && (state.showModal = true)
   }
 
   const loadData = async () => {
     let relation,
       context = Object.create(null)
     if (item.attrs.context) {
-      context = new Context(item.attrs.context).eval()
+      const evalContext = getEvalContext(curRecord.value.id)
+      context = new Context(item.attrs.context).set_eval_context(evalContext).eval()
     }
     if (item.widget === 'pschar2one') {
       relation = 'ps.char2one.model'
@@ -168,7 +169,7 @@ function useModal({ field, item }: FieldCommonPropsType, curRecord: Ref<any>) {
       relation = field.relation as string
       // 筛选函数
       let { depend_fields, depend_method } = item.attrs
-      if (item.attrs.method && item.attrs.method.checked) {
+      if (!depend_fields && item.attrs.method && item.attrs.method.checked) {
         depend_fields = item.attrs.method.depend_fields
         depend_method = item.attrs.method.depend_method
       }
@@ -199,6 +200,7 @@ function useModal({ field, item }: FieldCommonPropsType, curRecord: Ref<any>) {
       domain.value,
       context
     )
+    toast.clear()
     if (res.ret === 0) {
       state.list = res.data.map((item: any) => {
         return {
@@ -206,8 +208,9 @@ function useModal({ field, item }: FieldCommonPropsType, curRecord: Ref<any>) {
           display_name: item[1]
         }
       })
+      return true
     }
-    toast.clear()
+    return false
   }
 
   watch(
