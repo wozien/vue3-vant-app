@@ -7,6 +7,7 @@
     :required="isRequired"
     :readonly="isReadonly"
     @change="setNumberValue"
+    @clear="setNumberValue"
     clearable
     center
   />

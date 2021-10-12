@@ -253,7 +253,7 @@ export default defineComponent({
               return
             }
 
-            if (!canBeSaved(curRecord.value) && isEdit) {
+            if (isEdit && !canBeSaved(curRecord.value.id)) {
               // 点击浏览器后退, 行保存和删除行不用提示
               const bool = await Dialog.confirm({
                 message: '表体存在必录项未填，是否确定返回表头?',

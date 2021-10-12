@@ -1605,7 +1605,7 @@ const _performOnChange = async (record: DataPoint, fields: string[] | string, op
   if (res.ret === 0) {
     const result = res.data
     if (result.domain) {
-      record._domains = Object.assign(result.domain || {}, record._domains)
+      record._domains = Object.assign({}, record._domains, result.domain)
     }
 
     // warning
@@ -1977,10 +1977,8 @@ export const copyLine = async (list: DataPoint, id: DataPointId) => {
  * @param record
  * @returns
  */
-export const canBeSaved = (record?: DataPoint): boolean => {
-  if (!record) {
-    record = get(rootID)
-  }
+export const canBeSaved = (recordID?: DataPointId): boolean => {
+  const record = get(recordID || rootID)
 
   function checkRecord(record: DataPoint): boolean {
     const { fieldsInfo, data } = record
