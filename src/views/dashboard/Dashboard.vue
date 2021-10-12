@@ -45,32 +45,6 @@
     </div>
 
     <TabBar active="dashboard" />
-
-    <!-- <div class="camera-btn">
-      <van-uploader capture="camera" :after-read="onCameraScan">
-        <i class="ins-icon ins-icon-camera" />
-      </van-uploader>
-    </div> -->
-
-    <!-- <Modal v-model:show="showScanModal" :hideCancel="true" @confirm="onCameraConfirm">
-      <van-empty description="暂无识别匹配结果" v-if="!scanList.length"></van-empty>
-      <p class="scan-result-count" v-if="scanList.length">
-        {{ `我们为您找到了${scanList.length}个相似的商品` }}
-      </p>
-      <div class="scan-list">
-        <div
-          class="scan-list-item"
-          v-for="(item, index) in scanList"
-          :key="index"
-          @click="previewImages(index)"
-        >
-          <img :src="item.url" class="scan-result" />
-          <span class="scan-simi" :class="item.similarity < 65 && 'lower'">{{
-            `${item.similarity}%相似`
-          }}</span>
-        </div>
-      </div>
-    </Modal> -->
   </div>
 </template>
 
@@ -105,7 +79,6 @@ export default defineComponent({
     })
     const greet = useGreet()
     const { appData, reportData } = useUsually()
-    const { showScanModal, scanList, onCameraScan, onCameraConfirm, previewImages } = useCamera()
 
     const onGotoFlow = (type: string) => {
       router.push({
@@ -130,12 +103,7 @@ export default defineComponent({
       greet,
       appData,
       reportData,
-      scanList,
-      showScanModal,
-      onGotoFlow,
-      onCameraScan,
-      onCameraConfirm,
-      previewImages
+      onGotoFlow
     }
   }
 })
@@ -203,6 +171,7 @@ function useUsually() {
   }
 }
 
+// eslint-disable-next-line
 function useCamera() {
   const { toast } = useToast()
   const oldTitle = document.title

@@ -182,7 +182,7 @@ class App {
         info.precision = item.options.precision
       } else if (field.options?.precision) {
         const precision = field.options.precision
-        if (precision.length > 2) {
+        if (precision.length >= 2) {
           info.precision = [precision[0], this._getFieldNames(precision[1])]
         }
       }
