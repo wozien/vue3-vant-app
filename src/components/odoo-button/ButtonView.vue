@@ -319,7 +319,7 @@ export default defineComponent({
     }
     // 行保存
     const onSaveLine = () => {
-      if (!canBeSaved(curRecord.value)) {
+      if (!canBeSaved(curRecord.value.id)) {
         Toast('存在必录项未填')
         return
       }
@@ -337,7 +337,7 @@ export default defineComponent({
     }
     // 保存并新增
     const onNewLine = async (rowIndex?: number) => {
-      if (!canBeSaved(curRecord.value)) {
+      if (!canBeSaved(curRecord.value.id)) {
         Toast('存在必录项未填')
         return
       }

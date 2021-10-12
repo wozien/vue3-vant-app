@@ -39,6 +39,7 @@
       clearable
       center
       @change="setValue(value)"
+      @clear="setValue(value)"
     />
   </div>
 </template>
