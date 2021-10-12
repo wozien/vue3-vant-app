@@ -60,7 +60,7 @@ export default defineComponent({
   display: flex;
   flex-wrap: wrap;
   .app {
-    width: 80px;
+    width: calc(100% / 4);
     margin-bottom: 20px;
     .column-flex;
     .img-wrapper {

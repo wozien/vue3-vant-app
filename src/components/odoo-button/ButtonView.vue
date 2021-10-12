@@ -299,10 +299,9 @@ export default defineComponent({
         .then(async () => {
           const res = await deleteRecord(record.model, record.res_id, action.context)
           if (res.ret === 0) {
-            if (res.data?.notify_toast) {
-              Toast(res.data.notify_toast.message)
-            } else {
-              Toast('删除成功')
+            const { notify_toast } = res.data
+            Toast(notify_toast?.message || '删除成功')
+            if (notify_toast?.type === 'success') {
               viewNavigator.back()
             }
           }

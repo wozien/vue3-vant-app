@@ -82,8 +82,8 @@ function useLogin() {
       const { code, login_failed_times, refresh_image_code } = res.error as any
       if (refresh_image_code === 1 && showCode.value) loadImageCode()
 
-      if (code === 400) {
-        showCode.value = login_failed_times >= 3
+      if (code === 400 && login_failed_times >= 3) {
+        showCode.value = true
       } else if (code === 403) {
         showCode.value = false
       }

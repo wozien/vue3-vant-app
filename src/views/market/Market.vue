@@ -86,6 +86,7 @@ export default defineComponent({
 
     onActivated(() => {
       if (!loading.value) loadData()
+      state.searchValue = ''
     })
 
     return {
