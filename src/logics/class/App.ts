@@ -167,7 +167,7 @@ class App {
       fieldKey: field.key,
       type: field.type,
       name: field.name,
-      string: item?.string || field.string
+      string: item?.string && /[\u4e00-\u9fa5]/.test(item.string) ? item.string : field.string
     }
     field.relation && (info.relation = field.relation)
     field.selection && (info.selection = field.selection)
@@ -307,9 +307,11 @@ export const cleanAppCache = (appKey?: string) => {
  * @param appKey
  * @returns
  */
-export const getContext = (appKey?: string) => {
+export const getContext = (appKey?: string, needActionContext = false) => {
   const app = getApp(appKey)
-  return app ? Object.assign({}, app.action?.context || {}, store.state.user.context) : {}
+  const actionContext = (needActionContext && app.action?.context) || {}
+  // action context ?
+  return app ? Object.assign({}, actionContext, store.state.user.context) : {}
 }
 
 export default App

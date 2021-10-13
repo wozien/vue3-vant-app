@@ -20,6 +20,7 @@ fieldResitrys.set('reference', FieldReference)
 fieldResitrys.set('many2many', FieldMany2Many)
 fieldResitrys.set('many2many_tags', FieldMany2Many)
 fieldResitrys.set('one2many', FieldOn2Many)
+fieldResitrys.set('more_one2many', FieldOn2Many)
 fieldResitrys.set('flex_dropdown', FieldFlexDrop)
 fieldResitrys.set('pschar2one', FieldMany2One)
 

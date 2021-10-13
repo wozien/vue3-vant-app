@@ -517,6 +517,7 @@ async function handleServiceAction(action: Action, button: ViewButton, viewNavig
     if (notify_toast.type === 'success') {
       reload = true
     }
+    // TODO notify_dialog 类型
   } else if (action.type === 'ir.actions.act_window') {
     // 返回向导视图
     if (button.isFlow) {

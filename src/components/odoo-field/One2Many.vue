@@ -85,7 +85,7 @@ export default defineComponent({
           return !modifiers || !modifiers.no_row_remove
         }
       }
-      return false
+      return true
     })
 
     // 表体行点击
@@ -154,6 +154,7 @@ export default defineComponent({
       isReadonly,
       rawValue,
       showAddBtn,
+      showDelBtn,
       columns,
       tableData,
       onCellClick,
