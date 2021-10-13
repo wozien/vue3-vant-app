@@ -16,6 +16,7 @@
       v-model="dateValue"
       :type="type"
       :formatter="formatter"
+      :min-date="minDate"
       @cancel="showPicker = false"
       @confirm="onConfirm"
     />
@@ -28,17 +29,16 @@ import useFieldCommon, { fieldCommonProps } from '@/hooks/component/useField'
 
 export default defineComponent({
   props: {
-    ...fieldCommonProps,
+    ...fieldCommonProps
   },
 
   setup(props) {
-    const { string, placeholder, type, value, rawValue, isRequired, setValue } = useFieldCommon(
-      props
-    )
+    const { string, placeholder, type, value, rawValue, isRequired, setValue } =
+      useFieldCommon(props)
     const state = reactive({
       showPicker: false,
       columns: [] as string[],
-      dateValue: new Date(),
+      dateValue: new Date()
     })
 
     const onOpen = () => {
@@ -80,12 +80,13 @@ export default defineComponent({
       value,
       rawValue,
       isRequired,
+      minDate: new Date('1950-01-01'),
       ...toRefs(state),
       formatter,
       onOpen,
-      onConfirm,
+      onConfirm
     }
-  },
+  }
 })
 </script>
 

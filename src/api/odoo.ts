@@ -113,7 +113,7 @@ export const searchRead: OdooSearchRead = (options, isOdoo = false) => {
   )
   const url = isOdoo ? '/meta/web/dataset/search_read' : '/meta/mobile/search_read'
 
-  return http.post(url, { ...params, context: getContext() })
+  return http.post(url, { ...params, context: getContext(undefined, true) })
 }
 
 /**

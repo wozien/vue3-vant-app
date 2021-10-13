@@ -21,6 +21,8 @@ import {
   filter,
   defaults,
   isNumber,
+  isArray,
+  isString,
   extend
 } from 'lodash-es'
 import { FieldsInfo, ModifierKey } from '@/logics/types'
@@ -564,6 +566,14 @@ const _evalModifiers = (element: DataPoint, modifiers: any) => {
     }
     evalContext = evalContext || _getEvalContext(element)
     try {
+      // 设计器的in是json字符串
+      if (isArray(mod)) {
+        each(mod, (condition: any) => {
+          if (isArray(condition) && condition[1] === 'in' && isString(condition[2])) {
+            condition[2] = JSON.parse(condition[2])
+          }
+        })
+      }
       return (new Domain(mod, evalContext) as any).compute(evalContext)
     } catch (e) {
       if (import.meta.env.DEV) console.error(e)
@@ -585,6 +595,9 @@ const _evalModifiers = (element: DataPoint, modifiers: any) => {
   }
   if ('no_row_add' in modifiers) {
     result.no_row_add = evalModifier(modifiers.no_row_add)
+  }
+  if ('no_row_remove' in modifiers) {
+    result.no_row_remove = evalModifier(modifiers.no_row_remove)
   }
   return result as Record<ModifierKey, boolean>
 }
