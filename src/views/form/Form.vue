@@ -30,7 +30,12 @@
       </div>
     </div>
     <div class="form-canvas" :style="{ height: height + 'px' }" ref="canvasRef">
-      <FormCanvas :items="curView && curView.items" :fields="fields" ref="formRef" />
+      <FormCanvas
+        :items="curView && curView.items"
+        :is-virtual="curView && curView.isVirtual"
+        :fields="fields"
+        ref="formRef"
+      />
     </div>
     <LineSwitcher v-show="showLineSwitcher" />
     <ButtonView :buttons="curView && curView.buttons" ref="btnRef" />

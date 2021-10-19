@@ -21,6 +21,7 @@ class Model {
   name: string
   type: string
   fields: Field[]
+  onChanges: any[]
   keyNameMap: KeyNameMap
 
   constructor(modelObj: StudioModel) {
@@ -28,6 +29,7 @@ class Model {
     this.name = modelObj.name
     this.type = modelObj.type
     this.keyNameMap = {}
+    this.onChanges = modelObj.onchange
     this.fields = modelObj.fields.map(f => {
       const odooField = modelObj.odoo_fields[f.name]
       const field = new Field(f, odooField)

@@ -41,6 +41,7 @@ class View {
   isSubView: boolean
   isLinkView: boolean
   buttons: ViewButton[]
+  isVirtual?: boolean
   options?: any
 
   constructor(viewObj: StudioView) {
@@ -52,6 +53,13 @@ class View {
     this.options = viewObj.options || {}
     this.buttons = this._initButtons(viewObj.buttons)
     this.items = viewObj.mobileItems ? viewObj.mobileItems.map(i => new ViewItem(i)) : []
+
+    if (this.type === 'list') {
+      const { is_virtual } = this.options
+      if (is_virtual?.checked) {
+        this.isVirtual = true
+      }
+    }
   }
 
   _formatOneButton(button: any) {

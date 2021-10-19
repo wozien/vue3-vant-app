@@ -44,6 +44,7 @@ export interface FieldInfo {
   relation?: string
   selection?: [string, string][]
   onChange?: boolean
+  timing?: string[]
   list?: FieldsInfo
   domain?: string
   context?: string
