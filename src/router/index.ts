@@ -1,4 +1,4 @@
-import { createRouter, createWebHistory } from 'vue-router'
+import { createRouter, createWebHashHistory } from 'vue-router'
 import routes from './routes'
 import { LocalStorageKeys } from '@/logics/enums/cache'
 import { baseOauth } from '@/utils/oauth'
@@ -6,7 +6,7 @@ import { isWechatAgent } from '@/utils'
 import { getToken } from '@/api/user'
 
 const router = createRouter({
-  history: createWebHistory(),
+  history: createWebHashHistory(),
   routes,
   scrollBehavior() {
     return { top: 0 }

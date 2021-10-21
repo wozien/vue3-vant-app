@@ -73,10 +73,12 @@
 
 <script lang="ts">
 import { defineComponent, ref, onMounted, reactive, computed } from 'vue'
-import { useRouter, useRoute } from 'vue-router'
+import { useRoute } from 'vue-router'
 import { useStore } from '@/store'
 import { fetchCompanyList, switchCompany, createCompany } from '@/api/user'
 import useToast from '@/hooks/component/useToast'
+
+const { VITE_VERSION: version } = import.meta.env
 
 interface Company {
   name: string
@@ -84,13 +86,13 @@ interface Company {
   oauthUrl: string
   expire: boolean
   invitation: boolean
+  appVersion: string
 }
 
 export default defineComponent({
   setup() {
     const companyList = ref<Company[]>([])
     const active = ref('')
-    const router = useRouter()
     const route = useRoute()
     const store = useStore()
     const { toast } = useToast()
@@ -109,14 +111,21 @@ export default defineComponent({
       const res = await fetchCompanyList()
       if (res.ret === 0 && res.data?.length) {
         companyList.value = res.data.map((item: any) => {
-          const { db_name, oauth2_login_url, company_name, expire_date, is_accept_invitation } =
-            item
+          const {
+            db_name,
+            oauth2_login_url,
+            company_name,
+            expire_date,
+            is_accept_invitation,
+            app_version
+          } = item
           return {
             name: company_name,
             dbName: db_name,
             oauthUrl: oauth2_login_url,
             expire: isExpire(expire_date),
-            invitation: is_accept_invitation
+            invitation: is_accept_invitation,
+            appVersion: app_version || version
           } as Company
         })
         const len = companyList.value.length
@@ -167,7 +176,13 @@ export default defineComponent({
       const res = await switchCompany(company.dbName, company.oauthUrl)
       toast.clear()
       if (res.ret === 0) {
-        router.push('/dashboard')
+        // router.push('/dashboard')
+        // 多版本切换
+        let url = location.protocol + '//' + location.host
+        if (company.appVersion !== version) {
+          url += '/' + company.appVersion.split('.').join('_')
+        }
+        location.href = url
       }
     }
 
@@ -243,13 +258,14 @@ function useCreateCompany() {
     const res = await createCompany(name, type, size)
     if (res.ret === 0 && res.data.code == 200) {
       toast.clear()
-      const { db_name, oauth2_login_url } = res.data.msg
+      const { db_name, oauth2_login_url, app_version } = res.data.msg
       return {
         name: newCompany.name,
         dbName: db_name,
         oauthUrl: oauth2_login_url,
         expire: false,
-        invitation: false
+        invitation: false,
+        appVersion: app_version || version
       }
     }
   }

@@ -11,3 +11,7 @@ export function wrapperEnv(envConf: Record<string, any>) {
 
   return ret
 }
+
+export function versionDir(viteEnv: Record<string, any>) {
+  return viteEnv['VITE_VERSION'].split('.').join('_')
+}
