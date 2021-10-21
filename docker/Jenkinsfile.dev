@@ -36,6 +36,7 @@ pipeline {
                     sh "yarn config set registry https://registry.npm.taobao.org"
                     sh "yarn"
                     sh "yarn build:dev"
+                    sh "cp dist/index.html dist/v1_3/index.html"
                 }
                 sh "docker build -f ${docker_file_path} -t ${docker_img_name}:${build_tag} ."
             }

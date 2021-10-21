@@ -20,7 +20,8 @@ const FormCanvas = defineComponent({
 
   props: {
     items: Array as PropType<Item[]>,
-    fields: Object as PropType<Fields>
+    fields: Object as PropType<Fields>,
+    isVirtual: Boolean
   },
 
   setup(props) {
@@ -51,7 +52,15 @@ const FormCanvas = defineComponent({
           )
         default:
           if (field && item) {
-            return <FormField item={item} field={field} mode={mode} key={item.key} />
+            return (
+              <FormField
+                item={item}
+                field={field}
+                mode={mode}
+                key={item.key}
+                is-virtual={props.isVirtual}
+              />
+            )
           } else {
             return null
           }

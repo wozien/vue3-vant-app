@@ -29,11 +29,16 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, reactive, toRefs, watch, watchEffect, computed } from 'vue'
+import { defineComponent, reactive, toRefs, watch, computed, onBeforeMount } from 'vue'
 import useFieldCommon, { fieldCommonProps } from '@/hooks/component/useField'
-import { fetchMany2OneData } from '@/api/record'
-import { getDomain } from '@/logics/core/dataPoint'
+import { fetchMany2OneData, fetchSelection } from '@/api/record'
+import { getDomain, getContext } from '@/logics/core/dataPoint'
 import useToast from '@/hooks/component/useToast'
+import Domain from '@/logics/odoo/Domain'
+import pyUtils from '@/logics/odoo/py_utils'
+
+const arrayToString = Domain.prototype.arrayToString
+const stringToArray = Domain.prototype.stringToArray
 
 export default defineComponent({
   props: {
@@ -41,13 +46,39 @@ export default defineComponent({
   },
 
   setup(props) {
+    const state = reactive({
+      showModal: false,
+      searchValue: '',
+      models: [] as any[],
+      activeId: -1,
+      mainActiveId: 0,
+      items: [] as any[]
+    })
     const { string, placeholder, value, rawValue, isRequired, curRecord, setValue } =
       useFieldCommon(props)
-    const { state, onOpenModal } = useModal(props)
     const { toast } = useToast()
-
     const domain = computed(() => {
-      return curRecord && getDomain(curRecord.value.id, { fieldName: props.field?.name })
+      if (curRecord.value) {
+        const commonDomain = getDomain(curRecord.value.id, { fieldName: props.field?.name })
+        return commonDomain
+      }
+      return []
+    })
+    const selectionDomain = computed(() => {
+      const domain = props.item?.options.selection_domain
+      return (
+        curRecord.value &&
+        getDomain(curRecord.value.id, { fieldName: props.field?.name, domain: domain || [] })
+      )
+    })
+    const context = computed(() => {
+      return (
+        curRecord &&
+        getContext(curRecord.value.id, {
+          viewType: curRecord.value.viewType,
+          fieldName: props.field.name
+        })
+      )
     })
 
     const onConfirm = async (cb: Fn) => {
@@ -73,16 +104,33 @@ export default defineComponent({
     }
 
     const loadData = async () => {
-      const activeModel = state.models[state.mainActiveId]
+      const activeModel = state.models[state.mainActiveId].model
+      let combineDomain = domain.value
+      let specialDomain = props.item?.options.domain
+      if (specialDomain && specialDomain[activeModel]) {
+        specialDomain = getDomain(curRecord.value.id, {
+          fieldName: props.field?.name,
+          domain: specialDomain[activeModel] || []
+        })
+        // 合并公用和私有的domain
+        combineDomain = stringToArray(
+          pyUtils.assembleDomains(
+            [arrayToString(domain.value), arrayToString(specialDomain)],
+            'AND'
+          )
+        )
+      }
+
       toast.loading()
       const res = await fetchMany2OneData(
-        activeModel.model as string,
+        activeModel as string,
         '',
         state.searchValue,
-        domain.value
+        combineDomain,
+        context.value
       )
       state.items.forEach((item: any) => {
-        if (item.model === activeModel.model) {
+        if (item.model === activeModel) {
           item.children = res.data.map((row: any) => {
             const [id, name] = row
             return {
@@ -102,6 +150,43 @@ export default defineComponent({
     const onClickNav = () => {
       state.activeId = -1
       loadData()
+    }
+
+    let params = ''
+    const onOpenModal = async () => {
+      if (props.mode === 'readonly') return
+      const method = props.item.attrs.method
+
+      if (method?.checked && curRecord.value) {
+        const stringDomain = selectionDomain.value ? JSON.stringify(selectionDomain.value) : ''
+
+        // 重复的domain不发请求了
+        if (stringDomain !== params) {
+          const funcName = method.value
+          const res = await fetchSelection(
+            funcName,
+            curRecord.value.model,
+            selectionDomain.value,
+            context.value
+          )
+          if (res.ret === 0) {
+            formatSelection(res.data)
+            params = stringDomain
+          }
+        }
+      }
+      state.showModal = true
+    }
+
+    const formatSelection = (selection: any) => {
+      state.models = []
+      state.items = []
+      selection.forEach(([model, name]: [string, string]) => {
+        if (model && name) {
+          state.models.push({ model, name })
+          state.items.push({ text: name, model, children: [] })
+        }
+      })
     }
 
     watch(
@@ -129,6 +214,12 @@ export default defineComponent({
       () => loadData()
     )
 
+    onBeforeMount(() => {
+      if (props.field?.selection?.length) {
+        formatSelection(props.field.selection)
+      }
+    })
+
     return {
       string,
       placeholder,
@@ -143,38 +234,6 @@ export default defineComponent({
     }
   }
 })
-
-function useModal(props: any) {
-  const state = reactive({
-    showModal: false,
-    searchValue: '',
-    models: [] as any[],
-    activeId: -1,
-    mainActiveId: 0,
-    items: [] as any[]
-  })
-
-  const onOpenModal = async () => {
-    if (props.mode === 'readonly') return
-    state.showModal = true
-  }
-
-  watchEffect(() => {
-    if (props.field?.selection?.length) {
-      props.field.selection.forEach(([model, name]: [string, string]) => {
-        if (model && name) {
-          state.models.push({ model, name })
-          state.items.push({ text: name, model, children: [] })
-        }
-      })
-    }
-  })
-
-  return {
-    state,
-    onOpenModal
-  }
-}
 </script>
 
 <style lang="less" scoped>

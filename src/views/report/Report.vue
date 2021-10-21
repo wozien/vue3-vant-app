@@ -54,7 +54,7 @@ export default defineComponent({
     })
     const showEmpty = computed(() => state.filterList.length === 0 && loading.value === false)
     const description = computed(() => {
-      return state.searchValue ? '暂无搜索结果' : '暂无应用数据'
+      return state.searchValue ? '暂无搜索结果' : '暂无报表数据'
     })
     const emptyImage = computed(() => {
       return state.searchValue ? 'search' : 'default'

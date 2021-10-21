@@ -1519,16 +1519,35 @@ const _getRecordEvalContext = (record: DataPoint, forDomain = false) => {
 const _getDomain = (element: DataPoint, options: any = {}) => {
   const stringToArray = Domain.prototype.stringToArray
   if (options && options.fieldName) {
-    if (element._domains[options.fieldName]) {
-      return stringToArray(element._domains[options.fieldName], _getEvalContext(element, true))
+    const fieldName = options.fieldName
+    if (options.domain) {
+      return stringToArray(options.domain, _getEvalContext(element, true))
     }
-    const field = element.fieldsInfo[options.fieldName]
+    if (element._domains[fieldName]) {
+      return stringToArray(element._domains[fieldName], _getEvalContext(element, true))
+    }
+    const field = element.fieldsInfo[fieldName]
     if (field && field.domain) {
       return stringToArray(field.domain, _getEvalContext(element, true))
     }
-    // TODO 解析字段模型属性上的domain
   }
   return stringToArray(element.domain, _getEvalContext(element, true))
+}
+
+/**
+ * 获取对应onchange触发时机的字段名
+ * @param record
+ * @param timing
+ * @returns
+ */
+const _getTimingFields = (record: DataPoint, timing = 'copy') => {
+  const res = [] as string[]
+  each(record.fieldsInfo, (field, name) => {
+    if (field.timing && field.timing.includes(timing)) {
+      res.push(name)
+    }
+  })
+  return res
 }
 
 /**
@@ -1631,6 +1650,59 @@ const _performOnChange = async (record: DataPoint, fields: string[] | string, op
   }
 
   throw new Error(res.msg)
+}
+
+/**
+ * 根据触发时机，批量onchange
+ * @param record
+ */
+const _performAllOnChanges = async (record: DataPoint) => {
+  let result = [] as any[],
+    header = record,
+    records = [record] as DataPoint[]
+  while (records.length) {
+    let levelRecords = [] as any[]
+    let childRecords = [] as any[]
+
+    each(records, record => {
+      const { id, model, fieldsInfo, viewType, _changes, data } = record
+      let curRecord = find(levelRecords, { model })
+      if (!curRecord) {
+        curRecord = {
+          model,
+          viewType,
+          ids: [],
+          fields: _getTimingFields(record),
+          o2mFields: map(fieldsInfo, (field, name) => {
+            return field.type === 'one2many' ? name : null
+          })
+        }
+        levelRecords.push(curRecord)
+      }
+
+      curRecord.fields.length && curRecord.ids.push(id)
+      each(curRecord.o2mFields, name => {
+        const list = localData[(_changes && _changes[name]) || data[name]]
+        list &&
+          each(list._cache, id => {
+            childRecords.push(localData[id])
+          })
+      })
+
+      result.push(levelRecords)
+      records = childRecords
+    })
+  }
+
+  for (let i = result.length - 1; i >= 0; i--) {
+    const curRecord = result[i]
+    if (i == 0) {
+      const fields = curRecord[0].fields
+      fields.length && (await _performOnChange(header, fields as string[], { from: 'copy' }))
+    } else {
+      // todo 表体批量onchange
+    }
+  }
 }
 
 /**
@@ -1945,8 +2017,8 @@ export const copyRecord = async (recordID: DataPointId, defaultTemplate?: any) =
   await Promise.all(defs)
   record._changes = changes
 
-  // TODO trigger onchange
-
+  // batch trigger onchange
+  isHeader && (await _performAllOnChanges(record))
   return record
 }
 

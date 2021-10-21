@@ -37,7 +37,7 @@ class ViewItem {
     this.fieldType = itemObj.fieldType
     this.fieldKey = itemObj.fieldKey
     this.placeholder = itemObj.placeholder
-    this.domain = itemObj.domain
+    this.domain = itemObj.domain // 后台已经格式化后的字符串格式domain
     this.attrs = itemObj.attrs || {}
     this.options = itemObj.options || {}
     this.items = itemObj.items.map(i => new ViewItem(i))
@@ -76,6 +76,7 @@ class ViewItem {
       if (this._isModifierKey(key)) {
         const value = this.attrs[key] as any
         if (value.checked) {
+          // modifier 的domain是设计器数组格式，不是格式化后的字符串
           this.modifiers[key as ModifierKey] = value.domain?.length ? value.domain : value.checked
         }
       }

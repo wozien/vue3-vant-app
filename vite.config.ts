@@ -1,7 +1,7 @@
 import type { UserConfig, ConfigEnv } from 'vite'
 import { loadEnv } from 'vite'
 import { resolve } from 'path'
-import { wrapperEnv } from './build/utils'
+import { wrapperEnv, versionDir } from './build/utils'
 import { createVitePlugins } from './build/plugin'
 
 function pathResolve(dir: string) {
@@ -44,7 +44,8 @@ export default ({ command, mode }: ConfigEnv): UserConfig => {
       },
       // Turning off brotliSize display can slightly reduce packaging time
       brotliSize: false,
-      chunkSizeWarningLimit: 1200
+      chunkSizeWarningLimit: 1200,
+      assetsDir: `${versionDir(viteEnv)}/assets`
     },
 
     css: {

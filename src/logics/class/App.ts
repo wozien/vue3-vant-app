@@ -109,7 +109,7 @@ class App {
 
   getModel(modelKey?: string) {
     if (this.models) {
-      modelKey = modelKey || this.action?.modelKey || Object.keys(this.models)[0]
+      modelKey = modelKey || this.action?.modelKey || this.modelKey
       return this.models[modelKey]
     }
     return null
@@ -143,7 +143,7 @@ class App {
             if (item.fieldKey) {
               const field = model.getField(item.fieldKey)
               if (!field) return
-              const info = this._getFieldInfo(field, item)
+              const info = this._getFieldInfo(field, item, view.isVirtual)
               fieldsInfo[info.name] = info
             }
           },
@@ -162,18 +162,19 @@ class App {
     }
   }
 
-  _getFieldInfo(field: Field, item?: ViewItem) {
+  _getFieldInfo(field: Field, item?: ViewItem, isVirtualList?: boolean) {
     const info: FieldInfo = {
       fieldKey: field.key,
       type: field.type,
       name: field.name,
-      string: item?.string && /[\u4e00-\u9fa5]/.test(item.string) ? item.string : field.string
+      string: item?.string || field.string
     }
     field.relation && (info.relation = field.relation)
     field.selection && (info.selection = field.selection)
     field.relation_field && (info.relationField = field.relation_field)
     field.domain && (info.domain = field.domain)
     field.modifiers && (info.modifiers = field.modifiers)
+    isVirtualList && (info.string = field.string)
 
     if (field.type === 'float') {
       if (field.options?.related_unit) {
@@ -218,6 +219,7 @@ class App {
         invisible: true
       })
     }
+    this._handleTiming(info)
     return info
   }
 
@@ -251,6 +253,17 @@ class App {
     })
 
     return name
+  }
+
+  _handleTiming(info: FieldInfo) {
+    const model = this.getModel()
+    if (model) {
+      model.onChanges.forEach(({ timing, fieldKey }) => {
+        if (timing && info.fieldKey === fieldKey) {
+          info.timing = timing
+        }
+      })
+    }
   }
 }
 
@@ -307,10 +320,12 @@ export const cleanAppCache = (appKey?: string) => {
  * @param appKey
  * @returns
  */
-export const getContext = (appKey?: string, needActionContext = false) => {
+export const getContext = (appKey?: string, needActionContext = true) => {
   const app = getApp(appKey)
-  const actionContext = (needActionContext && app.action?.context) || {}
-  // action context ?
+  let actionContext = {}
+  if (app?.action && needActionContext) {
+    actionContext = app.action.context
+  }
   return app ? Object.assign({}, actionContext, store.state.user.context) : {}
 }
 

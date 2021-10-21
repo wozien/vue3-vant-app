@@ -22,19 +22,21 @@ export const fieldCommonProps = {
   mode: {
     type: String as PropType<WidgetMode>,
     default: 'readonly'
-  }
+  },
+  isVirtual: Boolean
 }
 
 export type FieldCommonPropsType = Readonly<{
   mode: WidgetMode
   item: Item
   field: Field
+  isVirtual?: boolean
 }>
 
 export default function (props: FieldCommonPropsType) {
   const store = useStore()
   const string = computed(() => {
-    return /[\u4e00-\u9fa5]/.test(props.item.string) ? props.item.string : props.field.string
+    return props.isVirtual ? props.field.string : props.item.string
   })
   const type = computed(() => props.field.type)
   const widget = computed(() => props.item.widget)
