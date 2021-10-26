@@ -204,7 +204,7 @@ class App {
         info.domain = item.domain
       }
       if (!isEmpty(item.modifiers)) {
-        info.modifiers = item.modifiers
+        info.modifiers = Object.assign(info.modifiers || {}, item.modifiers)
       }
       if (item.fieldsToFetch) {
         info.relatedFields = Object.assign({}, item.fieldsToFetch)
